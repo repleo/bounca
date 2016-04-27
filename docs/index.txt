@@ -1,0 +1,4 @@
+Welcome to BounCA documentation!
+=========================================
+
+``BounCA``
