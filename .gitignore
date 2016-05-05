@@ -74,6 +74,7 @@ target/
 # Other
 tmp/
 ci/jenkins.sh
+pki/
 
 # Static
 media/static

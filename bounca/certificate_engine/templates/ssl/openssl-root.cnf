@@ -6,7 +6,7 @@ default_ca = CA_default
 
 [ CA_default ]
 # Directory and file locations.
-dir               = {{ pki_root }}/pki/{{ pki_name }}-ca
+dir               = {{ root_path }}
 certs             = $dir/certs
 crl_dir           = $dir/crl
 new_certs_dir     = $dir/newcerts
@@ -29,7 +29,7 @@ default_md        = sha256
 
 name_opt          = ca_default
 cert_opt          = ca_default
-default_days      = 375
+default_days      = {{ cert.days_valid }}
 preserve          = no
 policy            = policy_strict
 
@@ -77,12 +77,12 @@ commonName                      = Common Name
 emailAddress                    = Email Address
 
 # Optionally, specify some defaults.
-countryName_default             = {{ country_code }}
-stateOrProvinceName_default     = {{ country_name }}
-localityName_default            = {{ country_code }}
-0.organizationName_default      = {{ organization_unit }}
-organizationalUnitName_default  =
-emailAddress_default            = domain@bobe.be
+countryName_default             = {{ cert.dn.countryName.code }}
+stateOrProvinceName_default     = {{ cert.dn.stateOrProvinceName }}
+localityName_default            = {{ cert.dn.localityName }}
+0.organizationName_default      = {{ cert.dn.organizationName }}
+organizationalUnitName_default  = {{ cert.dn.organizationalUnitName }}
+emailAddress_default            = {{ cert.dn.emailAddress }}
 
 [ v3_ca ]
 # Extensions for a typical CA (`man x509v3_config`).

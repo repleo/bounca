@@ -21,10 +21,11 @@ admin.site.register(DistinguishedName, X509_pki_DistinguishedNameAdmin)
 from .models import Certificate
 from .forms import CertificateForm
 
-class X509_pki_DistinguishedAdmin(admin.ModelAdmin):
+class X509_pki_CertificateAdmin(admin.ModelAdmin):
     search_fields = ['shortname','name']
-    list_display = ('shortname','name','parent','type','dn','created_at','expires_at')
+    list_display = ('shortname','name','parent','type','dn','created_at','expires_at','days_valid')
     form = CertificateForm
+
 
     def get_readonly_fields(self, request, obj=None):
         if obj: #This is the case when obj is already created i.e. it's an edit
@@ -33,4 +34,4 @@ class X509_pki_DistinguishedAdmin(admin.ModelAdmin):
             return []
     def has_delete_permission(self, request, obj=None):
         return False
-admin.site.register(Certificate, X509_pki_DistinguishedAdmin)
+admin.site.register(Certificate, X509_pki_CertificateAdmin)

@@ -2,6 +2,7 @@ from django.db import models
 from django_countries.fields import CountryField
 from django.core.validators import RegexValidator
 from django.db.models.signals import pre_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 
@@ -44,8 +45,12 @@ def validation_rules_distinguished_name(sender,instance, *args, **kwargs):
     if instance.id:
         raise ValidationError('Not allowed to update a DistinguishedName record')
  
+from django.utils import timezone
 
-
+def validate_in_future(value):
+    if value <= timezone.now().date():
+        raise ValidationError('%s is not in the future!' % value)
+    
 class Certificate(models.Model):
     alphanumeric = RegexValidator(r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ ]*$', 'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
     alphanumericshort = RegexValidator(r'^[0-9a-zA-Z\_\.]*$', 'Only alphanumeric characters and [_.] are allowed.')
@@ -71,8 +76,14 @@ class Certificate(models.Model):
     dn                      = models.ForeignKey(DistinguishedName)
     parent                  = models.ForeignKey("self",blank=True,null=True)
 
-    created_at              = models.DateTimeField(auto_now_add=True)
-    expires_at              = models.DateTimeField(auto_now_add=True)
+    created_at              = models.DateField(auto_now_add=True)
+    expires_at              = models.DateField(validators=[validate_in_future],help_text="Select the date that the certificate will expire: for root typically 20 years, for intermediate 10 years for other types 1 year.")
+    
+    
+    @property
+    def days_valid(self):
+        return  int((self.expires_at-self.created_at).days)
+    days_valid.fget.short_description = 'Days valid'                
     
     def delete(self):
         raise ValidationError('Delete of record not allowed')
@@ -100,5 +111,14 @@ def validation_rules_certificate(sender,instance, *args, **kwargs):
         raise ValidationError('Not allowed to have a parent certificate for a ROOT CA certificate')
     if instance.type is not Certificate.ROOT and not instance.parent: #check_if_non_root_certificate_has_parent
         raise ValidationError('Non ROOT certificate should have a parent')
-    
 
+from ..certificate_engine.generator import generate_root_ca  
+@receiver(post_save, sender=Certificate)
+def generate_certificate(sender, instance, created, **kwargs):
+    if created:
+        if instance.type==Certificate.ROOT:
+            generate_root_ca(instance)
+        if instance.type==Certificate.INTERMEDIATE:
+            pass
+            #generate_root_ca(instance)
+            
