@@ -2,6 +2,11 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
+*.swp
+*.DS_Store
+**/doc/_build
+*.log
 
 # C extensions
 *.so
@@ -60,3 +65,21 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+# IDE
+.project
+.pydevproject
+.idea
+
+# Other
+tmp/
+ci/jenkins.sh
+
+# Static
+media/static
+
+
+
+
+
+
