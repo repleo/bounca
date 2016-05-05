@@ -24,9 +24,18 @@ class DistinguishedName(models.Model):
                 ', OU='+ str(self.organizationalUnitName) +\
                 ', L='+ str(self.localityName) +\
                 ', ST='+ str(self.stateOrProvinceName) +\
-                ', EMAIL=' + str(self.emailAddress.code) +\
-                ', C=' + str(self.countryName.code)
-                
+                ', EMAIL=' + str(self.emailAddress) +\
+                ', C=' + str(self.countryName)
+
+    @property
+    def subj(self):
+        return  '/CN='+ str(self.commonName) +\
+                '/O='+ str(self.organizationName) +\
+                '/OU='+ str(self.organizationalUnitName) +\
+                '/L='+ str(self.localityName) +\
+                '/ST='+ str(self.stateOrProvinceName) +\
+                '/emailAddress=' + str(self.emailAddress) +\
+                '/C=' + str(self.countryName)                
 
     def delete(self):
         raise ValidationError('Delete of record not allowed')
@@ -117,7 +126,7 @@ from ..certificate_engine.generator import generate_root_ca
 def generate_certificate(sender, instance, created, **kwargs):
     if created:
         if instance.type==Certificate.ROOT:
-            generate_root_ca(instance)
+            generate_root_ca(instance,'testtest')
         if instance.type==Certificate.INTERMEDIATE:
             pass
             #generate_root_ca(instance)
