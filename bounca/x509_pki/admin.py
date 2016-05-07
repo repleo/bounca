@@ -13,8 +13,7 @@ class X509_pki_DistinguishedNameAdmin(admin.ModelAdmin):
             return ['countryName','stateOrProvinceName','localityName','organizationName','organizationalUnitName','emailAddress','commonName']
         else:
             return []
-    def has_delete_permission(self, request, obj=None):
-        return False
+
 
 admin.site.register(DistinguishedName, X509_pki_DistinguishedNameAdmin)
 
@@ -23,15 +22,14 @@ from .forms import CertificateForm
 
 class X509_pki_CertificateAdmin(admin.ModelAdmin):
     search_fields = ['shortname','name']
-    list_display = ('shortname','name','parent','type','dn','created_at','expires_at','days_valid')
+    list_display = ('shortname','name','parent','type','dn','created_at','expires_at','days_valid','revoked_at','crl_distribution_url','ocsp_distribution_host')
     form = CertificateForm
 
 
     def get_readonly_fields(self, request, obj=None):
         if obj: #This is the case when obj is already created i.e. it's an edit
-            return ['shortname','name','parent','type','dn','created_at','expires_at']
+            return ['shortname','name','parent','type','dn','crl_distribution_url','ocsp_distribution_host','created_at','expires_at','revoked_at']
         else:
             return []
-    def has_delete_permission(self, request, obj=None):
-        return False
+
 admin.site.register(Certificate, X509_pki_CertificateAdmin)

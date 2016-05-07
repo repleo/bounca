@@ -7,7 +7,7 @@ from django.conf import settings
 import os
 from django.template import loader
 
-from bounca.x509_pki.models import Certificate
+from bounca.x509_pki.models import CertificateTypes
 
 import logging
 logger = logging.getLogger(__name__)
@@ -25,10 +25,10 @@ def generate_files(certificate,openssl_cnf_template_name):
     root_path = settings.CA_ROOT + key_path + "/"
     
 
-    logger.warning("Create directory for certificate " + str(Certificate) + " with the path: " + root_path)
+    logger.warning("Create directory for certificate " + str(certificate) + " with the path: " + root_path)
     os.makedirs(root_path,exist_ok=True)
     os.makedirs(root_path + "certs" ,exist_ok=True)
-    if certificate.type == Certificate.INTERMEDIATE:
+    if certificate.type == CertificateTypes.INTERMEDIATE:
         os.makedirs(root_path + "crl" ,exist_ok=True)
         os.makedirs(root_path + "csr" ,exist_ok=True)
         with open(root_path +'crlnumber','w') as f:
@@ -176,6 +176,25 @@ def generate_client_cert_creation_script(certificate,generate_signed_cert_templa
     return generate_generic_cert_creation_script(certificate,generate_signed_cert_template_name,"usr_cert","client")
 
 
+def generate_generic_cert_revoke_script(certificate,generate_cert_revoke_template_name,script_name):
+    key_path = generate_path(certificate)
+    root_path = settings.CA_ROOT + key_path + "/"
+
+    c = {
+        'cert': certificate,
+        'cert_subdir': script_name
+    }
+    generate_signed_certificate_script = loader.render_to_string(generate_cert_revoke_template_name, c)
+    with open(root_path +'revoke_%s_certificate.sh'%(script_name),'w') as f:
+        f.write(generate_signed_certificate_script)
+    os.chmod(root_path +'revoke_%s_certificate.sh'%(script_name), 0o755)
+    return 0
+
+def generate_server_cert_revoke_script(certificate,generate_cert_revoke_template_name):
+    return generate_generic_cert_revoke_script(certificate,generate_cert_revoke_template_name,"server")
+
+def generate_client_cert_revoke_script(certificate,generate_cert_revoke_template_name):
+    return generate_generic_cert_revoke_script(certificate,generate_cert_revoke_template_name,"client")
 
 
 def generate_root_ca(certificate, passphrase_out):
@@ -202,6 +221,8 @@ def generate_intermediate_ca(certificate, passphrase_in, passphrase_out):
     generate_csr_template_name = 'ssl/generate_intermediate_csr.sh'
     generate_signcert_template_name = 'ssl/sign_intermediate_cert.sh'
     generate_signed_cert_template_name = 'ssl/generate_signed_cert.sh'
+    generate_cert_revoke_template_name = 'ssl/revoke_cert.sh'
+
 
     logger.warning("Generate files for INTERMEDIATE CA")
     returncode = generate_files(certificate,openssl_cnf_template_name)
@@ -223,6 +244,12 @@ def generate_intermediate_ca(certificate, passphrase_in, passphrase_out):
      
     logger.warning("Create INTERMEDIATE CA client cert creation script")
     generate_client_cert_creation_script(certificate,generate_signed_cert_template_name)
+
+    logger.warning("Create INTERMEDIATE CA server cert revoke script")
+    generate_server_cert_revoke_script(certificate,generate_cert_revoke_template_name)
+     
+    logger.warning("Create INTERMEDIATE CA client cert revoke script")
+    generate_client_cert_revoke_script(certificate,generate_cert_revoke_template_name)
                
     logger.warning("INTERMEDIATE CA created")    
     return returncode
@@ -242,6 +269,7 @@ def generate_server_cert(certificate, passphrase_in, passphrase_out):
     logger.warning("Create signed server certificate")
 
     subprocess.check_output([root_path + "generate_signed_server_certificate.sh",certificate.dn.slug_commonName,str(certificate.days_valid),certificate.dn.subj])
+    os.remove(root_path +'passphrase_in.txt')
     if passphrase_out:
         os.remove(root_path +'passphrase_out.txt')
     return 0
@@ -261,11 +289,36 @@ def generate_client_cert(certificate, passphrase_in, passphrase_out):
     logger.warning("Create signed client certificate")
 
     subprocess.check_output([root_path + "generate_signed_client_certificate.sh",certificate.dn.slug_commonName,str(certificate.days_valid),certificate.dn.subj])
+    os.remove(root_path +'passphrase_in.txt')
     if passphrase_out:
         os.remove(root_path +'passphrase_out.txt')
     return 0
 
+def revoke_server_cert(certificate, passphrase_in):
+    key_path = generate_path(certificate.parent)
+    root_path = settings.CA_ROOT + key_path + "/"
+    with open(root_path +'passphrase_in.txt','w') as f:
+        f.write(passphrase_in)
+    os.chmod(root_path +'passphrase_in.txt', 0o600)
+                
+    logger.warning("Revoke server certificate")
 
+    subprocess.check_output([root_path + "revoke_server_certificate.sh",certificate.dn.slug_commonName,str(certificate.slug_revoked_at)])
+    os.remove(root_path +'passphrase_in.txt')
+    return 0
+
+def revoke_client_cert(certificate, passphrase_in):
+    key_path = generate_path(certificate.parent)
+    root_path = settings.CA_ROOT + key_path + "/"
+    with open(root_path +'passphrase_in.txt','w') as f:
+        f.write(passphrase_in)
+    os.chmod(root_path +'passphrase_in.txt', 0o600)
+                
+    logger.warning("Revoke client certificate")
+
+    subprocess.check_output([root_path + "revoke_client_certificate.sh",certificate.dn.slug_commonName,str(certificate.slug_revoked_at)])
+    os.remove(root_path +'passphrase_in.txt')
+    return 0
 
 
 

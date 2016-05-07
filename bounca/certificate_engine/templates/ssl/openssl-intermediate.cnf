@@ -107,6 +107,12 @@ subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer
 keyUsage = critical, nonRepudiation, digitalSignature, keyEncipherment
 extendedKeyUsage = clientAuth, emailProtection
+{% if cert.crl_distribution_url %}
+crlDistributionPoints = URI:{{cert.crl_distribution_url}}/{{cert.shortname}}.crl.pem
+{% endif %}
+{% if cert.ocsp_distribution_host %}
+authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
+{% endif %}
 
 [ server_cert ]
 # Extensions for server certificates (`man x509v3_config`).
@@ -117,6 +123,13 @@ subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer:always
 keyUsage = critical, digitalSignature, keyEncipherment
 extendedKeyUsage = serverAuth
+{% if cert.crl_distribution_url %}
+crlDistributionPoints = URI:{{cert.crl_distribution_url}}/{{cert.shortname}}.crl.pem
+{% endif %}
+{% if cert.ocsp_distribution_host %}
+authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
+{% endif %}
+
 
 [ crl_ext ]
 # Extension for CRLs (`man x509v3_config`).

@@ -17,6 +17,10 @@ https://pki.io
 
 https://www.digicert.com/ssl-support/pem-ssl-creation.htm
 
+Setup OCSP host:
+https://jamielinux.com/docs/openssl-certificate-authority/online-certificate-status-protocol.html
+
+
 
 Verify the root certificate
 

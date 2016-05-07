@@ -57,7 +57,7 @@ openssl ca -batch -config openssl.cnf -extensions {{ extensions }} \
 chmod 444 certs/{{ cert_subdir }}/$1.cert.pem
       
 cat certs/{{ cert_subdir }}/$1.cert.pem \
-    ../certs/{{ cert.parent.shortname }}-chain.cert.pem > certs/{{ cert_subdir }}/$1-chain.cert.pem
+    certs/{{ cert.shortname }}-chain.cert.pem > certs/{{ cert_subdir }}/$1-chain.cert.pem
 chmod 444 certs/{{ cert_subdir }}/$1-chain.cert.pem
 
 
