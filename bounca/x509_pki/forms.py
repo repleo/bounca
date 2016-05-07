@@ -5,6 +5,7 @@ Created on 5 mei 2016
 '''
 
 from django import forms
+from django.utils import timezone
 from .models import DistinguishedName
 from .models import Certificate
 
@@ -33,9 +34,14 @@ class CertificateForm(forms.ModelForm):
 
         shortname = cleaned_data.get("shortname")
         cert_type = cleaned_data.get("type")
+        dn = cleaned_data.get("dn")
 
         if Certificate.objects.filter(shortname=shortname, type=cert_type).count() > 0:
-            raise forms.ValidationError("Shortname (" +shortname+") for " + dict(Certificate.TYPES)[cert_type] + "-Certificate already exists.")
+            raise forms.ValidationError("Shortname (" +shortname+") for " + dict(Certificate.TYPES)[cert_type] + " already exists.")
+
+        if Certificate.objects.filter(dn=dn, type=cert_type).count() > 0:
+            raise forms.ValidationError("DN (" +str(dn)+") for " + dict(Certificate.TYPES)[cert_type] + " already used.")
+
 
         parent = cleaned_data.get("parent")
         if cert_type == Certificate.ROOT and parent: #check_if_root_has_no_parent
@@ -43,6 +49,38 @@ class CertificateForm(forms.ModelForm):
 
         if cert_type is not Certificate.ROOT and not parent: #check_if_root_has_no_parent
             raise forms.ValidationError('Non ROOT certificate should have a parent certificate')
+        
+        if cert_type is Certificate.SERVER_CERT and not parent.type is Certificate.INTERMEDIATE: #check_if_non_root_certificate_has_parent
+            raise forms.ValidationError('Server certificate can only be generated for intermediate CA parent')
+
+
+        if cert_type is Certificate.CLIENT_CERT and not parent.type is Certificate.INTERMEDIATE: #check_if_non_root_certificate_has_parent
+            raise forms.ValidationError('Client certificate can only be generated for intermediate CA parent')
+
+        if cert_type is Certificate.SERVER_CERT or cert_type is Certificate.CLIENT_CERT:
+            if Certificate.objects.filter(dn=dn, parent=parent, type=Certificate.INTERMEDIATE).count() > 0:
+                raise forms.ValidationError("DN (" +str(dn)+") for " + dict(Certificate.TYPES)[cert_type] + "-Certificate already used as intermediate CA.")
+             
+
+
+    
+        if cert_type is Certificate.INTERMEDIATE and parent.type is Certificate.ROOT:
+            if dn.countryName != parent.dn.countryName:
+                raise forms.ValidationError('Country name of Intermediate CA and Root CA should match (policy strict)')
+            if dn.stateOrProvinceName != parent.dn.stateOrProvinceName:
+                raise forms.ValidationError('State Or Province Name of Intermediate CA and Root CA should match (policy strict)')
+            if dn.organizationName != parent.dn.organizationName:
+                raise forms.ValidationError('Organization Name of Intermediate CA and Root CA should match (policy strict)')
+
+
+        if cleaned_data.get('expires_at'):
+            now = timezone.now().date()
+            expires_at = cleaned_data.get("expires_at")
+
+            days_valid=int((expires_at-now).days)
+            if parent and days_valid > parent.days_valid:
+                raise forms.ValidationError('Child Certificate should not expire later than ROOT CA')
+              
         return cleaned_data 
     
     class Meta:

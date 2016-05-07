@@ -166,6 +166,7 @@ STATIC_URL = '/static/'
 
 CA_ROOT = os.path.join(BASE_DIR, 'pki/')
 
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -186,29 +187,48 @@ LOGGING = {
         },
     },
     'handlers': {
-        'console': {
-            'level': 'INFO',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
-        },
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
             'filters': ['require_debug_false']
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+             'formatter': 'simple'
+#            'filters': ['require_debug_true']
+
+        },
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
         }
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers':['console'],
             'propagate': True,
+            'level':'INFO',
         },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
+            'propagate': True,
+        },
+        # Useless messages mostly about spiders
+        'django.security.DisallowedHost': {
+            'handlers': ['null'],
             'propagate': False,
-        }
+        },
     }
 }
+#TODO Logging INFO not working
+#http://www.webforefront.com/django/setupdjangologging.html
+import logging
+logger = logging.getLogger(__name__)
 
-
+logger.error("error-FUBAR")
+logger.info("info-FUBAR")
+logger.debug("debug-FUBAR")
+logger.critical("critical-FUBAR")
+logger.warning("warning-FUBAR")

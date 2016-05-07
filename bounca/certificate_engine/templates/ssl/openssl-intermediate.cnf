@@ -1,4 +1,4 @@
-# OpenSSL root CA configuration file.
+# OpenSSL intermediate CA configuration file.
 
 [ ca ]
 # `man ca`
@@ -31,7 +31,7 @@ name_opt          = ca_default
 cert_opt          = ca_default
 default_days      = {{ cert.days_valid }}
 preserve          = no
-policy            = policy_strict
+policy            = policy_loose
 
 [ policy_strict ]
 # The root CA should only sign intermediate certificates that match.

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash  
+#!/usr/bin/env bash -e 
 
 cd "$(dirname "$0")"
 
@@ -8,9 +8,9 @@ then
     passphrase_out="-passout file:passphrase_out.txt"
 fi
 
-openssl genrsa -aes256 -out private/{{ key_name }}.key.pem $passphrase_out {{ key_length }}
+openssl genrsa -aes256 -out ./private/{{ key_name }}.key.pem $passphrase_out {{ key_length }}
 
-chmod 400 private/{{ key_name }}.key.pem
+chmod 400 ./private/{{ key_name }}.key.pem
 
 
 exit 0

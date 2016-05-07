@@ -5,6 +5,7 @@ from django.db.models.signals import pre_save
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
+from django.template.defaultfilters import slugify
 
 class DistinguishedName(models.Model):
     alphanumeric = RegexValidator(r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ \*]*$', 'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
@@ -37,6 +38,10 @@ class DistinguishedName(models.Model):
                 '/emailAddress=' + str(self.emailAddress) +\
                 '/C=' + str(self.countryName)                
 
+    @property
+    def slug_commonName(self):
+        return slugify(self.commonName)
+                
     def delete(self):
         raise ValidationError('Delete of record not allowed')
         
@@ -71,8 +76,8 @@ class Certificate(models.Model):
     OCSP="O"
 
     TYPES = (
-        (ROOT, 'Root Certificate'),
-        (INTERMEDIATE,  'Intermediate'),
+        (ROOT, 'Root CA Certificate'),
+        (INTERMEDIATE,  'Intermediate CA Certificate'),
         (SERVER_CERT,  'Server Certificate'),
         (CLIENT_CERT,  'Client Certificate'),
         (OCSP,  'OCSP Signing Certificate'),
@@ -91,7 +96,10 @@ class Certificate(models.Model):
     
     @property
     def days_valid(self):
-        return  int((self.expires_at-self.created_at).days)
+        if self.created_at:
+            return  int((self.expires_at-self.created_at).days)
+        else:
+            return  int((self.expires_at-timezone.now().date()).days)
     days_valid.fget.short_description = 'Days valid'                
     
     def delete(self):
@@ -99,7 +107,7 @@ class Certificate(models.Model):
     
     class Meta:
         db_table = 'bounca_certificate'
-        unique_together = (('shortname', 'type'),)
+        unique_together = (('shortname', 'type'),('dn', 'type'))
 
     def __unicode__(self):
         return  str(self.name)
@@ -120,14 +128,38 @@ def validation_rules_certificate(sender,instance, *args, **kwargs):
         raise ValidationError('Not allowed to have a parent certificate for a ROOT CA certificate')
     if instance.type is not Certificate.ROOT and not instance.parent: #check_if_non_root_certificate_has_parent
         raise ValidationError('Non ROOT certificate should have a parent')
+    if instance.type is Certificate.SERVER_CERT and not instance.parent.type is Certificate.INTERMEDIATE: #check_if_non_root_certificate_has_parent
+        raise ValidationError('Server certificate can only be generated for intermediate CA parent')
+    if instance.type is Certificate.CLIENT_CERT and not instance.parent.type is Certificate.INTERMEDIATE: #check_if_non_root_certificate_has_parent
+        raise ValidationError('Client certificate can only be generated for intermediate CA parent')
+    
+    if instance.type is Certificate.INTERMEDIATE and instance.parent.type is Certificate.ROOT:
+        if instance.dn.countryName != instance.parent.dn.countryName:
+            raise ValidationError('Country name of Intermediate CA and Root CA should match (policy strict)')
+        if instance.dn.stateOrProvinceName != instance.parent.dn.stateOrProvinceName:
+            raise ValidationError('State Or Province Name of Intermediate CA and Root CA should match (policy strict)')
+        if instance.dn.organizationName != instance.parent.dn.organizationName:
+            raise ValidationError('Organization Name of Intermediate CA and Root CA should match (policy strict)')
+
+    
+    if instance.parent and instance.days_valid > instance.parent.days_valid:
+        raise ValidationError('Child Certificate should not expire later than ROOT CA')
+        
 
 from ..certificate_engine.generator import generate_root_ca  
+from ..certificate_engine.generator import generate_intermediate_ca  
+from ..certificate_engine.generator import generate_server_cert  
+from ..certificate_engine.generator import generate_client_cert  
+
 @receiver(post_save, sender=Certificate)
 def generate_certificate(sender, instance, created, **kwargs):
     if created:
         if instance.type==Certificate.ROOT:
             generate_root_ca(instance,'testtest')
         if instance.type==Certificate.INTERMEDIATE:
-            pass
-            #generate_root_ca(instance)
+            generate_intermediate_ca(instance,'testtest','testtest')
+        if instance.type==Certificate.SERVER_CERT:
+            generate_server_cert(instance,'testtest',None)            
+        if instance.type==Certificate.CLIENT_CERT:
+            generate_client_cert(instance,'testtest',None)     
             
