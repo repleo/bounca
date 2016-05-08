@@ -25,6 +25,7 @@ lib64/
 parts/
 sdist/
 var/
+bounca/static/libs/
 *.egg-info/
 .installed.cfg
 *.egg

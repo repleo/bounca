@@ -5,7 +5,7 @@ PYTHON=`which python3.4`
 
 virtualenv -p "$PYTHON" env
 . env/bin/activate
-cd "$WORDIR"
+cd "$WORKDIR"
 
 pip3.4 install -r requirements.txt
 

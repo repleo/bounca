@@ -43,7 +43,6 @@ class CertificateForm(forms.ModelForm):
         if Certificate.objects.filter(dn=dn, type=cert_type, revoked_at=None).count() > 0:
             raise forms.ValidationError("DN (" +str(dn)+") for " + dict(Certificate.TYPES)[cert_type] + " already used.")
 
-
         parent = cleaned_data.get("parent")
         if cert_type == CertificateTypes.ROOT and parent: #check_if_root_has_no_parent
             raise forms.ValidationError('Not allowed to have a parent certificate for a ROOT CA certificate')

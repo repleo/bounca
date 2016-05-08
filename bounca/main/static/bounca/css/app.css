@@ -1,0 +1,157 @@
+@import url(https://fonts.googleapis.com/css?family=Special+Elite);
+@import url(https://fonts.googleapis.com/css?family=Raleway);
+
+
+[ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  padding-top: 130px;
+  margin-bottom: 53px;
+  font-family: 'Raleway', sans-serif;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 53px;
+  background-color: #f5f5f5;
+}
+
+.done-true {
+  text-decoration: line-through;
+  color: grey;
+}
+
+.navbar {
+	height: 53px;
+}
+
+.navbar-right {
+	padding: 9px;
+}
+
+.navbar-brand {
+    display: block;
+}
+
+.navbar-brand>img {
+    height: 100px;
+}
+
+
+
+.navbar-brand .text{
+	padding-top: 17px;
+	margin-left: 5px;
+}
+
+.navbar-brand .text .brand{
+	font-size: 41px;
+	color: rgb(23, 23, 23);
+}
+.navbar-brand .text .version{
+    font-size: 12px;
+    color: rgb(120, 54, 46);
+}
+
+
+.navbar-brand {
+    font-family: 'Special Elite', cursive;
+}
+
+.navbar-default .red {
+  color: red;
+}
+
+
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
+.fixed-row{ 
+	height:50px;
+}
+
+.table tbody>tr>td.vert-align{
+    vertical-align: middle;
+}
+
+
+
+.container .text-muted {
+  margin: 20px 0;
+}
+
+ .row {
+     position: relative;
+ }
+  
+.bottom-aligned-text {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.left {
+	float: left;
+}
+
+
+/* login */
+
+.form-login {
+    background-color: #EDEDED;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 15px;
+    border-color:#d2d2d2;
+    border-width: 5px;
+    box-shadow:0 1px 0 #cfcfcf;
+}
+
+h4 { 
+ border:0 solid #fff; 
+ border-bottom-width:1px;
+ padding-bottom:10px;
+ text-align: center;
+}
+
+.form-control {
+    border-radius: 10px;
+}
+
+.center {
+    text-align: center;
+}
+
+/* end login */
+
+

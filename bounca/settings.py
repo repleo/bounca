@@ -14,6 +14,7 @@ if os.path.exists(CONFIG_FILE_NAME):
 else:
     DEBUG = True    
     config.read(BASE_DIR+CONFIG_FILE_NAME)
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
        
 
@@ -46,7 +47,7 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-
+SITE_ID = 1
 EMAIL_HOST=config.get('email','EMAIL_HOST')
 DEFAULT_FROM_EMAIL=config.get('email', 'FROM_MAIL')
 SERVER_EMAIL=config.get('email', 'FROM_MAIL')
@@ -81,17 +82,26 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+    'django.contrib.sites',
+
     #3rd party libraries
     'rest_framework',
+    'rest_framework.authtoken',
+    'django_filters',
     'djangular',
     'django_countries',
-
+    'rest_framework_docs',
+    'rest_auth',
+    'allauth',
+    'allauth.account',
+    'rest_auth.registration',
     
     #BounCA
+    'bounca.templatetags', #TODO Make Django Package
     'bounca.x509_pki',
     'bounca.app_settings',
     'bounca.certificate_engine',
+    'bounca.api',
     'bounca.main',
 ]
 
@@ -108,8 +118,17 @@ MIDDLEWARE_CLASSES = [
 
 ROOT_URLCONF = 'bounca.urls'
 
+REST_SESSION_LOGIN = False 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend', 'rest_framework.filters.OrderingFilter', 'rest_framework.filters.SearchFilter', ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.DjangoFilterBackend', 
+        'rest_framework.filters.OrderingFilter', 
+        'rest_framework.filters.SearchFilter', 
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    )
 }
 
 TEMPLATES = [
@@ -154,7 +173,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+ACCOUNT_EMAIL_VERIFICATION=None
 
 
 # Static files (CSS, JavaScript, Images)
@@ -163,6 +182,9 @@ AUTH_PASSWORD_VALIDATORS = [
 STATIC_ROOT = os.path.join(BASE_DIR, 'media/static/')
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+    BASE_DIR + '/bounca/static',
+)
 
 CA_ROOT = os.path.join(BASE_DIR, 'pki/')
 

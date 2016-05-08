@@ -7,3 +7,7 @@ djangorestframework==3.3.3
 django-grappelli==2.8.1
 django-countries==3.4.1
 djangular==0.2.7
+drfdocs==0.0.9
+django-filter==0.13
+django-rest-auth==0.7.0
+django-allauth==0.25.2

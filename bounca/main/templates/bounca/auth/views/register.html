@@ -1,0 +1,52 @@
+{% verbatim %}
+
+<div ng-if="!authenticated">
+
+	<div class="container">
+	    <div class="row">
+	        <div class="col-md-offset-4 col-md-5">
+	        
+		        <div id="register_view" ng-controller="RegisterCtrl">
+					<div class="form-login">
+		            <h4>Register account.</h4>		        
+					    <div ng-if="complete == false">
+					        <form role="form" ng-if="authenticated != true" name="registerForm" ng-submit="register(registerForm)" novalidate>
+					            <div class="form-group">
+					                <input name="username" id="id_username" class="form-control input-lg" type="text" ng-model="model.username" placeholder="Username" required />
+					            </div>
+					            <div class="alert alert-danger" ng-repeat="error in errors.username">{{error}}</div>
+					            <div class="form-group">
+					                <input name="password1" id="id_password1" class="form-control input-lg" type="password" ng-model="model.password1" placeholder="Password" required />
+					            </div>
+					            <div class="alert alert-danger" ng-repeat="error in errors.password1">{{error}}</div>
+					            <div class="form-group">
+					                <input name="password" id="id_password2" class="form-control input-lg" type="password" ng-model="model.password2" placeholder="Repeat Password" required />
+					            </div>
+					            <div class="alert alert-danger" ng-repeat="error in errors.password2">{{error}}</div>
+					            <div class="form-group">
+					                <input name="email" id="id_email" class="form-control input-lg" type="email" ng-model="model.email" placeholder="Email" required />
+					            </div>
+					            <div class="alert alert-danger" ng-repeat="error in errors.email">{{error}}</div>
+					            <br/>
+					            <button ng-hide="authenticated" type="submit" class="btn btn-block btn-lg btn-primary">Register</button>
+					        </form>
+					        <p ng-if="authenticated">You are already logged in!  You don't need to register.</p>
+					    </div>
+					    <div ng-if="complete == true">
+					        <div class="alert alert-success">Great! You've just registered. You are now able to login and create your Certificate Authority.</div>
+					    </div>
+					</div>
+					<div class="center">
+						<a href="/#/">Click here to login.</a>
+					</div>
+				</div>
+	        </div>
+	    </div>
+	</div>
+
+</div>
+
+{% endverbatim %}
+
+
+
