@@ -12,13 +12,13 @@ from pip.cmdoptions import editable
 class DistinguishedName(models.Model):
     alphanumeric = RegexValidator(r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ \*]*$', 'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
 
-    countryName                 = CountryField(default="NL",help_text="The two-character country name in ISO 3166 format.")
-    stateOrProvinceName         = models.CharField(max_length=128,validators=[alphanumeric],default="Noord Holland",help_text="The state/region where your organization is located. This shouldn't be abbreviated. The stateorprov is 1–128 characters.")
-    localityName                = models.CharField(max_length=128,validators=[alphanumeric],default="Amstelveen",help_text="The city where your organization is located. The locality is 1–128 characters.")
-    organizationName            = models.CharField(max_length=64,validators=[alphanumeric],default="Repleo",help_text="The legal name of your organization. This should not be abbreviated and should include suffixes such as Inc, Corp, or LLC.")
-    organizationalUnitName      = models.CharField(max_length=64,validators=[alphanumeric],default="IT Department",help_text="The division of your organization handling the certificate.")
-    emailAddress                = models.EmailField(max_length=64,validators=[alphanumeric],default="ca@repleo.nl",help_text="An email address used to contact your organization.")
-    commonName                  = models.CharField(max_length=64,validators=[alphanumeric],default="*.repleo.nl",help_text="The fully qualified domain name (FQDN) of your server. This must match exactly what you type in your web browser or you will receive a name mismatch error.")
+    countryName                 = CountryField("Country Name", default="NL",help_text="The two-character country name in ISO 3166 format.")
+    stateOrProvinceName         = models.CharField("State or Province Name",max_length=128,validators=[alphanumeric],default="Noord Holland",help_text="The state/region where your organization is located. This shouldn't be abbreviated. (1–128 characters)")
+    localityName                = models.CharField("Locality Name",max_length=128,validators=[alphanumeric],default="Amstelveen",help_text="The city where your organization is located. (1–128 characters)")
+    organizationName            = models.CharField("Organization Name",max_length=64,validators=[alphanumeric],default="Repleo",help_text="The legal name of your organization. This should not be abbreviated and should include suffixes such as Inc, Corp, or LLC.")
+    organizationalUnitName      = models.CharField("Organization Unit Name",max_length=64,validators=[alphanumeric],default="IT Department",help_text="The division of your organization handling the certificate.")
+    emailAddress                = models.EmailField("Email Address",max_length=64,validators=[alphanumeric],default="ca@repleo.nl",help_text="The email address to contact your organization. Also used by BounCA for authentication.")
+    commonName                  = models.CharField("Common Name",max_length=64,validators=[alphanumeric],default="*.repleo.nl",help_text="The fully qualified domain name (FQDN) of your server. This must match exactly what you type in your web browser or you will receive a name mismatch error.")
 
     @property
     def dn(self):
@@ -96,18 +96,18 @@ class Certificate(models.Model):
         (CertificateTypes.OCSP,  'OCSP Signing Certificate'),
     )
     type                    = models.CharField(max_length=1, choices=TYPES)
-    shortname               = models.CharField(max_length=128,validators=[alphanumericshort],help_text="Short name used to store your keys and scripts.")
-    name                    = models.CharField(max_length=128,validators=[alphanumeric],blank=True,help_text="Long name of your authority, if not set will be equal to your shortname + CommonName.")
+    shortname               = models.CharField("Short Name",max_length=128,validators=[alphanumericshort],help_text="Short name to identify your key.")
+    name                    = models.CharField(max_length=128,validators=[alphanumeric],blank=True,help_text="Long name of your key, if not set will be equal to your shortname + CommonName.")
 
     dn                      = models.ForeignKey(DistinguishedName)
-    parent                  = models.ForeignKey("self",blank=True,null=True)
+    parent                  = models.ForeignKey("self",blank=True,null=True,help_text="The signing authority (None for root certificate)")
 
     crl_distribution_url    = models.URLField(blank=True,null=True,help_text="Base URL for certificate revocation list (CRL)")
     ocsp_distribution_host  = models.URLField(blank=True,null=True,help_text="Host URL for Online Certificate Status Protocol (OCSP)")
 
     created_at              = models.DateField(auto_now_add=True)
-    expires_at              = models.DateField(validators=[validate_in_future],help_text="Select the date that the certificate will expire: for root typically 20 years, for intermediate 10 years for other types 1 year.")
-    revoked_at              = models.DateTimeField(editable=False,blank=True,null=True)
+    expires_at              = models.DateField(validators=[validate_in_future],help_text="Select the date that the certificate will expire: for root typically 20 years, for intermediate 10 years for other types 1 year. Allowed date format: yyyy-mm-dd.")
+    revoked_at              = models.DateTimeField(editable=False,default=None,blank=True,null=True)
     
     
     @property
@@ -122,7 +122,9 @@ class Certificate(models.Model):
     def slug_revoked_at(self):
         return slugify(self.revoked_at)
 
- 
+    @property
+    def revoked(self):
+        return self.revoked_at 
     
     def delete(self, *args, **kwargs):
         if not self.revoked_at and (self.type is CertificateTypes.SERVER_CERT or self.type is CertificateTypes.CLIENT_CERT):

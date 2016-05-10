@@ -11,7 +11,7 @@ angular.module('angularDjangoRegistrationAuthApp')
         'API_URL': '/api/v1/auth',
         // Set use_session to true to use Django sessions to store security token.
         // Set use_session to false to store the security token locally and transmit it as a custom header.
-        'use_session': false,
+        'use_session': true,
         /* END OF CUSTOMIZATION */
         'authenticated': null,
         'authPromise': null,
@@ -33,7 +33,7 @@ angular.module('angularDjangoRegistrationAuthApp')
                 url: url,
                 withCredentials: this.use_session,
                 method: method.toUpperCase(),
-                headers: {'X-CSRFToken': $cookies['csrftoken']},
+//TODO remove                headers: {'X-CSRFToken': $cookies.get('csrftoken')},
                 params: params,
                 data: data
             })

@@ -88,7 +88,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
-    'djangular',
+    'djng',
     'django_countries',
     'rest_framework_docs',
     'rest_auth',
@@ -98,14 +98,15 @@ INSTALLED_APPS = [
     
     #BounCA
     'bounca.templatetags', #TODO Make Django Package
+    'bounca.certificate_engine',
     'bounca.x509_pki',
     'bounca.app_settings',
-    'bounca.certificate_engine',
     'bounca.api',
-    'bounca.main',
+    'bounca.webapp',
 ]
 
 MIDDLEWARE_CLASSES = [
+    'djng.middleware.AngularUrlMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -118,7 +119,7 @@ MIDDLEWARE_CLASSES = [
 
 ROOT_URLCONF = 'bounca.urls'
 
-REST_SESSION_LOGIN = False 
+#REST_SESSION_LOGIN = False 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'rest_framework.filters.DjangoFilterBackend', 

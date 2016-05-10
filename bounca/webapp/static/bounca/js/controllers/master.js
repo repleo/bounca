@@ -13,12 +13,15 @@ angular.module('angularDjangoRegistrationAuthApp')
     	  		$scope.name=data.username;
     	  	}
             $scope.authenticated = true;
+        	$location.path("/dashboard");
 
           });
     });
     // Wait and respond to the logout event.
     $scope.$on('djangoAuth.logged_out', function() {
       $scope.authenticated = false;
+   	  $location.path("/");
+
     });
     // Wait and respond to the log in event.
     $scope.$on('djangoAuth.logged_in', function() {
@@ -29,6 +32,8 @@ angular.module('angularDjangoRegistrationAuthApp')
 	  		$scope.name=data.username;
 	  	}
         $scope.authenticated = true;
+    	$location.path("/dashboard");
+
 
       });
     });

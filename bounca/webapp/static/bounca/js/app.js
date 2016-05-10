@@ -1,12 +1,16 @@
 'use strict';
 
 angular.module('angularDjangoRegistrationAuthApp', [
+  'djng.urls',
   'ngCookies',
   'ngResource',
   'ngSanitize',
   'ngRoute',
-])
-  .config(function ($routeProvider) {
+  'djng.forms',
+]).config(function($httpProvider) {
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+}).config(function ($routeProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'auth/views/main.html',
@@ -80,19 +84,18 @@ angular.module('angularDjangoRegistrationAuthApp', [
             return djangoAuth.authenticationStatus();
           }],
         }
-      })
-      .when('/restricted', {
-        templateUrl: 'auth/views/restricted.html',
-        controller: 'RestrictedCtrl',
-        resolve: {
-          authenticated: ['djangoAuth', function(djangoAuth){
-            return djangoAuth.authenticationStatus();
-          }],
-        }
-      })
-      .when('/authRequired', {
-        templateUrl: 'auth/views/authrequired.html',
-        controller: 'AuthrequiredCtrl',
+      }).when('/restricted', {
+          templateUrl: 'auth/views/restricted.html',
+          controller: 'RestrictedCtrl',
+          resolve: {
+            authenticated: ['djangoAuth', function(djangoAuth){
+              return djangoAuth.authenticationStatus();
+            }],
+          }
+        })
+      .when('/dashboard', {
+        templateUrl: 'dashboard/views/main.html',
+        controller: 'DashboardCtrl',
         resolve: {
           authenticated: ['djangoAuth', function(djangoAuth){
             return djangoAuth.authenticationStatus(true);
@@ -100,9 +103,9 @@ angular.module('angularDjangoRegistrationAuthApp', [
         }
       })
       .otherwise({
-        redirectTo: '/'
+        redirectTo: '/dashboard'
       });
   })
   .run(function(djangoAuth){
-    djangoAuth.initialize('/api/v1/auth', false);
+    djangoAuth.initialize('/api/v1/auth', true);
   });

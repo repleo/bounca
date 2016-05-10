@@ -11,7 +11,7 @@ angular.module('angularDjangoRegistrationAuthApp')
         djangoAuth.login($scope.model.username, $scope.model.password)
         .then(function(data){
         	// success case
-        	$location.path("/");
+        	$location.path("/dashboard");
         },function(data){
         	// error case
         	$scope.errors = data;

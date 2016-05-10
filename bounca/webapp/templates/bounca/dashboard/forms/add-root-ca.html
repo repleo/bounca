@@ -1,0 +1,26 @@
+
+
+<form name="{{ form.form_name }}" method="post" action="." novalidate ng-controller="AddRootCACtrl">
+<div class="modal-body">
+ <div class="form-group">
+   {{ form.as_div }}
+   {{ form.dn.as_div }}
+ </div>
+</div>
+<div class="modal-footer "> 
+  	<button type="button" ng-disabled="{{ form.form_name }}.$invalid" class="btn btn-warning btn-lg btn-block" ng-click="submit()"><span class="glyphicon glyphicon-ok-sign"></span> Add Root CA</button>
+</div>
+</form>
+   
+<!--  
+   {% csrf_token %}
+
+  <input class="form-control " type="text" placeholder="Mohsin">
+  </div>
+  <div class="form-group">
+  
+  <input class="form-control " type="text" placeholder="Irshad">
+  </div>
+  <div class="form-group">
+  <textarea rows="2" class="form-control" placeholder="CB 106/107 Street # 11 Wah Cantt Islamabad Pakistan"></textarea>
+-->

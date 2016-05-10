@@ -85,4 +85,4 @@ class CertificateForm(forms.ModelForm):
     
     class Meta:
         model = Certificate
-        fields = ('shortname','name','parent','type','dn','expires_at')
+        fields = ('shortname','name','parent','type','dn','expires_at','crl_distribution_url', 'ocsp_distribution_host' )

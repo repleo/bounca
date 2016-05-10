@@ -2,9 +2,10 @@ from django.conf.urls import patterns, include, url
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 from django.core.urlresolvers import reverse_lazy
+from django.contrib.auth.decorators import login_required
+from .views import AddRootCAFormView
 
-
-urlpatterns = patterns('bounca',
+urlpatterns = [
 
     url(r'^auth/views/authrequired.html$', TemplateView.as_view(template_name='bounca/auth/views/authrequired.html'), name='auth.authrequired'),
     url(r'^auth/views/login.html$', TemplateView.as_view(template_name='bounca/auth/views/login.html'), name='auth.login'),
@@ -18,8 +19,11 @@ urlpatterns = patterns('bounca',
     url(r'^auth/views/userprofile.html$', TemplateView.as_view(template_name='bounca/auth/views/userprofile.html'), name='auth.userprofile'),
     url(r'^auth/views/verifyemail.html$', TemplateView.as_view(template_name='bounca/auth/views/verifyemail.html'), name='auth.verifyemail'),
 
+    url(r'^dashboard/forms/add-root-ca.html$', login_required(AddRootCAFormView.as_view()), name='add-root-ca-form'),
 
-    url(r'^ca/$', TemplateView.as_view(template_name='bounca/ca.html'), name='ca'),
+
+    url(r'^dashboard/views/main.html$', login_required(TemplateView.as_view(template_name='bounca/dashboard/views/main.html')), name='dashboard.index'),
+
+
     url(r'^$', TemplateView.as_view(template_name='bounca/index.html'), name='index'),
-
-)
+]
