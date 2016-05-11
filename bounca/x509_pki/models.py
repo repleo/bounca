@@ -7,7 +7,6 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
-from pip.cmdoptions import editable
 
 class DistinguishedName(models.Model):
     alphanumeric = RegexValidator(r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ \*]*$', 'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
