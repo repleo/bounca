@@ -1,0 +1,59 @@
+{
+  "name": "angular-scenario",
+  "version": "1.5.5",
+  "description": "AngularJS module for end-to-end testing",
+  "main": "angular-scenario.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angular/angular.js.git"
+  },
+  "keywords": [
+    "angular",
+    "framework",
+    "browser",
+    "testing",
+    "client-side"
+  ],
+  "author": {
+    "name": "Angular Core Team",
+    "email": "angular-core+npm@google.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/angular/angular.js/issues"
+  },
+  "homepage": "http://angularjs.org",
+  "gitHead": "54e5e4ac26c737c659813c5811344864066a718e",
+  "_id": "angular-scenario@1.5.5",
+  "_shasum": "96e3469ff7c507f31b08e9d36a4000fb460fba70",
+  "_from": "angular-scenario@latest",
+  "_npmVersion": "2.14.12",
+  "_nodeVersion": "4.2.6",
+  "_npmUser": {
+    "name": "angularcore",
+    "email": "angular-core+npm@google.com"
+  },
+  "dist": {
+    "shasum": "96e3469ff7c507f31b08e9d36a4000fb460fba70",
+    "tarball": "https://registry.npmjs.org/angular-scenario/-/angular-scenario-1.5.5.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "angularcore",
+      "email": "angular-core+npm@google.com"
+    },
+    {
+      "name": "petebd",
+      "email": "pete@bacondarwin.com"
+    }
+  ],
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/angular-scenario-1.5.5.tgz_1460978745409_0.017403363715857267"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/angular-scenario/-/angular-scenario-1.5.5.tgz"
+}

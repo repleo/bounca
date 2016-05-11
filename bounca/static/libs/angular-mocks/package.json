@@ -1,0 +1,60 @@
+{
+  "name": "angular-mocks",
+  "version": "1.5.5",
+  "description": "AngularJS mocks for testing",
+  "main": "angular-mocks.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angular/angular.js.git"
+  },
+  "keywords": [
+    "angular",
+    "framework",
+    "browser",
+    "mocks",
+    "testing",
+    "client-side"
+  ],
+  "author": {
+    "name": "Angular Core Team",
+    "email": "angular-core+npm@google.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/angular/angular.js/issues"
+  },
+  "homepage": "http://angularjs.org",
+  "gitHead": "80e86dc20018f31cbd804edbb82d1b8e0ef3c082",
+  "_id": "angular-mocks@1.5.5",
+  "_shasum": "40d976d78a0790426cc4537bf3a73960f84feaa1",
+  "_from": "angular-mocks@latest",
+  "_npmVersion": "2.15.1",
+  "_nodeVersion": "4.4.3",
+  "_npmUser": {
+    "name": "angularcore",
+    "email": "angular-core+npm@google.com"
+  },
+  "dist": {
+    "shasum": "40d976d78a0790426cc4537bf3a73960f84feaa1",
+    "tarball": "https://registry.npmjs.org/angular-mocks/-/angular-mocks-1.5.5.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "angularcore",
+      "email": "angular-core+npm@google.com"
+    },
+    {
+      "name": "petebd",
+      "email": "pete@bacondarwin.com"
+    }
+  ],
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/angular-mocks-1.5.5.tgz_1460972997971_0.16541036288253963"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/angular-mocks/-/angular-mocks-1.5.5.tgz"
+}
