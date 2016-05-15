@@ -7,6 +7,7 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
+import uuid
 
 class DistinguishedName(models.Model):
     alphanumeric = RegexValidator(r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ \*]*$', 'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
@@ -101,13 +102,17 @@ class Certificate(models.Model):
     dn                      = models.ForeignKey(DistinguishedName)
     parent                  = models.ForeignKey("self",blank=True,null=True,help_text="The signing authority (None for root certificate)")
 
-    crl_distribution_url    = models.URLField(blank=True,null=True,help_text="Base URL for certificate revocation list (CRL)")
-    ocsp_distribution_host  = models.URLField(blank=True,null=True,help_text="Host URL for Online Certificate Status Protocol (OCSP)")
+    crl_distribution_url    = models.URLField("CRL distribution url", blank=True,null=True,help_text="Base URL for certificate revocation list (CRL)")
+    ocsp_distribution_host  = models.URLField("OCSP distribution host", blank=True,null=True,help_text="Host URL for Online Certificate Status Protocol (OCSP)")
 
     created_at              = models.DateField(auto_now_add=True)
     expires_at              = models.DateField(validators=[validate_in_future],help_text="Select the date that the certificate will expire: for root typically 20 years, for intermediate 10 years for other types 1 year. Allowed date format: yyyy-mm-dd.")
     revoked_at              = models.DateTimeField(editable=False,default=None,blank=True,null=True)
+    revoked_uuid            = models.UUIDField(default='00000000000000000000000000000001')
     
+    passphrase_in           = ""
+    passphrase_out          = ""
+    passphrase_out_confirmation  = ""
     
     @property
     def days_valid(self):
@@ -128,6 +133,7 @@ class Certificate(models.Model):
     def delete(self, *args, **kwargs):
         if not self.revoked_at and (self.type is CertificateTypes.SERVER_CERT or self.type is CertificateTypes.CLIENT_CERT):
             self.revoked_at=timezone.now()
+            self.revoked_uuid=uuid.uuid4
             if self.type==CertificateTypes.SERVER_CERT:
                 revoke_server_cert(self,'testtest')            
             if self.type==CertificateTypes.CLIENT_CERT:
@@ -136,9 +142,18 @@ class Certificate(models.Model):
             return None
         raise ValidationError('Delete of record not allowed')
 
+
+    def __init__(self, *args, **kwargs):
+        if 'passphrase_in' in kwargs:                   self.passphrase_in =  kwargs.pop('passphrase_in')
+        if 'passphrase_out' in kwargs:                  self.passphrase_out = kwargs.pop('passphrase_out')
+        if 'passphrase_out_confirmation' in kwargs:     self.passphrase_out_confirmation = kwargs.pop('passphrase_out_confirmation')
+        return super().__init__(*args, **kwargs)
+
+        
+
     class Meta:
         db_table = 'bounca_certificate'
-        unique_together = (('shortname', 'type', 'revoked_at'),('dn', 'type', 'revoked_at'))
+        unique_together = (('shortname', 'type', 'revoked_uuid'),('dn', 'type', 'revoked_uuid'),)
 
     def __unicode__(self):
         return  str(self.name)
@@ -146,8 +161,7 @@ class Certificate(models.Model):
     def __str__(self):
         return  str(self.name)
 
-
-
+        
         
 @receiver(pre_save, sender=Certificate)
 def set_fields_certificate(sender,instance, *args, **kwargs):
@@ -161,6 +175,10 @@ def validation_rules_certificate(sender,instance, *args, **kwargs):
         if instance.revoked_at and (instance.type is CertificateTypes.SERVER_CERT or instance.type is CertificateTypes.CLIENT_CERT):
             return
         raise ValidationError('Not allowed to update a Certificate record')
+    
+    if instance.passphrase_out and instance.passphrase_out_confirmation and instance.passphrase_out != instance.passphrase_out_confirmation:
+        raise ValidationError("The two passphrase fields didn't match.")
+    
     if instance.type == CertificateTypes.ROOT and instance.parent: #check_if_root_has_no_parent
         raise ValidationError('Not allowed to have a parent certificate for a ROOT CA certificate')
     if instance.type is not CertificateTypes.ROOT and not instance.parent: #check_if_non_root_certificate_has_parent
@@ -192,13 +210,13 @@ from ..certificate_engine.generator import generate_client_cert
 def generate_certificate(sender, instance, created, **kwargs):
     if created:
         if instance.type==CertificateTypes.ROOT:
-            generate_root_ca(instance,'testtest')
+            generate_root_ca(instance)
         if instance.type==CertificateTypes.INTERMEDIATE:
-            generate_intermediate_ca(instance,'testtest','testtest')
+            generate_intermediate_ca(instance)
         if instance.type==CertificateTypes.SERVER_CERT:
-            generate_server_cert(instance,'testtest',None)            
+            generate_server_cert(instance)            
         if instance.type==CertificateTypes.CLIENT_CERT:
-            generate_client_cert(instance,'testtest',None)     
+            generate_client_cert(instance)     
             
 
 

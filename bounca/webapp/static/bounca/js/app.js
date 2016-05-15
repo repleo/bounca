@@ -6,6 +6,7 @@ angular.module('angularDjangoRegistrationAuthApp', [
   'ngResource',
   'ngSanitize',
   'ngRoute',
+  'ui.bootstrap',
   'djng.forms',
 ]).config(function($httpProvider) {
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
@@ -92,8 +93,16 @@ angular.module('angularDjangoRegistrationAuthApp', [
               return djangoAuth.authenticationStatus();
             }],
           }
-        })
-      .when('/dashboard', {
+        }).
+        when("/dashboard/:id", {
+            templateUrl: 'dashboard/views/main.html',
+            controller: 'DashboardCtrl',
+            resolve: {
+                authenticated: ['djangoAuth', function(djangoAuth){
+                  return djangoAuth.authenticationStatus(true);
+            }],
+        }
+      }).when('/dashboard', {
         templateUrl: 'dashboard/views/main.html',
         controller: 'DashboardCtrl',
         resolve: {

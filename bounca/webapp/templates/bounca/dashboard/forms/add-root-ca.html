@@ -2,25 +2,52 @@
 
 <form name="{{ form.form_name }}" method="post" action="." novalidate ng-controller="AddRootCACtrl">
 <div class="modal-body">
- <div class="form-group">
-   {{ form.as_div }}
-   {{ form.dn.as_div }}
- </div>
+  <div class="row">
+   <div class="col-md-12">
+    Please correct:
+   	<div class="bg-danger" ng-show="{{ form.form_name }}.$message" ng-cloak>
+	    <ul class="djng-form-errors" ng-show="{{ form.form_name }}.$dirty" ng-cloak></ul>
+	    <ul class="djng-form-errors" ng-show="{{ form.form_name }}.$pristine" ng-cloak>
+	     <li ng-show="{{ form.form_name }}.$message" class="invalid" ng-bind="{{ form.form_name }}.$message"></li>
+	    </ul>
+	</div>
+	<br/>
+   </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6" >
+     <div class="panel panel-info">
+	  <div class="panel-heading">
+	    <h3 class="panel-title">Subject</h3>
+	  </div>
+	  <div class="panel-body">
+  		  <div class="form-group">
+		   {{ form.dn.as_div }}
+		  </div> 
+	  </div>
+	 </div>
+	</div>
+    <div class="col-md-6" >
+     <div class="panel panel-info">
+	  <div class="panel-heading">
+	    <h3 class="panel-title">Properties</h3>
+	  </div>
+	  <div class="panel-body">
+ 		  <div class="form-group">
+		   {{ form.as_div }}
+		      <ul class="djng-form-control-feedback djng-field-errors" ng-show="root_ca_form['non_field_errors'].$pristine">
+     <li ng-show="root_ca_form.non_field_errors.$message" class="invalid" ng-bind="root_ca_form.non_field_errors.$message"></li>
+   </ul>
+		  </div>
+	  </div>
+	 </div>    
+    </div>
+  </div>
 </div>
 <div class="modal-footer "> 
   	<button type="button" ng-disabled="{{ form.form_name }}.$invalid" class="btn btn-warning btn-lg btn-block" ng-click="submit()"><span class="glyphicon glyphicon-ok-sign"></span> Add Root CA</button>
 </div>
 </form>
    
-<!--  
-   {% csrf_token %}
 
-  <input class="form-control " type="text" placeholder="Mohsin">
-  </div>
-  <div class="form-group">
-  
-  <input class="form-control " type="text" placeholder="Irshad">
-  </div>
-  <div class="form-group">
-  <textarea rows="2" class="form-control" placeholder="CB 106/107 Street # 11 Wah Cantt Islamabad Pakistan"></textarea>
--->
+

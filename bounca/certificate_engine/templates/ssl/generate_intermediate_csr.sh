@@ -3,23 +3,23 @@
 cd "$(dirname "$0")"
 
 passphrase_in=""
-if [ -e "passphrase_in.txt" ]
+if [ -e "./passphrase_in.txt" ]
 then
-    passphrase_in="-passin file:passphrase_in.txt"
+    passphrase_in="-passin file:./passphrase_in.txt"
 fi
 
 if ! [ -z "$1" ]
 then
-  openssl req -config openssl.cnf -new -sha256\
-      -key private/{{ key_name }}.key.pem \
+  openssl req -config ./openssl.cnf -new -sha256\
+      -key ./private/{{ key_name }}.key.pem \
       -subj "$1" \
       $passphrase_in \
-      -out csr/{{ key_name }}.csr.pem
+      -out ./csr/{{ key_name }}.csr.pem
 else
   openssl req -config openssl.cnf -new -sha256\
-      -key private/{{ key_name }}.key.pem \
+      -key ./private/{{ key_name }}.key.pem \
       $passphrase_in \
-      -out csr/{{ key_name }}.csr.pem
+      -out ./csr/{{ key_name }}.csr.pem
 fi
 
 

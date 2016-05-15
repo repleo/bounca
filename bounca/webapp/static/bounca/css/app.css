@@ -17,6 +17,14 @@ body {
   font-family: 'Raleway', sans-serif;
 }
 
+p {
+  padding-top: 0px;
+  margin-bottom: 0px;
+  padding-left: 0px;
+  margin-right: 0px;
+}
+
+
 .footer {
   position: absolute;
   bottom: 0;
@@ -122,6 +130,20 @@ body {
 	float: left;
 }
 
+.margin-left{
+	margin-left: 5px
+}
+
+.pagination {
+	margin-bottom: 0;
+	margin-top: 0;
+}
+
+
+.add-button-table{
+    margin-left: 5px;
+    margin-top: 5px;
+}
 
 /* login */
 
@@ -215,17 +237,25 @@ ul.djng-field-errors li.valid {
     margin-bottom: 4px; 
 }
 
+div.bg-danger {
+	padding: 15px;	
+}
+
 .help-block {
     display: block;
     margin: 5px;
     font-size: 12px;
     color: #5d2d26;
-}
+    height: 35px;
+} 
 
 .control-label {
 	font-size: 16px;
 }
 
+.djng-line-spreader {
+	display: none;	
+}
 .modal-footer {
 	padding-left: 30px;	
 	padding-right: 30px;
@@ -234,5 +264,9 @@ ul.djng-field-errors li.valid {
 .modal-body {
 	padding-left: 30px;	
 	padding-right: 30px;
+}
+
+.modal-dialog {
+    width: 1100px;
 }
 /* end django-angularjs forms */

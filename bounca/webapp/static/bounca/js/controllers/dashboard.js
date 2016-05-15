@@ -6,19 +6,34 @@ app = angular.module('angularDjangoRegistrationAuthApp'); //, ['ngResource']
 
 app.factory('Certificate', [
     '$resource', function($resource) {
-      return $resource('/api/v1/certificates', {
-      });
+      return $resource('/api/v1/certificates/:id', { id: '@id' } );
     }
   ]);
 
-app.controller('DashboardCtrl', ['$scope', '$interval', '$http', 'Certificate', function($scope, $interval, $http, Certificate) {
+app.controller('DashboardCtrl', ['$scope', '$interval', '$http', '$route', 'Certificate', function($scope, $interval, $http, $route, Certificate) {
+
+
+	
+	$scope.parent_id=$route.current.params.id;
+	$scope.parent=null;
+	if($scope.parent_id){
+		console.log($scope.parent_id);
+		Certificate.get({id:$scope.parent_id},function(dataElements){
+			console.log(dataElements);
+			$scope.parent=dataElements;
+		})
+	}
+
+	
+	
     $scope.search = {
             query: ''
     };
+    
     $scope.pagination = {
-            page: 1,
-            previous: 1,
-            next: 1
+			totalItems : 0,
+			page : 1,
+			maxSize : 5
     };
     load_certificates();
 	
@@ -29,9 +44,9 @@ app.controller('DashboardCtrl', ['$scope', '$interval', '$http', 'Certificate', 
 	
 	$scope.changedSearchField = function(){
 		$scope.pagination = {
-	            page: 1,
-	            previous: 1,
-	            next: 1
+				totalItems : 0,
+				page : 1,
+				maxSize : 5
 	    };
 		load_certificates();
 	};
@@ -45,28 +60,35 @@ app.controller('DashboardCtrl', ['$scope', '$interval', '$http', 'Certificate', 
 		$scope.pagination.page = $scope.pagination.previous;
 		load_certificates();
 	};
+
+	$scope.pageChanged = function () {
+		console.log("page changed");
+		load_certificates();
+	};
 	
 	
 	function load_certificates(){
 		var query;
+		query={'ordering':'-id','page':$scope.pagination.page}
+		
 		if($scope.search.query){
-			query={'ordering':'-expires_at','type':'R','page':$scope.pagination.page,search:$scope.search.query}
+			query['search']=$scope.search.query;
+		} 
+		if($scope.parent_id){
+			query['parent']=$scope.parent_id;
 		} else {
-			query={'ordering':'-expires_at','type':'R','page':$scope.pagination.page}
+			query['type']='R';
 		}
+		
+		
 		Certificate.get(query,function(dataElements){
 				$scope.certs = dataElements.results;
-				if(dataElements.previous==null)
-					$scope.pagination.previous = 1;
-				else
-					$scope.pagination.previous = $scope.pagination.page - 1;
-				if(dataElements.next==null)
-					$scope.pagination.next = $scope.pagination.page;
-				else
-					$scope.pagination.next = $scope.pagination.page + 1;
-		    });
+				$scope.pagination.totalItems = dataElements.count;
+		});
 	}; 
 	
+
+
 }
 ]);
 
@@ -84,7 +106,6 @@ app.controller('AddRootCACtrl', function($scope, $http, $window, djangoUrl, djan
 			}).error(function(out_data) {
 				djangoForm.setErrors($scope.root_ca_form, out_data);
 				console.log(out_data);
-				//alert('An error occured during submission, see browser logs (TODO add feedback to FORM)');
 			});
 		}
 		return false;

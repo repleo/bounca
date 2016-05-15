@@ -13,21 +13,21 @@ then
 fi
 
 passphrase_in=""
-if [ -e "passphrase_in.txt" ]
+if [ -e "./passphrase_in.txt" ]
 then
-    passphrase_in="-passin file:passphrase_in.txt"
+    passphrase_in="-passin file:./passphrase_in.txt"
 fi
 
-mkdir -p certs/{{ cert_subdir }}/revoked/
-mkdir -p private/{{ cert_subdir }}/revoked/
+mkdir -p ./certs/{{ cert_subdir }}/revoked/
+mkdir -p ./private/{{ cert_subdir }}/revoked/
 
-openssl ca -batch -config openssl.cnf \
+openssl ca -batch -config ./openssl.cnf \
 	  $passphrase_in \
-      -revoke certs/{{ cert_subdir }}/$1.cert.pem
+      -revoke ./certs/{{ cert_subdir }}/$1.cert.pem
       
-mv certs/{{ cert_subdir }}/$1.cert.pem certs/{{ cert_subdir }}/revoked/$2-$1.cert.pem
-mv certs/{{ cert_subdir }}/$1-chain.cert.pem certs/{{ cert_subdir }}/revoked/$2-$1-chain.cert.pem
-mv private/{{ cert_subdir }}/$1.key.pem private/{{ cert_subdir }}/revoked/$2-$1.key.pem
+mv ./certs/{{ cert_subdir }}/$1.cert.pem ./certs/{{ cert_subdir }}/revoked/$2-$1.cert.pem
+mv ./certs/{{ cert_subdir }}/$1-chain.cert.pem ./certs/{{ cert_subdir }}/revoked/$2-$1-chain.cert.pem
+mv ./private/{{ cert_subdir }}/$1.key.pem ./private/{{ cert_subdir }}/revoked/$2-$1.key.pem
 
 
 exit 0
