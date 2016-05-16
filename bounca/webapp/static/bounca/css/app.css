@@ -140,9 +140,17 @@ p {
 }
 
 
+.add-text-table{
+    margin-top: 6px;
+}
+
 .add-button-table{
-    margin-left: 5px;
-    margin-top: 5px;
+    margin-top: 4px;
+	padding-right: 39px;
+}
+
+.cert-path{
+	font-size: 20px;
 }
 
 /* login */

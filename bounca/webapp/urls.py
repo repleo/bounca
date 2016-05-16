@@ -4,6 +4,9 @@ from django.views.generic.base import RedirectView
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from .views import AddRootCAFormView
+from .views import AddIntermediateCAFormView
+from .views import AddServerCertificateFormView
+from .views import AddClientCertificateFormView
 
 urlpatterns = [
 
@@ -20,6 +23,9 @@ urlpatterns = [
     url(r'^auth/views/verifyemail.html$', TemplateView.as_view(template_name='bounca/auth/views/verifyemail.html'), name='auth.verifyemail'),
 
     url(r'^dashboard/forms/add-root-ca.html$', login_required(AddRootCAFormView.as_view()), name='add-root-ca-form'),
+    url(r'^dashboard/forms/add-intermediate-ca.html$', login_required(AddIntermediateCAFormView.as_view()), name='add-intermediate-ca-form'),
+    url(r'^dashboard/forms/add-client-cert.html$', login_required(AddClientCertificateFormView.as_view()), name='add-client-cert-form'),
+    url(r'^dashboard/forms/add-server-cert.html$', login_required(AddServerCertificateFormView.as_view()), name='add-server-cert-form'),
 
 
     url(r'^dashboard/views/main.html$', login_required(TemplateView.as_view(template_name='bounca/dashboard/views/main.html')), name='dashboard.index'),

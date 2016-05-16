@@ -14,19 +14,94 @@ logger = logging.getLogger(__name__)
 
 import subprocess 
 
+
+
 def generate_path(certificate):
     prefix_path=""
     if certificate.parent and certificate.pk != certificate.parent.pk:
         prefix_path=generate_path(certificate.parent)
     return prefix_path + "/" + str(certificate.shortname)
 
-def generate_files(certificate,openssl_cnf_template_name):
-    key_path = generate_path(certificate)
-    root_path = settings.CA_ROOT + key_path + "/"
-    
+class generate_key_path(object):
+
+    def __init__(self, f):
+        self.f = f
+
+    def __call__(self,certificate,*args):
+        key_path = generate_path(certificate)
+        root_path = settings.CA_ROOT + key_path + "/"
+        os.makedirs(root_path,exist_ok=True)
+        self.f(certificate, *args , key_path=key_path, root_path=root_path)
+            
+            
+class generate_key_path_parent(object):
+
+    def __init__(self, f):
+        self.f = f
+
+    def __call__(self,certificate,*args):
+        key_path = generate_path(certificate.parent)
+        root_path = settings.CA_ROOT + key_path + "/"
+        os.makedirs(root_path,exist_ok=True)
+        self.f(certificate, *args , key_path=key_path, root_path=root_path)
+            
+import string
+import random
+def random_string_generator(size=300, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
+
+class write_passphrase_files(object):
+
+    def __init__(self, f):
+        self.f = f
+
+    def __call__(self,certificate, *args, key_path='.', root_path='.'):
+        try:
+            if certificate.passphrase_out:
+                with open(root_path +'passphrase_out.txt','w') as f:
+                    f.write(certificate.passphrase_out)    
+                os.chmod(root_path +'passphrase_out.txt', 0o600)
+            else:
+                try:
+                    os.remove(root_path +'passphrase_out.txt')
+                except FileNotFoundError:
+                    pass
+                
+            if certificate.passphrase_in:
+                with open(root_path +'passphrase_in.txt','w') as f:
+                    f.write(certificate.passphrase_in)
+                os.chmod(root_path +'passphrase_in.txt', 0o600)
+            else:
+                try:
+                    os.remove(root_path +'passphrase_in.txt')
+                except FileNotFoundError:
+                    pass
+                      
+            
+            
+            result = self.f(certificate, *args , key_path=key_path, root_path=root_path)
+            
+            with open(root_path +'passphrase_out.txt','w') as f:
+                f.write(random_string_generator())
+            os.remove(root_path +'passphrase_out.txt')
+            with open(root_path +'passphrase_in.txt','w') as f:
+                f.write(random_string_generator()) 
+            os.remove(root_path +'passphrase_in.txt')  
+            
+            return result                           
+        except Exception as e:
+            with open(root_path +'passphrase_out.txt','w') as f:
+                f.write(random_string_generator())
+            os.remove(root_path +'passphrase_out.txt')
+            with open(root_path +'passphrase_in.txt','w') as f:
+                f.write(random_string_generator())
+            os.remove(root_path +'passphrase_in.txt')          
+            raise e
+            
+@generate_key_path
+def generate_files(certificate,openssl_cnf_template_name, key_path='.', root_path='.'):   
 
     logger.warning("Create directory for certificate " + str(certificate) + " with the path: " + root_path)
-    os.makedirs(root_path,exist_ok=True)
     os.makedirs(root_path + "certs" ,exist_ok=True)
     if certificate.type == CertificateTypes.INTERMEDIATE:
         os.makedirs(root_path + "crl" ,exist_ok=True)
@@ -55,15 +130,10 @@ def generate_files(certificate,openssl_cnf_template_name):
         
     return 0
 
+@generate_key_path
+@write_passphrase_files
+def generate_key(certificate,generate_key_template_name, key_path='.', root_path='.'):
 
-def generate_key(certificate,generate_key_template_name):
-    key_path = generate_path(certificate)
-    root_path = settings.CA_ROOT + key_path + "/"
-
-    with open(root_path +'passphrase_out.txt','w') as f:
-        f.write(certificate.passphrase_out)
-    os.chmod(root_path +'passphrase_out.txt', 0o600)
-    
     key_name=certificate.shortname
         
     c = {
@@ -77,18 +147,13 @@ def generate_key(certificate,generate_key_template_name):
     os.chmod(root_path +'generate_%s_key.sh' %(key_name), 0o755)
     
     returncode = subprocess.check_output([root_path + 'generate_%s_key.sh' %(key_name)])
-    os.remove(root_path +'passphrase_out.txt')
+
     return returncode
 
 
-
-def generate_cert(certificate,generate_cert_template_name):
-    key_path = generate_path(certificate)
-    root_path = settings.CA_ROOT + key_path + "/"
-    with open(root_path +'passphrase_in.txt','w') as f:
-        f.write(certificate.passphrase_out)
-    os.chmod(root_path +'passphrase_in.txt', 0o600)
-           
+@generate_key_path
+@write_passphrase_files
+def generate_cert(certificate,generate_cert_template_name, key_path='.', root_path='.'):
     key_name=certificate.shortname
 
     c = {
@@ -102,17 +167,12 @@ def generate_cert(certificate,generate_cert_template_name):
     os.chmod(root_path +'generate_%s_cert.sh'%(key_name), 0o755)
     
     subprocess.check_output([root_path + "generate_%s_cert.sh"%(key_name),str(certificate.days_valid),certificate.dn.subj])
-    os.remove(root_path +'passphrase_in.txt')
+
     return 0
 
-
-def generate_csr(certificate,generate_csr_template_name):
-    key_path = generate_path(certificate)
-    root_path = settings.CA_ROOT + key_path + "/"
-    with open(root_path +'passphrase_in.txt','w') as f:
-        f.write(certificate.passphrase_out)
-    os.chmod(root_path +'passphrase_in.txt', 0o600)
-    
+@generate_key_path
+@write_passphrase_files
+def generate_csr(certificate,generate_csr_template_name, key_path='.', root_path='.'):
     key_name=certificate.shortname
 
     c = {
@@ -126,16 +186,11 @@ def generate_csr(certificate,generate_csr_template_name):
     os.chmod(root_path +'generate_csr.sh', 0o755)
     
     subprocess.check_output([root_path + "generate_csr.sh",certificate.dn.subj])
-    os.remove(root_path +'passphrase_in.txt')
     return 0
 
-def sign_cert(certificate,sign_cert_template_name):
-    key_path = generate_path(certificate)
-    root_path = settings.CA_ROOT + key_path + "/"
-    with open(root_path +'passphrase_in.txt','w') as f:
-        f.write(certificate.passphrase_in)
-    os.chmod(root_path +'passphrase_in.txt', 0o600)
-    
+@generate_key_path
+@write_passphrase_files
+def sign_cert(certificate,sign_cert_template_name, key_path='.', root_path='.'):
     key_name=certificate.shortname
 
     c = {
@@ -150,35 +205,40 @@ def sign_cert(certificate,sign_cert_template_name):
     os.chmod(root_path +'sign_certificate.sh', 0o755)
     
     subprocess.check_output([root_path + "sign_certificate.sh",str(certificate.days_valid)])
-    os.remove(root_path +'passphrase_in.txt')
     return 0
 
-def generate_generic_cert_creation_script(certificate,generate_signed_cert_template_name,extensions,script_name):
-    key_path = generate_path(certificate)
-    root_path = settings.CA_ROOT + key_path + "/"
+@generate_key_path
+def generate_server_cert_creation_script(certificate,generate_signed_cert_template_name, key_path='.', root_path='.'):
 
     c = {
         'cert': certificate,
-        'extensions': extensions,
-        'cert_subdir': script_name,
+        'extensions': 'server',
+        'cert_subdir': 'server_cert',
         'key_length': '2048'
     }
     generate_signed_certificate_script = loader.render_to_string(generate_signed_cert_template_name, c)
-    with open(root_path +'generate_signed_%s_certificate.sh'%(script_name),'w') as f:
+    with open(root_path +'generate_signed_server_cert_certificate.sh','w') as f:
         f.write(generate_signed_certificate_script)
-    os.chmod(root_path +'generate_signed_%s_certificate.sh'%(script_name), 0o755)
+    os.chmod(root_path +'generate_signed_server_cert_certificate.sh', 0o755)
     return 0
 
-def generate_server_cert_creation_script(certificate,generate_signed_cert_template_name):
-    return generate_generic_cert_creation_script(certificate,generate_signed_cert_template_name,"server_cert","server")
+@generate_key_path
+def generate_client_cert_creation_script(certificate,generate_signed_cert_template_name, key_path='.', root_path='.'):
 
-def generate_client_cert_creation_script(certificate,generate_signed_cert_template_name):
-    return generate_generic_cert_creation_script(certificate,generate_signed_cert_template_name,"usr_cert","client")
+    c = {
+        'cert': certificate,
+        'extensions': 'client',
+        'cert_subdir': 'usr_cert',
+        'key_length': '2048'
+    }
+    generate_signed_certificate_script = loader.render_to_string(generate_signed_cert_template_name, c)
+    with open(root_path +'generate_signed_usr_cert_certificate.sh','w') as f:
+        f.write(generate_signed_certificate_script)
+    os.chmod(root_path +'generate_signed_usr_cert_certificate.sh', 0o755)
+    return 0
 
-
-def generate_generic_cert_revoke_script(certificate,generate_cert_revoke_template_name,script_name):
-    key_path = generate_path(certificate)
-    root_path = settings.CA_ROOT + key_path + "/"
+@generate_key_path
+def generate_generic_cert_revoke_script(certificate,generate_cert_revoke_template_name,script_name, key_path='.', root_path='.'):
 
     c = {
         'cert': certificate,
@@ -254,70 +314,32 @@ def generate_intermediate_ca(certificate):
     logger.warning("INTERMEDIATE CA created")    
     return returncode
 
-def generate_server_cert(certificate):
-    key_path = generate_path(certificate.parent)
-    root_path = settings.CA_ROOT + key_path + "/"
-    with open(root_path +'passphrase_in.txt','w') as f:
-        f.write(certificate.passphrase_in)
-    os.chmod(root_path +'passphrase_in.txt', 0o600)
-    
-    if certificate.passphrase_out:
-        with open(root_path +'passphrase_out.txt','w') as f:
-            f.write(certificate.passphrase_in)
-        os.chmod(root_path +'passphrase_out.txt', 0o600)
-                
+@generate_key_path_parent
+@write_passphrase_files
+def generate_server_cert(certificate, key_path='.', root_path='.'):
     logger.warning("Create signed server certificate")
-
-    subprocess.check_output([root_path + "generate_signed_server_certificate.sh",certificate.dn.slug_commonName,str(certificate.days_valid),certificate.dn.subj])
-    os.remove(root_path +'passphrase_in.txt')
-    if certificate.passphrase_out:
-        os.remove(root_path +'passphrase_out.txt')
+    subprocess.check_output([root_path + "generate_signed_server_certificate.sh",certificate.shortname,str(certificate.days_valid),certificate.dn.subj])
     return 0
 
-def generate_client_cert(certificate):
-    key_path = generate_path(certificate.parent)
-    root_path = settings.CA_ROOT + key_path + "/"
-    with open(root_path +'passphrase_in.txt','w') as f:
-        f.write(certificate.passphrase_in)
-    os.chmod(root_path +'passphrase_in.txt', 0o600)
-    
-    if certificate.passphrase_out:
-        with open(root_path +'passphrase_out.txt','w') as f:
-            f.write(certificate.passphrase_in)
-        os.chmod(root_path +'passphrase_out.txt', 0o600)        
-
+@generate_key_path_parent
+@write_passphrase_files
+def generate_client_cert(certificate, key_path='.', root_path='.'):
     logger.warning("Create signed client certificate")
-
-    subprocess.check_output([root_path + "generate_signed_client_certificate.sh",certificate.dn.slug_commonName,str(certificate.days_valid),certificate.dn.subj])
-    os.remove(root_path +'passphrase_in.txt')
-    if certificate.passphrase_out:
-        os.remove(root_path +'passphrase_out.txt')
+    subprocess.check_output([root_path + "generate_signed_client_certificate.sh",certificate.shortname,str(certificate.days_valid),certificate.dn.subj])
     return 0
 
-def revoke_server_cert(certificate):
-    key_path = generate_path(certificate.parent)
-    root_path = settings.CA_ROOT + key_path + "/"
-    with open(root_path +'passphrase_in.txt','w') as f:
-        f.write(certificate.passphrase_in)
-    os.chmod(root_path +'passphrase_in.txt', 0o600)
-                
+@generate_key_path_parent
+@write_passphrase_files
+def revoke_server_cert(certificate, key_path='.', root_path='.'):
     logger.warning("Revoke server certificate")
-
-    subprocess.check_output([root_path + "revoke_server_certificate.sh",certificate.dn.slug_commonName,str(certificate.slug_revoked_at)])
-    os.remove(root_path +'passphrase_in.txt')
+    subprocess.check_output([root_path + "revoke_server_certificate.sh",certificate.shortname,str(certificate.slug_revoked_at)])
     return 0
 
-def revoke_client_cert(certificate):
-    key_path = generate_path(certificate.parent)
-    root_path = settings.CA_ROOT + key_path + "/"
-    with open(root_path +'passphrase_in.txt','w') as f:
-        f.write(certificate.passphrase_in)
-    os.chmod(root_path +'passphrase_in.txt', 0o600)
-                
+@generate_key_path_parent
+@write_passphrase_files
+def revoke_client_cert(certificate, key_path='.', root_path='.'):
     logger.warning("Revoke client certificate")
-
-    subprocess.check_output([root_path + "revoke_client_certificate.sh",certificate.dn.slug_commonName,str(certificate.slug_revoked_at)])
-    os.remove(root_path +'passphrase_in.txt')
+    subprocess.check_output([root_path + "revoke_client_certificate.sh",certificate.shortname,str(certificate.slug_revoked_at)])
     return 0
 
 

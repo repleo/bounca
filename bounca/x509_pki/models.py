@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
 import uuid
+from setuptools.ssl_support import cert_paths
 
 class DistinguishedName(models.Model):
     alphanumeric = RegexValidator(r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ \*]*$', 'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
@@ -18,7 +19,7 @@ class DistinguishedName(models.Model):
     organizationName            = models.CharField("Organization Name",max_length=64,validators=[alphanumeric],default="Repleo",help_text="The legal name of your organization. This should not be abbreviated and should include suffixes such as Inc, Corp, or LLC.")
     organizationalUnitName      = models.CharField("Organization Unit Name",max_length=64,validators=[alphanumeric],default="IT Department",help_text="The division of your organization handling the certificate.")
     emailAddress                = models.EmailField("Email Address",max_length=64,validators=[alphanumeric],default="ca@repleo.nl",help_text="The email address to contact your organization. Also used by BounCA for authentication.")
-    commonName                  = models.CharField("Common Name",max_length=64,validators=[alphanumeric],default="*.repleo.nl",help_text="The fully qualified domain name (FQDN) of your server. This must match exactly what you type in your web browser or you will receive a name mismatch error.")
+    commonName                  = models.CharField("Common Name",max_length=64,validators=[alphanumeric],help_text="The fully qualified domain name (FQDN) of your server. This must match exactly what you type in your web browser or you will receive a name mismatch error.")
 
     @property
     def dn(self):
@@ -129,6 +130,15 @@ class Certificate(models.Model):
     @property
     def revoked(self):
         return self.revoked_at 
+    
+    @property
+    def cert_path(self):
+        if self.parent:
+            cert_path = self.parent.cert_path
+            cert_path.append({'id':self.id,'shortname':self.shortname})
+            return cert_path
+        else:
+            return [{'id':self.id,'shortname':self.shortname}]
     
     def delete(self, *args, **kwargs):
         if not self.revoked_at and (self.type is CertificateTypes.SERVER_CERT or self.type is CertificateTypes.CLIENT_CERT):

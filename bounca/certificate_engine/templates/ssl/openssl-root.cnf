@@ -38,6 +38,7 @@ policy            = policy_strict
 # See the POLICY FORMAT section of `man ca`.
 countryName             = match
 stateOrProvinceName     = match
+localityName            = match
 organizationName        = match
 organizationalUnitName  = optional
 commonName              = supplied

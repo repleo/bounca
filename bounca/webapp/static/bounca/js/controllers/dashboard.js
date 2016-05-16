@@ -10,8 +10,11 @@ app.factory('Certificate', [
     }
   ]);
 
-app.controller('DashboardCtrl', ['$scope', '$interval', '$http', '$route', 'Certificate', function($scope, $interval, $http, $route, Certificate) {
-
+app.controller('DashboardCtrl', ['$scope', '$interval', '$http', '$route', 'djangoUrl', 'Certificate', function($scope, $interval, $http, $route, djangoUrl, Certificate) {
+	var rootCertificateFormURL = djangoUrl.reverse('bounca:add-root-ca-form')
+	var intermediaCertificateFormURL = djangoUrl.reverse('bounca:add-intermediate-ca-form')
+	var serverCertificateFormURL = djangoUrl.reverse('bounca:add-server-cert-form')
+	var clientCertificateFormURL = djangoUrl.reverse('bounca:add-client-cert-form')
 
 	
 	$scope.parent_id=$route.current.params.id;
@@ -24,6 +27,33 @@ app.controller('DashboardCtrl', ['$scope', '$interval', '$http', '$route', 'Cert
 		})
 	}
 
+	$scope.getRootCertForm = function(){
+		return rootCertificateFormURL;
+	}
+	
+	$scope.getIntermediateCertForm = function(){
+		if($scope.parent_id){
+			return intermediaCertificateFormURL+"&parent="+$scope.parent_id;
+		}else{
+			return rootCertificateFormURL;
+		}
+	}
+
+	$scope.getServerCertForm = function(){
+		if($scope.parent_id){
+			return serverCertificateFormURL+"&parent="+$scope.parent_id;
+		}else{
+			return rootCertificateFormURL;
+		}
+	}
+	
+	$scope.getClientCertForm = function(){
+		if($scope.parent_id){
+			return clientCertificateFormURL+"&parent="+$scope.parent_id;
+		}else{
+			return rootCertificateFormURL;
+		}
+	}
 	
 	
     $scope.search = {
@@ -92,20 +122,20 @@ app.controller('DashboardCtrl', ['$scope', '$interval', '$http', '$route', 'Cert
 }
 ]);
 
-app.controller('AddRootCACtrl', function($scope, $http, $window, djangoUrl, djangoForm) {
-	var postRootCAURL = djangoUrl.reverse('api:v1:certificates');
-	var success_url = "/";
+app.controller('AddCertificateCtrl', function($scope, $http, $window, djangoUrl, djangoForm) {
+	var postCertificateURL = djangoUrl.reverse('api:v1:certificates');
+	var success_url = $window.location.href;
 	
 	$scope.submit = function() {
-		if ($scope.root_ca_data) {
-			$http.post(postRootCAURL, $scope.root_ca_data).success(function(out_data) {
-				if (!djangoForm.setErrors($scope.root_ca_form, out_data.errors)) {
-					// on successful post, redirect onto success page
-					$window.location.href = success_url;
+		if ($scope.cert_data) {
+			$http.post(postCertificateURL, $scope.cert_data).success(function(out_data) {
+				if (!djangoForm.setErrors($scope.cert_form, out_data.errors)) {
+				    var buttons = document.getElementsByClassName('close');
+				    for(var i = 0; i <= buttons.length; i++)  
+				       buttons[i].click();
 				}
 			}).error(function(out_data) {
-				djangoForm.setErrors($scope.root_ca_form, out_data);
-				console.log(out_data);
+				djangoForm.setErrors($scope.cert_form, out_data);
 			});
 		}
 		return false;
