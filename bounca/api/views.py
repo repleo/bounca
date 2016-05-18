@@ -25,7 +25,7 @@ class CertificateListView(TrapDjangoValidationErrorCreateMixin, generics.ListCre
     pagination_class = APIPageNumberPagination
     filter_fields = ('type', 'parent',)
 
-class CertificateInstanceView(generics.RetrieveAPIView):
+class CertificateInstanceView(generics.RetrieveDestroyAPIView):
     model = Certificate
     queryset = Certificate.objects.all()
     serializer_class = CertificateSerializer
@@ -39,6 +39,18 @@ class CertificateInstanceView(generics.RetrieveAPIView):
 from django.views.generic import View
 from django.http import HttpResponse
 from django.http import HttpResponseNotFound
+
+class CertificateInfoView(View):
+    def get(self, request, pk, format=None):
+        cert=None
+        try:
+            cert = Certificate.objects.get(pk=pk);
+        except:
+            return HttpResponseNotFound("File not found")
+        info = cert.get_certificate_info()
+        return HttpResponse(info)
+
+
 from django.conf import settings
 import io
 import os

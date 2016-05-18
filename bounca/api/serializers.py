@@ -11,6 +11,7 @@ class DistinguishedNameSerializer(serializers.ModelSerializer):
 from django.contrib.auth import password_validation
 
 from ..x509_pki.models import Certificate
+import uuid
 
 class CertificateSerializer(serializers.ModelSerializer):
     dn = DistinguishedNameSerializer()
@@ -19,7 +20,7 @@ class CertificateSerializer(serializers.ModelSerializer):
     passphrase_out_confirmation  = serializers.CharField(max_length=200, required=False, allow_null=True, allow_blank=True)
 
     class Meta:
-        fields = ('id','shortname','name','parent','cert_path','type','dn','created_at','expires_at','days_valid','revoked','crl_distribution_url','ocsp_distribution_host','passphrase_in','passphrase_out','passphrase_out_confirmation')
+        fields = ('id','shortname','name','parent','cert_path','type','dn','created_at','expires_at','revoked_at','days_valid','revoked','crl_distribution_url','ocsp_distribution_host','passphrase_in','passphrase_out','passphrase_out_confirmation')
         model = Certificate
         extra_kwargs = {'passphrase_out': {'write_only': True},'passphrase_out_confirmation': {'write_only': True},'passphrase_in': {'write_only': True}}
 
@@ -43,7 +44,7 @@ class CertificateSerializer(serializers.ModelSerializer):
         shortname = data.get("shortname")
         cert_type = data.get("type")
 
-        if Certificate.objects.filter(shortname=shortname, type=cert_type, revoked_uuid='00000000000000000000000000000001').count() > 0:
+        if Certificate.objects.filter(shortname=shortname, type=cert_type, revoked_uuid=uuid.UUID('00000000000000000000000000000001')).count() > 0:
             raise serializers.ValidationError( dict(Certificate.TYPES)[cert_type] + " \"" +shortname+ "\" already exists.")
 
         return data

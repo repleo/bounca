@@ -6,7 +6,12 @@ app = angular.module('angularDjangoRegistrationAuthApp'); //, ['ngResource']
 
 app.factory('Certificate', [
     '$resource', function($resource) {
-      return $resource('/api/v1/certificates/:id', { id: '@id' } );
+      return $resource('/api/v1/certificates/:id', {  }, {
+    	  query: {method:'GET', params:{id:''}, isArray:true},
+    	  get: {method:'GET', params: {id: '@id'}},
+    	  post: {method:'POST', params:{id: '@id'}},
+    	  remove: {method:'DELETE', params:{id: '@id'}}
+    	} );
     }
   ]);
 
@@ -22,7 +27,6 @@ app.controller('DashboardCtrl', ['$scope', '$interval', '$http', '$route', 'djan
 	if($scope.parent_id){
 		console.log($scope.parent_id);
 		Certificate.get({id:$scope.parent_id},function(dataElements){
-			console.log(dataElements);
 			$scope.parent=dataElements;
 		})
 	}
@@ -81,21 +85,21 @@ app.controller('DashboardCtrl', ['$scope', '$interval', '$http', '$route', 'djan
 		load_certificates();
 	};
 	
-	$scope.nextPage = function(){
-		$scope.pagination.page = $scope.pagination.next;
-		load_certificates();
-	};
 
-	$scope.previousPage = function(){
-		$scope.pagination.page = $scope.pagination.previous;
-		load_certificates();
-	};
 
 	$scope.pageChanged = function () {
-		console.log("page changed");
 		load_certificates();
 	};
+
 	
+	$scope.delete_cert= function ($event) {
+	    var cert_id = $($event.target).attr('data-cert-id');
+		Certificate.remove({id:cert_id},function(dataElements){
+			console.log(dataElements);
+			load_certificates();
+		})
+		
+	};
 	
 	function load_certificates(){
 		var query;

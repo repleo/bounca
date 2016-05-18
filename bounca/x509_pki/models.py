@@ -7,9 +7,11 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
+from django.contrib.postgres.fields import ArrayField
 import uuid
 from setuptools.ssl_support import cert_paths
 
+    
 class DistinguishedName(models.Model):
     alphanumeric = RegexValidator(r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ \*]*$', 'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
 
@@ -20,6 +22,7 @@ class DistinguishedName(models.Model):
     organizationalUnitName      = models.CharField("Organization Unit Name",max_length=64,validators=[alphanumeric],default="IT Department",help_text="The division of your organization handling the certificate.")
     emailAddress                = models.EmailField("Email Address",max_length=64,validators=[alphanumeric],default="ca@repleo.nl",help_text="The email address to contact your organization. Also used by BounCA for authentication.")
     commonName                  = models.CharField("Common Name",max_length=64,validators=[alphanumeric],help_text="The fully qualified domain name (FQDN) of your server. This must match exactly what you type in your web browser or you will receive a name mismatch error.")
+    subjectAltName              = ArrayField(models.CharField(max_length=64,validators=[alphanumeric]),help_text="subjectAltName list",blank=True,null=True)
 
     @property
     def dn(self):
@@ -80,7 +83,8 @@ class CertificateQuerySet(models.QuerySet):
             obj.delete()
  
 from ..certificate_engine.generator import revoke_server_cert  
-from ..certificate_engine.generator import revoke_client_cert            
+from ..certificate_engine.generator import revoke_client_cert   
+from ..certificate_engine.generator import get_certificate_info         
 
 class Certificate(models.Model):
     objects = CertificateQuerySet.as_manager()
@@ -129,7 +133,7 @@ class Certificate(models.Model):
 
     @property
     def revoked(self):
-        return self.revoked_at 
+        return self.revoked_uuid != uuid.UUID('00000000000000000000000000000001')
     
     @property
     def cert_path(self):
@@ -140,14 +144,18 @@ class Certificate(models.Model):
         else:
             return [{'id':self.id,'shortname':self.shortname}]
     
+    def get_certificate_info(self):
+        info = get_certificate_info(self)
+        return info
+    
     def delete(self, *args, **kwargs):
         if not self.revoked_at and (self.type is CertificateTypes.SERVER_CERT or self.type is CertificateTypes.CLIENT_CERT):
             self.revoked_at=timezone.now()
-            self.revoked_uuid=uuid.uuid4
+            self.revoked_uuid=uuid.uuid4()
             if self.type==CertificateTypes.SERVER_CERT:
-                revoke_server_cert(self,'testtest')            
+                revoke_server_cert(self)            
             if self.type==CertificateTypes.CLIENT_CERT:
-                revoke_client_cert(self,'testtest')
+                revoke_client_cert(self)
             self.save(*args, **kwargs)
             return None
         raise ValidationError('Delete of record not allowed')

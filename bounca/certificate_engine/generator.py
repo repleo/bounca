@@ -28,22 +28,16 @@ class generate_key_path(object):
         self.f = f
 
     def __call__(self,certificate,*args):
-        key_path = generate_path(certificate)
+        if(certificate.type==CertificateTypes.CLIENT_CERT or certificate.type==CertificateTypes.SERVER_CERT):
+            key_path = generate_path(certificate.parent)
+        else:
+            key_path = generate_path(certificate)
         root_path = settings.CA_ROOT + key_path + "/"
         os.makedirs(root_path,exist_ok=True)
-        self.f(certificate, *args , key_path=key_path, root_path=root_path)
+        return self.f(certificate, *args , key_path=key_path, root_path=root_path)
             
             
-class generate_key_path_parent(object):
 
-    def __init__(self, f):
-        self.f = f
-
-    def __call__(self,certificate,*args):
-        key_path = generate_path(certificate.parent)
-        root_path = settings.CA_ROOT + key_path + "/"
-        os.makedirs(root_path,exist_ok=True)
-        self.f(certificate, *args , key_path=key_path, root_path=root_path)
             
 import string
 import random
@@ -256,11 +250,36 @@ def generate_server_cert_revoke_script(certificate,generate_cert_revoke_template
 def generate_client_cert_revoke_script(certificate,generate_cert_revoke_template_name):
     return generate_generic_cert_revoke_script(certificate,generate_cert_revoke_template_name,"client")
 
+@generate_key_path
+def generate_certificate_info_script(certificate,generate_certificate_info_template_name, key_path='.', root_path='.'):
+
+    c = {
+        'cert': certificate
+    }
+    generate_certificate_info_certificate_script = loader.render_to_string(generate_certificate_info_template_name, c)
+    with open(root_path +'get_certificate_info.sh','w') as f:
+        f.write(generate_certificate_info_certificate_script)
+    os.chmod(root_path +'get_certificate_info.sh', 0o755)
+    return 0
+
+@generate_key_path
+def generate_test_passphrase_script(certificate,generate_test_passphrase_template_name, key_path='.', root_path='.'):
+
+    c = {
+        'cert': certificate
+    }
+    generate_test_passphrase_script = loader.render_to_string(generate_test_passphrase_template_name, c)
+    with open(root_path +'test_passphrase_key.sh','w') as f:
+        f.write(generate_test_passphrase_script)
+    os.chmod(root_path +'test_passphrase_key.sh', 0o755)
+    return 0
 
 def generate_root_ca(certificate):
     openssl_cnf_template_name = 'ssl/openssl-root.cnf'
     generate_key_template_name = 'ssl/generate_key.sh'
     generate_cert_template_name = 'ssl/generate_cert.sh'
+    generate_cert_info_template_name = 'ssl/get_certificate_info.sh'
+    generate_test_passphrase_template_name = 'ssl/test_passphrase_key.sh'
 
     logger.info("Generate files for ROOT CA")
     generate_files(certificate,openssl_cnf_template_name)
@@ -270,7 +289,14 @@ def generate_root_ca(certificate):
 
     logger.info("Generate ROOT CA certificate")
     generate_cert(certificate,generate_cert_template_name)
+
+    logger.info("Generate get_certificate_info.sh")
+    generate_certificate_info_script(certificate,generate_cert_info_template_name)
+
+    logger.info("Generate test_passphrase_key.sh")
+    generate_test_passphrase_script(certificate,generate_test_passphrase_template_name)
  
+  
     logger.info("ROOT CA created")    
     return 0
 
@@ -282,7 +308,8 @@ def generate_intermediate_ca(certificate):
     generate_signcert_template_name = 'ssl/sign_intermediate_cert.sh'
     generate_signed_cert_template_name = 'ssl/generate_signed_cert.sh'
     generate_cert_revoke_template_name = 'ssl/revoke_cert.sh'
-
+    generate_cert_info_template_name = 'ssl/get_certificate_info.sh'
+    generate_test_passphrase_template_name = 'ssl/test_passphrase_key.sh'
 
     logger.warning("Generate files for INTERMEDIATE CA")
     returncode = generate_files(certificate,openssl_cnf_template_name)
@@ -310,37 +337,53 @@ def generate_intermediate_ca(certificate):
      
     logger.warning("Create INTERMEDIATE CA client cert revoke script")
     generate_client_cert_revoke_script(certificate,generate_cert_revoke_template_name)
+
+    logger.info("Generate get_certificate_info.sh")
+    generate_certificate_info_script(certificate,generate_cert_info_template_name)
+
+    logger.info("Generate test_passphrase_key.sh")
+    generate_test_passphrase_script(certificate,generate_test_passphrase_template_name)
+ 
                
     logger.warning("INTERMEDIATE CA created")    
     return returncode
 
-@generate_key_path_parent
+@generate_key_path
 @write_passphrase_files
 def generate_server_cert(certificate, key_path='.', root_path='.'):
     logger.warning("Create signed server certificate")
     subprocess.check_output([root_path + "generate_signed_server_certificate.sh",certificate.shortname,str(certificate.days_valid),certificate.dn.subj])
     return 0
 
-@generate_key_path_parent
+@generate_key_path
 @write_passphrase_files
 def generate_client_cert(certificate, key_path='.', root_path='.'):
     logger.warning("Create signed client certificate")
     subprocess.check_output([root_path + "generate_signed_client_certificate.sh",certificate.shortname,str(certificate.days_valid),certificate.dn.subj])
     return 0
 
-@generate_key_path_parent
+@generate_key_path
 @write_passphrase_files
 def revoke_server_cert(certificate, key_path='.', root_path='.'):
     logger.warning("Revoke server certificate")
     subprocess.check_output([root_path + "revoke_server_certificate.sh",certificate.shortname,str(certificate.slug_revoked_at)])
     return 0
 
-@generate_key_path_parent
+@generate_key_path
 @write_passphrase_files
 def revoke_client_cert(certificate, key_path='.', root_path='.'):
     logger.warning("Revoke client certificate")
     subprocess.check_output([root_path + "revoke_client_certificate.sh",certificate.shortname,str(certificate.slug_revoked_at)])
     return 0
 
-
+@generate_key_path
+def get_certificate_info(certificate, key_path='.', root_path='.'):
+    logger.warning("Get certificate info")
+    path=certificate.shortname
+    if(certificate.type==CertificateTypes.CLIENT_CERT):
+        path="client/" + certificate.shortname
+    if(certificate.type==CertificateTypes.SERVER_CERT):
+        path="server/" + certificate.shortname
+    out = subprocess.check_output([root_path + "get_certificate_info.sh",path])
+    return out
 
