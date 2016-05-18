@@ -63,8 +63,9 @@ class AddServerCertificateFormView(FormView):
             parent=Certificate.objects.get(pk=self.request.GET['parent'])
         except:
             raise ObjectDoesNotExist("Parent certificate does not exist")
-        if parent.type!=CertificateTypes.INTERMEDIATE:
-            raise Exception("Parent certificate type should be intermediate")
+#TODO webapp cannot handle the Exception
+#        if parent.type!=CertificateTypes.INTERMEDIATE:
+#            raise Exception("Parent certificate type should be intermediate")
         initial['parent']=parent.pk;
         initial['dn']={};
         initial['dn']['commonName']=""
@@ -94,8 +95,9 @@ class AddClientCertificateFormView(FormView):
             parent=Certificate.objects.get(pk=self.request.GET['parent'])
         except:
             raise ObjectDoesNotExist("Parent certificate does not exist")
-        if parent.type!=CertificateTypes.INTERMEDIATE:
-            raise Exception("Parent certificate type should be intermediate")
+#TODO webapp cannot handle the Exception
+#        if parent.type!=CertificateTypes.INTERMEDIATE:
+#            raise Exception("Parent certificate type should be intermediate")
         initial['parent']=parent.pk;
         initial['dn']={};
         initial['dn']['commonName']=""
