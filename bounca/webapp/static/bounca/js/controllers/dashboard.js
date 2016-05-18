@@ -132,7 +132,9 @@ app.controller('AddCertificateCtrl', function($scope, $http, $window, djangoUrl,
 	
 	$scope.submit = function() {
 		if ($scope.cert_data) {
+			$("#process-busy-modal").modal("show");
 			$http.post(postCertificateURL, $scope.cert_data).success(function(out_data) {
+				$("#process-busy-modal").modal("hide");
 				if (!djangoForm.setErrors($scope.cert_form, out_data.errors)) {
 				    var buttons = document.getElementsByClassName('close');
 				    for(var i = 0; i <= buttons.length; i++)  
