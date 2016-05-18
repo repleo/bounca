@@ -387,3 +387,19 @@ def get_certificate_info(certificate, key_path='.', root_path='.'):
     out = subprocess.check_output([root_path + "get_certificate_info.sh",path])
     return out
 
+@generate_key_path
+@write_passphrase_files
+def is_passphrase_in_valid(certificate, key_path='.', root_path='.'):
+    logger.warning("Get certificate info")
+    path=certificate.shortname
+    if(certificate.type==CertificateTypes.CLIENT_CERT):
+        path="client/" + certificate.shortname
+    if(certificate.type==CertificateTypes.SERVER_CERT):
+        path="server/" + certificate.shortname
+    try:
+        subprocess.check_output([root_path + "test_passphrase_key.sh",path])
+        return True
+    except:
+        return False
+
+

@@ -30,6 +30,16 @@ class CertificateSerializer(serializers.ModelSerializer):
             return passphrase_out
         return None
     
+    def validate_passphrase_in(self,passphrase_in):
+        if passphrase_in:
+            if not self.initial_data.get('parent'):
+                raise serializers.ValidationError("You should provide a parent certificate if you provide a passphrase in")
+            parent = Certificate.objects.get(pk=self.initial_data.get('parent'))
+            if not parent.is_passphrase_valid():
+                raise serializers.ValidationError("Passphrase incorrect. Not allowed to sign your certificate") 
+            return passphrase_in
+        return None
+
     def validate_passphrase_out_confirmation(self,passphrase_out_confirmation):
         if passphrase_out_confirmation:
             passphrase_out = self.initial_data.get("passphrase_out")

@@ -9,7 +9,6 @@ from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
 from django.contrib.postgres.fields import ArrayField
 import uuid
-from setuptools.ssl_support import cert_paths
 
     
 class DistinguishedName(models.Model):
@@ -85,6 +84,7 @@ class CertificateQuerySet(models.QuerySet):
 from ..certificate_engine.generator import revoke_server_cert  
 from ..certificate_engine.generator import revoke_client_cert   
 from ..certificate_engine.generator import get_certificate_info         
+from ..certificate_engine.generator import is_passphrase_in_valid
 
 class Certificate(models.Model):
     objects = CertificateQuerySet.as_manager()
@@ -143,6 +143,13 @@ class Certificate(models.Model):
             return cert_path
         else:
             return [{'id':self.id,'shortname':self.shortname}]
+
+    def is_passphrase_valid(self):
+        valid=is_passphrase_in_valid(self)
+        if valid:
+            return True
+        else:
+            return False
     
     def get_certificate_info(self):
         info = get_certificate_info(self)
@@ -217,6 +224,8 @@ def validation_rules_certificate(sender,instance, *args, **kwargs):
     
     if instance.parent and instance.days_valid > instance.parent.days_valid:
         raise ValidationError('Child Certificate should not expire later than ROOT CA')
+    
+    
         
 
 from ..certificate_engine.generator import generate_root_ca  

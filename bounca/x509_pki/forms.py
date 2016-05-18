@@ -57,6 +57,16 @@ class CertificateForm(forms.ModelForm):
             raise forms.ValidationError("The two passphrase fields didn't match.")
         return data
 
+    def clean_passphrase_in(self,passphrase_in):
+        if passphrase_in:
+            if not self.cleaned_data.get('parent'):
+                raise forms.ValidationError("You should provide a parent certificate if you provide a passphrase in")
+            parent = Certificate.objects.get(pk=self.cleaned_data.get('parent'))
+            if not parent.is_passphrase_valid():
+                raise forms.ValidationError("Passphrase incorrect. Not allowed to sign your certificate") 
+            return passphrase_in
+        return None
+
     def clean_passphrase_out(self):
         passphrase_out = self.cleaned_data.get("passphrase_out")
         password_validation.validate_password(passphrase_out, self.instance)
