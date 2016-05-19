@@ -1,6 +1,14 @@
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+#TODO Logging INFO not working
+#http://www.webforefront.com/django/setupdjangologging.html
+
+#import logging
+#logging.basicConfig(
+#    level = logging.DEBUG,
+#    format = '%(asctime)s %(levelname)s %(message)s',
+#)
 
 CONFIG_FILE_NAME = '/etc/bounca/main.ini'
 
@@ -90,7 +98,7 @@ INSTALLED_APPS = [
     'django_filters',
     'djng',
     'django_countries',
-    'rest_framework_docs',
+    'rest_framework_swagger',
     'rest_auth',
     'allauth',
     'allauth.account',
@@ -189,10 +197,9 @@ STATICFILES_DIRS = (
 
 CA_ROOT = os.path.join(BASE_DIR, 'pki/')
 
-
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
@@ -218,8 +225,8 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-             'formatter': 'simple'
-#            'filters': ['require_debug_true']
+             'formatter': 'simple',
+             'filters': ['require_debug_true']
 
         },
         'null': {
@@ -228,10 +235,10 @@ LOGGING = {
         }
     },
     'loggers': {
-        'django': {
+        'django.request': {
+            'level':'DEBUG',
             'handlers':['console'],
             'propagate': True,
-            'level':'INFO',
         },
         'django.request': {
             'handlers': ['mail_admins'],
@@ -245,13 +252,9 @@ LOGGING = {
         },
     }
 }
-#TODO Logging INFO not working
-#http://www.webforefront.com/django/setupdjangologging.html
-import logging
-logger = logging.getLogger(__name__)
 
-logger.error("error-FUBAR")
-logger.info("info-FUBAR")
-logger.debug("debug-FUBAR")
-logger.critical("critical-FUBAR")
-logger.warning("warning-FUBAR")
+
+
+
+
+
