@@ -2,39 +2,88 @@
 
 
 import rest_framework
+from rest_framework.generics import get_object_or_404
 from rest_framework import generics, permissions
 from .serializers import CertificateSerializer
+from .serializers import CertificateRevokeSerializer
 from ..x509_pki.models import Certificate
 from .mixins import TrapDjangoValidationErrorCreateMixin
 from idlelib.ClassBrowser import file_open
+
+
+
+import logging
+logger = logging.getLogger(__name__)
+
 
 class APIPageNumberPagination(rest_framework.pagination.PageNumberPagination):
     page_size=10
 
 class CertificateListView(TrapDjangoValidationErrorCreateMixin, generics.ListCreateAPIView):
     model = Certificate
-    queryset = Certificate.objects.all()
     serializer_class = CertificateSerializer
     permission_classes = [
-#        permissions.DjangoObjectPermissions
-#
-# Django Guardian configure
         permissions.IsAuthenticated
     ]
     search_fields = ('shortname','name',) 
     pagination_class = APIPageNumberPagination
     filter_fields = ('type', 'parent',)
 
-class CertificateInstanceView(generics.RetrieveDestroyAPIView):
+    def get(self, request, *args, **kwargs):
+        logger.error("error-FUBAR")
+        logger.critical("critical-FUBAR")
+        logger.warning("warning-FUBAR")
+        logger.info("info-FUBAR")
+        logger.debug("debug-FUBAR")
+        return generics.ListCreateAPIView.get(self, request, *args, **kwargs)
+    
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases
+        for the currently authenticated user.
+        """
+        user = self.request.user
+        return Certificate.objects.filter(owner=user)
+
+    def create(self, request, *args, **kwargs):
+        request.data['owner']=request.user.id
+        print(request.data)
+        return generics.ListCreateAPIView.create(self, request, *args, **kwargs)
+
+
+class CertificateInstanceView(generics.RetrieveAPIView):
     model = Certificate
-    queryset = Certificate.objects.all()
     serializer_class = CertificateSerializer
     permission_classes = [
-#        permissions.DjangoObjectPermissions
-#
-# Django Guardian configure
         permissions.IsAuthenticated
     ]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Certificate.objects.filter(owner=user)
+    
+    
+    
+class IsCertificateOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if obj and request.user.id == obj.owner.id:
+            return True
+        return False
+    
+class CertificateRevokeView(generics.UpdateAPIView):
+    model = Certificate
+    serializer_class = CertificateRevokeSerializer
+    queryset = Certificate.objects.all()
+    permission_classes = [
+        permissions.IsAuthenticated,
+        IsCertificateOwner
+    ]
+    
+
+
+
+
+    
 
 from django.views.generic import View
 from django.http import HttpResponse
@@ -44,7 +93,8 @@ class CertificateInfoView(View):
     def get(self, request, pk, format=None):
         cert=None
         try:
-            cert = Certificate.objects.get(pk=pk);
+            user = self.request.user
+            cert = Certificate.objects.get(pk=pk,owner=user);
         except:
             return HttpResponseNotFound("File not found")
         info = cert.get_certificate_info()
@@ -81,8 +131,10 @@ class CertificateFilesView(View):
     
     def get(self, request, pk, format=None):
         cert=None
+        user=None
         try:
-            cert = Certificate.objects.get(pk=pk);
+            user = self.request.user
+            cert = Certificate.objects.get(pk=pk,owner=user);
         except:
             return HttpResponseNotFound("File not found")
         

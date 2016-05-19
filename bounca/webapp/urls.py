@@ -7,6 +7,8 @@ from .views import AddRootCAFormView
 from .views import AddIntermediateCAFormView
 from .views import AddServerCertificateFormView
 from .views import AddClientCertificateFormView
+from .views import CertificateRevokeFormView
+
 
 urlpatterns = [
 
@@ -26,6 +28,7 @@ urlpatterns = [
     url(r'^dashboard/forms/add-intermediate-ca.html$', login_required(AddIntermediateCAFormView.as_view()), name='add-intermediate-ca-form'),
     url(r'^dashboard/forms/add-client-cert.html$', login_required(AddClientCertificateFormView.as_view()), name='add-client-cert-form'),
     url(r'^dashboard/forms/add-server-cert.html$', login_required(AddServerCertificateFormView.as_view()), name='add-server-cert-form'),
+    url(r'^dashboard/forms/cert-revoke-form.html$', login_required(CertificateRevokeFormView.as_view()), name='cert-revoke-form'),
 
 
     url(r'^dashboard/views/main.html$', login_required(TemplateView.as_view(template_name='bounca/dashboard/views/main.html')), name='dashboard.index'),

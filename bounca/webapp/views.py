@@ -109,3 +109,14 @@ class AddClientCertificateFormView(FormView):
         initial['dn']['emailAddress']=parent.dn.emailAddress
        
         return initial
+    
+from .forms import CertificateRevokeForm
+class CertificateRevokeFormView(FormView):
+    template_name = 'bounca/dashboard/forms/revoke-cert.html'
+    form_class = CertificateRevokeForm
+    success_url = reverse_lazy('bounca:index') 
+    
+
+    
+    
+    

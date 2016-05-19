@@ -20,17 +20,21 @@ app.controller('DashboardCtrl', ['$scope', '$interval', '$http', '$route', 'djan
 	var intermediaCertificateFormURL = djangoUrl.reverse('bounca:add-intermediate-ca-form')
 	var serverCertificateFormURL = djangoUrl.reverse('bounca:add-server-cert-form')
 	var clientCertificateFormURL = djangoUrl.reverse('bounca:add-client-cert-form')
+	var certificateRevokeFormURL = djangoUrl.reverse('bounca:cert-revoke-form')
 
 	
 	$scope.parent_id=$route.current.params.id;
 	$scope.parent=null;
 	if($scope.parent_id){
-		console.log($scope.parent_id);
 		Certificate.get({id:$scope.parent_id},function(dataElements){
 			$scope.parent=dataElements;
 		})
 	}
 
+	$scope.getCertRevokeForm = function(){
+		return certificateRevokeFormURL;
+	}
+	
 	$scope.getRootCertForm = function(){
 		return rootCertificateFormURL;
 	}
@@ -91,16 +95,10 @@ app.controller('DashboardCtrl', ['$scope', '$interval', '$http', '$route', 'djan
 		load_certificates();
 	};
 
-	
-	$scope.delete_cert= function ($event) {
-	    var cert_id = $($event.target).attr('data-cert-id');
-		Certificate.remove({id:cert_id},function(dataElements){
-			console.log(dataElements);
-			load_certificates();
-		})
-		
-	};
-	
+    $scope.$on('certificate-list-updated', function(){
+        load_certificates();
+     });	
+
 	function load_certificates(){
 		var query;
 		query={'ordering':'-id','page':$scope.pagination.page}
@@ -137,10 +135,13 @@ app.controller('AddCertificateCtrl', function($scope, $http, $window, djangoUrl,
 				$("#process-busy-modal").modal("hide");
 				if (!djangoForm.setErrors($scope.cert_form, out_data.errors)) {
 				    var buttons = document.getElementsByClassName('close');
-				    for(var i = 0; i <= buttons.length; i++)  
-				       buttons[i].click();
+				    $scope.$emit("certificate-list-updated", {});
+
+				    for(var i = 0; i < buttons.length; i++)  
+				    	buttons[i].click();
 				}
 			}).error(function(out_data) {
+				$("#process-busy-modal").modal("hide");
 				djangoForm.setErrors($scope.cert_form, out_data);
 			});
 		}
@@ -148,3 +149,32 @@ app.controller('AddCertificateCtrl', function($scope, $http, $window, djangoUrl,
 	};
 });
 
+
+
+app.controller('RevokeCertificateCtrl', function($scope, $http, $window, djangoUrl, djangoForm) {
+	
+	var success_url = $window.location.href;
+	
+	$scope.submit = function($event) {
+		var cert_id = $($event.target).attr('data-cert-id');
+		var postCertificateURL = djangoUrl.reverse('api:v1:certificate-revoke', {'pk': cert_id});
+		if ($scope.cert_data) {
+			$("#process-busy-modal").modal("show");
+			$http.patch(postCertificateURL, $scope.cert_data).success(function(out_data) {
+				$("#process-busy-modal").modal("hide");
+				if (!djangoForm.setErrors($scope.cert_form, out_data.errors)) {
+				    var buttons = document.getElementsByClassName('close');
+				    $scope.$emit("certificate-list-updated", {});
+
+				    for(var i = 0; i < buttons.length; i++)
+				       buttons[i].click();				    
+			        
+				}
+			}).error(function(out_data) {
+				$("#process-busy-modal").modal("hide");
+				djangoForm.setErrors($scope.cert_form, out_data);
+			});
+		}
+		return false;
+	};
+});

@@ -8,6 +8,7 @@ Created on 15 mei 2016
 from djng.forms import NgModelFormMixin, NgFormValidationMixin
 from ..x509_pki.forms import DistinguishedNameForm
 from ..x509_pki.forms import CertificateForm
+from ..x509_pki.forms import CertificateRevokeForm
 from ..x509_pki.models import CertificateTypes
 
 
@@ -232,3 +233,16 @@ class AddClientCertificateForm(  NgModelFormMixin, NgFormValidationMixin, Bootst
         if not self.dn.is_valid():
             self.errors.update(self.dn.errors)
         return super().is_valid() and self.dn.is_valid()
+    
+
+class CertificateRevokeForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateRevokeForm):  
+    scope_prefix = 'cert_data'
+    form_name = 'cert_form'
+
+    def clean_parent(self):
+        return None
+
+
+    def __init__(self, *args, **kwargs):
+        kwargs.update(auto_id=False, scope_prefix=self.scope_prefix)
+        super().__init__(*args, **kwargs)

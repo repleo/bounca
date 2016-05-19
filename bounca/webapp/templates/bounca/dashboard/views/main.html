@@ -201,10 +201,7 @@
 $('#cert-info-modal').on('show.bs.modal', function (event) {
 	  var button = $(event.relatedTarget);
 	  var cert_name = button.data('certname');
-	  var cert_id = button.data('certid');
-	  console.log(cert_id)
-	  
-
+	  var cert_id = button.data('certid'); 
 	  var modal = $(this)
 
 	  modal.find('#cert-info-commonname').text("Certicate info: "+cert_name);
@@ -224,21 +221,7 @@ $('#cert-info-modal').on('show.bs.modal', function (event) {
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
 		  <h3 class="modal-title custom_align" id="Heading" >Are you sure you want to revoke the certificate?</h3>
 		</div>
-		<div class="modal-body">
-			<h2 id="cert-revoke-commonname"></h2>
-		</div>
-		<div class="modal-footer "> 
-
-		  <div class="row">
-		   <div class="col-md-4 col-md-offset-1">
-		     <button type="button" class="btn btn-default btn-lg btn-block" data-dismiss="modal" aria-hidden="true">Cancel</button>
-		   </div>
-		   <div class="col-md-4 col-md-offset-2">
-		     <button type="button" class="btn btn-danger btn-lg btn-block" id="modal-revoke-button"  ng-click="delete_cert($event)" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-trash"></span> Revoke</button>
-		   </div>
-		  </div>
-
-		</div>
+		<ng-include src="getCertRevokeForm()"></ng-include>      
     </div>
   </div>
 </div>
@@ -248,10 +231,9 @@ $('#revoke-cert').on('show.bs.modal', function (event) {
 	  var cert_name = button.data('certname');
 	  var cert_id = button.data('certid');
 	  
-
 	  var modal = $(this)
 
-	  modal.find('#cert-revoke-commonname').text(cert_name);
+	  modal.find('#cert-revoke-commonname').text("Certifcate: " +cert_name);
 	  modal.find('#modal-revoke-button').attr("data-cert-id",cert_id);
 })
 </script>

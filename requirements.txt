@@ -1,4 +1,4 @@
-coverage==4.0.3
+# Framework
 Django==1.9.5
 psycopg2==2.6.1
 pytz==2016.4
@@ -7,7 +7,10 @@ djangorestframework==3.3.3
 django-grappelli==2.8.1
 django-countries==3.4.1
 django-angular==0.8.2
-drfdocs==0.0.9
+django-rest-swagger==0.3.6
 django-filter==0.13
 django-rest-auth==0.7.0
 django-allauth==0.25.2
+
+# Testing
+coverage==4.0.3

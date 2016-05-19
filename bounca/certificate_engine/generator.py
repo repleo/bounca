@@ -13,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import subprocess 
-
+from subprocess import CalledProcessError
 
 
 def generate_path(certificate):
@@ -390,7 +390,7 @@ def get_certificate_info(certificate, key_path='.', root_path='.'):
 @generate_key_path
 @write_passphrase_files
 def is_passphrase_in_valid(certificate, key_path='.', root_path='.'):
-    logger.warning("Get certificate info")
+    logger.warning("Test passphrase in of certificate")
     path=certificate.shortname
     if(certificate.type==CertificateTypes.CLIENT_CERT):
         path="client/" + certificate.shortname
@@ -399,7 +399,7 @@ def is_passphrase_in_valid(certificate, key_path='.', root_path='.'):
     try:
         subprocess.check_output([root_path + "test_passphrase_key.sh",path])
         return True
-    except:
+    except CalledProcessError:
         return False
 
 

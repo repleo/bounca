@@ -20,7 +20,7 @@ class CertificateSerializer(serializers.ModelSerializer):
     passphrase_out_confirmation  = serializers.CharField(max_length=200, required=False, allow_null=True, allow_blank=True)
 
     class Meta:
-        fields = ('id','shortname','name','parent','cert_path','type','dn','created_at','expires_at','revoked_at','days_valid','revoked','crl_distribution_url','ocsp_distribution_host','passphrase_in','passphrase_out','passphrase_out_confirmation')
+        fields = ('id','owner','shortname','name','parent','cert_path','type','dn','created_at','expires_at','revoked_at','days_valid','revoked','crl_distribution_url','ocsp_distribution_host','passphrase_in','passphrase_out','passphrase_out_confirmation')
         model = Certificate
         extra_kwargs = {'passphrase_out': {'write_only': True},'passphrase_out_confirmation': {'write_only': True},'passphrase_in': {'write_only': True}}
 
@@ -35,6 +35,7 @@ class CertificateSerializer(serializers.ModelSerializer):
             if not self.initial_data.get('parent'):
                 raise serializers.ValidationError("You should provide a parent certificate if you provide a passphrase in")
             parent = Certificate.objects.get(pk=self.initial_data.get('parent'))
+            parent.passphrase_in=passphrase_in
             if not parent.is_passphrase_valid():
                 raise serializers.ValidationError("Passphrase incorrect. Not allowed to sign your certificate") 
             return passphrase_in
@@ -65,3 +66,28 @@ class CertificateSerializer(serializers.ModelSerializer):
         dn = DistinguishedName.objects.create(**dn_data)
         certificate = Certificate.objects.create(dn=dn,**validated_data)
         return certificate   
+
+class CertificateRevokeSerializer(serializers.ModelSerializer):
+    passphrase_in = serializers.CharField(max_length=200, required=True)
+ 
+    class Meta:
+        fields = ('passphrase_in',)
+        model = Certificate
+        extra_kwargs = {'passphrase_in': {'write_only': True}}
+
+
+    
+    def validate_passphrase_in(self,passphrase_in):
+        if passphrase_in:
+            self.instance.parent.passphrase_in=passphrase_in
+            if not self.instance.parent.is_passphrase_valid():
+                raise serializers.ValidationError("Passphrase incorrect. Not allowed to revoke your certificate") 
+            return passphrase_in
+        return None
+
+
+    def update(self, instance, validated_data):
+        instance.passphrase_in=validated_data['passphrase_in']
+        instance.delete()
+        return instance
+

@@ -85,6 +85,7 @@ from ..certificate_engine.generator import revoke_server_cert
 from ..certificate_engine.generator import revoke_client_cert   
 from ..certificate_engine.generator import get_certificate_info         
 from ..certificate_engine.generator import is_passphrase_in_valid
+from django.contrib.auth.models import User
 
 class Certificate(models.Model):
     objects = CertificateQuerySet.as_manager()
@@ -114,6 +115,8 @@ class Certificate(models.Model):
     expires_at              = models.DateField(validators=[validate_in_future],help_text="Select the date that the certificate will expire: for root typically 20 years, for intermediate 10 years for other types 1 year. Allowed date format: yyyy-mm-dd.")
     revoked_at              = models.DateTimeField(editable=False,default=None,blank=True,null=True)
     revoked_uuid            = models.UUIDField(default='00000000000000000000000000000001')
+    
+    owner                   = models.ForeignKey(User)
     
     passphrase_in           = ""
     passphrase_out          = ""

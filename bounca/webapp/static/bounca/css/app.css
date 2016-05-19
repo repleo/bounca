@@ -34,6 +34,13 @@ p {
   background-color: #f5f5f5;
 }
 
+.btn-footer{
+	margin-top: 13px;
+	background-color: #f5f5f5;
+	color: #777;
+
+}
+
 .done-true {
   text-decoration: line-through;
   color: grey;

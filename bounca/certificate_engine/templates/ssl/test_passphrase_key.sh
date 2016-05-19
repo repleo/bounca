@@ -2,6 +2,11 @@
 
 cd "$(dirname "$0")"
 
+if [ -z "$1" ]
+then
+    echo "Please, the key name as first argument"
+fi
+
 passphrase_in=""
 if [ -e "./passphrase_in.txt" ]
 then
@@ -9,6 +14,6 @@ then
 fi
 
 
-openssl rsa -in ./private/{{ key_name }}.key.pem -check -noout $passphrase_in
+openssl rsa -in ./private/$1.key.pem -check -noout $passphrase_in
 
 exit 0

@@ -1,0 +1,39 @@
+<form name="{{ form.form_name }}" method="post" action="." novalidate ng-controller="RevokeCertificateCtrl">
+<div class="modal-body">
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3" >
+       <h2 id="cert-revoke-commonname"></h2>
+    </div>
+  </div>
+  <div class="row">
+   <div class="col-md-12">
+    <div ng-show="{{ form.form_name }}.$message" ng-cloak>Please correct:</div>
+   	<div class="bg-danger" ng-show="{{ form.form_name }}.$message" ng-cloak>
+	    <ul class="djng-form-errors" ng-show="{{ form.form_name }}.$dirty" ng-cloak></ul>
+	    <ul class="djng-form-errors" ng-show="{{ form.form_name }}.$pristine" ng-cloak>
+	     <li ng-show="{{ form.form_name }}.$message" class="invalid" ng-bind="{{ form.form_name }}.$message"></li>
+	    </ul>
+	</div>
+	<br/>
+   </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3" >
+	  <div class="form-group">
+	   {{ form.as_div }}
+	  </div>
+    </div>
+  </div>
+</div>
+<div class="modal-footer "> 
+  <div class="row">
+   <div class="col-md-4 col-md-offset-1">
+     <button type="button" class="btn btn-default btn-lg btn-block" data-dismiss="modal" aria-hidden="true">Cancel</button>
+   </div>
+   <div class="col-md-4 col-md-offset-2">
+     <button type="button" class="btn btn-danger btn-lg btn-block" id="modal-revoke-button"  ng-click="submit($event)" ng-disabled="{{ form.form_name }}.$invalid"><span class="glyphicon glyphicon-trash"></span> Revoke</button>
+   </div>
+  </div>
+</div>
+</form>
+
