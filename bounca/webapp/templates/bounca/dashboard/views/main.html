@@ -9,6 +9,14 @@
       <h2 ng-if="parent"><span ng-if="parent.type=='R'">Root</span><span ng-if="parent.type=='I'">Intermediate</span> certificate ({{parent.name}})</h2>
     </div>
   </div>
+  <div class="row" ng-if="!parent">
+      <div class="col-md-2 col-md-offset-4">
+	      <a class="btn btn-default btn-block" href="">Calendar File</a>
+      </div>
+      <div class="col-md-2">
+	      <a class="btn btn-default btn-block" href="">CRL file</a>
+      </div>
+  </div>
   <div class="row">
 	<div class="col-md-12">
       <div ng-if="parent" class="cert-path">
