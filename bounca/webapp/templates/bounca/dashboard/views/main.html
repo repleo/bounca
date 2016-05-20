@@ -41,8 +41,7 @@
 		         <td class="vert-align">{{ cert.dn.commonName|limitTo:75 }}</td>
 		         <td class="vert-align">{{ cert.dn.emailAddress|limitTo:30 }}</td>
 		         <td class="vert-align" ng-if="!cert.revoked">{{ cert.expires_at|date:"yyyy-MM-dd" }}</td>
-		         <td class="vert-align" ng-if="!cert.revoked">
-		           <!--  todo: if revoked, replace buttons by text of box REVOKED -->
+		         <td class="vert-align" ng-if="!cert.revoked && !cert.expired">
 		         	<p class="left" data-placement="top" data-toggle="tooltip" title="Download public certificate"><a class="btn btn-default btn-xs" href="/api/v1/certificates/files/{{cert.id}}"><span class="glyphicon glyphicon-download-alt"></span></a></p>
 		         	<p class="left margin-left" data-placement="top" data-toggle="tooltip" title="Detail info">
 		         		<button class="btn btn-default btn-xs" data-title="New" data-toggle="modal" data-target="#cert-info-modal" data-certname="{{cert.name}}" data-certid="{{cert.id}}"><span class="glyphicon glyphicon-info-sign"></span></button>
@@ -54,6 +53,7 @@
 		         </td>
 		         <td class="vert-align" ng-if="cert.revoked"><span class="text-danger">{{ cert.revoked_at|date:"yyyy-MM-dd" }}</span></td>
 		         <td class="vert-align" ng-if="cert.revoked"><span class="text-danger">REVOKED</span></td>
+		         <td class="vert-align" ng-if="cert.expired && !cert.revoked"><span class="text-warning">EXPIRED</span></td>
 
 		      </tr>
 		    </tbody>        

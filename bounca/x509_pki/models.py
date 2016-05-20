@@ -136,7 +136,11 @@ class Certificate(models.Model):
 
     @property
     def revoked(self):
-        return self.revoked_uuid != uuid.UUID('00000000000000000000000000000001')
+        return (self.revoked_uuid != uuid.UUID('00000000000000000000000000000001'))
+    
+    @property
+    def expired(self):
+        return (self.expires_at <= timezone.now().date())
     
     @property
     def cert_path(self):
