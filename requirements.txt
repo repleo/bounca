@@ -11,6 +11,7 @@ django-rest-swagger==0.3.6
 django-filter==0.13
 django-rest-auth==0.7.0
 django-allauth==0.25.2
+django-ical==1.4
 
 # Testing
 coverage==4.0.3

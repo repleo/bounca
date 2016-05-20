@@ -117,6 +117,49 @@ class CertificateRevokeFormView(FormView):
     success_url = reverse_lazy('bounca:index') 
     
 
+from django_ical.views import ICalFeed
+from ..x509_pki.models import Certificate
+
+class CertificateExpireCalendarView(ICalFeed):
+    product_id = '-//bounca.org//BounCA Certificate Expiration Dates//EN'
+    timezone = 'GMT'
+    file_name = "certificates.ics"
+
+    def get_object(self, request):
+        return request.user
+
+
+    def items(self,obj):
+        return Certificate.objects.filter(owner=obj.id).order_by('-expires_at')
+
+    def item_title(self, item):
+        return "Certificate " + str(item) + " expires"
+
+    def item_description(self, item):
+        issued_by = ""
+        if item.parent:
+            issued_by = "issued by: " + item.parent.dn.commonName + "\n"
+            
+        return "Certificate: \n" + \
+            item.dn.commonName + "\n"+ \
+            issued_by + \
+            "with name: " + item.shortname + "\n" + \
+            "is expired"
+            
+
+    def item_start_datetime(self, item):
+        if item.revoked:
+            return item.revoked_at
+        else:
+            return item.expires_at
     
+    def item_created(self, item):
+        return item.created_at
     
+    def item_link(self, item):
+        return "https://www.bounca.org"
+
+
+    def item_guid(self, item):
+        return item.id
     

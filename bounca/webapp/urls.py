@@ -9,6 +9,8 @@ from .views import AddServerCertificateFormView
 from .views import AddClientCertificateFormView
 from .views import CertificateRevokeFormView
 
+from .views import CertificateExpireCalendarView
+
 
 urlpatterns = [
 
@@ -30,6 +32,7 @@ urlpatterns = [
     url(r'^dashboard/forms/add-server-cert.html$', login_required(AddServerCertificateFormView.as_view()), name='add-server-cert-form'),
     url(r'^dashboard/forms/cert-revoke-form.html$', login_required(CertificateRevokeFormView.as_view()), name='cert-revoke-form'),
 
+    url(r'^dashboard/calendar/certificates.ics$', login_required(CertificateExpireCalendarView()), name='calendar-expire'),
 
     url(r'^dashboard/views/main.html$', login_required(TemplateView.as_view(template_name='bounca/dashboard/views/main.html')), name='dashboard.index'),
 
