@@ -130,6 +130,10 @@ class CertificateForm(forms.ModelForm):
             if dn.organizationName != parent.dn.organizationName:
                 raise forms.ValidationError('Organization Name of Intermediate CA and Root CA should match (policy strict)')
 
+#TODO Hier iets
+        if cert_type is CertificateTypes.INTERMEDIATE and parent.crl_distribution_url:
+            cleaned_data['crl_distribution_url']=parent.crl_distribution_url
+
 
         if cleaned_data.get('expires_at'):
             now = timezone.now().date()

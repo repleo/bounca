@@ -119,7 +119,7 @@ authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
 # Extensions for server certificates (`man x509v3_config`).
 basicConstraints = CA:FALSE
 nsCertType = server
-nsComment = "BounCA Generated Server Certificate"
+nsComment = "BounCA.org by repleo.nl Generated Server Certificate"
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer:always
 keyUsage = critical, digitalSignature, keyEncipherment

@@ -103,7 +103,7 @@ keyUsage = critical, digitalSignature, cRLSign, keyCertSign
 # Extensions for client certificates (`man x509v3_config`).
 basicConstraints = CA:FALSE
 nsCertType = client, email
-nsComment = "BounCA Generated Client Certificate"
+nsComment = "BounCA.org by repleo.nl Generated Client Certificate"
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer
 keyUsage = critical, nonRepudiation, digitalSignature, keyEncipherment
