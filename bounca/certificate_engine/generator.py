@@ -52,7 +52,7 @@ class write_passphrase_files(object):
     def __init__(self, f):
         self.f = f
 
-    def __call__(self,certificate, *args, key_path='.', root_path='.'):
+    def __call__(self, certificate, *args, key_path='.', root_path='.'):
         try:
             if certificate.passphrase_out:
                 with open(root_path +'passphrase_out.txt','w') as f:
