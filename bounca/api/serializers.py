@@ -91,3 +91,26 @@ class CertificateRevokeSerializer(serializers.ModelSerializer):
         instance.delete()
         return instance
 
+class CertificateCRLSerializer(serializers.ModelSerializer):
+    passphrase_in = serializers.CharField(max_length=200, required=True)
+ 
+    class Meta:
+        fields = ('passphrase_in',)
+        model = Certificate
+        extra_kwargs = {'passphrase_in': {'write_only': True}}
+
+
+    
+    def validate_passphrase_in(self,passphrase_in):
+        if passphrase_in:
+            self.instance.passphrase_in=passphrase_in
+            if not self.instance.is_passphrase_valid():
+                raise serializers.ValidationError("Passphrase incorrect. No permission to create CRL File") 
+            return passphrase_in
+        return None
+
+
+    def update(self, instance, validated_data):
+        instance.passphrase_in=validated_data['passphrase_in']
+        instance.generate_crl()
+        return instance

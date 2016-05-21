@@ -9,6 +9,7 @@ from djng.forms import NgModelFormMixin, NgFormValidationMixin
 from ..x509_pki.forms import DistinguishedNameForm
 from ..x509_pki.forms import CertificateForm
 from ..x509_pki.forms import CertificateRevokeForm
+from ..x509_pki.forms import CertificateCRLForm
 from ..x509_pki.models import CertificateTypes
 
 
@@ -238,6 +239,19 @@ class AddClientCertificateForm(  NgModelFormMixin, NgFormValidationMixin, Bootst
     
 
 class CertificateRevokeForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateRevokeForm):  
+    scope_prefix = 'cert_data'
+    form_name = 'cert_form'
+
+    def clean_parent(self):
+        return None
+
+
+    def __init__(self, *args, **kwargs):
+        kwargs.update(auto_id=False, scope_prefix=self.scope_prefix)
+        super().__init__(*args, **kwargs)
+
+
+class CertificateCRLForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateCRLForm):  
     scope_prefix = 'cert_data'
     form_name = 'cert_form'
 

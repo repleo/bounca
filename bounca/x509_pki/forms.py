@@ -175,4 +175,28 @@ class CertificateRevokeForm(forms.ModelForm):
         model = Certificate
         fields = ()
 
+class CertificateCRLForm(forms.ModelForm):
+
+    passphrase_in = forms.CharField(
+        label="Passphrase in",
+        initial="",
+        widget=forms.PasswordInput,
+        strip=False,
+#        help_text=password_validation.password_validators_help_text_html(),
+        help_text="The passphrase for unlocking your signing key.",
+    )
+
+    def clean_passphrase_in(self,passphrase_in):
+        if passphrase_in:
+            if not self.cleaned_data.get('parent'):
+                raise forms.ValidationError("You should provide a parent certificate if you provide a passphrase in")
+            parent = Certificate.objects.get(pk=self.cleaned_data.get('parent'))
+            if not parent.is_passphrase_valid():
+                raise forms.ValidationError("Passphrase incorrect. Not allowed to sign your certificate") 
+            return passphrase_in
+        return None
+    
+    class Meta:
+        model = Certificate
+        fields = ()
 

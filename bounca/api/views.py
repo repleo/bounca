@@ -6,6 +6,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework import generics, permissions
 from .serializers import CertificateSerializer
 from .serializers import CertificateRevokeSerializer
+from .serializers import CertificateCRLSerializer
 from ..x509_pki.models import Certificate
 from .mixins import TrapDjangoValidationErrorCreateMixin
 from idlelib.ClassBrowser import file_open
@@ -47,7 +48,6 @@ class CertificateListView(TrapDjangoValidationErrorCreateMixin, generics.ListCre
 
     def create(self, request, *args, **kwargs):
         request.data['owner']=request.user.id
-        print(request.data)
         return generics.ListCreateAPIView.create(self, request, *args, **kwargs)
 
 
@@ -79,7 +79,14 @@ class CertificateRevokeView(generics.UpdateAPIView):
         IsCertificateOwner
     ]
     
-
+class CertificateCRLView(generics.UpdateAPIView):
+    model = Certificate
+    serializer_class = CertificateCRLSerializer
+    queryset = Certificate.objects.all()
+    permission_classes = [
+        permissions.IsAuthenticated,
+        IsCertificateOwner
+    ]
 
 
 
@@ -109,7 +116,53 @@ import zipfile
 from ..x509_pki.models import CertificateTypes
 from django.conf import settings
 
-class CertificateFilesView(View):
+class FileView(View):
+
+    def generate_path(self, certificate):
+        prefix_path=""
+        if certificate.parent and certificate.pk != certificate.parent.pk:
+            prefix_path=self.generate_path(certificate.parent)
+        return prefix_path + "/" + str(certificate.shortname)
+
+    def get_root_cert_path(self, certificate):
+        if certificate.parent and certificate.pk != certificate.parent.pk:
+            return self.get_root_cert_path(certificate.parent)
+        else:
+            root_cert_path = settings.CA_ROOT + "/" + str(certificate.shortname) + "/certs/" + str(certificate.shortname) + ".cert.pem" 
+            return root_cert_path
+
+    def read_file(self, filename):
+        with open(filename,'rb') as f:
+            file_content=f.read()
+            return file_content
+        
+        
+class CertificateCRLFileView(FileView):
+
+    def get(self, request, pk, format=None):
+        cert=None
+        user=None
+        try:
+            user = self.request.user
+            cert = Certificate.objects.get(pk=pk,owner=user);
+        except:
+            return HttpResponseNotFound("File not found")
+        
+        key_path = settings.CA_ROOT + self.generate_path(cert)
+        if cert.type is CertificateTypes.INTERMEDIATE:
+            orig_file=key_path + "/crl/" + cert.shortname + ".crl.pem" 
+            try:
+                file_content=self.read_file(orig_file)
+                filename="%s.crl.pem" % (cert.shortname)
+                response = HttpResponse(file_content, content_type='text/plain')
+                response['Content-Disposition'] = ('attachment; filename=%s' % (filename))
+                return response
+            except FileNotFoundError:
+                return HttpResponseNotFound("File not found")
+        return HttpResponseNotFound("File not found")
+
+
+class CertificateFilesView(FileView):
 
     def generate_path(self, certificate):
         prefix_path=""

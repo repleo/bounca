@@ -244,6 +244,18 @@ def generate_generic_cert_revoke_script(certificate,generate_cert_revoke_templat
     os.chmod(root_path +'revoke_%s_certificate.sh'%(script_name), 0o755)
     return 0
 
+@generate_key_path
+def generate_generic_crl_file_script(certificate,generate_crl_file_template_name, key_path='.', root_path='.'):
+
+    c = {
+        'cert': certificate
+   }
+    generate_signed_certificate_script = loader.render_to_string(generate_crl_file_template_name, c)
+    with open(root_path +'generate_crl.sh','w') as f:
+        f.write(generate_signed_certificate_script)
+    os.chmod(root_path +'generate_crl.sh', 0o755)
+    return 0
+
 def generate_server_cert_revoke_script(certificate,generate_cert_revoke_template_name):
     return generate_generic_cert_revoke_script(certificate,generate_cert_revoke_template_name,"server")
 
@@ -280,6 +292,7 @@ def generate_root_ca(certificate):
     generate_cert_template_name = 'ssl/generate_cert.sh'
     generate_cert_info_template_name = 'ssl/get_certificate_info.sh'
     generate_test_passphrase_template_name = 'ssl/test_passphrase_key.sh'
+    generate_crl_file_template_name ='ssl/generate_crl.sh'
 
     logger.info("Generate files for ROOT CA")
     generate_files(certificate,openssl_cnf_template_name)
@@ -296,7 +309,9 @@ def generate_root_ca(certificate):
     logger.info("Generate test_passphrase_key.sh")
     generate_test_passphrase_script(certificate,generate_test_passphrase_template_name)
  
-  
+    logger.warning("Create CRL File script")
+    generate_generic_crl_file_script(certificate,generate_crl_file_template_name)
+      
     logger.info("ROOT CA created")    
     return 0
 
@@ -310,6 +325,7 @@ def generate_intermediate_ca(certificate):
     generate_cert_revoke_template_name = 'ssl/revoke_cert.sh'
     generate_cert_info_template_name = 'ssl/get_certificate_info.sh'
     generate_test_passphrase_template_name = 'ssl/test_passphrase_key.sh'
+    generate_crl_file_template_name ='ssl/generate_crl.sh'
 
     logger.warning("Generate files for INTERMEDIATE CA")
     returncode = generate_files(certificate,openssl_cnf_template_name)
@@ -337,6 +353,9 @@ def generate_intermediate_ca(certificate):
      
     logger.warning("Create INTERMEDIATE CA client cert revoke script")
     generate_client_cert_revoke_script(certificate,generate_cert_revoke_template_name)
+
+    logger.warning("Create INTERMEDIATE CA CRL File script")
+    generate_generic_crl_file_script(certificate,generate_crl_file_template_name)
 
     logger.info("Generate get_certificate_info.sh")
     generate_certificate_info_script(certificate,generate_cert_info_template_name)
@@ -432,5 +451,12 @@ def is_passphrase_in_valid(certificate, key_path='.', root_path='.'):
         return True
     except CalledProcessError:
         return False
+    
+@generate_key_path
+@write_passphrase_files
+def generate_crl_file(certificate, key_path='.', root_path='.'):
+    logger.warning("Generate CRL File")
+    subprocess.check_output([root_path + "generate_crl.sh",certificate.shortname])
+    return 0
 
 

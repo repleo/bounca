@@ -4,27 +4,29 @@
 
 <div class="container">
   <div class="row">
-	<div class="col-md-12 text-center">
-      <h2 ng-if="!parent">Your Certificate Authorities</h2>
-      <h2 ng-if="parent"><span ng-if="parent.type=='R'">Root</span><span ng-if="parent.type=='I'">Intermediate</span> certificate ({{parent.name}})</h2>
-    </div>
-  </div>
-  <div class="row" ng-if="!parent">
-      <div class="col-md-2 col-md-offset-4">
-	      {% endverbatim %}<a class="btn btn-default btn-block" href="{% url 'bounca:calendar-expire' %}">Calendar File</a>{% verbatim %}
-      </div>
-      <div class="col-md-2">
-	      <a class="btn btn-default btn-block" href="">CRL file</a>
-      </div>
-  </div>
-  <div class="row">
-	<div class="col-md-12">
+	<div class="col-md-10">
       <div ng-if="parent" class="cert-path">
       	<span>/<a href="#/dashboard/">root</a></span>
       	<span ng-repeat="cert in parent.cert_path track by cert.id" >/<a href="#/dashboard/{{cert.id}}">{{cert.shortname}}</a></span>
       </div>
     </div>
+      <div class="col-md-2" ng-if="parent.type=='I'">
+          <button class="btn btn-default btn-block" data-title="New" data-toggle="modal" data-target="#crl-file" data-certname="{{parent.name}}" data-certid="{{parent.id}}"><span class="glyphicon glyphicon-download-alt"></span> CRL File</button>         
+      </div>
   </div>
+
+  <div class="row">
+	<div class="col-md-12 text-center">
+      <h2 ng-if="!parent">Your Certificate Authorities</h2>
+      <h2 ng-if="parent"><span ng-if="parent.type=='R'">Root</span><span ng-if="parent.type=='I'">Intermediate</span> certificate ({{parent.name}})</h2>
+    </div>
+  </div>
+  <div class="row" >
+      <div class="col-md-2 col-md-offset-5" ng-if="!parent">
+	      {% endverbatim %}<a class="btn btn-default btn-block" href="{% url 'bounca:calendar-expire' %}">Calendar File</a>{% verbatim %}
+      </div>
+  </div>
+
   <div class="row">
 	<div class="col-md-12">
       <div class="table-responsive">
@@ -109,26 +111,6 @@
 <div class="container">
 	<div class="row"><br/></div>
 </div>
-<!-- 
-<div class="clearfix"></div>
-<ul class="pagination pull-right">
-  <li class="disabled"><a href="#"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
-  <li class="active"><a href="#">1</a></li>
-  <li><a href="#">2</a></li>
-  <li><a href="#">3</a></li>
-  <li><a href="#">4</a></li>
-  <li><a href="#">5</a></li>
-  <li><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></li>
-</ul>
-                
-                		         	<span class="label label-danger" ng-if="cert.type=='R'"><span class="glyphicon glyphicon-tower"></span></span>
-		         	<span class="label label-warning " ng-if="cert.type=='I'"><span class="glyphicon glyphicon-certificate"></span></span>
-		         	<span class="label label-primary " ng-if="cert.type=='S'"><span class="glyphicon glyphicon-hdd"></span></span>
-		         	<span class="label label-success " ng-if="cert.type=='C'"><span class="glyphicon glyphicon-user"></span></span>
-            </div>
-            
-
--->
  
 
 <div class="modal fade" id="new-root-cert" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
@@ -248,6 +230,29 @@ $('#revoke-cert').on('show.bs.modal', function (event) {
 })
 </script>
 
+<div class="modal fade" id="crl-file" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+		  <h3 class="modal-title custom_align" id="Heading" >CRL File Download</h3>
+		</div>
+		<ng-include src="getCrlFileForm()"></ng-include>      
+    </div>
+  </div>
+</div>
+<script>
+$('#crl-file').on('show.bs.modal', function (event) {
+	  var button = $(event.relatedTarget);
+	  var cert_name = button.data('certname');
+	  var cert_id = button.data('certid');
+	  
+	  var modal = $(this)
+
+	  modal.find('#crl-file-commonname').text("Certifcate: " +cert_name);
+	  modal.find('#modal-crl-file-button').attr("data-cert-id",cert_id);
+})
+</script>
 
 <div class="modal fade" id="process-busy-modal" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
   <div class="modal-dialog">
@@ -262,6 +267,7 @@ $('#revoke-cert').on('show.bs.modal', function (event) {
     </div>
   </div>
 </div>
+<iframe id="download_iframe" style="display:none;">
 {% endverbatim %}
 
 

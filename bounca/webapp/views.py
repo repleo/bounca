@@ -116,6 +116,11 @@ class CertificateRevokeFormView(FormView):
     form_class = CertificateRevokeForm
     success_url = reverse_lazy('bounca:index') 
     
+from .forms import CertificateCRLForm
+class CertificateCRLFormView(FormView):
+    template_name = 'bounca/dashboard/forms/crl-file.html'
+    form_class = CertificateCRLForm
+    success_url = reverse_lazy('bounca:index') 
 
 from django_ical.views import ICalFeed
 from ..x509_pki.models import Certificate

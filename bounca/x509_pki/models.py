@@ -82,7 +82,8 @@ class CertificateQuerySet(models.QuerySet):
             obj.delete()
  
 from ..certificate_engine.generator import revoke_server_cert  
-from ..certificate_engine.generator import revoke_client_cert   
+from ..certificate_engine.generator import revoke_client_cert
+from ..certificate_engine.generator import generate_crl_file   
 from ..certificate_engine.generator import get_certificate_info         
 from ..certificate_engine.generator import is_passphrase_in_valid
 from django.contrib.auth.models import User
@@ -174,6 +175,11 @@ class Certificate(models.Model):
             return None
         raise ValidationError('Delete of record not allowed')
 
+    def generate_crl(self, *args, **kwargs):
+        if (self.type is CertificateTypes.INTERMEDIATE):
+            generate_crl_file(self)
+            return
+        raise ValidationError('CRL File can only be generated for Intermediate Certificates')
 
     def __init__(self, *args, **kwargs):
         if 'passphrase_in' in kwargs:                   self.passphrase_in =  kwargs.pop('passphrase_in')

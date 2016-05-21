@@ -8,6 +8,7 @@ from .views import AddIntermediateCAFormView
 from .views import AddServerCertificateFormView
 from .views import AddClientCertificateFormView
 from .views import CertificateRevokeFormView
+from .views import CertificateCRLFormView
 
 from .views import CertificateExpireCalendarView
 
@@ -31,6 +32,8 @@ urlpatterns = [
     url(r'^dashboard/forms/add-client-cert.html$', login_required(AddClientCertificateFormView.as_view()), name='add-client-cert-form'),
     url(r'^dashboard/forms/add-server-cert.html$', login_required(AddServerCertificateFormView.as_view()), name='add-server-cert-form'),
     url(r'^dashboard/forms/cert-revoke-form.html$', login_required(CertificateRevokeFormView.as_view()), name='cert-revoke-form'),
+    url(r'^dashboard/forms/cert-crl-file-form.html$', login_required(CertificateCRLFormView.as_view()), name='cert-crl-file-form'),
+
 
     url(r'^dashboard/calendar/certificates.ics$', login_required(CertificateExpireCalendarView()), name='calendar-expire'),
 
