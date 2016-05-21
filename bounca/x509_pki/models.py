@@ -107,17 +107,23 @@ class Certificate(models.Model):
         (CertificateTypes.OCSP,  'OCSP Signing Certificate'),
     )
     type                    = models.CharField(max_length=1, choices=TYPES)
-    shortname               = models.CharField("Short Name",max_length=128,validators=[alphanumericshort],help_text="Short name to identify your key.")
-    name                    = models.CharField(max_length=128,validators=[alphanumeric],blank=True,help_text="Long name of your key, if not set will be equal to your shortname + CommonName.")
+    shortname               = models.CharField("Short Name",max_length=128,validators=[alphanumericshort],
+                                help_text="Short name to identify your key.")
+    name                    = models.CharField(max_length=128,validators=[alphanumeric],blank=True,
+                                help_text="Long name of your key, if not set will be equal to your shortname + CommonName.")
 
     dn                      = models.ForeignKey(DistinguishedName)
-    parent                  = models.ForeignKey("self",blank=True,null=True,help_text="The signing authority (None for root certificate)")
+    parent                  = models.ForeignKey("self",blank=True,null=True,
+                                help_text="The signing authority (None for root certificate)")
 
-    crl_distribution_url    = models.URLField("CRL distribution url", blank=True,null=True,help_text="Base URL for certificate revocation list (CRL)")
-    ocsp_distribution_host  = models.URLField("OCSP distribution host", blank=True,null=True,help_text="Host URL for Online Certificate Status Protocol (OCSP)")
+    crl_distribution_url    = models.URLField("CRL distribution url", blank=True,null=True,
+                                help_text="Base URL for certificate revocation list (CRL)")
+    ocsp_distribution_host  = models.URLField("OCSP distribution host", blank=True,null=True,
+                                help_text="Host URL for Online Certificate Status Protocol (OCSP)")
 
     created_at              = models.DateField(auto_now_add=True)
-    expires_at              = models.DateField(validators=[validate_in_future],help_text="Select the date that the certificate will expire: for root typically 20 years, for intermediate 10 years for other types 1 year. Allowed date format: yyyy-mm-dd.")
+    expires_at              = models.DateField(validators=[validate_in_future],
+                                    help_text="Select the date that the certificate will expire: for root typically 20 years, for intermediate 10 years for other types 1 year. Allowed date format: yyyy-mm-dd.")
     revoked_at              = models.DateTimeField(editable=False,default=None,blank=True,null=True)
     revoked_uuid            = models.UUIDField(default='00000000000000000000000000000001')
     
