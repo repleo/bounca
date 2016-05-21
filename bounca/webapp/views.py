@@ -139,9 +139,14 @@ class CertificateExpireCalendarView(ICalFeed):
         issued_by = ""
         if item.parent:
             issued_by = "issued by: " + item.parent.dn.commonName + "\n"
-            
+        subjectAltNames =""
+        if item.dn.subjectAltNames:
+            subjectAltNames = "with subject alternatives:\n"
+            for alt_name in item.dn.subjectAltNames:
+                subjectAltNames = subjectAltNames + alt_name + "\n"
         return "Certificate: \n" + \
             item.dn.commonName + "\n"+ \
+            subjectAltNames + \
             issued_by + \
             "with name: " + item.shortname + "\n" + \
             "is expired"
