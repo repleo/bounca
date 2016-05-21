@@ -14,7 +14,6 @@ from .serializers import CertificateRevokeSerializer
 from .serializers import CertificateCRLSerializer
 from ..x509_pki.models import Certificate
 from .mixins import TrapDjangoValidationErrorCreateMixin
-from exceptions import FileNotFoundError
 
 
 import logging
@@ -146,7 +145,7 @@ class CertificateCRLFileView(FileView):
         try:
             user = self.request.user
             cert = Certificate.objects.get(pk=pk,owner=user);
-        except:
+        except Exception:
             return HttpResponseNotFound("File not found")
         
         key_path = settings.CA_ROOT + self.generate_path(cert)
