@@ -1,8 +1,11 @@
-'''
-Created on 5 mei 2016
-
-@author: Jeroen Arnoldus
-'''
+__author__ = "Jeroen Arnoldus"
+__copyright__ = "Copyright 2016, Repleo, Amstelveen"
+__credits__ = ["Jeroen Arnoldus"]
+__license__ = "Apache License"
+__version__ = "2.0"
+__maintainer__ = "Jeroen Arnoldus"
+__email__ = "jeroen@repleo.nl"
+__status__ = "Production"
 
 from django import forms
 from django.utils import timezone
@@ -130,7 +133,7 @@ class CertificateForm(forms.ModelForm):
             if dn.organizationName != parent.dn.organizationName:
                 raise forms.ValidationError('Organization Name of Intermediate CA and Root CA should match (policy strict)')
 
-#TODO Hier iets
+:
         if cert_type is CertificateTypes.INTERMEDIATE and parent.crl_distribution_url:
             cleaned_data['crl_distribution_url']=parent.crl_distribution_url
 

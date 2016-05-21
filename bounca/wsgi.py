@@ -1,11 +1,11 @@
-"""
-WSGI config for bounca project.
-
-It exposes the WSGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.9/howto/deployment/wsgi/
-"""
+__author__ = "Jeroen Arnoldus"
+__copyright__ = "Copyright 2016, Repleo, Amstelveen"
+__credits__ = ["Jeroen Arnoldus"]
+__license__ = "Apache License"
+__version__ = "2.0"
+__maintainer__ = "Jeroen Arnoldus"
+__email__ = "jeroen@repleo.nl"
+__status__ = "Production"
 
 import os
 

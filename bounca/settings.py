@@ -1,14 +1,14 @@
+__author__ = "Jeroen Arnoldus"
+__copyright__ = "Copyright 2016, Repleo, Amstelveen"
+__credits__ = ["Jeroen Arnoldus"]
+__license__ = "Apache License"
+__version__ = "2.0"
+__maintainer__ = "Jeroen Arnoldus"
+__email__ = "jeroen@repleo.nl"
+__status__ = "Production"
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-#TODO Logging INFO not working
-#http://www.webforefront.com/django/setupdjangologging.html
-
-#import logging
-#logging.basicConfig(
-#    level = logging.DEBUG,
-#    format = '%(asctime)s %(levelname)s %(message)s',
-#)
 
 CONFIG_FILE_NAME = '/etc/bounca/main.ini'
 
