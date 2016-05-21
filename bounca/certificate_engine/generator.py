@@ -283,7 +283,7 @@ def generate_certificate_info_script(certificate,generate_certificate_info_templ
     return 0
 
 @generate_key_path
-def generate_test_passphrase_script(certificate,generate_test_passphrase_template_name, key_path='.', root_path='.'):
+def generate_test_passphrase_script(certificate,generate_test_passphrase_template_name, root_path='.', **kwargs):
 
     c = {
         'cert': certificate
