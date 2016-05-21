@@ -15,7 +15,7 @@ class TrapDjangoValidationErrorCreateMixin(object):
 
     def perform_create(self, serializer):
         try:
-            instance = serializer.save()
+            serializer.save()
         except DjangoValidationError as detail:
             raise serializers.ValidationError(detail.messages)
 
@@ -23,6 +23,6 @@ class TrapDjangoValidationErrorUpdateMixin(object):
 
     def perform_update(self, serializer):
         try:
-            instance = serializer.save()
+            serializer.save()
         except DjangoValidationError as detail:
             raise serializers.ValidationError(detail.messages)

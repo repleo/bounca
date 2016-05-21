@@ -10,7 +10,7 @@ from django.conf import settings
 import os
 from django.template import loader
 
-from bounca.x509_pki.models import CertificateTypes
+from ..x509_pki.types import CertificateTypes
 
 import logging
 logger = logging.getLogger(__name__)
@@ -210,6 +210,7 @@ def generate_server_cert_creation_script(certificate,generate_signed_cert_templa
     c = {
         'cert': certificate,
         'extensions': 'server',
+        'key_path': key_path,
         'cert_subdir': 'server_cert',
         'key_length': '2048'
     }
@@ -225,6 +226,7 @@ def generate_client_cert_creation_script(certificate,generate_signed_cert_templa
     c = {
         'cert': certificate,
         'extensions': 'client',
+        'key_path': key_path,
         'cert_subdir': 'usr_cert',
         'key_length': '2048'
     }
@@ -239,6 +241,7 @@ def generate_generic_cert_revoke_script(certificate,generate_cert_revoke_templat
 
     c = {
         'cert': certificate,
+        'key_path': key_path,
         'cert_subdir': script_name
     }
     generate_signed_certificate_script = loader.render_to_string(generate_cert_revoke_template_name, c)
@@ -251,8 +254,9 @@ def generate_generic_cert_revoke_script(certificate,generate_cert_revoke_templat
 def generate_generic_crl_file_script(certificate,generate_crl_file_template_name, key_path='.', root_path='.'):
 
     c = {
-        'cert': certificate
-   }
+        'cert': certificate,
+        'key_path': key_path,
+    }
     generate_signed_certificate_script = loader.render_to_string(generate_crl_file_template_name, c)
     with open(root_path +'generate_crl.sh','w') as f:
         f.write(generate_signed_certificate_script)
@@ -269,7 +273,8 @@ def generate_client_cert_revoke_script(certificate,generate_cert_revoke_template
 def generate_certificate_info_script(certificate,generate_certificate_info_template_name, key_path='.', root_path='.'):
 
     c = {
-        'cert': certificate
+        'cert': certificate,
+        'key_path': key_path
     }
     generate_certificate_info_certificate_script = loader.render_to_string(generate_certificate_info_template_name, c)
     with open(root_path +'get_certificate_info.sh','w') as f:
@@ -417,20 +422,20 @@ def generate_client_cert(certificate, key_path='.', root_path='.'):
 
 @generate_key_path
 @write_passphrase_files
-def revoke_server_cert(certificate, key_path='.', root_path='.'):
+def revoke_server_cert(certificate, root_path='.', **kwargs):
     logger.warning("Revoke server certificate")
     subprocess.check_output([root_path + "revoke_server_certificate.sh",certificate.shortname,str(certificate.slug_revoked_at)])
     return 0
 
 @generate_key_path
 @write_passphrase_files
-def revoke_client_cert(certificate, key_path='.', root_path='.'):
+def revoke_client_cert(certificate, root_path='.', **kwargs):
     logger.warning("Revoke client certificate")
     subprocess.check_output([root_path + "revoke_client_certificate.sh",certificate.shortname,str(certificate.slug_revoked_at)])
     return 0
 
 @generate_key_path
-def get_certificate_info(certificate, key_path='.', root_path='.'):
+def get_certificate_info(certificate, key_path='.', root_path='.', **kwargs):
     logger.warning("Get certificate info")
     path=certificate.shortname
     if(certificate.type==CertificateTypes.CLIENT_CERT):
@@ -442,7 +447,7 @@ def get_certificate_info(certificate, key_path='.', root_path='.'):
 
 @generate_key_path
 @write_passphrase_files
-def is_passphrase_in_valid(certificate, key_path='.', root_path='.'):
+def is_passphrase_in_valid(certificate, root_path='.', **kwargs):
     logger.warning("Test passphrase in of certificate")
     path=certificate.shortname
     if(certificate.type==CertificateTypes.CLIENT_CERT):

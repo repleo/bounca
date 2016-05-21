@@ -9,10 +9,10 @@ __status__ = "Production"
 
 from djng.forms import NgModelFormMixin, NgFormValidationMixin
 from ..x509_pki.forms import DistinguishedNameForm
-from ..x509_pki.forms import CertificateForm
-from ..x509_pki.forms import CertificateRevokeForm
-from ..x509_pki.forms import CertificateCRLForm
-from ..x509_pki.models import CertificateTypes
+from ..x509_pki.forms import CertificateForm as CertificateFormX509
+from ..x509_pki.forms import CertificateRevokeForm as CertificateRevokeFormX509
+from ..x509_pki.forms import CertificateCRLForm as CertificateCRLFormX509
+from ..x509_pki.types import CertificateTypes
 
 
 from djng.forms import NgModelForm
@@ -34,7 +34,7 @@ class AddDistinguishedNameRootCAForm(  NgModelFormMixin, NgFormValidationMixin, 
 
 
 
-class AddRootCAForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateForm):  
+class AddRootCAForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateFormX509):  
     scope_prefix = 'cert_data'
     form_name = 'cert_form'
 
@@ -90,7 +90,7 @@ class AddDistinguishedNameIntermediateCAForm(  NgModelFormMixin, NgFormValidatio
         self.fields['localityName'].widget.attrs['readonly'] = True
         
 
-class AddIntermediateCAForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateForm):  
+class AddIntermediateCAForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateFormX509):  
     scope_prefix = 'cert_data'
     form_name = 'cert_form'
 
@@ -140,7 +140,7 @@ class AddDistinguishedNameServerCertificateForm(  NgModelFormMixin, NgFormValida
         self.fields['commonName'].help_text = 'The fully qualified domain name (FQDN) of your server. This must match exactly what the url or wildcard or a name mismatch error will occur.'
 
 
-class AddServerCertificateForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateForm):  
+class AddServerCertificateForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateFormX509):  
     scope_prefix = 'cert_data'
     form_name = 'cert_form'
 
@@ -194,7 +194,7 @@ class AddDistinguishedNameClientCertificateForm(  NgModelFormMixin, NgFormValida
         self.fields['commonName'].help_text = 'The account name of the client, for example username or email.'
 
 
-class AddClientCertificateForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateForm):  
+class AddClientCertificateForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateFormX509):  
     scope_prefix = 'cert_data'
     form_name = 'cert_form'
 
@@ -240,7 +240,7 @@ class AddClientCertificateForm(  NgModelFormMixin, NgFormValidationMixin, Bootst
         return super().is_valid() and self.dn.is_valid()
     
 
-class CertificateRevokeForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateRevokeForm):  
+class CertificateRevokeForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateRevokeFormX509):  
     scope_prefix = 'cert_data'
     form_name = 'cert_form'
 
@@ -253,7 +253,7 @@ class CertificateRevokeForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap
         super().__init__(*args, **kwargs)
 
 
-class CertificateCRLForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateCRLForm):  
+class CertificateCRLForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateCRLFormX509):  
     scope_prefix = 'cert_data'
     form_name = 'cert_form'
 

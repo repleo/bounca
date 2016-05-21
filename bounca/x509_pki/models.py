@@ -12,11 +12,11 @@ from django_countries.fields import CountryField
 from django.core.validators import RegexValidator
 from django.db.models.signals import pre_save
 from django.db.models.signals import post_save
-from django.db.models.signals import pre_delete 
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
 from django.contrib.postgres.fields import ArrayField
+from .types import CertificateTypes
 import uuid
 
     
@@ -77,12 +77,7 @@ def validate_in_future(value):
     if value <= timezone.now().date():
         raise ValidationError('%s is not in the future!' % value)
 
-class CertificateTypes():
-    ROOT="R"
-    INTERMEDIATE="I"
-    SERVER_CERT="S"
-    CLIENT_CERT="C"
-    OCSP="O"
+
         
 class CertificateQuerySet(models.QuerySet):
 
@@ -194,7 +189,7 @@ class Certificate(models.Model):
         if 'passphrase_in' in kwargs:                   self.passphrase_in =  kwargs.pop('passphrase_in')
         if 'passphrase_out' in kwargs:                  self.passphrase_out = kwargs.pop('passphrase_out')
         if 'passphrase_out_confirmation' in kwargs:     self.passphrase_out_confirmation = kwargs.pop('passphrase_out_confirmation')
-        return super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         
 

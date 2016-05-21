@@ -7,13 +7,9 @@ __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
 
-from django.shortcuts import render
 
 
-import json
-from django.http import HttpResponse
 from django.views.generic.edit import FormView
-from django.utils.encoding import force_text
 from django.core.urlresolvers import reverse_lazy
 from django.core.exceptions import ObjectDoesNotExist
 from .forms import AddRootCAForm
@@ -132,7 +128,6 @@ class CertificateCRLFormView(FormView):
     success_url = reverse_lazy('bounca:index') 
 
 from django_ical.views import ICalFeed
-from ..x509_pki.models import Certificate
 
 class CertificateExpireCalendarView(ICalFeed):
     product_id = '-//bounca.org//BounCA Certificate Expiration Dates//EN'

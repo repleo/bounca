@@ -6,10 +6,9 @@ __version__ = "2.0"
 __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
-from django.conf.urls import patterns, include, url
+from django.conf.urls import url
 from django.views.generic import TemplateView
-from django.views.generic.base import RedirectView
-from django.core.urlresolvers import reverse_lazy
+
 from django.contrib.auth.decorators import login_required
 from .views import AddRootCAFormView
 from .views import AddIntermediateCAFormView

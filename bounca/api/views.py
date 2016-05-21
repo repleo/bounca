@@ -8,15 +8,13 @@ __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
 
 import rest_framework
-from rest_framework.generics import get_object_or_404
 from rest_framework import generics, permissions
 from .serializers import CertificateSerializer
 from .serializers import CertificateRevokeSerializer
 from .serializers import CertificateCRLSerializer
 from ..x509_pki.models import Certificate
 from .mixins import TrapDjangoValidationErrorCreateMixin
-from idlelib.ClassBrowser import file_open
-
+from exceptions import FileNotFoundError
 
 
 import logging
@@ -103,12 +101,12 @@ from django.http import HttpResponse
 from django.http import HttpResponseNotFound
 
 class CertificateInfoView(View):
-    def get(self, request, pk, format=None):
+    def get(self, request, pk, *args, **kwargs):
         cert=None
         try:
             user = self.request.user
             cert = Certificate.objects.get(pk=pk,owner=user);
-        except:
+        except Exception:
             return HttpResponseNotFound("File not found")
         info = cert.get_certificate_info()
         return HttpResponse(info)
@@ -116,11 +114,8 @@ class CertificateInfoView(View):
 
 from django.conf import settings
 import io
-import os
 import zipfile
-
 from ..x509_pki.models import CertificateTypes
-from django.conf import settings
 
 class FileView(View):
 
@@ -145,7 +140,7 @@ class FileView(View):
         
 class CertificateCRLFileView(FileView):
 
-    def get(self, request, pk, format=None):
+    def get(self, request, pk, *args, **kwargs):
         cert=None
         user=None
         try:
@@ -188,13 +183,13 @@ class CertificateFilesView(FileView):
             file_content=f.read()
             return file_content
     
-    def get(self, request, pk, format=None):
+    def get(self, request, pk, *args, **kwargs):
         cert=None
         user=None
         try:
             user = self.request.user
             cert = Certificate.objects.get(pk=pk,owner=user);
-        except:
+        except Exception:
             return HttpResponseNotFound("File not found")
         
         key_path = settings.CA_ROOT + self.generate_path(cert)
