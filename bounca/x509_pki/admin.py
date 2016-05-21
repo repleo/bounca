@@ -4,12 +4,12 @@ from .forms import DistinguishedNameForm
 
 class X509_pki_DistinguishedNameAdmin(admin.ModelAdmin):
     search_fields = ['commonName','organizationName']
-    list_display = ('commonName','countryName','stateOrProvinceName','localityName','organizationName','organizationalUnitName','emailAddress')
+    list_display = ('commonName','countryName','stateOrProvinceName','localityName','organizationName','organizationalUnitName','emailAddress','subjectAltNames')
     form = DistinguishedNameForm
 
     def get_readonly_fields(self, request, obj=None):
         if obj: #This is the case when obj is already created i.e. it's an edit
-            return ['countryName','stateOrProvinceName','localityName','organizationName','organizationalUnitName','emailAddress','commonName']
+            return ['countryName','stateOrProvinceName','localityName','organizationName','organizationalUnitName','emailAddress','commonName','subjectAltNames']
         else:
             return []
 

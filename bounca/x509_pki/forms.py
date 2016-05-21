@@ -21,7 +21,7 @@ class DistinguishedNameForm(forms.ModelForm):
          
     class Meta:
         model = DistinguishedName
-        fields = ('commonName','countryName','stateOrProvinceName','localityName','organizationName','organizationalUnitName','emailAddress',)
+        fields = ('commonName','countryName','stateOrProvinceName','localityName','organizationName','organizationalUnitName','emailAddress', 'subjectAltNames')
         
 class CertificateForm(forms.ModelForm):
     error_messages = {

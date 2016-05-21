@@ -30,17 +30,26 @@ then
     passphrase_out="-passout file:./passphrase_out.txt"
 fi
 
+opensslcnf="./openssl.cnf"
+if [ -e "./openssl-{{ cert_subdir }}-$1.cnf" ]
+then
+    opensslcnf="./openssl-{{ cert_subdir }}-$1.cnf"
+fi
+
+
+
+
 mkdir -p ./csr/{{ cert_subdir }}/
 if ! [ -z "$3" ]
 then
-  openssl req -config openssl.cnf -new -sha256\
+  openssl req -config $opensslcnf -new -sha256\
       -key ./private/{{ cert_subdir }}/$1.key.pem \
       -subj "$3" \
       $passphrase_in \
       $passphrase_out \
       -out ./csr/{{ cert_subdir }}/$1.csr.pem
 else
-  openssl req -config openssl.cnf -new -sha256\
+  openssl req -config $opensslcnf -new -sha256\
       -key ./private/{{ cert_subdir }}/$1.key.pem \
       $passphrase_in \
       $passphrase_out \
@@ -48,7 +57,7 @@ else
 fi
 
 mkdir -p ./certs/{{ cert_subdir }}/
-openssl ca -batch -config openssl.cnf -extensions {{ extensions }} \
+openssl ca -batch -config $opensslcnf -extensions {{ extensions }} \
 	  -days $2 -notext -md sha256 \
       -in ./csr/{{ cert_subdir }}/$1.csr.pem \
       $passphrase_in \

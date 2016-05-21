@@ -130,8 +130,20 @@ app.controller('AddCertificateCtrl', function($scope, $http, $window, djangoUrl,
 	
 	$scope.submit = function() {
 		if ($scope.cert_data) {
+			var cert_data=$scope.cert_data
+			console.log(cert_data)
+			if(cert_data.dn.subjectAltNames){
+				console.log(cert_data.dn.subjectAltNames)
+
+				var altNames=cert_data.dn.subjectAltNames.split(',');
+				console.log(altNames)
+				cert_data.dn.subjectAltNames=altNames;
+				
+			} else {
+				cert_data.dn.subjectAltNames=[];
+			}
 			$("#process-busy-modal").modal("show");
-			$http.post(postCertificateURL, $scope.cert_data).success(function(out_data) {
+			$http.post(postCertificateURL, cert_data).success(function(out_data) {
 				$("#process-busy-modal").modal("hide");
 				if (!djangoForm.setErrors($scope.cert_form, out_data.errors)) {
 				    var buttons = document.getElementsByClassName('close');

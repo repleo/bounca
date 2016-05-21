@@ -351,15 +351,46 @@ def generate_intermediate_ca(certificate):
 @generate_key_path
 @write_passphrase_files
 def generate_server_cert(certificate, key_path='.', root_path='.'):
+    openssl_cnf_template_name = 'ssl/openssl-server.cnf'
+
+    c = {
+        'cert': certificate,
+        'key_path': key_path,
+        'root_path': root_path,
+    }
+    openssl_cnf = loader.render_to_string(openssl_cnf_template_name, c)
+    with open(root_path +'openssl-server-%s.cnf' % certificate.shortname,'w') as f:
+        f.write(openssl_cnf)
+        
     logger.warning("Create signed server certificate")
-    subprocess.check_output([root_path + "generate_signed_server_certificate.sh",certificate.shortname,str(certificate.days_valid),certificate.dn.subj])
+    subprocess.check_output([root_path + "generate_signed_server_certificate.sh",certificate.shortname,str(certificate.days_valid),certificate.dn.subj,' '.join(certificate.dn.subjectAltNames)])
+    
+    try:
+        os.remove(root_path + 'openssl-server-%s.cnf' % certificate.shortname)
+    except FileNotFoundError:
+        pass
     return 0
 
 @generate_key_path
 @write_passphrase_files
 def generate_client_cert(certificate, key_path='.', root_path='.'):
+    openssl_cnf_template_name = 'ssl/openssl-client.cnf'
+
+    c = {
+        'cert': certificate,
+        'key_path': key_path,
+        'root_path': root_path,
+    }
+    openssl_cnf = loader.render_to_string(openssl_cnf_template_name, c)
+    with open(root_path +'openssl-client-%s.cnf' % certificate.shortname,'w') as f:
+        f.write(openssl_cnf)
+            
     logger.warning("Create signed client certificate")
-    subprocess.check_output([root_path + "generate_signed_client_certificate.sh",certificate.shortname,str(certificate.days_valid),certificate.dn.subj])
+    subprocess.check_output([root_path + "generate_signed_client_certificate.sh",certificate.shortname,str(certificate.days_valid),certificate.dn.subj,' '.join(certificate.dn.subjectAltNames)])
+    try:
+        os.remove(root_path + 'openssl-client-%s.cnf' % certificate.shortname)
+    except FileNotFoundError:
+        pass
     return 0
 
 @generate_key_path

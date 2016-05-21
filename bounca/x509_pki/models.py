@@ -21,7 +21,7 @@ class DistinguishedName(models.Model):
     organizationalUnitName      = models.CharField("Organization Unit Name",max_length=64,validators=[alphanumeric],default="IT Department",help_text="The division of your organization handling the certificate.")
     emailAddress                = models.EmailField("Email Address",max_length=64,validators=[alphanumeric],default="ca@repleo.nl",help_text="The email address to contact your organization. Also used by BounCA for authentication.")
     commonName                  = models.CharField("Common Name",max_length=64,validators=[alphanumeric],help_text="The fully qualified domain name (FQDN) of your server. This must match exactly what you type in your web browser or you will receive a name mismatch error.")
-    subjectAltName              = ArrayField(models.CharField(max_length=64,validators=[alphanumeric]),help_text="subjectAltName list",blank=True,null=True)
+    subjectAltNames             = ArrayField(models.CharField(max_length=64,validators=[alphanumeric]),help_text="subjectAltName list, i.e. dns names for server certs and email adresses for client certs. (separate by comma)",blank=True,null=True)
 
     @property
     def dn(self):

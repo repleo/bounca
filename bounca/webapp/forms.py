@@ -26,6 +26,7 @@ class AddDistinguishedNameRootCAForm(  NgModelFormMixin, NgFormValidationMixin, 
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['subjectAltNames'].widget = forms.HiddenInput()
         self.fields['commonName'].help_text = 'The common name of your certification authority. This field is used to identify your CA in the chain'
 
 
@@ -78,6 +79,7 @@ class AddDistinguishedNameIntermediateCAForm(  NgModelFormMixin, NgFormValidatio
         super().__init__(*args, **kwargs)
         #self.fields['countryName'].widget = forms.ChoiceField(widget=forms.RadioSelect(attrs={'disabled': 'disabled'}))
 
+        self.fields['subjectAltNames'].widget = forms.HiddenInput()
         self.fields['commonName'].help_text = 'The common name of your intermediate certification authority. This field is used to identify your intermediate CA in the chain'
         self.fields['countryName'].widget.attrs['disabled'] = 'disabled'
         self.fields['stateOrProvinceName'].widget.attrs['readonly'] = True

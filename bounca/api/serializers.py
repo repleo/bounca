@@ -5,7 +5,7 @@ from ..x509_pki.models import DistinguishedName
 class DistinguishedNameSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('commonName','countryName','stateOrProvinceName','localityName','organizationName','organizationalUnitName','emailAddress')
+        fields = ('commonName','countryName','stateOrProvinceName','localityName','organizationName','organizationalUnitName','emailAddress', 'subjectAltNames')
         model = DistinguishedName
 
 from django.contrib.auth import password_validation

@@ -46,7 +46,9 @@
 		         	<span class="label label-success " ng-if="cert.type=='C'"><span class="glyphicon glyphicon-user"></span></span>
 		         	{{ cert.shortname|limitTo:15 }}
 		         </td>
-		         <td class="vert-align">{{ cert.dn.commonName|limitTo:75 }}</td>
+		         <td class="vert-align">{{ cert.dn.commonName|limitTo:75 }}
+		         	<span ng-show="!!cert.dn.subjectAltNames.length">(has altNames, see info)</span>
+		         </td>
 		         <td class="vert-align">{{ cert.dn.emailAddress|limitTo:30 }}</td>
 		         <td class="vert-align" ng-if="!cert.revoked">{{ cert.expires_at|date:"yyyy-MM-dd" }}</td>
 		         <td class="vert-align" ng-if="!cert.revoked && !cert.expired">
