@@ -137,7 +137,8 @@ class AddDistinguishedNameServerCertificateForm(  NgModelFormMixin, NgFormValida
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['commonName'].help_text = 'The fully qualified domain name (FQDN) of your server. This must match exactly what the url or wildcard or a name mismatch error will occur.'
+        self.fields['commonName'].help_text = 'The fully qualified domain name (FQDN) of your server. '+\
+                            'This must match exactly what the url or wildcard or a name mismatch error will occur.'
 
 
 class AddServerCertificateForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateFormX509):  

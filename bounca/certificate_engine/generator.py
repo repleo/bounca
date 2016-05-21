@@ -390,7 +390,9 @@ def generate_server_cert(certificate, key_path='.', root_path='.'):
         f.write(openssl_cnf)
         
     logger.warning("Create signed server certificate")
-    subprocess.check_output([root_path + "generate_signed_server_certificate.sh",certificate.shortname,str(certificate.days_valid),certificate.dn.subj,' '.join(certificate.dn.subjectAltNames)])
+    subprocess.check_output([root_path + "generate_signed_server_certificate.sh",
+                             certificate.shortname,str(certificate.days_valid),
+                             certificate.dn.subj,' '.join(certificate.dn.subjectAltNames)])
     
     try:
         os.remove(root_path + 'openssl-server-%s.cnf' % certificate.shortname)
@@ -413,7 +415,9 @@ def generate_client_cert(certificate, key_path='.', root_path='.'):
         f.write(openssl_cnf)
             
     logger.warning("Create signed client certificate")
-    subprocess.check_output([root_path + "generate_signed_client_certificate.sh",certificate.shortname,str(certificate.days_valid),certificate.dn.subj,' '.join(certificate.dn.subjectAltNames)])
+    subprocess.check_output([root_path + "generate_signed_client_certificate.sh",
+                             certificate.shortname,str(certificate.days_valid),
+                             certificate.dn.subj,' '.join(certificate.dn.subjectAltNames)])
     try:
         os.remove(root_path + 'openssl-client-%s.cnf' % certificate.shortname)
     except FileNotFoundError:

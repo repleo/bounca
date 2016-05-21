@@ -11,7 +11,7 @@ from django import forms
 from django.utils import timezone
 from .models import DistinguishedName
 from .models import Certificate
-from .models import CertificateTypes
+from .types import CertificateTypes
 from django.contrib.auth import password_validation
 class DistinguishedNameForm(forms.ModelForm):
 
@@ -111,11 +111,11 @@ class CertificateForm(forms.ModelForm):
         if cert_type is not CertificateTypes.ROOT and not parent: #check_if_root_has_no_parent
             raise forms.ValidationError('Non ROOT certificate should have a parent certificate')
         
-        if cert_type is CertificateTypes.SERVER_CERT and not parent.type is CertificateTypes.INTERMEDIATE: #check_if_non_root_certificate_has_parent
+        if cert_type is CertificateTypes.SERVER_CERT and not (parent.type is CertificateTypes.INTERMEDIATE): #check_if_non_root_certificate_has_parent
             raise forms.ValidationError('Server certificate can only be generated for intermediate CA parent')
 
 
-        if cert_type is CertificateTypes.CLIENT_CERT and not parent.type is CertificateTypes.INTERMEDIATE: #check_if_non_root_certificate_has_parent
+        if cert_type is CertificateTypes.CLIENT_CERT and not (parent.type is CertificateTypes.INTERMEDIATE): #check_if_non_root_certificate_has_parent
             raise forms.ValidationError('Client certificate can only be generated for intermediate CA parent')
 
         if cert_type is CertificateTypes.SERVER_CERT or cert_type is CertificateTypes.CLIENT_CERT:

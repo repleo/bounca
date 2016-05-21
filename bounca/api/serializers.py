@@ -27,7 +27,10 @@ class CertificateSerializer(serializers.ModelSerializer):
     passphrase_out_confirmation  = serializers.CharField(max_length=200, required=False, allow_null=True, allow_blank=True)
 
     class Meta:
-        fields = ('id','owner','shortname','name','parent','cert_path','type','dn','created_at','expires_at','revoked_at','days_valid','expired','revoked','crl_distribution_url','ocsp_distribution_host','passphrase_in','passphrase_out','passphrase_out_confirmation')
+        fields = ('id','owner','shortname','name','parent','cert_path','type',
+                  'dn','created_at','expires_at','revoked_at','days_valid',
+                  'expired','revoked','crl_distribution_url','ocsp_distribution_host',
+                  'passphrase_in','passphrase_out','passphrase_out_confirmation')
         model = Certificate
         extra_kwargs = {'passphrase_out': {'write_only': True},'passphrase_out_confirmation': {'write_only': True},'passphrase_in': {'write_only': True}}
 
