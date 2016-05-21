@@ -1,6 +1,8 @@
 Welcome to BounCA - Your Own Chain of Trust
 =======
 
+[![Code Health](https://landscape.io/github/repleo/bounca/master/landscape.svg?style=flat-square)](https://landscape.io/github/repleo/bounca/master)
+
 Purpose
 -----------
 Bounce aims for a central, easy to use interface for managing all your certificates. It provides an easy accessible interface to OpenSSL command line tool and an administration tool for all your signed certificates and revocation lists. BounCA is a web interface for creating and managing your X.509 / PKI key and certificate trust infrastructure and provides an easy interface for creating signing requests (CSRs) for popular trust networks like StartSSL and Comodo. 
