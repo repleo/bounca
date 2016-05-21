@@ -131,14 +131,11 @@ app.controller('AddCertificateCtrl', function($scope, $http, $window, djangoUrl,
 	$scope.submit = function() {
 		if ($scope.cert_data) {
 			var cert_data=$scope.cert_data
-			console.log(cert_data)
 			if(cert_data.dn.subjectAltNames){
-				console.log(cert_data.dn.subjectAltNames)
-
-				var altNames=cert_data.dn.subjectAltNames.split(',');
-				console.log(altNames)
-				cert_data.dn.subjectAltNames=altNames;
-				
+				if (typeof cert_data.dn.subjectAltNames == 'string') {
+					var altNames=cert_data.dn.subjectAltNames.split(',');
+					cert_data.dn.subjectAltNames=altNames;
+				}
 			} else {
 				cert_data.dn.subjectAltNames=[];
 			}

@@ -152,9 +152,18 @@ p {
     margin-top: 6px;
 }
 
-.add-button-table{
-    margin-top: 4px;
-	padding-right: 39px;
+@media (min-width: 768px) {
+	.add-button-table{
+	    margin-top: 4px;
+		padding-right: 32px;
+	}
+}
+
+@media (min-width: 1200px) {
+	.add-button-table{
+	    margin-top: 4px;
+		padding-right: 39px;
+	}
 }
 
 .cert-path{

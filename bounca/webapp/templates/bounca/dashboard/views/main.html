@@ -30,11 +30,11 @@
       <div class="table-responsive">
 		<table id="mytable" class="table table-bordred table-striped">
             <thead>
-	             <th class="col-md-2">Name</th>
-	             <th class="col-md-4">Common Name</th>
-	             <th class="col-md-2">E-mail</th>
-	             <th class="col-md-1">Expires at</th>
-	             <th class="col-md-1">Actions</th>	
+	             <th class="col-md-2 col-lg-2">Name</th>
+	             <th class="col-md-3 col-lg-4">Common Name</th>
+	             <th class="col-md-2 col-lg-2">E-mail</th>
+	             <th class="col-md-1 col-lg-1">Expires at</th>
+	             <th class="col-md-2 col-lg-1">Actions</th>	
 	        </thead>
 		    <tbody>
 		      <tr ng-repeat="cert in certs track by cert.id">
@@ -73,15 +73,15 @@
 </div>
 <div class="container">
   <div class="row">
-    <div class="col-md-9" style="padding-left: 0px;">
+    <div class="col-sm-8 col-lg-9" style="padding-left: 0px;">
    		<uib-pagination items-per-page="10" total-items="pagination.totalItems" ng-model="pagination.page" max-size="pagination.maxSize" ng-change="pageChanged()" class="pagination-sm" boundary-link-numbers="true" rotate="false"></uib-pagination>
     </div>
-	<div class="col-md-1">
+	<div class="col-sm-1 col-lg-1">
 		<div class="pull-right add-text-table">
 		Add:
 		</div>
 	</div>
-	<div class="col-md-2">
+	<div class="col-sm-2 col-lg-2">
 		<div class="pull-right add-button-table " ng-if="!parent">
 			<p data-placement="top" data-toggle="tooltip" title="Create Root Certificate">
 				<button class="btn btn-danger btn-xs" data-title="New" data-toggle="modal" data-target="#new-root-cert"><span class="glyphicon glyphicon-tower"></span></button>
