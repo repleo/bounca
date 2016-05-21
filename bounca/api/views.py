@@ -233,7 +233,8 @@ class CertificateFilesView(FileView):
                 csr_file_content=self.read_file(csr_file)
                 key_file=key_path + "/private/server/" + cert.shortname + ".key.pem" 
                 key_file_content=self.read_file(key_file)
-    
+                p12_file=key_path + "/private/client/" + cert.shortname + ".p12" 
+                p12_file_content=self.read_file(p12_file)        
                 
                 zipped_file = io.BytesIO()
                 with zipfile.ZipFile(zipped_file, 'w') as f:
@@ -242,6 +243,8 @@ class CertificateFilesView(FileView):
                     f.writestr(cert.shortname + ".pem", cert_file_content)
                     f.writestr(cert.shortname + "-chain.pem", cert_chain_file_content)
                     f.writestr(cert.shortname + ".key", key_file_content)
+                    f.writestr(cert.shortname + ".p12", p12_file_content)
+
                 zipped_file.seek(0)
     
                 filename="%s.servercert.zip" % (cert.shortname)
@@ -263,7 +266,8 @@ class CertificateFilesView(FileView):
                 csr_file_content=self.read_file(csr_file)
                 key_file=key_path + "/private/client/" + cert.shortname + ".key.pem" 
                 key_file_content=self.read_file(key_file)
-    
+                p12_file=key_path + "/private/client/" + cert.shortname + ".p12" 
+                p12_file_content=self.read_file(p12_file)    
                 
                 zipped_file = io.BytesIO()
                 with zipfile.ZipFile(zipped_file, 'w') as f:
@@ -273,6 +277,8 @@ class CertificateFilesView(FileView):
                     f.writestr(cert.shortname + ".pem", cert_file_content)
                     f.writestr(cert.shortname + "-chain.pem", cert_chain_file_content)
                     f.writestr(cert.shortname + ".key", key_file_content)
+                    f.writestr(cert.shortname + ".p12", p12_file_content)
+
                 zipped_file.seek(0)
     
                 filename="%s.clientcert.zip" % (cert.shortname)

@@ -69,5 +69,20 @@ cat ./certs/{{ cert_subdir }}/$1.cert.pem \
     ./certs/{{ cert.shortname }}-chain.cert.pem > ./certs/{{ cert_subdir }}/$1-chain.cert.pem
 chmod 444 ./certs/{{ cert_subdir }}/$1-chain.cert.pem
 
+passphrase_p12_out="-passout pass:"
+passphrase_p12_in=""
+if [ -e "./passphrase_out.txt" ]
+then
+    passphrase_p12_out="-passout file:./passphrase_out.txt"
+    passphrase_p12_in="-passin file:./passphrase_out.txt"
+fi
+
+openssl pkcs12 -export \
+  $passphrase_p12_in\
+  $passphrase_p12_out\
+  -out ./private/{{ cert_subdir }}/$1.p12 \
+  -inkey ./private/{{ cert_subdir }}/$1.key.pem \
+  -in ./certs/{{ cert_subdir }}/$1.cert.pem \
+  -certfile ./certs/{{ cert.shortname }}-chain.cert.pem
 
 exit 0
