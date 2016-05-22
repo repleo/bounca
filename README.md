@@ -5,7 +5,7 @@ Welcome to BounCA - Your Own Chain of Trust
 
 Purpose
 -----------
-Bounce aims for a central, easy to use interface for managing all your certificates. It provides an easy accessible interface to OpenSSL command line tool and an administration tool for all your signed certificates and revocation lists. BounCA is a web interface for creating and managing your X.509 / PKI key and certificate trust infrastructure and provides an easy interface for creating signing requests (CSRs) for popular trust networks like StartSSL and Comodo. 
+BounCA is a tool to manage your SSL certificates and authorities in a central and easy to use interfaces. It provides an easy accessible web interface to the OpenSSL command line tool and an administration tool for all your signed certificates and revocation lists. Create and manage your own X.509 / PKI key and certificate trust infrastructure in a couple of seconds 
 
 Why your own Certificate Authority
 ----------------------------------------------
@@ -20,10 +20,22 @@ Advantages:
 
 * No single point of failure: Decoupled en decentralized authorization management 
 * You are in control of your complete trust chain: Spoofing nearly impossible as no third party is involved
-* Razor fast: SSL offloading can be performed in your webservers
+* Razor fast authentication: SSL off-loading can be performed by your webservers
 
+Main Features
+--------------
 
-
+* Create and manage your own root certificates and certificate authorities
+* Create intermediate certificates for grouping of certificates
+* Create server side certificates for setting up trusted and encrypted connections
+* Create client side certificates for authentication and authorization
+* Support for advanced v3 certificates containing subject alt names
+* Revoke certificates within one mouse click and download Certificate Revoke Lists (CRL)
+* Download certificates, keys, and keystore packages for your webserver and installation
+* Keep track of validity of your certificates via ics / iCal calendar export containing expiration dates
+* Protect your certificates via passphrases
+* Evaluate your certificates via the info button
+* Use the PKI without webinterface from the command line
 
 Installation
 --------------
