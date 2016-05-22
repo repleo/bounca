@@ -18,6 +18,7 @@ ratings:
   paths:
   - "**.py"
 exclude_paths:
+- "**/migrations/**/*"
 - ci/*
 - docs/*
 - etc/*
