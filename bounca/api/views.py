@@ -167,15 +167,15 @@ class CertificateFilesView(FileView):
     def make_certificate_zip_response(cls,key_path,cert,cert_type):
         root_cert_file=cls.get_root_cert_path(cert)
         root_cert_file_content=cls.read_file(root_cert_file)
-        cert_chain_file=key_path + "/certs/" + cert_type + "/" + cert.shortname + "-chain.cert.pem" 
+        cert_chain_file=key_path + "/certs/" + cert_type + "/" + cert.shortname + "-chain.cert.pem"
         cert_chain_file_content=cls.read_file(cert_chain_file)
-        cert_file=key_path + "/certs/" + cert_type + "/" + cert.shortname + ".cert.pem" 
+        cert_file=key_path + "/certs/" + cert_type + "/" + cert.shortname + ".cert.pem"
         cert_file_content=cls.read_file(cert_file)
-        csr_file=key_path + "/csr/" + cert_type + "/" + cert.shortname + ".csr.pem" 
+        csr_file=key_path + "/csr/" + cert_type + "/" + cert.shortname + ".csr.pem"
         csr_file_content=cls.read_file(csr_file)
-        key_file=key_path + "/private/" + cert_type + "/" + cert.shortname + ".key.pem" 
+        key_file=key_path + "/private/" + cert_type + "/" + cert.shortname + ".key.pem"
         key_file_content=cls.read_file(key_file)
-        p12_file=key_path + "/private/" + cert_type + "/" + cert.shortname + ".p12" 
+        p12_file=key_path + "/private/" + cert_type + "/" + cert.shortname + ".p12"
         p12_file_content=cls.read_file(p12_file)
         
         zipped_file = io.BytesIO()
