@@ -39,7 +39,7 @@ class CertificateSerializer(serializers.ModelSerializer):
             password_validation.validate_password(passphrase_out, self.instance)
             return passphrase_out
         return None
-    
+ 
     def validate_passphrase_in(self,passphrase_in):
         if passphrase_in:
             if not self.initial_data.get('parent'):
@@ -58,7 +58,7 @@ class CertificateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("The two passphrase fields didn't match.")
             password_validation.validate_password(passphrase_out_confirmation, self.instance)
             return passphrase_out_confirmation
-        return None 
+        return None
     
     def validate(self,data):
         
@@ -75,7 +75,7 @@ class CertificateSerializer(serializers.ModelSerializer):
 
         dn = DistinguishedName.objects.create(**dn_data)
         certificate = Certificate.objects.create(dn=dn,**validated_data)
-        return certificate   
+        return certificate
 
 class CertificateRevokeSerializer(serializers.ModelSerializer):
     passphrase_in = serializers.CharField(max_length=200, required=True)
@@ -91,7 +91,7 @@ class CertificateRevokeSerializer(serializers.ModelSerializer):
         if passphrase_in:
             self.instance.parent.passphrase_in=passphrase_in
             if not self.instance.parent.is_passphrase_valid():
-                raise serializers.ValidationError("Passphrase incorrect. Not allowed to revoke your certificate") 
+                raise serializers.ValidationError("Passphrase incorrect. Not allowed to revoke your certificate")
             return passphrase_in
         return None
 

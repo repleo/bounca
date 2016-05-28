@@ -27,7 +27,7 @@ class AddIntermediateCAFormView(FormView):
     template_name = 'bounca/dashboard/forms/add-intermediate-ca.html'
     form_class = AddIntermediateCAForm
     success_url = reverse_lazy('bounca:index') 
-    
+
     def get_initial(self):
         initial = super().get_initial()
         

@@ -57,7 +57,7 @@ class write_passphrase_files(object):
         try:
             if certificate.passphrase_out:
                 with open( root_path +'passphrase_out.txt','w' ) as f:
-                    f.write(certificate.passphrase_out)    
+                    f.write(certificate.passphrase_out)
                 os.chmod(root_path +'passphrase_out.txt', 0o600)
             else:
                 try:
@@ -82,10 +82,10 @@ class write_passphrase_files(object):
                 f.write(random_string_generator())
             os.remove( root_path +'passphrase_out.txt' )
             with open( root_path +'passphrase_in.txt','w' ) as f:
-                f.write( random_string_generator()) 
-            os.remove( root_path +'passphrase_in.txt' )  
+                f.write( random_string_generator())
+            os.remove( root_path +'passphrase_in.txt' )
             
-            return result                           
+            return result   
         except Exception as e:
             with open( root_path +'passphrase_out.txt','w') as f:
                 f.write(random_string_generator())
@@ -320,7 +320,7 @@ def generate_root_ca(certificate):
     logger.warning("Create CRL File script")
     generate_generic_crl_file_script(certificate,generate_crl_file_template_name)
       
-    logger.info("ROOT CA created")    
+    logger.info("ROOT CA created")
     return 0
 
 
@@ -372,7 +372,7 @@ def generate_intermediate_ca(certificate):
     generate_test_passphrase_script(certificate,generate_test_passphrase_template_name)
  
                
-    logger.warning("INTERMEDIATE CA created")    
+    logger.warning("INTERMEDIATE CA created")
     return returncode
 
 @generate_key_path

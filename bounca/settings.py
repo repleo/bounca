@@ -19,11 +19,10 @@ if os.path.exists(CONFIG_FILE_NAME):
     DEBUG = False
     config.read(CONFIG_FILE_NAME)
 else:
-    DEBUG = True    
+    DEBUG = True
     config.read(BASE_DIR+CONFIG_FILE_NAME)
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-       
 
 
 
@@ -126,7 +125,7 @@ MIDDLEWARE_CLASSES = [
 
 ROOT_URLCONF = 'bounca.urls'
 
-#REST_SESSION_LOGIN = False 
+#REST_SESSION_LOGIN = False
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'rest_framework.filters.DjangoFilterBackend', 

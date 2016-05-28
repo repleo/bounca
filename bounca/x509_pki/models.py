@@ -19,7 +19,11 @@ from django.contrib.postgres.fields import ArrayField
 from .types import CertificateTypes
 import uuid
 
-    
+from ..certificate_engine.generator import generate_root_ca  
+from ..certificate_engine.generator import generate_intermediate_ca  
+from ..certificate_engine.generator import generate_server_cert
+from ..certificate_engine.generator import generate_client_cert  
+
 class DistinguishedName(models.Model):
     alphanumeric = RegexValidator(r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ \*]*$', 'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
 
@@ -151,7 +155,7 @@ class Certificate(models.Model):
             return  int((self.expires_at-self.created_at).days)
         else:
             return  int((self.expires_at-timezone.now().date()).days)
-    days_valid.fget.short_description = 'Days valid'                
+    days_valid.fget.short_description = 'Days valid'     
     
     @property
     def slug_revoked_at(self):
@@ -264,10 +268,6 @@ def validation_rules_certificate(sender,instance, *args, **kwargs):
     
         
 
-from ..certificate_engine.generator import generate_root_ca  
-from ..certificate_engine.generator import generate_intermediate_ca  
-from ..certificate_engine.generator import generate_server_cert  
-from ..certificate_engine.generator import generate_client_cert  
 
 @receiver(post_save, sender=Certificate)
 def generate_certificate(sender, instance, created, **kwargs):

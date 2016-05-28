@@ -29,13 +29,13 @@ class CertificateListView(TrapDjangoValidationErrorCreateMixin, generics.ListCre
     permission_classes = [
         permissions.IsAuthenticated
     ]
-    search_fields = ('shortname','name',) 
+    search_fields = ('shortname','name',)
     pagination_class = APIPageNumberPagination
     filter_fields = ('type', 'parent',)
 
     def get(self, request, *args, **kwargs):
         return generics.ListCreateAPIView.get(self, request, *args, **kwargs)
-    
+
     def get_queryset(self):
         """
         This view should return a list of all the purchases
@@ -205,7 +205,7 @@ class CertificateFilesView(FileView):
         
         key_path = settings.CA_ROOT + self.generate_path(cert)
         if cert.type is CertificateTypes.ROOT:
-            orig_file=key_path + "/certs/" + cert.shortname + ".cert.pem" 
+            orig_file=key_path + "/certs/" + cert.shortname + ".cert.pem"
             try:
                 file_content=self.read_file(orig_file)
                 filename="%s.pem" % (cert.shortname)

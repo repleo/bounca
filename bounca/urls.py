@@ -19,7 +19,7 @@ urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
     
 
-    url(r'^', include(urlpatterns_webapp, namespace='bounca')), 
+    url(r'^', include(urlpatterns_webapp, namespace='bounca')),
 ]
 
 if settings.DEBUG:

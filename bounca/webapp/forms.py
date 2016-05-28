@@ -23,7 +23,7 @@ from django.utils import timezone
 
 
 
-class AddDistinguishedNameRootCAForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, DistinguishedNameForm):  
+class AddDistinguishedNameRootCAForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, DistinguishedNameForm):
     scope_prefix = 'cert_data.dn'
     form_name = 'cert_form'
 
@@ -74,7 +74,7 @@ class AddRootCAForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMix
         return super().is_valid() and self.dn.is_valid()
 
 
-class AddDistinguishedNameIntermediateCAForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, DistinguishedNameForm):  
+class AddDistinguishedNameIntermediateCAForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, DistinguishedNameForm):
     scope_prefix = 'cert_data.dn'
     form_name = 'cert_form'
 
@@ -87,7 +87,7 @@ class AddDistinguishedNameIntermediateCAForm(  NgModelFormMixin, NgFormValidatio
         self.fields['stateOrProvinceName'].widget.attrs['readonly'] = True
         self.fields['organizationName'].widget.attrs['readonly'] = True
         self.fields['localityName'].widget.attrs['readonly'] = True
-        
+
 
 class AddIntermediateCAForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateFormX509):  
     scope_prefix = 'cert_data'
@@ -130,7 +130,7 @@ class AddIntermediateCAForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap
         return super().is_valid() and self.dn.is_valid()
 
 
-class AddDistinguishedNameServerCertificateForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, DistinguishedNameForm):  
+class AddDistinguishedNameServerCertificateForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, DistinguishedNameForm):
     scope_prefix = 'cert_data.dn'
     form_name = 'cert_form'
 
@@ -140,7 +140,7 @@ class AddDistinguishedNameServerCertificateForm(  NgModelFormMixin, NgFormValida
                             'This must match exactly what the url or wildcard or a name mismatch error will occur.'
 
 
-class AddServerCertificateForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateFormX509):  
+class AddServerCertificateForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateFormX509):
     scope_prefix = 'cert_data'
     form_name = 'cert_form'
 
@@ -240,7 +240,7 @@ class AddClientCertificateForm(  NgModelFormMixin, NgFormValidationMixin, Bootst
         return super().is_valid() and self.dn.is_valid()
     
 
-class CertificateRevokeForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateRevokeFormX509):  
+class CertificateRevokeForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateRevokeFormX509):
     scope_prefix = 'cert_data'
     form_name = 'cert_form'
 
@@ -253,7 +253,7 @@ class CertificateRevokeForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap
         super().__init__(*args, **kwargs)
 
 
-class CertificateCRLForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateCRLFormX509):  
+class CertificateCRLForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, CertificateCRLFormX509):
     scope_prefix = 'cert_data'
     form_name = 'cert_form'
 
