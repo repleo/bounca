@@ -6,17 +6,19 @@ __version__ = "2.0"
 __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
-from django.conf import settings
+
 import os
-from django.template import loader
-
-from ..x509_pki.types import CertificateTypes
-
+import string
+import random
+import subprocess
+from subprocess import CalledProcessError
 import logging
 logger = logging.getLogger(__name__)
 
-import subprocess 
-from subprocess import CalledProcessError
+from django.conf import settings
+from django.template import loader
+
+from ..x509_pki.types import CertificateTypes
 
 
 def generate_path(certificate):
@@ -25,12 +27,13 @@ def generate_path(certificate):
         prefix_path=generate_path(certificate.parent)
     return prefix_path + "/" + str(certificate.shortname)
 
+
 class generate_key_path(object):
 
     def __init__(self, f):
         self.f = f
 
-    def __call__(self,certificate,*args):
+    def __call__(self, certificate, *args):
         if(certificate.type==CertificateTypes.CLIENT_CERT or certificate.type==CertificateTypes.SERVER_CERT):
             key_path = generate_path(certificate.parent)
         else:
@@ -38,14 +41,12 @@ class generate_key_path(object):
         root_path = settings.CA_ROOT + key_path + "/"
         os.makedirs(root_path,exist_ok=True)
         return self.f(certificate, *args , key_path=key_path, root_path=root_path)
-            
-            
 
-            
-import string
-import random
+
+
 def random_string_generator(size=300, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
+
 
 class write_passphrase_files(object):
 
@@ -55,65 +56,64 @@ class write_passphrase_files(object):
     def __call__(self, certificate, *args, key_path='.', root_path='.'):
         try:
             if certificate.passphrase_out:
-                with open(root_path +'passphrase_out.txt','w') as f:
+                with open( root_path +'passphrase_out.txt','w' ) as f:
                     f.write(certificate.passphrase_out)    
                 os.chmod(root_path +'passphrase_out.txt', 0o600)
             else:
                 try:
-                    os.remove(root_path +'passphrase_out.txt')
+                    os.remove( root_path +'passphrase_out.txt' )
                 except FileNotFoundError:
                     pass
                 
             if certificate.passphrase_in:
-                with open(root_path +'passphrase_in.txt','w') as f:
+                with open( root_path +'passphrase_in.txt','w' ) as f:
                     f.write(certificate.passphrase_in)
-                os.chmod(root_path +'passphrase_in.txt', 0o600)
+                os.chmod( root_path +'passphrase_in.txt', 0o600 )
             else:
                 try:
                     os.remove(root_path +'passphrase_in.txt')
                 except FileNotFoundError:
                     pass
-                      
-            
-            
+
+
             result = self.f(certificate, *args , key_path=key_path, root_path=root_path)
             
-            with open(root_path +'passphrase_out.txt','w') as f:
+            with open( root_path +'passphrase_out.txt','w' ) as f:
                 f.write(random_string_generator())
-            os.remove(root_path +'passphrase_out.txt')
-            with open(root_path +'passphrase_in.txt','w') as f:
-                f.write(random_string_generator()) 
-            os.remove(root_path +'passphrase_in.txt')  
+            os.remove( root_path +'passphrase_out.txt' )
+            with open( root_path +'passphrase_in.txt','w' ) as f:
+                f.write( random_string_generator()) 
+            os.remove( root_path +'passphrase_in.txt' )  
             
             return result                           
         except Exception as e:
-            with open(root_path +'passphrase_out.txt','w') as f:
+            with open( root_path +'passphrase_out.txt','w') as f:
                 f.write(random_string_generator())
             os.remove(root_path +'passphrase_out.txt')
-            with open(root_path +'passphrase_in.txt','w') as f:
+            with open( root_path +'passphrase_in.txt','w') as f:
                 f.write(random_string_generator())
             os.remove(root_path +'passphrase_in.txt')          
             raise e
             
 @generate_key_path
-def generate_files(certificate,openssl_cnf_template_name, key_path='.', root_path='.'):   
+def generate_files(certificate,openssl_cnf_template_name, key_path='.', root_path='.'):
 
     logger.warning("Create directory for certificate " + str(certificate) + " with the path: " + root_path)
     os.makedirs(root_path + "certs" ,exist_ok=True)
     if certificate.type == CertificateTypes.INTERMEDIATE:
         os.makedirs(root_path + "crl" ,exist_ok=True)
         os.makedirs(root_path + "csr" ,exist_ok=True)
-        with open(root_path +'crlnumber','w') as f:
+        with open( root_path +'crlnumber','w') as f:
             f.write("1000")
 
     os.makedirs(root_path + "newcerts" ,exist_ok=True)
     os.makedirs(root_path + "private" ,exist_ok=True)
     os.chmod(root_path + "private", 0o700)
-    open(root_path +'index.txt','w')
-    with open(root_path +'index.txt.attr','w') as f:
+    open( root_path +'index.txt','w')
+    with open( root_path +'index.txt.attr','w') as f:
         f.write("unique_subject = yes")
 
-    with open(root_path +'serial','w') as f:
+    with open( root_path +'serial','w') as f:
         f.write("1000")
 
     c = {
@@ -122,7 +122,7 @@ def generate_files(certificate,openssl_cnf_template_name, key_path='.', root_pat
         'root_path': root_path,
     }
     openssl_cnf = loader.render_to_string(openssl_cnf_template_name, c)
-    with open(root_path +'openssl.cnf','w') as f:
+    with open( root_path +'openssl.cnf','w') as f:
         f.write(openssl_cnf)
         
     return 0
@@ -139,7 +139,7 @@ def generate_key(certificate,generate_key_template_name, key_path='.', root_path
         'key_length': '4096',
     }
     generate_ca_key_script = loader.render_to_string(generate_key_template_name, c)
-    with open(root_path +'generate_%s_key.sh' %(key_name),'w') as f:
+    with open( root_path +'generate_%s_key.sh' %(key_name), 'w') as f:
         f.write(generate_ca_key_script)
     os.chmod(root_path +'generate_%s_key.sh' %(key_name), 0o755)
     
@@ -159,7 +159,7 @@ def generate_cert(certificate,generate_cert_template_name, key_path='.', root_pa
         'key_length': '4096',
     }
     generate_ca_cert_script = loader.render_to_string(generate_cert_template_name, c)
-    with open(root_path +'generate_%s_cert.sh'%(key_name),'w') as f:
+    with open( root_path +'generate_%s_cert.sh'%(key_name), 'w') as f:
         f.write(generate_ca_cert_script)
     os.chmod(root_path +'generate_%s_cert.sh'%(key_name), 0o755)
     
@@ -178,7 +178,7 @@ def generate_csr(certificate,generate_csr_template_name, key_path='.', root_path
         'key_length': '4096',
     }
     generate_csr_script = loader.render_to_string(generate_csr_template_name, c)
-    with open(root_path +'generate_csr.sh','w') as f:
+    with open( root_path +'generate_csr.sh','w') as f:
         f.write(generate_csr_script)
     os.chmod(root_path +'generate_csr.sh', 0o755)
     
@@ -197,7 +197,7 @@ def sign_cert(certificate,sign_cert_template_name, key_path='.', root_path='.'):
         'key_length': '4096',
     }
     sign_certificate_script = loader.render_to_string(sign_cert_template_name, c)
-    with open(root_path +'sign_certificate.sh','w') as f:
+    with open( root_path +'sign_certificate.sh','w') as f:
         f.write(sign_certificate_script)
     os.chmod(root_path +'sign_certificate.sh', 0o755)
     
@@ -215,7 +215,7 @@ def generate_server_cert_creation_script(certificate,generate_signed_cert_templa
         'key_length': '2048'
     }
     generate_signed_certificate_script = loader.render_to_string(generate_signed_cert_template_name, c)
-    with open(root_path +'generate_signed_server_cert_certificate.sh','w') as f:
+    with open( root_path +'generate_signed_server_cert_certificate.sh','w') as f:
         f.write(generate_signed_certificate_script)
     os.chmod(root_path +'generate_signed_server_cert_certificate.sh', 0o755)
     return 0
@@ -231,7 +231,7 @@ def generate_client_cert_creation_script(certificate,generate_signed_cert_templa
         'key_length': '2048'
     }
     generate_signed_certificate_script = loader.render_to_string(generate_signed_cert_template_name, c)
-    with open(root_path +'generate_signed_usr_cert_certificate.sh','w') as f:
+    with open( root_path +'generate_signed_usr_cert_certificate.sh','w') as f:
         f.write(generate_signed_certificate_script)
     os.chmod(root_path +'generate_signed_usr_cert_certificate.sh', 0o755)
     return 0
@@ -245,7 +245,7 @@ def generate_generic_cert_revoke_script(certificate,generate_cert_revoke_templat
         'cert_subdir': script_name
     }
     generate_signed_certificate_script = loader.render_to_string(generate_cert_revoke_template_name, c)
-    with open(root_path +'revoke_%s_certificate.sh'%(script_name),'w') as f:
+    with open( root_path +'revoke_%s_certificate.sh'%(script_name), 'w') as f:
         f.write(generate_signed_certificate_script)
     os.chmod(root_path +'revoke_%s_certificate.sh'%(script_name), 0o755)
     return 0
@@ -258,7 +258,7 @@ def generate_generic_crl_file_script(certificate,generate_crl_file_template_name
         'key_path': key_path,
     }
     generate_signed_certificate_script = loader.render_to_string(generate_crl_file_template_name, c)
-    with open(root_path +'generate_crl.sh','w') as f:
+    with open( root_path +'generate_crl.sh','w') as f:
         f.write(generate_signed_certificate_script)
     os.chmod(root_path +'generate_crl.sh', 0o755)
     return 0
@@ -277,7 +277,7 @@ def generate_certificate_info_script(certificate,generate_certificate_info_templ
         'key_path': key_path
     }
     generate_certificate_info_certificate_script = loader.render_to_string(generate_certificate_info_template_name, c)
-    with open(root_path +'get_certificate_info.sh','w') as f:
+    with open( root_path +'get_certificate_info.sh','w') as f:
         f.write(generate_certificate_info_certificate_script)
     os.chmod(root_path +'get_certificate_info.sh', 0o755)
     return 0
@@ -289,7 +289,7 @@ def generate_test_passphrase_script(certificate,generate_test_passphrase_templat
         'cert': certificate
     }
     generate_test_passphrase_script = loader.render_to_string(generate_test_passphrase_template_name, c)
-    with open(root_path +'test_passphrase_key.sh','w') as f:
+    with open( root_path +'test_passphrase_key.sh','w') as f:
         f.write(generate_test_passphrase_script)
     os.chmod(root_path +'test_passphrase_key.sh', 0o755)
     return 0
@@ -386,7 +386,7 @@ def generate_server_cert(certificate, key_path='.', root_path='.'):
         'root_path': root_path,
     }
     openssl_cnf = loader.render_to_string(openssl_cnf_template_name, c)
-    with open(root_path +'openssl-server_cert-%s.cnf' % certificate.shortname,'w') as f:
+    with open( root_path +'openssl-server_cert-%s.cnf' % certificate.shortname,'w') as f:
         f.write(openssl_cnf)
         
     logger.warning("Create signed server certificate")
@@ -411,7 +411,7 @@ def generate_client_cert(certificate, key_path='.', root_path='.'):
         'root_path': root_path,
     }
     openssl_cnf = loader.render_to_string(openssl_cnf_template_name, c)
-    with open(root_path +'openssl-usr_cert-%s.cnf' % certificate.shortname,'w') as f:
+    with open( root_path +'openssl-usr_cert-%s.cnf' % certificate.shortname,'w') as f:
         f.write(openssl_cnf)
             
     logger.warning("Create signed client certificate")
