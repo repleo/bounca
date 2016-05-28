@@ -216,7 +216,7 @@ class CertificateFilesView(FileView):
                 return HttpResponseNotFound("File not found")
 
         if cert.type is CertificateTypes.INTERMEDIATE:
-            orig_file=key_path + "/certs/" + cert.shortname + "-chain.cert.pem" 
+            orig_file=key_path + "/certs/" + cert.shortname + "-chain.cert.pem"
             try:
                 file_content=self.read_file(orig_file)
                 filename="%s-chain.pem" % (cert.shortname)
@@ -240,5 +240,5 @@ class CertificateFilesView(FileView):
                 response = self.make_certificate_zip_response(key_path,cert,"usr_cert")
                 return response
             except FileNotFoundError:
-                return HttpResponseNotFound("File not found")        
+                return HttpResponseNotFound("File not found")    
         return HttpResponseNotFound("File not found")
