@@ -9,18 +9,12 @@ Welcome to BounCA - Your Own Chain of Trust
 [![Code Health](https://landscape.io/github/repleo/bounca/master/landscape.svg?style=flat-square)](https://landscape.io/github/repleo/bounca/master)
 
 
-Description – I’m surprised at how many times I land on a project page that is obviously popular (because Twitter told me so) but I have no idea why because the project owners don’t tell me plainly what the project is or why I should care.
-Installation instructions – Tell me where to get the bits and how to install them
-Where to get help – Link to the docs, mailing list, wiki, etc.
-Contribution guidelines – Tell me how I can help out including wanted features and code standards
-Contributor list – List the humans behind the project
-Credits, Inspiration, Alternatives – Tell me if this is a fork of or otherwise inspired by another project. I won’t think you’re a douche when I find out later.
+**BounCA** is a tool to manage your personal SSL certificates and authorities in a central and easy to use interfaces. It provides an easy accessible web interface to manage your **rout authority** with the OpenSSL command line tool and. Bounce is also an administration tool for all your signed certificates and revocation lists. Create and manage your own X.509 / PKI key and certificate trust infrastructure in a couple of minutes.
+
 
 [![BounCA](https://www.bounca.org/img/bounca/ssl_dashboard_bounca.png)](https://www.bounca.org)
 
-Purpose
------------
-BounCA is a tool to manage your personal SSL certificates and authorities in a central and easy to use interfaces. It provides an easy accessible web interface to the OpenSSL command line tool and an administration tool for all your signed certificates and revocation lists. Create and manage your own X.509 / PKI key and certificate trust infrastructure in a couple of seconds.
+
 
 Your Own Certificate Authority
 ----------------------------------------------
@@ -51,15 +45,34 @@ Main Features
 * Keep track of validity of your certificates via ics / iCal calendar export containing expiration dates
 * Protect your certificates via passphrases
 * Evaluate your certificates via the info button
-* Use the PKI without webinterface from the command line
+* Use the PKI without web interface from the command line
 
 Installation
 --------------
-BounCA is Django / Python3 based, and can be best installed in its own linux environment. Easiest way is to use a virtual machine to deploy the application. Note that it is best practice to create the root pair in a secure environment. Ideally, this should be on a fully encrypted, air gapped computer that is permanently isolated from the Internet. 
+BounCA is Django / Python3 based, and it is recommended to deploy BounCA to its own linux environment, like a virtual machine.. Note that it is best practice to create the root pair in a secure environment. Ideally, this should be on a fully encrypted, air gapped computer that is permanently isolated from the Internet. 
+
+More info about the installation: [BounCA Installation Tutorials](https://www.bounca.org/getting-started.html)
 
 Requirements
 ------------------
-Modern Linux Environment supporting Python 3.4+, PostgreSQL 9.4+ and Django 1.9+. The application is hosted using NGINX and uWSGi.
+Modern Linux Environment, tested on Debian Jessie, supporting Python 3.4+, PostgreSQL 9.4+ and Django 1.9+. The application is hosted using NGINX and uWSGI.
+
+Contributing
+------------------
+
+#### Bug Reports & Feature Requests
+
+Please use the [issue tracker](https://github.com/repleo/bounca/issues) to report any bugs or file feature requests.
+
+#### Contributing
+
+1. Create an issue and describe your idea
+2. [Fork it] (https://github.com/repleo/bounca/fork)
+3. Create your feature branch (`git checkout -b my-new-feature`)
+4. Commit your changes (`git commit -am 'Add some feature'`)
+5. Publish the branch (`git push origin my-new-feature`)
+6. Create a new Pull Request
+7. Profit! :white_check_mark:
 
 License
 ------------------
@@ -71,3 +84,12 @@ Author Information
 
 Repleo, Amstelveen, Holland -- www.repleo.nl  
 Jeroen Arnoldus (jeroen@repleo.nl)
+
+
+
+Description – I’m surprised at how many times I land on a project page that is obviously popular (because Twitter told me so) but I have no idea why because the project owners don’t tell me plainly what the project is or why I should care.
+Installation instructions – Tell me where to get the bits and how to install them
+Where to get help – Link to the docs, mailing list, wiki, etc.
+Contribution guidelines – Tell me how I can help out including wanted features and code standards
+Contributor list – List the humans behind the project
+Credits, Inspiration, Alternatives – Tell me if this is a fork of or otherwise inspired by another project. I won’t think you’re a douche when I find out later.
