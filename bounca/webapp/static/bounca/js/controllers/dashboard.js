@@ -151,8 +151,9 @@ app.controller("AddCertificateCtrl", function($scope, $http, $window, djangoUrl,
 				    var buttons = document.getElementsByClassName("close");
 				    $scope.$emit("certificate-list-updated", {});
 
-				    for(var i = 0; i < buttons.length; i++)  
+				    for(var i = 0; i < buttons.length; i++)  {
 				    	buttons[i].click();
+				    }
 				}
 			}).error(function(out_data) {
 				$("#process-busy-modal").modal("hide");
