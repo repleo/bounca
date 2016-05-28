@@ -150,11 +150,11 @@ class CertificateCRLFileView(FileView):
         
         key_path = settings.CA_ROOT + self.generate_path(cert)
         if cert.type is CertificateTypes.INTERMEDIATE:
-            orig_file=key_path + "/crl/" + cert.shortname + ".crl.pem" 
+            orig_file=key_path + "/crl/" + cert.shortname + ".crl" 
             try:
                 file_content=self.read_file(orig_file)
                 filename="%s.crl.pem" % (cert.shortname)
-                response = HttpResponse(file_content, content_type='text/plain')
+                response = HttpResponse(file_content, content_type='application/octet-stream')
                 response['Content-Disposition'] = ('attachment; filename=%s' % (filename))
                 return response
             except FileNotFoundError:
@@ -197,7 +197,7 @@ class CertificateFilesView(FileView):
             try:
                 file_content=self.read_file(orig_file)
                 filename="%s.pem" % (cert.shortname)
-                response = HttpResponse(file_content, content_type='text/plain')
+                response = HttpResponse(file_content, content_type='application/octet-stream')
                 response['Content-Disposition'] = ('attachment; filename=%s' % (filename))
                 return response
             except FileNotFoundError:
@@ -208,7 +208,7 @@ class CertificateFilesView(FileView):
             try:
                 file_content=self.read_file(orig_file)
                 filename="%s-chain.pem" % (cert.shortname)
-                response = HttpResponse(file_content, content_type='text/plain')
+                response = HttpResponse(file_content, content_type='application/octet-stream')
                 response['Content-Disposition'] = ('attachment; filename=%s' % (filename))
                 return response
             except FileNotFoundError:
