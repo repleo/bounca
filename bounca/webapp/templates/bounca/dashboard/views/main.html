@@ -196,7 +196,7 @@ $('#cert-info-modal').on('show.bs.modal', function (event) {
 	  var cert_id = button.data('certid'); 
 	  var modal = $(this)
 
-	  modal.find('#cert-info-commonname').text("Certicate info: "+cert_name);
+	  modal.find('#cert-info-commonname').text("Certificate info: "+cert_name);
 	  $.get( "/api/v1/certificates/info/"+cert_id, function( data ) {
 		  modal.find('#cert-info-text').text(data);
 	  });
@@ -225,7 +225,7 @@ $('#revoke-cert').on('show.bs.modal', function (event) {
 	  
 	  var modal = $(this)
 
-	  modal.find('#cert-revoke-commonname').text("Certifcate: " +cert_name);
+	  modal.find('#cert-revoke-commonname').text("Certificate: " +cert_name);
 	  modal.find('#modal-revoke-button').attr("data-cert-id",cert_id);
 })
 </script>
