@@ -272,6 +272,7 @@ from ..certificate_engine.generator import generate_client_cert
 def generate_certificate(sender, instance, created, **kwargs):
     if created:
         if instance.type==CertificateTypes.ROOT:
+            instance.passphrase_in=instance.passphrase_out
             generate_root_ca(instance)
         if instance.type==CertificateTypes.INTERMEDIATE:
             generate_intermediate_ca(instance)
