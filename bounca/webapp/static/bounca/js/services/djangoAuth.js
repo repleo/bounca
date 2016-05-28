@@ -21,8 +21,8 @@ angular.module('angularDjangoRegistrationAuthApp')
                 $http.defaults.headers.common.Authorization = 'Token ' + $cookies.get('token');
             }
             // Continue
-            params = args.params || {}
-            args = args || {};
+            var params = args.params || {}
+            var args = args || {};
             var deferred = $q.defer(),
                 url = this.API_URL + args.url,
                 method = args.method || "GET",
