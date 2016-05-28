@@ -1,27 +1,27 @@
-'use strict';
+"use strict";
 
 var app;
 
-app = angular.module('angularDjangoRegistrationAuthApp'); //, ['ngResource']
+app = angular.module("angularDjangoRegistrationAuthApp"); //, ["ngResource"]
 
-app.factory('Certificate', [
-    '$resource', function($resource) {
-      return $resource('/api/v1/certificates/:id', {  }, {
-    	  query: {method:'GET', params:{id:''}, isArray:true},
-    	  get: {method:'GET', params: {id: '@id'}},
-    	  post: {method:'POST', params:{id: '@id'}},
-    	  remove: {method:'DELETE', params:{id: '@id'}}
+app.factory("Certificate", [
+    "$resource", function($resource) {
+      return $resource("/api/v1/certificates/:id", {  }, {
+    	  query: {method:"GET", params:{id:""}, isArray:true},
+    	  get: {method:"GET", params: {id: "@id"}},
+    	  post: {method:"POST", params:{id: "@id"}},
+    	  remove: {method:"DELETE", params:{id: "@id"}}
     	} );
     }
   ]);
 
-app.controller('DashboardCtrl', ['$scope', '$interval', '$http', '$route', 'djangoUrl', 'Certificate', function($scope, $interval, $http, $route, djangoUrl, Certificate) {
-	var rootCertificateFormURL = djangoUrl.reverse('bounca:add-root-ca-form')
-	var intermediaCertificateFormURL = djangoUrl.reverse('bounca:add-intermediate-ca-form')
-	var serverCertificateFormURL = djangoUrl.reverse('bounca:add-server-cert-form')
-	var clientCertificateFormURL = djangoUrl.reverse('bounca:add-client-cert-form')
-	var certificateRevokeFormURL = djangoUrl.reverse('bounca:cert-revoke-form')
-	var certificateCRLFormURL = djangoUrl.reverse('bounca:cert-crl-file-form')
+app.controller("DashboardCtrl", ["$scope", "$interval", "$http", "$route", "djangoUrl", "Certificate", function($scope, $interval, $http, $route, djangoUrl, Certificate) {
+	var rootCertificateFormURL = djangoUrl.reverse("bounca:add-root-ca-form")
+	var intermediaCertificateFormURL = djangoUrl.reverse("bounca:add-intermediate-ca-form")
+	var serverCertificateFormURL = djangoUrl.reverse("bounca:add-server-cert-form")
+	var clientCertificateFormURL = djangoUrl.reverse("bounca:add-client-cert-form")
+	var certificateRevokeFormURL = djangoUrl.reverse("bounca:cert-revoke-form")
+	var certificateCRLFormURL = djangoUrl.reverse("bounca:cert-crl-file-form")
 
 	
 	$scope.parent_id=$route.current.params.id;
@@ -70,7 +70,7 @@ app.controller('DashboardCtrl', ['$scope', '$interval', '$http', '$route', 'djan
 	
 	
     $scope.search = {
-            query: ''
+            query: ""
     };
     
     $scope.pagination = {
@@ -82,15 +82,15 @@ app.controller('DashboardCtrl', ['$scope', '$interval', '$http', '$route', 'djan
     
 	function load_certificates(){
 		var query;
-		query={'ordering':'-id','page':$scope.pagination.page}
+		query={"ordering":"-id","page":$scope.pagination.page}
 		
 		if($scope.search.query){
-			query['search']=$scope.search.query;
+			query["search"]=$scope.search.query;
 		} 
 		if($scope.parent_id){
-			query['parent']=$scope.parent_id;
+			query["parent"]=$scope.parent_id;
 		} else {
-			query['type']='R';
+			query["type"]="R";
 		}
 		
 		
@@ -123,23 +123,23 @@ app.controller('DashboardCtrl', ['$scope', '$interval', '$http', '$route', 'djan
 		load_certificates();
 	};
 
-    $scope.$on('certificate-list-updated', function(){
+    $scope.$on("certificate-list-updated", function(){
         load_certificates();
      });	
 
 }
 ]);
 
-app.controller('AddCertificateCtrl', function($scope, $http, $window, djangoUrl, djangoForm) {
-	var postCertificateURL = djangoUrl.reverse('api:v1:certificates');
+app.controller("AddCertificateCtrl", function($scope, $http, $window, djangoUrl, djangoForm) {
+	var postCertificateURL = djangoUrl.reverse("api:v1:certificates");
 	var success_url = $window.location.href;
 	
 	$scope.submit = function() {
 		if ($scope.cert_data) {
 			var cert_data=$scope.cert_data
 			if(cert_data.dn.subjectAltNames){
-				if (typeof cert_data.dn.subjectAltNames === 'string') {
-					var altNames=cert_data.dn.subjectAltNames.split(',');
+				if (typeof cert_data.dn.subjectAltNames === "string") {
+					var altNames=cert_data.dn.subjectAltNames.split(",");
 					cert_data.dn.subjectAltNames=altNames;
 				}
 			} else {
@@ -149,7 +149,7 @@ app.controller('AddCertificateCtrl', function($scope, $http, $window, djangoUrl,
 			$http.post(postCertificateURL, cert_data).success(function(out_data) {
 				$("#process-busy-modal").modal("hide");
 				if (!djangoForm.setErrors($scope.cert_form, out_data.errors)) {
-				    var buttons = document.getElementsByClassName('close');
+				    var buttons = document.getElementsByClassName("close");
 				    $scope.$emit("certificate-list-updated", {});
 
 				    for(var i = 0; i < buttons.length; i++)  
@@ -166,19 +166,19 @@ app.controller('AddCertificateCtrl', function($scope, $http, $window, djangoUrl,
 
 
 
-app.controller('RevokeCertificateCtrl', function($scope, $http, $window, djangoUrl, djangoForm) {
+app.controller("RevokeCertificateCtrl", function($scope, $http, $window, djangoUrl, djangoForm) {
 	
 	var success_url = $window.location.href;
 	
 	$scope.submit = function($event) {
-		var cert_id = $($event.target).attr('data-cert-id');
-		var postCertificateURL = djangoUrl.reverse('api:v1:certificate-revoke', {'pk': cert_id});
+		var cert_id = $($event.target).attr("data-cert-id");
+		var postCertificateURL = djangoUrl.reverse("api:v1:certificate-revoke", {"pk": cert_id});
 		if ($scope.cert_data) {
 			$("#process-busy-modal").modal("show");
 			$http.patch(postCertificateURL, $scope.cert_data).success(function(out_data) {
 				$("#process-busy-modal").modal("hide");
 				if (!djangoForm.setErrors($scope.cert_form, out_data.errors)) {
-				    var buttons = document.getElementsByClassName('close');
+				    var buttons = document.getElementsByClassName("close");
 				    $scope.$emit("certificate-list-updated", {});
 
 				    for(var i = 0; i < buttons.length; i++)
@@ -195,25 +195,25 @@ app.controller('RevokeCertificateCtrl', function($scope, $http, $window, djangoU
 });
 
 
-app.controller('CRLFileCtrl', function($scope, $http, $window, djangoUrl, djangoForm) {
+app.controller("CRLFileCtrl", function($scope, $http, $window, djangoUrl, djangoForm) {
 	
 	var success_url = $window.location.href;
 	
 	$scope.submit = function($event) {
-		var cert_id = $($event.target).attr('data-cert-id');
-		var postCertificateURL = djangoUrl.reverse('api:v1:certificate-crl', {'pk': cert_id});
-		var postCertificateFileURL = djangoUrl.reverse('api:v1:certificate-crl-file', {'pk': cert_id});
+		var cert_id = $($event.target).attr("data-cert-id");
+		var postCertificateURL = djangoUrl.reverse("api:v1:certificate-crl", {"pk": cert_id});
+		var postCertificateFileURL = djangoUrl.reverse("api:v1:certificate-crl-file", {"pk": cert_id});
 
 		if ($scope.cert_data) {
 			$("#process-busy-modal").modal("show");
 			$http.patch(postCertificateURL, $scope.cert_data).success(function(out_data) {
 				$("#process-busy-modal").modal("hide");
 				if (!djangoForm.setErrors($scope.cert_form, out_data.errors)) {
-				    var buttons = document.getElementsByClassName('close');
+				    var buttons = document.getElementsByClassName("close");
 
 				    for(var i = 0; i < buttons.length; i++)
 				       buttons[i].click();
-				    $('#download_iframe').attr('src',postCertificateFileURL);
+				    $("#download_iframe").attr("src",postCertificateFileURL);
 				}
 			}).error(function(out_data) {
 				$("#process-busy-modal").modal("hide");
