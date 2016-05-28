@@ -98,7 +98,7 @@ app.controller("DashboardCtrl", ["$scope", "$interval", "$http", "$route", "djan
 				$scope.certs = dataElements.results;
 				$scope.pagination.totalItems = dataElements.count;
 		});
-	}; 
+	}
 	
 	
     load_certificates();
@@ -132,7 +132,6 @@ app.controller("DashboardCtrl", ["$scope", "$interval", "$http", "$route", "djan
 
 app.controller("AddCertificateCtrl", function($scope, $http, $window, djangoUrl, djangoForm) {
 	var postCertificateURL = djangoUrl.reverse("api:v1:certificates");
-	var success_url = $window.location.href;
 	
 	$scope.submit = function() {
 		if ($scope.cert_data) {
@@ -167,9 +166,6 @@ app.controller("AddCertificateCtrl", function($scope, $http, $window, djangoUrl,
 
 
 app.controller("RevokeCertificateCtrl", function($scope, $http, $window, djangoUrl, djangoForm) {
-	
-	var success_url = $window.location.href;
-	
 	$scope.submit = function($event) {
 		var cert_id = $($event.target).attr("data-cert-id");
 		var postCertificateURL = djangoUrl.reverse("api:v1:certificate-revoke", {"pk": cert_id});
@@ -196,8 +192,6 @@ app.controller("RevokeCertificateCtrl", function($scope, $http, $window, djangoU
 
 
 app.controller("CRLFileCtrl", function($scope, $http, $window, djangoUrl, djangoForm) {
-	
-	var success_url = $window.location.href;
 	
 	$scope.submit = function($event) {
 		var cert_id = $($event.target).attr("data-cert-id");

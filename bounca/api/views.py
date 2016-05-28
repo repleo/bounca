@@ -112,25 +112,29 @@ import zipfile
 from ..x509_pki.models import CertificateTypes
 
 class FileView(View):
-
-    def generate_path(self, certificate):
-        prefix_path=""
-        if certificate.parent and certificate.pk != certificate.parent.pk:
-            prefix_path=self.generate_path(certificate.parent)
-        return prefix_path + "/" + str(certificate.shortname)
-
-    def get_root_cert_path(self, certificate):
-        if certificate.parent and certificate.pk != certificate.parent.pk:
-            return self.get_root_cert_path(certificate.parent)
-        else:
-            root_cert_path = settings.CA_ROOT + "/" + str(certificate.shortname) + "/certs/" + str(certificate.shortname) + ".cert.pem" 
-            return root_cert_path
-
-    def read_file(self, filename):
+    @staticmethod
+    def read_file(filename):
         with open(filename,'rb') as f:
             file_content=f.read()
             return file_content
+    
+    @classmethod
+    def generate_path(cls,certificate):
+        prefix_path=""
+        if certificate.parent and certificate.pk != certificate.parent.pk:
+            prefix_path=cls.generate_path(certificate.parent)
+        return prefix_path + "/" + str(certificate.shortname)
+
         
+    @classmethod
+    def get_root_cert_path(cls,certificate):
+        if certificate.parent and certificate.pk != certificate.parent.pk:
+            return cls.get_root_cert_path(certificate.parent)
+        else:
+            root_cert_path = settings.CA_ROOT + "/" + str(certificate.shortname) + "/certs/" + str(certificate.shortname) + ".cert.pem"
+            return root_cert_path
+
+         
         
 class CertificateCRLFileView(FileView):
 
@@ -159,24 +163,37 @@ class CertificateCRLFileView(FileView):
 
 class CertificateFilesView(FileView):
 
-    def generate_path(self, certificate):
-        prefix_path=""
-        if certificate.parent and certificate.pk != certificate.parent.pk:
-            prefix_path=self.generate_path(certificate.parent)
-        return prefix_path + "/" + str(certificate.shortname)
+    @classmethod
+    def make_certificate_zip_response(cls,key_path,cert,cert_type):
+        root_cert_file=cls.get_root_cert_path(cert)
+        root_cert_file_content=cls.read_file(root_cert_file)
+        cert_chain_file=key_path + "/certs/" + cert_type + "/" + cert.shortname + "-chain.cert.pem" 
+        cert_chain_file_content=cls.read_file(cert_chain_file)
+        cert_file=key_path + "/certs/" + cert_type + "/" + cert.shortname + ".cert.pem" 
+        cert_file_content=cls.read_file(cert_file)
+        csr_file=key_path + "/csr/" + cert_type + "/" + cert.shortname + ".csr.pem" 
+        csr_file_content=cls.read_file(csr_file)
+        key_file=key_path + "/private/" + cert_type + "/" + cert.shortname + ".key.pem" 
+        key_file_content=cls.read_file(key_file)
+        p12_file=key_path + "/private/" + cert_type + "/" + cert.shortname + ".p12" 
+        p12_file_content=cls.read_file(p12_file)
+        
+        zipped_file = io.BytesIO()
+        with zipfile.ZipFile(zipped_file, 'w') as f:
+            f.writestr("rootca.pem", root_cert_file_content)
+            f.writestr(cert.shortname + ".csr", csr_file_content)
+            f.writestr(cert.shortname + ".pem", cert_file_content)
+            f.writestr(cert.shortname + "-chain.pem", cert_chain_file_content)
+            f.writestr(cert.shortname + ".key", key_file_content)
+            f.writestr(cert.shortname + ".p12", p12_file_content)
 
-    def get_root_cert_path(self, certificate):
-        if certificate.parent and certificate.pk != certificate.parent.pk:
-            return self.get_root_cert_path(certificate.parent)
-        else:
-            root_cert_path = settings.CA_ROOT + "/" + str(certificate.shortname) + "/certs/" + str(certificate.shortname) + ".cert.pem" 
-            return root_cert_path
+        zipped_file.seek(0)
 
-    def read_file(self, filename):
-        with open(filename,'rb') as f:
-            file_content=f.read()
-            return file_content
-    
+        filename="%s.server_cert.zip" % (cert.shortname)
+        response = HttpResponse(zipped_file, content_type='application/octet-stream')
+        response['Content-Disposition'] = ('attachment; filename=%s' % (filename))
+        return response
+                   
     def get(self, request, pk, *args, **kwargs):
         cert=None
         user=None
@@ -212,68 +229,14 @@ class CertificateFilesView(FileView):
         key_path = settings.CA_ROOT + self.generate_path(cert.parent)
         if cert.type is CertificateTypes.SERVER_CERT:
             try:
-                root_cert_file=self.get_root_cert_path(cert)
-                root_cert_file_content=self.read_file(root_cert_file)
-                cert_chain_file=key_path + "/certs/server_cert/" + cert.shortname + "-chain.cert.pem" 
-                cert_chain_file_content=self.read_file(cert_chain_file)
-                cert_file=key_path + "/certs/server_cert/" + cert.shortname + ".cert.pem" 
-                cert_file_content=self.read_file(cert_file)
-                csr_file=key_path + "/csr/server_cert/" + cert.shortname + ".csr.pem" 
-                csr_file_content=self.read_file(csr_file)
-                key_file=key_path + "/private/server_cert/" + cert.shortname + ".key.pem" 
-                key_file_content=self.read_file(key_file)
-                p12_file=key_path + "/private/server_cert/" + cert.shortname + ".p12" 
-                p12_file_content=self.read_file(p12_file)        
-                
-                zipped_file = io.BytesIO()
-                with zipfile.ZipFile(zipped_file, 'w') as f:
-                    f.writestr("rootca.pem", root_cert_file_content)
-                    f.writestr(cert.shortname + ".csr", csr_file_content)
-                    f.writestr(cert.shortname + ".pem", cert_file_content)
-                    f.writestr(cert.shortname + "-chain.pem", cert_chain_file_content)
-                    f.writestr(cert.shortname + ".key", key_file_content)
-                    f.writestr(cert.shortname + ".p12", p12_file_content)
+                response = self.make_certificate_zip_response(key_path,cert,"server_cert")
 
-                zipped_file.seek(0)
-    
-                filename="%s.server_cert.zip" % (cert.shortname)
-                response = HttpResponse(zipped_file, content_type='application/octet-stream')
-                response['Content-Disposition'] = ('attachment; filename=%s' % (filename))
-                return response
             except FileNotFoundError:
                 return HttpResponseNotFound("File not found")
 
         if cert.type is CertificateTypes.CLIENT_CERT:
             try:
-                root_cert_file=self.get_root_cert_path(cert)
-                root_cert_file_content=self.read_file(root_cert_file)
-                cert_chain_file=key_path + "/certs/usr_cert/" + cert.shortname + "-chain.cert.pem" 
-                cert_chain_file_content=self.read_file(cert_chain_file)
-                cert_file=key_path + "/certs/usr_cert/" + cert.shortname + ".cert.pem" 
-                cert_file_content=self.read_file(cert_file)
-                csr_file=key_path + "/csr/usr_cert/" + cert.shortname + ".csr.pem" 
-                csr_file_content=self.read_file(csr_file)
-                key_file=key_path + "/private/usr_cert/" + cert.shortname + ".key.pem" 
-                key_file_content=self.read_file(key_file)
-                p12_file=key_path + "/private/usr_cert/" + cert.shortname + ".p12" 
-                p12_file_content=self.read_file(p12_file)    
-                
-                zipped_file = io.BytesIO()
-                with zipfile.ZipFile(zipped_file, 'w') as f:
-                    f.writestr("rootca.pem", root_cert_file_content)
-                    f.writestr(cert.shortname + ".csr", csr_file_content)
-
-                    f.writestr(cert.shortname + ".pem", cert_file_content)
-                    f.writestr(cert.shortname + "-chain.pem", cert_chain_file_content)
-                    f.writestr(cert.shortname + ".key", key_file_content)
-                    f.writestr(cert.shortname + ".p12", p12_file_content)
-
-                zipped_file.seek(0)
-    
-                filename="%s.usr_cert.zip" % (cert.shortname)
-                response = HttpResponse(zipped_file, content_type='application/octet-stream')
-                response['Content-Disposition'] = ('attachment; filename=%s' % (filename))
-                return response
+                response = self.make_certificate_zip_response(key_path,cert,"usr_cert")
             except FileNotFoundError:
                 return HttpResponseNotFound("File not found")        
         return HttpResponseNotFound("File not found")

@@ -19,6 +19,7 @@ class MyUserPermissions(permissions.BasePermission):
         else:
             return False
 
+
     def has_object_permission(self, request, view, obj):
         if view.action == 'retrieve':
             return request.user.is_admin or obj == request.user                                                                       

@@ -22,7 +22,7 @@ angular.module('angularDjangoRegistrationAuthApp')
             }
             // Continue
             var params = args.params || {}
-            var args = args || {};
+            args = args || {};
             var deferred = $q.defer(),
                 url = this.API_URL + args.url,
                 method = args.method || "GET",

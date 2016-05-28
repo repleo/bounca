@@ -47,7 +47,7 @@ class CertificateSerializer(serializers.ModelSerializer):
             parent = Certificate.objects.get(pk=self.initial_data.get('parent'))
             parent.passphrase_in=passphrase_in
             if not parent.is_passphrase_valid():
-                raise serializers.ValidationError("Passphrase incorrect. Not allowed to sign your certificate") 
+                raise serializers.ValidationError("Passphrase incorrect. Not allowed to sign your certificate")
             return passphrase_in
         return None
 
