@@ -138,7 +138,7 @@ app.controller('AddCertificateCtrl', function($scope, $http, $window, djangoUrl,
 		if ($scope.cert_data) {
 			var cert_data=$scope.cert_data
 			if(cert_data.dn.subjectAltNames){
-				if (typeof cert_data.dn.subjectAltNames == 'string') {
+				if (typeof cert_data.dn.subjectAltNames === 'string') {
 					var altNames=cert_data.dn.subjectAltNames.split(',');
 					cert_data.dn.subjectAltNames=altNames;
 				}

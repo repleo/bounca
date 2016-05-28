@@ -114,7 +114,7 @@ p {
 	height:50px;
 }
 
-.table tbody>tr>td.vert-align{
+.table tbody>tr>.vert-align{
     vertical-align: middle;
 }
 
@@ -174,10 +174,7 @@ p {
 
 .form-login {
     background-color: #EDEDED;
-    padding-top: 10px;
-    padding-bottom: 20px;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 10px 20px 20px 20px;
     border-radius: 15px;
     border-color:#d2d2d2;
     border-width: 5px;
@@ -235,7 +232,7 @@ form .ng-invalid-bound.ng-pristine:focus,
 form .ng-invalid.ng-dirty:focus {
 	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #ce8483;
 }
-label.djng-field-required::after {
+.djng-field-required::after {
 	content: "\00a0*";
 }
 ul.djng-form-errors, ul.djng-field-errors {
@@ -247,14 +244,14 @@ ul.djng-form-errors, ul.djng-field-errors {
 ul.djng-form-errors li, ul.djng-field-errors li {
 	color: #e9322d;
 }
-ul.djng-field-errors li.invalid::before {
+ul.djng-field-errors .invalid::before {
 	content: "\2716";
 	margin-right: 10px;
 }
 
 
 
-ul.djng-field-errors li.valid {
+ul.djng-field-errors .valid {
 	border-color: #00ff00;
 }
 
@@ -262,7 +259,7 @@ ul.djng-field-errors li.valid {
     margin-bottom: 4px; 
 }
 
-div.bg-danger {
+.bg-danger {
 	padding: 15px;	
 }
 
