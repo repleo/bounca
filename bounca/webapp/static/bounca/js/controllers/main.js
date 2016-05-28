@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
-angular.module('angularDjangoRegistrationAuthApp')
-  .controller('MainCtrl', function ($scope, $cookies, $location, djangoAuth) {
+angular.module("angularDjangoRegistrationAuthApp")
+  .controller("MainCtrl", function ($scope, $cookies, $location, djangoAuth) {
     var handleSuccess = function(data){
         $scope.response = data;
     }    
@@ -11,7 +11,7 @@ angular.module('angularDjangoRegistrationAuthApp')
     }
     
     $scope.login = function(){
-      djangoAuth.login(prompt('Username'),prompt('password'))
+      djangoAuth.login(prompt("Username"),prompt("password"))
       .then(function(data){
         handleSuccess(data);
       },handleError);
@@ -23,12 +23,12 @@ angular.module('angularDjangoRegistrationAuthApp')
     }
     
     $scope.resetPassword = function(){
-      djangoAuth.resetPassword(prompt('Email'))
+      djangoAuth.resetPassword(prompt("Email"))
       .then(handleSuccess,handleError);
     }
     
     $scope.register = function(){
-      djangoAuth.register(prompt('Username'),prompt('Password'),prompt('Email'))
+      djangoAuth.register(prompt("Username"),prompt("Password"),prompt("Email"))
       .then(handleSuccess,handleError);
     }
     
@@ -52,7 +52,7 @@ angular.module('angularDjangoRegistrationAuthApp')
     }
     
     $scope.updateProfile = function(){
-      djangoAuth.updateProfile({'first_name': prompt("First Name"), 'last_name': prompt("Last Name"), 'email': prompt("Email")})
+      djangoAuth.updateProfile({"first_name": prompt("First Name"), "last_name": prompt("Last Name"), "email": prompt("Email")})
       .then(handleSuccess,handleError);
     }
     
