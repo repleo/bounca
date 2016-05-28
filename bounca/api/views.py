@@ -34,11 +34,6 @@ class CertificateListView(TrapDjangoValidationErrorCreateMixin, generics.ListCre
     filter_fields = ('type', 'parent',)
 
     def get(self, request, *args, **kwargs):
-        logger.error("error-FUBAR")
-        logger.critical("critical-FUBAR")
-        logger.warning("warning-FUBAR")
-        logger.info("info-FUBAR")
-        logger.debug("debug-FUBAR")
         return generics.ListCreateAPIView.get(self, request, *args, **kwargs)
     
     def get_queryset(self):
