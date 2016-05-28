@@ -5,7 +5,7 @@ Welcome to BounCA - Your Own Chain of Trust
 
 Purpose
 -----------
-BounCA is a tool to manage your SSL certificates and authorities in a central and easy to use interfaces. It provides an easy accessible web interface to the OpenSSL command line tool and an administration tool for all your signed certificates and revocation lists. Create and manage your own X.509 / PKI key and certificate trust infrastructure in a couple of seconds 
+BounCA is a tool to manage your personal SSL certificates and authorities in a central and easy to use interfaces. It provides an easy accessible web interface to the OpenSSL command line tool and an administration tool for all your signed certificates and revocation lists. Create and manage your own X.509 / PKI key and certificate trust infrastructure in a couple of seconds.
 
 Why your own Certificate Authority
 ----------------------------------------------
@@ -15,6 +15,7 @@ Use cases:
 * Secure your internal REST micro-services and API's
 * Client-certificate based login for web-services
 * Secure access to your internal cloud services with your own HTTPS scheme
+* Automatic client-certificate generation via API for Internet of Things (IoT) devices
 
 Advantages:
 
