@@ -1,120 +1,120 @@
-'use strict';
+"use strict";
 
-angular.module('angularDjangoRegistrationAuthApp', [
-  'djng.urls',
-  'ngCookies',
-  'ngResource',
-  'ngSanitize',
-  'ngRoute',
-  'ui.bootstrap',
-  'djng.forms',
+angular.module("angularDjangoRegistrationAuthApp", [
+  "djng.urls",
+  "ngCookies",
+  "ngResource",
+  "ngSanitize",
+  "ngRoute",
+  "ui.bootstrap",
+  "djng.forms",
 ]).config(function($httpProvider) {
-    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    $httpProvider.defaults.xsrfCookieName = "csrftoken";
+    $httpProvider.defaults.xsrfHeaderName = "X-CSRFToken";
 }).config(function ($routeProvider) {
     $routeProvider
-      .when('/', {
-        templateUrl: 'auth/views/main.html',
-        controller: 'MainCtrl',
+      .when("/", {
+        templateUrl: "auth/views/main.html",
+        controller: "MainCtrl",
         resolve: {
-          authenticated: ['djangoAuth', function(djangoAuth){
+          authenticated: ["djangoAuth", function(djangoAuth){
             return djangoAuth.authenticationStatus();
           }],
         }
       })
-      .when('/register', {
-        templateUrl: 'auth/views/register.html',
+      .when("/register", {
+        templateUrl: "auth/views/register.html",
         resolve: {
-          authenticated: ['djangoAuth', function(djangoAuth){
+          authenticated: ["djangoAuth", function(djangoAuth){
             return djangoAuth.authenticationStatus();
           }],
         }
       })
-      .when('/passwordReset', {
-        templateUrl: 'auth/views/passwordreset.html',
+      .when("/passwordReset", {
+        templateUrl: "auth/views/passwordreset.html",
         resolve: {
-          authenticated: ['djangoAuth', function(djangoAuth){
+          authenticated: ["djangoAuth", function(djangoAuth){
             return djangoAuth.authenticationStatus();
           }],
         }
       })
-      .when('/passwordResetConfirm/:firstToken/:passwordResetToken', {
-        templateUrl: 'auth/views/passwordresetconfirm.html',
+      .when("/passwordResetConfirm/:firstToken/:passwordResetToken", {
+        templateUrl: "auth/views/passwordresetconfirm.html",
         resolve: {
-          authenticated: ['djangoAuth', function(djangoAuth){
+          authenticated: ["djangoAuth", function(djangoAuth){
             return djangoAuth.authenticationStatus();
           }],
         }
       })
-      .when('/login', {
-        templateUrl: 'auth/views/login.html',
+      .when("/login", {
+        templateUrl: "auth/views/login.html",
         resolve: {
-          authenticated: ['djangoAuth', function(djangoAuth){
+          authenticated: ["djangoAuth", function(djangoAuth){
             return djangoAuth.authenticationStatus();
           }],
         }
       })
-      .when('/verifyEmail/:emailVerificationToken', {
-        templateUrl: 'auth/views/verifyemail.html',
+      .when("/verifyEmail/:emailVerificationToken", {
+        templateUrl: "auth/views/verifyemail.html",
         resolve: {
-          authenticated: ['djangoAuth', function(djangoAuth){
+          authenticated: ["djangoAuth", function(djangoAuth){
             return djangoAuth.authenticationStatus();
           }],
         }
       })
-      .when('/logout', {
-        templateUrl: 'auth/views/logout.html',
+      .when("/logout", {
+        templateUrl: "auth/views/logout.html",
         resolve: {
-          authenticated: ['djangoAuth', function(djangoAuth){
+          authenticated: ["djangoAuth", function(djangoAuth){
             return djangoAuth.authenticationStatus();
           }],
         }
       })
-      .when('/userProfile', {
-        templateUrl: 'auth/views/userprofile.html',
+      .when("/userProfile", {
+        templateUrl: "auth/views/userprofile.html",
         resolve: {
-          authenticated: ['djangoAuth', function(djangoAuth){
+          authenticated: ["djangoAuth", function(djangoAuth){
             return djangoAuth.authenticationStatus();
           }],
         }
       })
-      .when('/passwordChange', {
-        templateUrl: 'auth/views/passwordchange.html',
+      .when("/passwordChange", {
+        templateUrl: "auth/views/passwordchange.html",
         resolve: {
-          authenticated: ['djangoAuth', function(djangoAuth){
+          authenticated: ["djangoAuth", function(djangoAuth){
             return djangoAuth.authenticationStatus();
           }],
         }
-      }).when('/restricted', {
-          templateUrl: 'auth/views/restricted.html',
-          controller: 'RestrictedCtrl',
+      }).when("/restricted", {
+          templateUrl: "auth/views/restricted.html",
+          controller: "RestrictedCtrl",
           resolve: {
-            authenticated: ['djangoAuth', function(djangoAuth){
+            authenticated: ["djangoAuth", function(djangoAuth){
               return djangoAuth.authenticationStatus();
             }],
           }
         }).
         when("/dashboard/:id", {
-            templateUrl: 'dashboard/views/main.html',
-            controller: 'DashboardCtrl',
+            templateUrl: "dashboard/views/main.html",
+            controller: "DashboardCtrl",
             resolve: {
-                authenticated: ['djangoAuth', function(djangoAuth){
+                authenticated: ["djangoAuth", function(djangoAuth){
                   return djangoAuth.authenticationStatus(true);
             }],
         }
-      }).when('/dashboard', {
-        templateUrl: 'dashboard/views/main.html',
-        controller: 'DashboardCtrl',
+      }).when("/dashboard", {
+        templateUrl: "dashboard/views/main.html",
+        controller: "DashboardCtrl",
         resolve: {
-          authenticated: ['djangoAuth', function(djangoAuth){
+          authenticated: ["djangoAuth", function(djangoAuth){
             return djangoAuth.authenticationStatus(true);
           }],
         }
       })
       .otherwise({
-        redirectTo: '/dashboard'
+        redirectTo: "/dashboard"
       });
   })
   .run(function(djangoAuth){
-    djangoAuth.initialize('/api/v1/auth', true);
+    djangoAuth.initialize("/api/v1/auth", true);
   });
