@@ -46,8 +46,8 @@ angular.module('angularDjangoRegistrationAuthApp')
                 if(data){
                     data.status = status;
                 }
-                if(status == 0){
-                    if(data == ""){
+                if(status === 0){
+                    if(data === ""){
                         data = {};
                         data['status'] = 0;
                         data['non_field_errors'] = ["Could not connect. Please try again."];
@@ -177,7 +177,7 @@ angular.module('angularDjangoRegistrationAuthApp')
             var getAuthStatus = $q.defer();
             if(this.authenticated != null && !force){
                 // We have a stored value which means we can pass it back right away.
-                if(this.authenticated == false && restrict){
+                if(this.authenticated === false && restrict){
                     getAuthStatus.reject("User is not logged in.");
                 }else{
                     getAuthStatus.resolve();

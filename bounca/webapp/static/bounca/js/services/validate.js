@@ -41,7 +41,7 @@ angular.module('angularDjangoRegistrationAuthApp')
         },
         'form_validation': function(form,error_bin){
             for(var field in form){
-                if(field.substr(0,1) != "$"){
+                if(field.substr(0,1) !== "$"){
                     this.validation_messages(field,form,error_bin);
                 }
             }

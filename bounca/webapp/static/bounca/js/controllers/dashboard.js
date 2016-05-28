@@ -78,6 +78,29 @@ app.controller('DashboardCtrl', ['$scope', '$interval', '$http', '$route', 'djan
 			page : 1,
 			maxSize : 5
     };
+    
+    
+	function load_certificates(){
+		var query;
+		query={'ordering':'-id','page':$scope.pagination.page}
+		
+		if($scope.search.query){
+			query['search']=$scope.search.query;
+		} 
+		if($scope.parent_id){
+			query['parent']=$scope.parent_id;
+		} else {
+			query['type']='R';
+		}
+		
+		
+		Certificate.get(query,function(dataElements){
+				$scope.certs = dataElements.results;
+				$scope.pagination.totalItems = dataElements.count;
+		});
+	}; 
+	
+	
     load_certificates();
 	
 	$interval(function(){
@@ -103,28 +126,6 @@ app.controller('DashboardCtrl', ['$scope', '$interval', '$http', '$route', 'djan
     $scope.$on('certificate-list-updated', function(){
         load_certificates();
      });	
-
-	function load_certificates(){
-		var query;
-		query={'ordering':'-id','page':$scope.pagination.page}
-		
-		if($scope.search.query){
-			query['search']=$scope.search.query;
-		} 
-		if($scope.parent_id){
-			query['parent']=$scope.parent_id;
-		} else {
-			query['type']='R';
-		}
-		
-		
-		Certificate.get(query,function(dataElements){
-				$scope.certs = dataElements.results;
-				$scope.pagination.totalItems = dataElements.count;
-		});
-	}; 
-	
-
 
 }
 ]);

@@ -2,6 +2,13 @@
 
 angular.module('angularDjangoRegistrationAuthApp')
   .controller('MainCtrl', function ($scope, $cookies, $location, djangoAuth) {
+    var handleSuccess = function(data){
+        $scope.response = data;
+    }    
+
+    var handleError = function(data){
+        $scope.response = data;
+    }
     
     $scope.login = function(){
       djangoAuth.login(prompt('Username'),prompt('password'))
@@ -58,13 +65,9 @@ angular.module('angularDjangoRegistrationAuthApp')
       $location.path("/passwordResetConfirm/"+prompt("Code 1")+"/"+prompt("Code 2"))
     }
     
-    var handleSuccess = function(data){
-      $scope.response = data;
-    }
+
     
-    var handleError = function(data){
-      $scope.response = data;
-    }
+
 
     $scope.show_login = true;
     $scope.$on("djangoAuth.logged_in", function(data){

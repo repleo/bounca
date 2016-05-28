@@ -2,7 +2,14 @@
 
 angular.module('angularDjangoRegistrationAuthApp')
   .controller('MasterCtrl', function ($scope, $location, djangoAuth) {
-    // Assume user is not logged in until we hear otherwise
+    var handleSuccess = function(data){
+        $scope.response = data;
+      }
+      
+    var handleError = function(data){
+        $scope.response = data;
+      }   
+	  // Assume user is not logged in until we hear otherwise
     $scope.authenticated = false;
     // Wait for the status of authentication, set scope var to true if it resolves
     djangoAuth.authenticationStatus(true).then(function(){
@@ -47,13 +54,7 @@ angular.module('angularDjangoRegistrationAuthApp')
         djangoAuth.logout()
         .then(handleSuccess,handleError);
     }
-    var handleSuccess = function(data){
-        $scope.response = data;
-      }
-      
-    var handleError = function(data){
-        $scope.response = data;
-      }    
+ 
   });
 
 
