@@ -227,16 +227,18 @@ class CertificateFilesView(FileView):
                 return HttpResponseNotFound("File not found")
 
         key_path = settings.CA_ROOT + self.generate_path(cert.parent)
+        
         if cert.type is CertificateTypes.SERVER_CERT:
             try:
                 response = self.make_certificate_zip_response(key_path,cert,"server_cert")
-
-            except FileNotFoundError:
+                return response
+            except FileNotFoundError as e:
                 return HttpResponseNotFound("File not found")
 
         if cert.type is CertificateTypes.CLIENT_CERT:
             try:
                 response = self.make_certificate_zip_response(key_path,cert,"usr_cert")
+                return response
             except FileNotFoundError:
                 return HttpResponseNotFound("File not found")        
         return HttpResponseNotFound("File not found")
