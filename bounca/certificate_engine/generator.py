@@ -209,7 +209,7 @@ def generate_server_cert_creation_script(certificate,generate_signed_cert_templa
 
     c = {
         'cert': certificate,
-        'extensions': 'server',
+        'extensions': 'server_cert',
         'key_path': key_path,
         'cert_subdir': 'server_cert',
         'key_length': '2048'
@@ -225,7 +225,7 @@ def generate_client_cert_creation_script(certificate,generate_signed_cert_templa
 
     c = {
         'cert': certificate,
-        'extensions': 'client',
+        'extensions': 'usr_cert',
         'key_path': key_path,
         'cert_subdir': 'usr_cert',
         'key_length': '2048'
@@ -264,10 +264,10 @@ def generate_generic_crl_file_script(certificate,generate_crl_file_template_name
     return 0
 
 def generate_server_cert_revoke_script(certificate,generate_cert_revoke_template_name):
-    return generate_generic_cert_revoke_script(certificate,generate_cert_revoke_template_name,"server")
+    return generate_generic_cert_revoke_script(certificate,generate_cert_revoke_template_name,"server_cert")
 
 def generate_client_cert_revoke_script(certificate,generate_cert_revoke_template_name):
-    return generate_generic_cert_revoke_script(certificate,generate_cert_revoke_template_name,"client")
+    return generate_generic_cert_revoke_script(certificate,generate_cert_revoke_template_name,"usr_cert")
 
 @generate_key_path
 def generate_certificate_info_script(certificate,generate_certificate_info_template_name, key_path='.', root_path='.'):
@@ -386,16 +386,16 @@ def generate_server_cert(certificate, key_path='.', root_path='.'):
         'root_path': root_path,
     }
     openssl_cnf = loader.render_to_string(openssl_cnf_template_name, c)
-    with open(root_path +'openssl-server-%s.cnf' % certificate.shortname,'w') as f:
+    with open(root_path +'openssl-server_cert-%s.cnf' % certificate.shortname,'w') as f:
         f.write(openssl_cnf)
         
     logger.warning("Create signed server certificate")
-    subprocess.check_output([root_path + "generate_signed_server_certificate.sh",
+    subprocess.check_output([root_path + "generate_signed_server_cert_certificate.sh",
                              certificate.shortname,str(certificate.days_valid),
                              certificate.dn.subj,' '.join(certificate.dn.subjectAltNames)])
     
     try:
-        os.remove(root_path + 'openssl-server-%s.cnf' % certificate.shortname)
+        os.remove(root_path + 'openssl-server_cert-%s.cnf' % certificate.shortname)
     except FileNotFoundError:
         pass
     return 0
@@ -411,15 +411,15 @@ def generate_client_cert(certificate, key_path='.', root_path='.'):
         'root_path': root_path,
     }
     openssl_cnf = loader.render_to_string(openssl_cnf_template_name, c)
-    with open(root_path +'openssl-client-%s.cnf' % certificate.shortname,'w') as f:
+    with open(root_path +'openssl-usr_cert-%s.cnf' % certificate.shortname,'w') as f:
         f.write(openssl_cnf)
             
     logger.warning("Create signed client certificate")
-    subprocess.check_output([root_path + "generate_signed_client_certificate.sh",
+    subprocess.check_output([root_path + "generate_signed_usr_cert_certificate.sh",
                              certificate.shortname,str(certificate.days_valid),
                              certificate.dn.subj,' '.join(certificate.dn.subjectAltNames)])
     try:
-        os.remove(root_path + 'openssl-client-%s.cnf' % certificate.shortname)
+        os.remove(root_path + 'openssl-usr_cert-%s.cnf' % certificate.shortname)
     except FileNotFoundError:
         pass
     return 0
@@ -428,14 +428,14 @@ def generate_client_cert(certificate, key_path='.', root_path='.'):
 @write_passphrase_files
 def revoke_server_cert(certificate, root_path='.', **kwargs):
     logger.warning("Revoke server certificate")
-    subprocess.check_output([root_path + "revoke_server_certificate.sh",certificate.shortname,str(certificate.slug_revoked_at)])
+    subprocess.check_output([root_path + "revoke_server_cert_certificate.sh",certificate.shortname,str(certificate.slug_revoked_at)])
     return 0
 
 @generate_key_path
 @write_passphrase_files
 def revoke_client_cert(certificate, root_path='.', **kwargs):
     logger.warning("Revoke client certificate")
-    subprocess.check_output([root_path + "revoke_client_certificate.sh",certificate.shortname,str(certificate.slug_revoked_at)])
+    subprocess.check_output([root_path + "revoke_usr_cert_certificate.sh",certificate.shortname,str(certificate.slug_revoked_at)])
     return 0
 
 @generate_key_path
@@ -443,9 +443,9 @@ def get_certificate_info(certificate, key_path='.', root_path='.', **kwargs):
     logger.warning("Get certificate info")
     path=certificate.shortname
     if(certificate.type==CertificateTypes.CLIENT_CERT):
-        path="client/" + certificate.shortname
+        path="usr_cert/" + certificate.shortname
     if(certificate.type==CertificateTypes.SERVER_CERT):
-        path="server/" + certificate.shortname
+        path="server_cert/" + certificate.shortname
     out = subprocess.check_output([root_path + "get_certificate_info.sh",path])
     return out
 

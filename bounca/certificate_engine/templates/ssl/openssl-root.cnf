@@ -9,6 +9,9 @@ default_ca = CA_default
 dir               = {{ root_path }}
 certs             = $dir/certs
 crl_dir           = $dir/crl
+{% if cert.crl_distribution_url %}
+crl_url           = {{cert.crl_distribution_url}}/{{cert.shortname}}.crl
+{% endif %}
 new_certs_dir     = $dir/newcerts
 database          = $dir/index.txt
 serial            = $dir/serial
@@ -91,6 +94,12 @@ subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer
 basicConstraints = critical, CA:true
 keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+{% if cert.crl_distribution_url %}
+crlDistributionPoints = URI:{{cert.crl_distribution_url}}/{{cert.shortname}}.crl
+{% endif %}
+{% if cert.ocsp_distribution_host %}
+authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
+{% endif %}
 
 [ v3_intermediate_ca ]
 # Extensions for a typical intermediate CA (`man x509v3_config`).
@@ -98,22 +107,29 @@ subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer
 basicConstraints = critical, CA:true, pathlen:0
 keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+{% if cert.crl_distribution_url %}
+crlDistributionPoints = URI:{{cert.crl_distribution_url}}/{{cert.shortname}}.crl
+{% endif %}
+{% if cert.ocsp_distribution_host %}
+authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
+{% endif %}
 
 [ usr_cert ]
 # Extensions for client certificates (`man x509v3_config`).
 basicConstraints = CA:FALSE
 nsCertType = client, email
-nsComment = "BounCA.org by repleo.nl Generated Client Certificate"
+nsComment = "BounCA Generated Client Certificate"
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer
 keyUsage = critical, nonRepudiation, digitalSignature, keyEncipherment
 extendedKeyUsage = clientAuth, emailProtection
 
+
 [ server_cert ]
 # Extensions for server certificates (`man x509v3_config`).
 basicConstraints = CA:FALSE
 nsCertType = server
-nsComment = "BounCA Generated Server Certificate"
+nsComment = "BounCA.org by repleo.nl Generated Server Certificate"
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer:always
 keyUsage = critical, digitalSignature, keyEncipherment

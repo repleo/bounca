@@ -48,7 +48,8 @@ class AddIntermediateCAFormView(FormView):
         initial['dn']['organizationName']=parent.dn.organizationName
         initial['dn']['organizationalUnitName']=parent.dn.organizationalUnitName
         initial['dn']['emailAddress']=parent.dn.emailAddress
-       
+        initial['crl_distribution_url']=parent.crl_distribution_url
+        initial['ocsp_distribution_host']=parent.ocsp_distribution_host
         return initial
     
 from .forms import AddServerCertificateForm

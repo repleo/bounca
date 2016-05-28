@@ -228,6 +228,7 @@ def set_fields_certificate(sender,instance, *args, **kwargs):
     if not instance.name:
         instance.name=str(instance.shortname) + " - " + str(instance.dn.commonName)
 
+
 @receiver(pre_save, sender=Certificate)
 def validation_rules_certificate(sender,instance, *args, **kwargs):
     if instance.id: #check_if_not_update_certificate

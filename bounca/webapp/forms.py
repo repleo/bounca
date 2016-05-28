@@ -80,7 +80,6 @@ class AddDistinguishedNameIntermediateCAForm(  NgModelFormMixin, NgFormValidatio
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.fields['countryName'].widget = forms.ChoiceField(widget=forms.RadioSelect(attrs={'disabled': 'disabled'}))
 
         self.fields['subjectAltNames'].widget = forms.HiddenInput()
         self.fields['commonName'].help_text = 'The common name of your intermediate certification authority. This field is used to identify your intermediate CA in the chain'

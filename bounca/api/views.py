@@ -150,10 +150,10 @@ class CertificateCRLFileView(FileView):
         
         key_path = settings.CA_ROOT + self.generate_path(cert)
         if cert.type is CertificateTypes.INTERMEDIATE:
-            orig_file=key_path + "/crl/" + cert.shortname + ".crl" 
+            orig_file=key_path + "/crl/" + cert.shortname + ".crl.pem" 
             try:
                 file_content=self.read_file(orig_file)
-                filename="%s.crl.pem" % (cert.shortname)
+                filename="%s.crl" % (cert.shortname)
                 response = HttpResponse(file_content, content_type='application/octet-stream')
                 response['Content-Disposition'] = ('attachment; filename=%s' % (filename))
                 return response
@@ -219,15 +219,15 @@ class CertificateFilesView(FileView):
             try:
                 root_cert_file=self.get_root_cert_path(cert)
                 root_cert_file_content=self.read_file(root_cert_file)
-                cert_chain_file=key_path + "/certs/server/" + cert.shortname + "-chain.cert.pem" 
+                cert_chain_file=key_path + "/certs/server_cert/" + cert.shortname + "-chain.cert.pem" 
                 cert_chain_file_content=self.read_file(cert_chain_file)
-                cert_file=key_path + "/certs/server/" + cert.shortname + ".cert.pem" 
+                cert_file=key_path + "/certs/server_cert/" + cert.shortname + ".cert.pem" 
                 cert_file_content=self.read_file(cert_file)
-                csr_file=key_path + "/csr/server/" + cert.shortname + ".csr.pem" 
+                csr_file=key_path + "/csr/server_cert/" + cert.shortname + ".csr.pem" 
                 csr_file_content=self.read_file(csr_file)
-                key_file=key_path + "/private/server/" + cert.shortname + ".key.pem" 
+                key_file=key_path + "/private/server_cert/" + cert.shortname + ".key.pem" 
                 key_file_content=self.read_file(key_file)
-                p12_file=key_path + "/private/client/" + cert.shortname + ".p12" 
+                p12_file=key_path + "/private/server_cert/" + cert.shortname + ".p12" 
                 p12_file_content=self.read_file(p12_file)        
                 
                 zipped_file = io.BytesIO()
@@ -241,7 +241,7 @@ class CertificateFilesView(FileView):
 
                 zipped_file.seek(0)
     
-                filename="%s.servercert.zip" % (cert.shortname)
+                filename="%s.server_cert.zip" % (cert.shortname)
                 response = HttpResponse(zipped_file, content_type='application/octet-stream')
                 response['Content-Disposition'] = ('attachment; filename=%s' % (filename))
                 return response
@@ -252,15 +252,15 @@ class CertificateFilesView(FileView):
             try:
                 root_cert_file=self.get_root_cert_path(cert)
                 root_cert_file_content=self.read_file(root_cert_file)
-                cert_chain_file=key_path + "/certs/client/" + cert.shortname + "-chain.cert.pem" 
+                cert_chain_file=key_path + "/certs/usr_cert/" + cert.shortname + "-chain.cert.pem" 
                 cert_chain_file_content=self.read_file(cert_chain_file)
-                cert_file=key_path + "/certs/client/" + cert.shortname + ".cert.pem" 
+                cert_file=key_path + "/certs/usr_cert/" + cert.shortname + ".cert.pem" 
                 cert_file_content=self.read_file(cert_file)
-                csr_file=key_path + "/csr/client/" + cert.shortname + ".csr.pem" 
+                csr_file=key_path + "/csr/usr_cert/" + cert.shortname + ".csr.pem" 
                 csr_file_content=self.read_file(csr_file)
-                key_file=key_path + "/private/client/" + cert.shortname + ".key.pem" 
+                key_file=key_path + "/private/usr_cert/" + cert.shortname + ".key.pem" 
                 key_file_content=self.read_file(key_file)
-                p12_file=key_path + "/private/client/" + cert.shortname + ".p12" 
+                p12_file=key_path + "/private/usr_cert/" + cert.shortname + ".p12" 
                 p12_file_content=self.read_file(p12_file)    
                 
                 zipped_file = io.BytesIO()
@@ -275,7 +275,7 @@ class CertificateFilesView(FileView):
 
                 zipped_file.seek(0)
     
-                filename="%s.clientcert.zip" % (cert.shortname)
+                filename="%s.usr_cert.zip" % (cert.shortname)
                 response = HttpResponse(zipped_file, content_type='application/octet-stream')
                 response['Content-Disposition'] = ('attachment; filename=%s' % (filename))
                 return response
