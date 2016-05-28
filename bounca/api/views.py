@@ -232,7 +232,7 @@ class CertificateFilesView(FileView):
             try:
                 response = self.make_certificate_zip_response(key_path,cert,"server_cert")
                 return response
-            except FileNotFoundError as e:
+            except FileNotFoundError:
                 return HttpResponseNotFound("File not found")
 
         if cert.type is CertificateTypes.CLIENT_CERT:
