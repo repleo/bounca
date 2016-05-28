@@ -1,24 +1,24 @@
 
-'use strict';
+"use strict";
 
-angular.module('angularDjangoRegistrationAuthApp')
-  .service('djangoAuth', function djangoAuth($q, $http, $cookies, $rootScope) {
+angular.module("angularDjangoRegistrationAuthApp")
+  .service("djangoAuth", function djangoAuth($q, $http, $cookies, $rootScope) {
     // AngularJS will instantiate a singleton by calling "new" on this function
     var service = {
         /* START CUSTOMIZATION HERE */
         // Change this to point to your Django REST Auth API
         // e.g. /api/rest-auth  (DO NOT INCLUDE ENDING SLASH)
-        'API_URL': '/api/v1/auth',
+        "API_URL": "/api/v1/auth",
         // Set use_session to true to use Django sessions to store security token.
         // Set use_session to false to store the security token locally and transmit it as a custom header.
-        'use_session': true,
+        "use_session": true,
         /* END OF CUSTOMIZATION */
-        'authenticated': null,
-        'authPromise': null,
-        'request': function(args) {
-            // Let's retrieve the token from the cookie, if available
-            if($cookies.get('token')){
-                $http.defaults.headers.common.Authorization = 'Token ' + $cookies.get('token');
+        "authenticated": null,
+        "authPromise": null,
+        "request": function(args) {
+            // Let"s retrieve the token from the cookie, if available
+            if($cookies.get("token")){
+                $http.defaults.headers.common.Authorization = "Token " + $cookies.get("token");
             }
             // Continue
             var params = args.params || {}
@@ -33,7 +33,6 @@ angular.module('angularDjangoRegistrationAuthApp')
                 url: url,
                 withCredentials: this.use_session,
                 method: method.toUpperCase(),
-//TODO remove                headers: {'X-CSRFToken': $cookies.get('csrftoken')},
                 params: params,
                 data: data
             })
@@ -49,119 +48,119 @@ angular.module('angularDjangoRegistrationAuthApp')
                 if(status === 0){
                     if(data === ""){
                         data = {};
-                        data['status'] = 0;
-                        data['non_field_errors'] = ["Could not connect. Please try again."];
+                        data.status = 0;
+                        data.non_field_errors = ["Could not connect. Please try again."];
                     }
                     // or if the data is null, then there was a timeout.
                     if(data == null){
                         // Inject a non field error alerting the user
-                        // that there's been a timeout error.
+                        // that there"s been a timeout error.
                         data = {};
-                        data['status'] = 0;
-                        data['non_field_errors'] = ["Server timed out. Please try again."];
+                        data["status"] = 0;
+                        data["non_field_errors"] = ["Server timed out. Please try again."];
                     }
                 }
                 deferred.reject(data, status, headers, config);
             }));
             return deferred.promise;
         },
-        'register': function(username,password1,password2,email,more){
+        "register": function(username,password1,password2,email,more){
             var data = {
-                'username':username,
-                'password1':password1,
-                'password2':password2,
-                'email':email
+                "username":username,
+                "password1":password1,
+                "password2":password2,
+                "email":email
             }
             data = angular.extend(data,more);
             return this.request({
-                'method': "POST",
-                'url': "/registration/",
-                'data' :data
+                "method": "POST",
+                "url": "/registration/",
+                "data" :data
             });
         },
-        'login': function(username,password){
+        "login": function(username,password){
             var djangoAuth = this;
             return this.request({
-                'method': "POST",
-                'url': "/login/",
-                'data':{
-                    'username':username,
-                    'password':password
+                "method": "POST",
+                "url": "/login/",
+                "data":{
+                    "username":username,
+                    "password":password
                 }
             }).then(function(data){
                 if(!djangoAuth.use_session){
-                    $http.defaults.headers.common.Authorization = 'Token ' + data.key;
-                    $cookies.put('token', data.key) ;
+                    $http.defaults.headers.common.Authorization = "Token " + data.key;
+                    $cookies.put("token", data.key) ;
 
                 }
                 djangoAuth.authenticated = true;
                 $rootScope.$broadcast("djangoAuth.logged_in", data);
             });
         },
-        'logout': function(){
+        "logout": function(){
             var djangoAuth = this;
             return this.request({
-                'method': "POST",
-                'url': "/logout/"
+                "method": "POST",
+                "url": "/logout/"
             }).then(function(data){
                 delete $http.defaults.headers.common.Authorization;
-                $cookies.remove('token');
+                $cookies.remove("token");
                 djangoAuth.authenticated = false;
                 $rootScope.$broadcast("djangoAuth.logged_out");
             });
         },
-        'changePassword': function(password1,password2){
+        "changePassword": function(password1,password2){
             return this.request({
-                'method': "POST",
-                'url': "/password/change/",
-                'data':{
-                    'new_password1':password1,
-                    'new_password2':password2
+                "method": "POST",
+                "url": "/password/change/",
+                "data":{
+                    "new_password1":password1,
+                    "new_password2":password2
                 }
             });
         },
-        'resetPassword': function(email){
+        "resetPassword": function(email){
             return this.request({
-                'method': "POST",
-                'url': "/password/reset/",
-                'data':{
-                    'email':email
+                "method": "POST",
+                "url": "/password/reset/",
+                "data":{
+                    "email":email
                 }
             });
         },
-        'profile': function(){
+        "profile": function(){
             return this.request({
-                'method': "GET",
-                'url': "/user/"
+                "method": "GET",
+                "url": "/user/"
             }); 
         },
-        'updateProfile': function(data){
+        "updateProfile": function(data){
             return this.request({
-                'method': "PATCH",
-                'url': "/user/",
-                'data':data
+                "method": "PATCH",
+                "url": "/user/",
+                "data":data
             }); 
         },
-        'verify': function(key){
+        "verify": function(key){
             return this.request({
-                'method': "POST",
-                'url': "/registration/verify-email/",
-                'data': {'key': key} 
+                "method": "POST",
+                "url": "/registration/verify-email/",
+                "data": {"key": key} 
             });            
         },
-        'confirmReset': function(uid,token,password1,password2){
+        "confirmReset": function(uid,token,password1,password2){
             return this.request({
-                'method': "POST",
-                'url': "/password/reset/confirm/",
-                'data':{
-                    'uid': uid,
-                    'token': token,
-                    'new_password1':password1,
-                    'new_password2':password2
+                "method": "POST",
+                "url": "/password/reset/confirm/",
+                "data":{
+                    "uid": uid,
+                    "token": token,
+                    "new_password1":password1,
+                    "new_password2":password2
                 }
             });
         },
-        'authenticationStatus': function(restrict, force){
+        "authenticationStatus": function(restrict, force){
             // Set restrict to true to reject the promise if not logged in
             // Set to false or omit to resolve when status is known
             // Set force to true to ignore stored value and query API
@@ -169,8 +168,8 @@ angular.module('angularDjangoRegistrationAuthApp')
             force = force || false;
             if(this.authPromise == null || force){
                 this.authPromise = this.request({
-                    'method': "GET",
-                    'url': "/user/"
+                    "method": "GET",
+                    "url": "/user/"
                 })
             }
             var da = this;
@@ -183,7 +182,7 @@ angular.module('angularDjangoRegistrationAuthApp')
                     getAuthStatus.resolve();
                 }
             }else{
-                // There isn't a stored value, or we're forcing a request back to
+                // There isn"t a stored value, or we"re forcing a request back to
                 // the API to get the authentication status.
                 this.authPromise.then(function(){
                     da.authenticated = true;
@@ -199,7 +198,7 @@ angular.module('angularDjangoRegistrationAuthApp')
             }
             return getAuthStatus.promise;
         },
-        'initialize': function(url, sessions){
+        "initialize": function(url, sessions){
             this.API_URL = url;
             this.use_session = sessions;
             return this.authenticationStatus();
