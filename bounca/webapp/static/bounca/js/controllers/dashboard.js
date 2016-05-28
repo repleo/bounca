@@ -85,12 +85,12 @@ app.controller("DashboardCtrl", ["$scope", "$interval", "$http", "$route", "djan
 		query={"ordering":"-id","page":$scope.pagination.page}
 		
 		if($scope.search.query){
-			query["search"]=$scope.search.query;
+			query.search=$scope.search.query;
 		} 
 		if($scope.parent_id){
-			query["parent"]=$scope.parent_id;
+			query.parent=$scope.parent_id;
 		} else {
-			query["type"]="R";
+			query.type="R";
 		}
 		
 		
