@@ -7,9 +7,9 @@ Welcome to BounCA - Your Own Chain of Trust
 
 
 [![Code Health](https://landscape.io/github/repleo/bounca/master/landscape.svg?style=flat-square)](https://landscape.io/github/repleo/bounca/master)
+[![Build Status](https://travis-ci.org/repleo/ansible-role-bounca.svg?branch=master)](https://travis-ci.org/repleo/ansible-role-bounca)
 
-
-**BounCA** is a tool to manage your personal SSL certificates and authorities in a central and easy to use interfaces. It provides an easy accessible web interface to manage your **rout authority** with the OpenSSL command line tool and. Bounce is also an administration tool for all your signed certificates and revocation lists. Create and manage your own X.509 / PKI key and certificate trust infrastructure in a couple of minutes.
+**BounCA** is a tool to manage your personal SSL certificates and authorities in a central and easy to use interfaces. It provides an easy accessible web interface to manage your openssl based **root authority** without the hassle of knowing all the arguments of the command line tools. BounCA is also an administration tool for all your signed certificates and revocation lists. Create and manage your own X.509 / PKI key and certificate trust infrastructure in a couple of minutes.
 
 
 [![BounCA](https://www.bounca.org/img/bounca/ssl_dashboard_bounca.png)](https://www.bounca.org)
@@ -21,9 +21,10 @@ Your Own Certificate Authority
 
 Use cases:
 
+* Trusted encrypted communication with your peers (man-in-the-middle attack prevention)
 * Secure your internal REST micro-services and internal API's
-* Client-certificate based login for web-services
-* Secure access to your internal cloud services with your own HTTPS scheme
+* Client-certificate based login for web services, web applications and OpenVPN connections
+* Secure access to your private cloud services with your own HTTPS scheme
 * Secure your Internet of Things (IoT) network with your certificates and provision them via the BounCA API
 
 Advantages:
