@@ -16,6 +16,9 @@
 import sys
 import os
 
+html_show_sourcelink = False
+html_show_sphinx = False
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -51,8 +54,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'BounCA'
-copyright = '2016, Jeroen Arnoldus'
+project = '<a href="https://www.bounca.org">BounCA</a>'
+copyright = '2016, Repleo, Amstelveen, Holland'
 author = 'Jeroen Arnoldus'
 
 # The version info for the project you're documenting, acts as replacement for

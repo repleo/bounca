@@ -24,7 +24,7 @@ The main documentation BounCA is organized into a couple sections:
 .. _user-docs:
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: User Documentation
 
    getting_started
