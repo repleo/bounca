@@ -50,9 +50,45 @@ Main Features
 
 Installation
 --------------
-BounCA is Django / Python3 based, and it is recommended to deploy BounCA to its own linux environment, like a virtual machine.. Note that it is best practice to create the root pair in a secure environment. Ideally, this should be on a fully encrypted, air gapped computer that is permanently isolated from the Internet. 
 
-More info about the installation: [BounCA Installation Tutorials](https://www.bounca.org/getting-started.html)
+BounCA is a Django application running on a Python3 environment. 
+While it is highly portable setup, we suggest you deploy a (virtual) machine with the following configuration:
+
+* Debian Jessie Linux
+* Key authentication for the Root user
+
+Ansible offers the easiest way of creating a BounCA deployment for hosting your Certificate Authority.
+
+You need to have (root) access to a fresh installed Debian Jessie (virtual) machine. On your local machine you need to have a recent 2+ Ansible installation.
+Create your playbook ``install-bounca.yml``:
+
+    - hosts: all
+      remote_user: root
+      roles:
+        - { role: repleo.bounca,
+            bounca_timezone: /usr/share/zoneinfo/Europe/Amsterdam,
+            bounca_db_user: bounca,
+            bounca_db_password: <YOUR DB PASSWORD>,
+            bounca_db_host: localhost,
+            bounca_db_name: bouncadb,
+   
+            bounca_secret_key: <DJANGO SECRET>,
+            bounca_email_host: localhost,
+            bounca_admin_mail: bounca-admin@<YOURDOMAIN>,
+            bounca_from_mail: no-reply@<YOURDOMAIN>
+        }
+       
+
+Ansible will install the database, webserver and so on. The parameters you provide in the playbook are used to instantiate the services.
+After you created the playbook, you can install BounCA by executing the following commands:
+
+    ansible-galaxy install repleo.bounca -p ./roles
+    ansible-playbook install-bounca.yml -i <HOSTNAME_OR_IP>,
+
+The first collects the ansible roles from Ansible's galaxy.
+The second command installs the actual BounCA system.
+ 
+More installation options, such as docker and manual: [BounCA Installation Tutorials](https://www.bounca.org/getting-started.html)
 
 Requirements
 ------------------

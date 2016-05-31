@@ -27,7 +27,7 @@ Ansible Deployment
 
 `Ansible`_ offers the easiest way of creating a BounCA deployment for hosting your Certificate Authority.
 
-You need to have (root) access to a fresh installed Debian Jessie (virtual) machine. On your local machine you need to have a recent 2+ Ansbile installation.
+You need to have (root) access to a fresh installed Debian Jessie (virtual) machine. On your local machine you need to have a recent 2+ Ansible installation.
 Create your playbook ``install-bounca.yml``:
 
 .. code-block:: yaml
