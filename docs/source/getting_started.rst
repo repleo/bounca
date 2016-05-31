@@ -5,7 +5,7 @@ This document will show you how to get up and running with BounCA.
 You can start creating your root authorities and singing your certificates in 10 minutes, depending on the configuration you use.
 
 
-Prepare your environment
+Prepare your Environment
 ------------------------
 
 BounCA is a `Django`_ application running on a `Python3`_ environment. 
@@ -27,6 +27,8 @@ Ansible Deployment
 
 `Ansible`_ offers the easiest way of creating a BounCA deployment for hosting your Certificate Authority.
 
+You need to have (root) access to a fresh installed Debian Jessie (virtual) machine. On your local machine you need to have a recent 2+ Ansbile installation.
+Create your playbook ``install-bounca.yml``:
 
 .. code-block:: yaml
 
@@ -45,55 +47,32 @@ Ansible Deployment
             bounca_admin_mail: bounca-admin@<YOURDOMAIN>,
             bounca_from_mail: no-reply@<YOURDOMAIN>
        }
+       
+
+Ansible will install the database, webserver and so on. The parameters you provide in the playbook are used to instantiate the services.
+After you created the playbook, you can install BounCA by executing the following commands:
 
 .. code-block:: shell
 
    ansible-galaxy install repleo.bounca -p ./roles
-   ansible-playbook install-bounca.yml -i <YOUR_BOUNCA_NAME>,
+   ansible-playbook install-bounca.yml -i <HOSTNAME_OR_IP>,
 
+The first collects the ansible roles from Ansible's galaxy.
+The second command installs the actual BounCA system.
 
+.. note:: Don't forget the trailing comma in the -i argument list.
 
-
-
-There is `a screencast`_ that will help you get started if you prefer.
-
-Sphinx_ is a tool that makes it easy to create beautiful documentation.
-Assuming you have Python_ already, `install Sphinx`_::
-
-    $ pip install sphinx sphinx-autobuild
-
-Create a directory inside your project to hold your docs::
-
-    $ cd /path/to/project
-    $ mkdir docs
-
-Run ``sphinx-quickstart`` in there::
-
-    $ cd docs
-    $ sphinx-quickstart
-
-This quick start will walk you through creating the basic configuration; in most cases, you
-can just accept the defaults. When it's done, you'll have an ``index.rst``, a
-``conf.py`` and some other files. Add these to revision control.
-
-Now, edit your ``index.rst`` and add some information about your project.
-Include as much detail as you like (refer to the reStructuredText_ syntax
-or `this template`_ if you need help). Build them to see how they look::
-
-    $ make html
-
-.. note:: You can use ``sphinx-autobuild`` to auto-reload your docs. Run ``sphinx-autobuild . _build_html`` instead.
-
-Edit your files and rebuild until you like what you see, then commit your changes and push to your public repository.
-Once you have Sphinx documentation in a public repository, you can start using Read the Docs.
 
 .. _deploy-docker:
 
 Docker Deployment
 ~~~~~~~~~~~~~~~~~
 
-If you want to try BounCA or you want to create a couple of certificates without having a persistent CA, the `Docker`_ deployment is the fastest way of getting BounCA.
+If you want to try BounCA or you want to create a couple of self-signed certificates without having a persistent CA, the `Docker`_ deployment is the fastest way of getting BounCA.
+Docker offers the ability to run BounCA as an application on your local machine by running a single command.
 
+Make sure you have installed `Docker`_ including ``docker-compose`` and ``docker-machine``.
+Clone the BounCA docker release script from the github repo: https://github.com/repleo/docker-compose-bounca.
 The only prerequisite is a working Docker installation.
 
 Create your BounCA installation with the following one-liner:
@@ -102,21 +81,98 @@ Create your BounCA installation with the following one-liner:
    
    # Cool one-liner
 
-.. warning:: Don't use the Docker installation for a persistent certificate authority. 
+.. warning:: The Docker installation is not meant for a persistent certificate authority. Use this installer for trying BounCA or to generate a couple of self-signed certificates.
 
+.. _deploy-bare-hand:
 
 Manual Install
 ~~~~~~~~~~~~~~
 
 In case you want to customize the installation of BounCA, you can install it manually.
-BounCA is a `Django`_ installation, and as long as Django 1.9 is available en openssl is available you would be able to install it.
+BounCA requires the following installed and configured packages:
 
-BounCA needs one configuration file ``/etc/bounca/main.ini`` for machine specific configuration.
+- nginx
+- uwsg
+- postgresql-9.4
+- python-3.4
+- virtualenv-3.4
+
+Download BounCA from `github`_ and unpack it in your web application directory, for example ``/srv/www/``.
+
+Go to the root of your installation and create a virtual environment and install the python packages ``pip3.4 -r requirements.txt``.
+
+Create a database and database user in postgresql.
+
+Create the BounCA configuration file ``/etc/bounca/main.ini`` for the machine specific configuration.
+It should contain the following parameters:
+
+.. code-block:: cfg
+
+   [database]
+   DATABASE_USER: <value>
+   DATABASE_PASSWORD: <value>
+   DATABASE_HOST: <value>
+   DATABASE_NAME: <value>
+   
+   [secrets]
+   SECRET_KEY: <value-django-secret-just-a-random-salt-string>
+   
+   [email]
+   EMAIL_HOST: <value>
+   ADMIN_MAIL: <value>
+   FROM_MAIL: <value>
+   
+Replace the ``<value>`` placeholder with the right values for your installation
+
+Next step is to collect the static files: ``python3 manage.py collectstatic --noinput``
+and create the database: ``python3 manage.py migrate --noinput``
+
+The last step is to configure uWSGI and NGINX.
+The uWSGI config might look like the following example:
 
 .. code-block:: cfg
    
-   # Cool one-liner
+   [uwsgi]
+   thread=4
+   master=1
+   processes=80
+   vacuum=true
+   uid = www-data
+   gid = www-data
+   chmod-socket = 700
+   chown-socket = www-data
+   socket = /run/uwsgi/app/bounca/socket
+   logto = /var/log/uwsgi/bounca/log
+   chdir = /srv/www/bounca
+   home  = /srv/www/bounca/env
+   module = bounca.wsgi
 
+The NGINX config should contain a proxypass on the root and a location for the static files. For example the following server block
+
+.. code-block:: cfg
+   
+   server {
+   
+       listen 80;
+       server_name example.org;
+       charset utf-8;
+   
+       location /static {
+           root /srv/www/bounca/media;
+           include mime.types;
+       }
+   
+       location / {
+           include uwsgi_params;
+           uwsgi_read_timeout 9600;
+           uwsgi_send_timeout 9600;
+           uwsgi_pass unix://run/uwsgi/app/bounca/socket;
+       }
+   
+   }
+
+You should restart uWSGI and NGINX to load the changes. 
+BounCA should be up and running.
 
 
 Post Installation
@@ -126,10 +182,11 @@ When the installation is finished, you can reach your BounCA installation by bro
 You will see a login screen, please create an account an login.
 You are ready to create your Certificate Authorities!
 
-.. note:: While BounCA has a login feature, your keys are protected by passphrases.
+.. note:: While BounCA has a login feature for internal use, your keys are protected by passphrases.
           Passphrases are not stored in BounCA, so please remember them well as they cannot be recovered from your keys.
           
-
+.. _https://github.com/repleo/docker-compose-bounca: https://github.com/repleo/docker-compose-bounca
+.. _github: https://www.github.com/repleo/bounca
 .. _Python3: https://www.python.org/
 .. _Debian: https://www.debian.org/
 .. _Django: https://www.djangoproject.com

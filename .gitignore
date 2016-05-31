@@ -71,6 +71,7 @@ target/
 .project
 .pydevproject
 .idea
+.settings
 
 # Other
 tmp/

@@ -1,7 +1,9 @@
 # Change Log
 The BounCA change history
 
+## [0.1] - Release 2016-05-31
 
+* Version bump
 
 ## [0.1rc0] - Release Candidate 2016-05-28
 
