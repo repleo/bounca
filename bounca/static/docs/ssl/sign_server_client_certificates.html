@@ -1,0 +1,353 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Sign Server and Client Certificates &mdash; &lt;a href=&#34;https://www.bounca.org&#34;&gt;BounCA&lt;/a&gt; 0.1c0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="&lt;a href=&#34;https://www.bounca.org&#34;&gt;BounCA&lt;/a&gt; 0.1c0 documentation" href="../index.html"/>
+        <link rel="next" title="Certificate Revocation Lists" href="certificate_revocation_list.html"/>
+        <link rel="prev" title="Create the Intermediate Pair" href="intermediate_pair.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> <a href="https://www.bounca.org">BounCA</a>
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">BounCA features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../support.html">Support</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Certificate Authority</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Your Own Certificate Authority</a></li>
+<li class="toctree-l1"><a class="reference internal" href="root_pair.html">Create the Root Pair</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intermediate_pair.html">Create the Intermediate Pair</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Sign Server and Client Certificates</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#create-a-key">Create a key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-a-certificate">Create a certificate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verify-the-certificate">Verify the certificate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deploy-the-certificate">Deploy the certificate</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="certificate_revocation_list.html">Certificate Revocation Lists</a></li>
+<li class="toctree-l1"><a class="reference internal" href="online_certificate_status_protocol.html">Online Certificate Status Protocol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+</ul>
+<p class="caption"><span class="caption-text">About BounCA</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contribution.html">Contribution</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html"><a href="https://www.bounca.org">BounCA</a></a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+    <li>Sign Server and Client Certificates</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="sign-server-and-client-certificates">
+<h1>Sign Server and Client Certificates<a class="headerlink" href="#sign-server-and-client-certificates" title="Permalink to this headline">¶</a></h1>
+<p>We will be signing certificates using our intermediate CA.
+You can use these signed certificates in a variety of situations, such as to secure connections to a web server or to authenticate clients connecting to a service.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The steps below are from your perspective as the certificate authority.
+A third-party, however, can instead create their own private key and certificate signing request (CSR) without revealing their private key to you.
+They give you their CSR, and you give back a signed certificate. In that scenario, skip the <code class="docutils literal"><span class="pre">genrsa</span></code> and <code class="docutils literal"><span class="pre">req</span></code> commands.</p>
+</div>
+<div class="section" id="create-a-key">
+<h2>Create a key<a class="headerlink" href="#create-a-key" title="Permalink to this headline">¶</a></h2>
+<p>Our root and intermediate pairs are 4096 bits.
+Server and client certificates normally expire after one year, so we can safely use 2048 bits instead.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Although 4096 bits is slightly more secure than 2048 bits, it slows down TLS handshakes and significantly increases processor load during handshakes.
+For this reason, most websites use 2048-bit pairs.</p>
+</div>
+<p>If you’re creating a cryptographic pair for use with a web server (eg, Apache), you’ll need to enter this password every time you restart the web server.
+You may want to omit the <code class="docutils literal"><span class="pre">-aes256</span></code> option to create a key without a password.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span><span class="c1"># cd /root/ca</span>
+<span class="c1"># openssl genrsa -aes256 \</span>
+      -out intermediate/private/www.example.com.key.pem 2048
+<span class="c1"># chmod 400 intermediate/private/www.example.com.key.pem</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-a-certificate">
+<h2>Create a certificate<a class="headerlink" href="#create-a-certificate" title="Permalink to this headline">¶</a></h2>
+<p>Use the private key to create a certificate signing request (CSR).
+The CSR details don’t need to match the intermediate CA.
+For server certificates, the <em>Common Name</em> must be a fully qualified domain name (eg, <code class="docutils literal"><span class="pre">www.example.com</span></code>), whereas for client certificates it can be any unique identifier (eg, an e-mail address).
+Note that the <em>Common Name</em> cannot be the same as either your root or intermediate certificate.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span><span class="c1"># cd /root/ca</span>
+<span class="c1"># openssl req -config intermediate/openssl.cnf \</span>
+      -key intermediate/private/www.example.com.key.pem <span class="se">\</span>
+      -new -sha256 -out intermediate/csr/www.example.com.csr.pem
+
+Enter pass phrase <span class="k">for</span> www.example.com.key.pem: secretpassword
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+------------------------------
+Country Name <span class="o">(</span><span class="m">2</span> letter code<span class="o">)</span> <span class="o">[</span>XX<span class="o">]</span>:US
+State or Province Name <span class="o">[]</span>:California
+Locality Name <span class="o">[]</span>:Mountain View
+Organization Name <span class="o">[]</span>:Alice Ltd
+Organizational Unit Name <span class="o">[]</span>:Alice Ltd Web Services
+Common Name <span class="o">[]</span>:www.example.com
+Email Address <span class="o">[]</span>:
+</pre></div>
+</div>
+<p>To create a certificate, use the intermediate CA to sign the CSR.
+If the certificate is going to be used on a server, use the <code class="docutils literal"><span class="pre">server_cert</span></code> extension.
+If the certificate is going to be used for user authentication, use the <code class="docutils literal"><span class="pre">usr_cert</span></code> extension.
+Certificates are usually given a validity of one year, though a CA will typically give a few days extra for convenience.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span><span class="c1"># cd /root/ca</span>
+<span class="c1"># openssl ca -config intermediate/openssl.cnf \</span>
+      -extensions server_cert -days <span class="m">375</span> -notext -md sha256 <span class="se">\</span>
+      -in intermediate/csr/www.example.com.csr.pem <span class="se">\</span>
+      -out intermediate/certs/www.example.com.cert.pem
+<span class="c1"># chmod 444 intermediate/certs/www.example.com.cert.pem</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">intermediate/index.</span></code> file should contain a line referring to this new certificate.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>V 160420124233Z 1000 unknown ... /CN=www.example.com
+</pre></div>
+</div>
+</div>
+<div class="section" id="verify-the-certificate">
+<h2>Verify the certificate<a class="headerlink" href="#verify-the-certificate" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-shell"><div class="highlight"><pre><span></span><span class="c1"># openssl x509 -noout -text \</span>
+      -in intermediate/certs/www.example.com.cert.pem
+</pre></div>
+</div>
+<p>The <em>Issuer</em> is the intermediate CA. The <em>Subject</em> refers to the certificate itself.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>Signature Algorithm: sha256WithRSAEncryption
+    Issuer: C=GB, ST=England,
+            O=Alice Ltd, OU=Alice Ltd Certificate Authority,
+            CN=Alice Ltd Intermediate CA
+    Validity
+        Not Before: Apr 11 12:42:33 2015 GMT
+        Not After : Apr 20 12:42:33 2016 GMT
+    Subject: C=US, ST=California, L=Mountain View,
+             O=Alice Ltd, OU=Alice Ltd Web Services,
+             CN=www.example.com
+    Subject Public Key Info:
+        Public Key Algorithm: rsaEncryption
+            Public-Key: (2048 bit)
+</pre></div>
+</div>
+<p>The output will also show the <em>X509v3 extensions</em>.
+When creating the certificate, you used either the <code class="docutils literal"><span class="pre">server_cert</span></code> or <code class="docutils literal"><span class="pre">usr_cert</span></code> extension.
+The options from the corresponding configuration section will be reflected in the output.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>X509v3 extensions:
+    X509v3 Basic Constraints:
+        CA:FALSE
+    Netscape Cert Type:
+        SSL Server
+    Netscape Comment:
+        OpenSSL Generated Server Certificate
+    X509v3 Subject Key Identifier:
+        B1:B8:88:48:64:B7:45:52:21:CC:35:37:9E:24:50:EE:AD:58:02:B5
+    X509v3 Authority Key Identifier:
+        keyid:69:E8:EC:54:7F:25:23:60:E5:B6:E7:72:61:F1:D4:B9:21:D4:45:E9
+        DirName:/C=GB/ST=England/O=Alice Ltd/OU=Alice Ltd Certificate Authority/CN=Alice Ltd Root CA
+        serial:10:00
+
+    X509v3 Key Usage: critical
+        Digital Signature, Key Encipherment
+    X509v3 Extended Key Usage:
+        TLS Web Server Authentication
+</pre></div>
+</div>
+<p>Use the CA certificate chain file we created earlier (<code class="docutils literal"><span class="pre">ca-chain.cert.pem</span></code>) to verify that the new certificate has a valid chain of trust.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span><span class="c1"># openssl verify -CAfile intermediate/certs/ca-chain.cert.pem \</span>
+      intermediate/certs/www.example.com.cert.pem
+
+www.example.com.cert.pem: OK
+</pre></div>
+</div>
+</div>
+<div class="section" id="deploy-the-certificate">
+<h2>Deploy the certificate<a class="headerlink" href="#deploy-the-certificate" title="Permalink to this headline">¶</a></h2>
+<p>You can now either deploy your new certificate to a server, or distribute the certificate to a client.
+When deploying to a server application (eg, Apache), you need to make the following files available:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">ca-chain.cert.pem</span></code></li>
+<li><code class="docutils literal"><span class="pre">www.example.com.key.pem</span></code></li>
+<li><code class="docutils literal"><span class="pre">www.example.com.cert.pem</span></code></li>
+</ul>
+<p>If you’re signing a CSR from a third-party, you don’t have access to their private key so you only need to give them back the chain file (<code class="docutils literal"><span class="pre">ca-chain.cert.pem</span></code>) and the certificate (<code class="docutils literal"><span class="pre">www.example.com.cert.pem</span></code>).</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="certificate_revocation_list.html" class="btn btn-neutral float-right" title="Certificate Revocation Lists" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="intermediate_pair.html" class="btn btn-neutral" title="Create the Intermediate Pair" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Repleo, Amstelveen, Holland.
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1c0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

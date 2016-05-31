@@ -1,0 +1,300 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>BounCA features &mdash; &lt;a href=&#34;https://www.bounca.org&#34;&gt;BounCA&lt;/a&gt; 0.1c0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="&lt;a href=&#34;https://www.bounca.org&#34;&gt;BounCA&lt;/a&gt; 0.1c0 documentation" href="index.html"/>
+        <link rel="next" title="Support" href="support.html"/>
+        <link rel="prev" title="Getting Started" href="getting_started.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> <a href="https://www.bounca.org">BounCA</a>
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">BounCA features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#create-and-manage-your-own-root-certificates-and-certificate-authorities">Create and manage your own root certificates and certificate authorities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-intermediate-certificates-for-grouping-of-certificates">Create intermediate certificates for grouping of certificates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-server-side-certificates-for-setting-up-trusted-and-encrypted-connections">Create server side certificates for setting up trusted and encrypted connections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-client-side-certificates-for-authentication-and-authorization">Create client side certificates for authentication and authorization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#support-for-advanced-v3-certificates-containing-subject-alt-names">Support for advanced v3 certificates containing subject alt names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#revoke-certificates-within-one-mouse-click-and-download-certificate-revoke-lists-crl">Revoke certificates within one mouse click and download Certificate Revoke Lists (CRL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#download-certificates-keys-and-keystore-packages-for-your-webserver-and-installation">Download certificates, keys, and keystore packages for your webserver and installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#keep-track-of-validity-of-your-certificates-via-ics-ical-calendar-export-containing-expiration-dates">Keep track of validity of your certificates via ics / iCal calendar export containing expiration dates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#protect-your-certificates-via-passphrases">Protect your certificates via passphrases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#evaluate-your-certificates-via-the-info-button">Evaluate your certificates via the info button</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#use-the-pki-without-webinterface-from-the-command-line">Use the PKI without webinterface from the command line</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Certificate Authority</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ssl/intro.html">Your Own Certificate Authority</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ssl/root_pair.html">Create the Root Pair</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ssl/intermediate_pair.html">Create the Intermediate Pair</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ssl/sign_server_client_certificates.html">Sign Server and Client Certificates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ssl/certificate_revocation_list.html">Certificate Revocation Lists</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ssl/online_certificate_status_protocol.html">Online Certificate Status Protocol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ssl/appendix.html">Appendix</a></li>
+</ul>
+<p class="caption"><span class="caption-text">About BounCA</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contribution.html">Contribution</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html"><a href="https://www.bounca.org">BounCA</a></a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>BounCA features</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bounca-features">
+<h1>BounCA features<a class="headerlink" href="#bounca-features" title="Permalink to this headline">¶</a></h1>
+<p>This will serve as a list of all of the features that BounCA currently has.
+Some features are important enough to have their own page in the docs, others will simply be listed here.</p>
+<div class="section" id="create-and-manage-your-own-root-certificates-and-certificate-authorities">
+<h2>Create and manage your own root certificates and certificate authorities<a class="headerlink" href="#create-and-manage-your-own-root-certificates-and-certificate-authorities" title="Permalink to this headline">¶</a></h2>
+<p>BounCA offers an easy interface to generate and manage a complete Certificate Authority.
+Never hassle again with complex command line tools, just create, inspect and distribute certificates from an easy to use web interface.</p>
+</div>
+<div class="section" id="create-intermediate-certificates-for-grouping-of-certificates">
+<h2>Create intermediate certificates for grouping of certificates<a class="headerlink" href="#create-intermediate-certificates-for-grouping-of-certificates" title="Permalink to this headline">¶</a></h2>
+<p>Having multiple intermediate certificates enables authorization on group level.
+Create certificates for different level of grants.</p>
+</div>
+<div class="section" id="create-server-side-certificates-for-setting-up-trusted-and-encrypted-connections">
+<h2>Create server side certificates for setting up trusted and encrypted connections<a class="headerlink" href="#create-server-side-certificates-for-setting-up-trusted-and-encrypted-connections" title="Permalink to this headline">¶</a></h2>
+<p>Create server side certificates for encrypted trusted connections.
+Typical use cases are:
+- Internal trust network in your Intranet
+- Trusted peer network with reduced risk of man-in-the-middle attack
+- Trusted private cloud services over Internet</p>
+</div>
+<div class="section" id="create-client-side-certificates-for-authentication-and-authorization">
+<h2>Create client side certificates for authentication and authorization<a class="headerlink" href="#create-client-side-certificates-for-authentication-and-authorization" title="Permalink to this headline">¶</a></h2>
+<p>Create client certificates for authorize clients and users via certificates.
+Typical use cases are:
+- Provisioning of API access of Internet of Things devices
+- OpenVPN user authentication
+- Internal web application authentication
+- E-mail signing</p>
+</div>
+<div class="section" id="support-for-advanced-v3-certificates-containing-subject-alt-names">
+<h2>Support for advanced v3 certificates containing subject alt names<a class="headerlink" href="#support-for-advanced-v3-certificates-containing-subject-alt-names" title="Permalink to this headline">¶</a></h2>
+<p>Generate client and server certificates with subject alt names for supporting multiple accounts or domains.</p>
+</div>
+<div class="section" id="revoke-certificates-within-one-mouse-click-and-download-certificate-revoke-lists-crl">
+<h2>Revoke certificates within one mouse click and download Certificate Revoke Lists (CRL)<a class="headerlink" href="#revoke-certificates-within-one-mouse-click-and-download-certificate-revoke-lists-crl" title="Permalink to this headline">¶</a></h2>
+<p>Easily revoke a certificate from the dashboard by pressing the revoke button.
+Download the CRL file for hosting it.</p>
+</div>
+<div class="section" id="download-certificates-keys-and-keystore-packages-for-your-webserver-and-installation">
+<h2>Download certificates, keys, and keystore packages for your webserver and installation<a class="headerlink" href="#download-certificates-keys-and-keystore-packages-for-your-webserver-and-installation" title="Permalink to this headline">¶</a></h2>
+<p>Download a zip containing all the important certificate and key files for configuring your webservers (Apache, nginx), OpenVPN and other services.
+The package also contains a prepackages pkcs12 file with the keys and certificates.</p>
+</div>
+<div class="section" id="keep-track-of-validity-of-your-certificates-via-ics-ical-calendar-export-containing-expiration-dates">
+<h2>Keep track of validity of your certificates via ics / iCal calendar export containing expiration dates<a class="headerlink" href="#keep-track-of-validity-of-your-certificates-via-ics-ical-calendar-export-containing-expiration-dates" title="Permalink to this headline">¶</a></h2>
+<p>You can create an iCal, ics file containing the expiration dates of your certificates.
+Import the file in your calendar and be warned on time when a certificate expires.</p>
+</div>
+<div class="section" id="protect-your-certificates-via-passphrases">
+<h2>Protect your certificates via passphrases<a class="headerlink" href="#protect-your-certificates-via-passphrases" title="Permalink to this headline">¶</a></h2>
+<p>All keys in BounCA are protected by passphrases. It is only allowed to have client and server certificates without passphrase.
+BounCA takes care that your passphrases are strong enough, and checks if your passphrase is correct before signign a <code class="docutils literal"><span class="pre">csr</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">BounCA does not store passphrases. Please keep your passphrases in a secret place as you cannot restore a passphrase.</p>
+</div>
+</div>
+<div class="section" id="evaluate-your-certificates-via-the-info-button">
+<h2>Evaluate your certificates via the info button<a class="headerlink" href="#evaluate-your-certificates-via-the-info-button" title="Permalink to this headline">¶</a></h2>
+<p>Every certificate can be inspected by pressing the <code class="docutils literal"><span class="pre">I</span></code> info button.
+This button call OpenSSL and shows you the info text of the particular certificate.</p>
+</div>
+<div class="section" id="use-the-pki-without-webinterface-from-the-command-line">
+<h2>Use the PKI without webinterface from the command line<a class="headerlink" href="#use-the-pki-without-webinterface-from-the-command-line" title="Permalink to this headline">¶</a></h2>
+<p>The keys, certificates and other files belonging to your certificate authority are stored in an easy exportable folder structure including shell scripts to generate certificates.
+You may generate a base PKI from BounCA and copy the files to manage your CA elsewhere.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">If you generate certificates from the command line you cannot use BounCA to manage that CA as the database will not be in sync with your PKI.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="support.html" class="btn btn-neutral float-right" title="Support" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="getting_started.html" class="btn btn-neutral" title="Getting Started" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Repleo, Amstelveen, Holland.
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1c0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,494 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Appendix &mdash; &lt;a href=&#34;https://www.bounca.org&#34;&gt;BounCA&lt;/a&gt; 0.1c0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="&lt;a href=&#34;https://www.bounca.org&#34;&gt;BounCA&lt;/a&gt; 0.1c0 documentation" href="../index.html"/>
+        <link rel="next" title="Contribution" href="../contribution.html"/>
+        <link rel="prev" title="Online Certificate Status Protocol" href="online_certificate_status_protocol.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> <a href="https://www.bounca.org">BounCA</a>
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">BounCA features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../support.html">Support</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Certificate Authority</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Your Own Certificate Authority</a></li>
+<li class="toctree-l1"><a class="reference internal" href="root_pair.html">Create the Root Pair</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intermediate_pair.html">Create the Intermediate Pair</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sign_server_client_certificates.html">Sign Server and Client Certificates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="certificate_revocation_list.html">Certificate Revocation Lists</a></li>
+<li class="toctree-l1"><a class="reference internal" href="online_certificate_status_protocol.html">Online Certificate Status Protocol</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Appendix</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#root-ca-configuration-file">Root CA configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#intermediate-ca-configuration-file">Intermediate CA configuration file</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">About BounCA</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contribution.html">Contribution</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html"><a href="https://www.bounca.org">BounCA</a></a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+    <li>Appendix</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="appendix">
+<span id="sslappendix"></span><h1>Appendix<a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="root-ca-configuration-file">
+<h2>Root CA configuration file<a class="headerlink" href="#root-ca-configuration-file" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-cfg"><div class="highlight"><pre><span></span><span class="c1"># OpenSSL root CA configuration file.</span>
+<span class="c1"># Copy to `/root/ca/openssl.cnf`.</span>
+
+<span class="k">[ ca ]</span>
+<span class="c1"># `man ca`</span>
+<span class="na">default_ca</span> <span class="o">=</span> <span class="s">CA_default</span>
+
+<span class="k">[ CA_default ]</span>
+<span class="c1"># Directory and file locations.</span>
+<span class="na">dir</span>               <span class="o">=</span> <span class="s">/root/ca</span>
+<span class="na">certs</span>             <span class="o">=</span> <span class="s">$dir/certs</span>
+<span class="na">crl_dir</span>           <span class="o">=</span> <span class="s">$dir/crl</span>
+<span class="na">new_certs_dir</span>     <span class="o">=</span> <span class="s">$dir/newcerts</span>
+<span class="na">database</span>          <span class="o">=</span> <span class="s">$dir/index.txt</span>
+<span class="na">serial</span>            <span class="o">=</span> <span class="s">$dir/serial</span>
+<span class="na">RANDFILE</span>          <span class="o">=</span> <span class="s">$dir/private/.rand</span>
+
+<span class="c1"># The root key and root certificate.</span>
+<span class="na">private_key</span>       <span class="o">=</span> <span class="s">$dir/private/ca.key.pem</span>
+<span class="na">certificate</span>       <span class="o">=</span> <span class="s">$dir/certs/ca.cert.pem</span>
+
+<span class="c1"># For certificate revocation lists.</span>
+<span class="na">crlnumber</span>         <span class="o">=</span> <span class="s">$dir/crlnumber</span>
+<span class="na">crl</span>               <span class="o">=</span> <span class="s">$dir/crl/ca.crl.pem</span>
+<span class="na">crl_extensions</span>    <span class="o">=</span> <span class="s">crl_ext</span>
+<span class="na">default_crl_days</span>  <span class="o">=</span> <span class="s">30</span>
+
+<span class="c1"># SHA-1 is deprecated, so use SHA-2 instead.</span>
+<span class="na">default_md</span>        <span class="o">=</span> <span class="s">sha256</span>
+
+<span class="na">name_opt</span>          <span class="o">=</span> <span class="s">ca_default</span>
+<span class="na">cert_opt</span>          <span class="o">=</span> <span class="s">ca_default</span>
+<span class="na">default_days</span>      <span class="o">=</span> <span class="s">375</span>
+<span class="na">preserve</span>          <span class="o">=</span> <span class="s">no</span>
+<span class="na">policy</span>            <span class="o">=</span> <span class="s">policy_strict</span>
+
+<span class="k">[ policy_strict ]</span>
+<span class="c1"># The root CA should only sign intermediate certificates that match.</span>
+<span class="c1"># See the POLICY FORMAT section of `man ca`.</span>
+<span class="na">countryName</span>             <span class="o">=</span> <span class="s">match</span>
+<span class="na">stateOrProvinceName</span>     <span class="o">=</span> <span class="s">match</span>
+<span class="na">organizationName</span>        <span class="o">=</span> <span class="s">match</span>
+<span class="na">organizationalUnitName</span>  <span class="o">=</span> <span class="s">optional</span>
+<span class="na">commonName</span>              <span class="o">=</span> <span class="s">supplied</span>
+<span class="na">emailAddress</span>            <span class="o">=</span> <span class="s">optional</span>
+
+<span class="k">[ policy_loose ]</span>
+<span class="c1"># Allow the intermediate CA to sign a more diverse range of certificates.</span>
+<span class="c1"># See the POLICY FORMAT section of the `ca` man page.</span>
+<span class="na">countryName</span>             <span class="o">=</span> <span class="s">optional</span>
+<span class="na">stateOrProvinceName</span>     <span class="o">=</span> <span class="s">optional</span>
+<span class="na">localityName</span>            <span class="o">=</span> <span class="s">optional</span>
+<span class="na">organizationName</span>        <span class="o">=</span> <span class="s">optional</span>
+<span class="na">organizationalUnitName</span>  <span class="o">=</span> <span class="s">optional</span>
+<span class="na">commonName</span>              <span class="o">=</span> <span class="s">supplied</span>
+<span class="na">emailAddress</span>            <span class="o">=</span> <span class="s">optional</span>
+
+<span class="k">[ req ]</span>
+<span class="c1"># Options for the `req` tool (`man req`).</span>
+<span class="na">default_bits</span>        <span class="o">=</span> <span class="s">2048</span>
+<span class="na">distinguished_name</span>  <span class="o">=</span> <span class="s">req_distinguished_name</span>
+<span class="na">string_mask</span>         <span class="o">=</span> <span class="s">utf8only</span>
+
+<span class="c1"># SHA-1 is deprecated, so use SHA-2 instead.</span>
+<span class="na">default_md</span>          <span class="o">=</span> <span class="s">sha256</span>
+
+<span class="c1"># Extension to add when the -x509 option is used.</span>
+<span class="na">x509_extensions</span>     <span class="o">=</span> <span class="s">v3_ca</span>
+
+<span class="k">[ req_distinguished_name ]</span>
+<span class="c1"># See &lt;https://en.wikipedia.org/wiki/Certificate_signing_request&gt;.</span>
+<span class="na">countryName</span>                     <span class="o">=</span> <span class="s">Country Name (2 letter code)</span>
+<span class="na">stateOrProvinceName</span>             <span class="o">=</span> <span class="s">State or Province Name</span>
+<span class="na">localityName</span>                    <span class="o">=</span> <span class="s">Locality Name</span>
+<span class="na">0.organizationName</span>              <span class="o">=</span> <span class="s">Organization Name</span>
+<span class="na">organizationalUnitName</span>          <span class="o">=</span> <span class="s">Organizational Unit Name</span>
+<span class="na">commonName</span>                      <span class="o">=</span> <span class="s">Common Name</span>
+<span class="na">emailAddress</span>                    <span class="o">=</span> <span class="s">Email Address</span>
+
+<span class="c1"># Optionally, specify some defaults.</span>
+<span class="na">countryName_default</span>             <span class="o">=</span> <span class="s">GB</span>
+<span class="na">stateOrProvinceName_default</span>     <span class="o">=</span> <span class="s">England</span>
+<span class="na">localityName_default</span>            <span class="o">=</span>
+<span class="na">0.organizationName_default</span>      <span class="o">=</span> <span class="s">Alice Ltd</span>
+<span class="na">organizationalUnitName_default</span>  <span class="o">=</span>
+<span class="na">emailAddress_default</span>            <span class="o">=</span>
+
+<span class="k">[ v3_ca ]</span>
+<span class="c1"># Extensions for a typical CA (`man x509v3_config`).</span>
+<span class="na">subjectKeyIdentifier</span> <span class="o">=</span> <span class="s">hash</span>
+<span class="na">authorityKeyIdentifier</span> <span class="o">=</span> <span class="s">keyid:always,issuer</span>
+<span class="na">basicConstraints</span> <span class="o">=</span> <span class="s">critical, CA:true</span>
+<span class="na">keyUsage</span> <span class="o">=</span> <span class="s">critical, digitalSignature, cRLSign, keyCertSign</span>
+
+<span class="k">[ v3_intermediate_ca ]</span>
+<span class="c1"># Extensions for a typical intermediate CA (`man x509v3_config`).</span>
+<span class="na">subjectKeyIdentifier</span> <span class="o">=</span> <span class="s">hash</span>
+<span class="na">authorityKeyIdentifier</span> <span class="o">=</span> <span class="s">keyid:always,issuer</span>
+<span class="na">basicConstraints</span> <span class="o">=</span> <span class="s">critical, CA:true, pathlen:0</span>
+<span class="na">keyUsage</span> <span class="o">=</span> <span class="s">critical, digitalSignature, cRLSign, keyCertSign</span>
+
+<span class="k">[ usr_cert ]</span>
+<span class="c1"># Extensions for client certificates (`man x509v3_config`).</span>
+<span class="na">basicConstraints</span> <span class="o">=</span> <span class="s">CA:FALSE</span>
+<span class="na">nsCertType</span> <span class="o">=</span> <span class="s">client, email</span>
+<span class="na">nsComment</span> <span class="o">=</span> <span class="s">&quot;BounCA.org by repleo.nl Generated Client Certificate&quot;</span>
+<span class="na">subjectKeyIdentifier</span> <span class="o">=</span> <span class="s">hash</span>
+<span class="na">authorityKeyIdentifier</span> <span class="o">=</span> <span class="s">keyid,issuer</span>
+<span class="na">keyUsage</span> <span class="o">=</span> <span class="s">critical, nonRepudiation, digitalSignature, keyEncipherment</span>
+<span class="na">extendedKeyUsage</span> <span class="o">=</span> <span class="s">clientAuth, emailProtection</span>
+
+<span class="k">[ server_cert ]</span>
+<span class="c1"># Extensions for server certificates (`man x509v3_config`).</span>
+<span class="na">basicConstraints</span> <span class="o">=</span> <span class="s">CA:FALSE</span>
+<span class="na">nsCertType</span> <span class="o">=</span> <span class="s">server</span>
+<span class="na">nsComment</span> <span class="o">=</span> <span class="s">&quot;BounCA.org by repleo.nl Generated Server Certificate&quot;</span>
+<span class="na">subjectKeyIdentifier</span> <span class="o">=</span> <span class="s">hash</span>
+<span class="na">authorityKeyIdentifier</span> <span class="o">=</span> <span class="s">keyid,issuer:always</span>
+<span class="na">keyUsage</span> <span class="o">=</span> <span class="s">critical, digitalSignature, keyEncipherment</span>
+<span class="na">extendedKeyUsage</span> <span class="o">=</span> <span class="s">serverAuth</span>
+
+<span class="k">[ crl_ext ]</span>
+<span class="c1"># Extension for CRLs (`man x509v3_config`).</span>
+<span class="na">authorityKeyIdentifier</span><span class="o">=</span><span class="s">keyid:always</span>
+
+<span class="k">[ ocsp ]</span>
+<span class="c1"># Extension for OCSP signing certificates (`man ocsp`).</span>
+<span class="na">basicConstraints</span> <span class="o">=</span> <span class="s">CA:FALSE</span>
+<span class="na">subjectKeyIdentifier</span> <span class="o">=</span> <span class="s">hash</span>
+<span class="na">authorityKeyIdentifier</span> <span class="o">=</span> <span class="s">keyid,issuer</span>
+<span class="na">keyUsage</span> <span class="o">=</span> <span class="s">critical, digitalSignature</span>
+<span class="na">extendedKeyUsage</span> <span class="o">=</span> <span class="s">critical, OCSPSigning</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="intermediate-ca-configuration-file">
+<h2>Intermediate CA configuration file<a class="headerlink" href="#intermediate-ca-configuration-file" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-cfg"><div class="highlight"><pre><span></span><span class="c1"># OpenSSL intermediate CA configuration file.</span>
+<span class="c1"># Copy to `/root/ca/intermediate/openssl.cnf`.</span>
+
+<span class="k">[ ca ]</span>
+<span class="c1"># `man ca`</span>
+<span class="na">default_ca</span> <span class="o">=</span> <span class="s">CA_default</span>
+
+<span class="k">[ CA_default ]</span>
+<span class="c1"># Directory and file locations.</span>
+<span class="na">dir</span>               <span class="o">=</span> <span class="s">/root/ca/intermediate</span>
+<span class="na">certs</span>             <span class="o">=</span> <span class="s">$dir/certs</span>
+<span class="na">crl_dir</span>           <span class="o">=</span> <span class="s">$dir/crl</span>
+<span class="na">new_certs_dir</span>     <span class="o">=</span> <span class="s">$dir/newcerts</span>
+<span class="na">database</span>          <span class="o">=</span> <span class="s">$dir/index.txt</span>
+<span class="na">serial</span>            <span class="o">=</span> <span class="s">$dir/serial</span>
+<span class="na">RANDFILE</span>          <span class="o">=</span> <span class="s">$dir/private/.rand</span>
+
+<span class="c1"># The root key and root certificate.</span>
+<span class="na">private_key</span>       <span class="o">=</span> <span class="s">$dir/private/intermediate.key.pem</span>
+<span class="na">certificate</span>       <span class="o">=</span> <span class="s">$dir/certs/intermediate.cert.pem</span>
+
+<span class="c1"># For certificate revocation lists.</span>
+<span class="na">crlnumber</span>         <span class="o">=</span> <span class="s">$dir/crlnumber</span>
+<span class="na">crl</span>               <span class="o">=</span> <span class="s">$dir/crl/intermediate.crl.pem</span>
+<span class="na">crl_extensions</span>    <span class="o">=</span> <span class="s">crl_ext</span>
+<span class="na">default_crl_days</span>  <span class="o">=</span> <span class="s">30</span>
+
+<span class="c1"># SHA-1 is deprecated, so use SHA-2 instead.</span>
+<span class="na">default_md</span>        <span class="o">=</span> <span class="s">sha256</span>
+
+<span class="na">name_opt</span>          <span class="o">=</span> <span class="s">ca_default</span>
+<span class="na">cert_opt</span>          <span class="o">=</span> <span class="s">ca_default</span>
+<span class="na">default_days</span>      <span class="o">=</span> <span class="s">375</span>
+<span class="na">preserve</span>          <span class="o">=</span> <span class="s">no</span>
+<span class="na">policy</span>            <span class="o">=</span> <span class="s">policy_loose</span>
+
+<span class="k">[ policy_strict ]</span>
+<span class="c1"># The root CA should only sign intermediate certificates that match.</span>
+<span class="c1"># See the POLICY FORMAT section of `man ca`.</span>
+<span class="na">countryName</span>             <span class="o">=</span> <span class="s">match</span>
+<span class="na">stateOrProvinceName</span>     <span class="o">=</span> <span class="s">match</span>
+<span class="na">organizationName</span>        <span class="o">=</span> <span class="s">match</span>
+<span class="na">organizationalUnitName</span>  <span class="o">=</span> <span class="s">optional</span>
+<span class="na">commonName</span>              <span class="o">=</span> <span class="s">supplied</span>
+<span class="na">emailAddress</span>            <span class="o">=</span> <span class="s">optional</span>
+
+<span class="k">[ policy_loose ]</span>
+<span class="c1"># Allow the intermediate CA to sign a more diverse range of certificates.</span>
+<span class="c1"># See the POLICY FORMAT section of the `ca` man page.</span>
+<span class="na">countryName</span>             <span class="o">=</span> <span class="s">optional</span>
+<span class="na">stateOrProvinceName</span>     <span class="o">=</span> <span class="s">optional</span>
+<span class="na">localityName</span>            <span class="o">=</span> <span class="s">optional</span>
+<span class="na">organizationName</span>        <span class="o">=</span> <span class="s">optional</span>
+<span class="na">organizationalUnitName</span>  <span class="o">=</span> <span class="s">optional</span>
+<span class="na">commonName</span>              <span class="o">=</span> <span class="s">supplied</span>
+<span class="na">emailAddress</span>            <span class="o">=</span> <span class="s">optional</span>
+
+<span class="k">[ req ]</span>
+<span class="c1"># Options for the `req` tool (`man req`).</span>
+<span class="na">default_bits</span>        <span class="o">=</span> <span class="s">2048</span>
+<span class="na">distinguished_name</span>  <span class="o">=</span> <span class="s">req_distinguished_name</span>
+<span class="na">string_mask</span>         <span class="o">=</span> <span class="s">utf8only</span>
+
+<span class="c1"># SHA-1 is deprecated, so use SHA-2 instead.</span>
+<span class="na">default_md</span>          <span class="o">=</span> <span class="s">sha256</span>
+
+<span class="c1"># Extension to add when the -x509 option is used.</span>
+<span class="na">x509_extensions</span>     <span class="o">=</span> <span class="s">v3_ca</span>
+
+<span class="k">[ req_distinguished_name ]</span>
+<span class="c1"># See &lt;https://en.wikipedia.org/wiki/Certificate_signing_request&gt;.</span>
+<span class="na">countryName</span>                     <span class="o">=</span> <span class="s">Country Name (2 letter code)</span>
+<span class="na">stateOrProvinceName</span>             <span class="o">=</span> <span class="s">State or Province Name</span>
+<span class="na">localityName</span>                    <span class="o">=</span> <span class="s">Locality Name</span>
+<span class="na">0.organizationName</span>              <span class="o">=</span> <span class="s">Organization Name</span>
+<span class="na">organizationalUnitName</span>          <span class="o">=</span> <span class="s">Organizational Unit Name</span>
+<span class="na">commonName</span>                      <span class="o">=</span> <span class="s">Common Name</span>
+<span class="na">emailAddress</span>                    <span class="o">=</span> <span class="s">Email Address</span>
+
+<span class="c1"># Optionally, specify some defaults.</span>
+<span class="na">countryName_default</span>             <span class="o">=</span> <span class="s">GB</span>
+<span class="na">stateOrProvinceName_default</span>     <span class="o">=</span> <span class="s">England</span>
+<span class="na">localityName_default</span>            <span class="o">=</span>
+<span class="na">0.organizationName_default</span>      <span class="o">=</span> <span class="s">Alice Ltd</span>
+<span class="na">organizationalUnitName_default</span>  <span class="o">=</span>
+<span class="na">emailAddress_default</span>            <span class="o">=</span>
+
+<span class="k">[ v3_ca ]</span>
+<span class="c1"># Extensions for a typical CA (`man x509v3_config`).</span>
+<span class="na">subjectKeyIdentifier</span> <span class="o">=</span> <span class="s">hash</span>
+<span class="na">authorityKeyIdentifier</span> <span class="o">=</span> <span class="s">keyid:always,issuer</span>
+<span class="na">basicConstraints</span> <span class="o">=</span> <span class="s">critical, CA:true</span>
+<span class="na">keyUsage</span> <span class="o">=</span> <span class="s">critical, digitalSignature, cRLSign, keyCertSign</span>
+
+<span class="k">[ v3_intermediate_ca ]</span>
+<span class="c1"># Extensions for a typical intermediate CA (`man x509v3_config`).</span>
+<span class="na">subjectKeyIdentifier</span> <span class="o">=</span> <span class="s">hash</span>
+<span class="na">authorityKeyIdentifier</span> <span class="o">=</span> <span class="s">keyid:always,issuer</span>
+<span class="na">basicConstraints</span> <span class="o">=</span> <span class="s">critical, CA:true, pathlen:0</span>
+<span class="na">keyUsage</span> <span class="o">=</span> <span class="s">critical, digitalSignature, cRLSign, keyCertSign</span>
+
+<span class="k">[ usr_cert ]</span>
+<span class="c1"># Extensions for client certificates (`man x509v3_config`).</span>
+<span class="na">basicConstraints</span> <span class="o">=</span> <span class="s">CA:FALSE</span>
+<span class="na">nsCertType</span> <span class="o">=</span> <span class="s">client, email</span>
+<span class="na">nsComment</span> <span class="o">=</span> <span class="s">&quot;BounCA.org by repleo.nl Generated Client Certificate&quot;</span>
+<span class="na">subjectKeyIdentifier</span> <span class="o">=</span> <span class="s">hash</span>
+<span class="na">authorityKeyIdentifier</span> <span class="o">=</span> <span class="s">keyid,issuer</span>
+<span class="na">keyUsage</span> <span class="o">=</span> <span class="s">critical, nonRepudiation, digitalSignature, keyEncipherment</span>
+<span class="na">extendedKeyUsage</span> <span class="o">=</span> <span class="s">clientAuth, emailProtection</span>
+
+<span class="k">[ server_cert ]</span>
+<span class="c1"># Extensions for server certificates (`man x509v3_config`).</span>
+<span class="na">basicConstraints</span> <span class="o">=</span> <span class="s">CA:FALSE</span>
+<span class="na">nsCertType</span> <span class="o">=</span> <span class="s">server</span>
+<span class="na">nsComment</span> <span class="o">=</span> <span class="s">&quot;BounCA.org by repleo.nl Generated Server Certificate&quot;</span>
+<span class="na">subjectKeyIdentifier</span> <span class="o">=</span> <span class="s">hash</span>
+<span class="na">authorityKeyIdentifier</span> <span class="o">=</span> <span class="s">keyid,issuer:always</span>
+<span class="na">keyUsage</span> <span class="o">=</span> <span class="s">critical, digitalSignature, keyEncipherment</span>
+<span class="na">extendedKeyUsage</span> <span class="o">=</span> <span class="s">serverAuth</span>
+
+<span class="k">[ crl_ext ]</span>
+<span class="c1"># Extension for CRLs (`man x509v3_config`).</span>
+<span class="na">authorityKeyIdentifier</span><span class="o">=</span><span class="s">keyid:always</span>
+
+<span class="k">[ ocsp ]</span>
+<span class="c1"># Extension for OCSP signing certificates (`man ocsp`).</span>
+<span class="na">basicConstraints</span> <span class="o">=</span> <span class="s">CA:FALSE</span>
+<span class="na">subjectKeyIdentifier</span> <span class="o">=</span> <span class="s">hash</span>
+<span class="na">authorityKeyIdentifier</span> <span class="o">=</span> <span class="s">keyid,issuer</span>
+<span class="na">keyUsage</span> <span class="o">=</span> <span class="s">critical, digitalSignature</span>
+<span class="na">extendedKeyUsage</span> <span class="o">=</span> <span class="s">critical, OCSPSigning</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../contribution.html" class="btn btn-neutral float-right" title="Contribution" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="online_certificate_status_protocol.html" class="btn btn-neutral" title="Online Certificate Status Protocol" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Repleo, Amstelveen, Holland.
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1c0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

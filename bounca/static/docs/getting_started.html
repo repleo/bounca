@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Getting Started &mdash; &lt;a href=&#34;https://www.bounca.org&#34;&gt;BounCA&lt;/a&gt; 0.1c0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="&lt;a href=&#34;https://www.bounca.org&#34;&gt;BounCA&lt;/a&gt; 0.1c0 documentation" href="index.html"/>
+        <link rel="next" title="BounCA features" href="features.html"/>
+        <link rel="prev" title="Welcome to BounCA’s documentation!" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> <a href="https://www.bounca.org">BounCA</a>
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prepare-your-environment">Prepare your environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ansible-deployment">Ansible Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#docker-deployment">Docker Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#manual-install">Manual Install</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#post-installation">Post Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">BounCA features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Certificate Authority</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ssl/intro.html">Your Own Certificate Authority</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ssl/root_pair.html">Create the Root Pair</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ssl/intermediate_pair.html">Create the Intermediate Pair</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ssl/sign_server_client_certificates.html">Sign Server and Client Certificates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ssl/certificate_revocation_list.html">Certificate Revocation Lists</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ssl/online_certificate_status_protocol.html">Online Certificate Status Protocol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ssl/appendix.html">Appendix</a></li>
+</ul>
+<p class="caption"><span class="caption-text">About BounCA</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contribution.html">Contribution</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html"><a href="https://www.bounca.org">BounCA</a></a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Getting Started</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>This document will show you how to get up and running with BounCA.
+You can start creating your root authorities and singing your certificates in 10 minutes, depending on the configuration you use.</p>
+<div class="section" id="prepare-your-environment">
+<h2>Prepare your environment<a class="headerlink" href="#prepare-your-environment" title="Permalink to this headline">¶</a></h2>
+<p>BounCA is a <a class="reference external" href="https://www.djangoproject.com">Django</a> application running on a <a class="reference external" href="https://www.python.org/">Python3</a> environment.
+While it is highly portable setup, we suggest you deploy a (virtual) machine with the following configuration:
+* Debian Jessie Linux
+* Key authentication for the Root user</p>
+<p>We offer three ways to install BounCA.</p>
+<ul class="simple">
+<li><a class="reference internal" href="#deploy-ansible"><span class="std std-ref">Ansible Deployment</span></a></li>
+<li><a class="reference internal" href="#deploy-docker"><span class="std std-ref">Docker Deployment</span></a></li>
+<li><span class="xref std std-ref">deploy-bare-hand</span></li>
+</ul>
+<div class="section" id="ansible-deployment">
+<span id="deploy-ansible"></span><h3>Ansible Deployment<a class="headerlink" href="#ansible-deployment" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="http://www.ansible.com/">Ansible</a> offers the easiest way of creating a BounCA deployment for hosting your Certificate Authority.</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">hosts</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">all</span>
+  <span class="l l-Scalar l-Scalar-Plain">remote_user</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">root</span>
+  <span class="l l-Scalar l-Scalar-Plain">roles</span><span class="p p-Indicator">:</span>
+    <span class="p p-Indicator">-</span> <span class="p p-Indicator">{</span> <span class="nv">role</span><span class="p p-Indicator">:</span> <span class="nv">repleo.bounca</span><span class="p p-Indicator">,</span>
+         <span class="nv">bounca_timezone</span><span class="p p-Indicator">:</span> <span class="nv">/usr/share/zoneinfo/Europe/Amsterdam</span><span class="p p-Indicator">,</span>
+         <span class="nv">bounca_db_user</span><span class="p p-Indicator">:</span> <span class="nv">bounca</span><span class="p p-Indicator">,</span>
+         <span class="nv">bounca_db_password</span><span class="p p-Indicator">:</span> <span class="nv">&lt;YOUR DB PASSWORD&gt;</span><span class="p p-Indicator">,</span>
+         <span class="nv">bounca_db_host</span><span class="p p-Indicator">:</span> <span class="nv">localhost</span><span class="p p-Indicator">,</span>
+         <span class="nv">bounca_db_name</span><span class="p p-Indicator">:</span> <span class="nv">bouncadb</span><span class="p p-Indicator">,</span>
+
+         <span class="nv">bounca_secret_key</span><span class="p p-Indicator">:</span> <span class="nv">&lt;DJANGO SECRET&gt;</span><span class="p p-Indicator">,</span>
+         <span class="nv">bounca_email_host</span><span class="p p-Indicator">:</span> <span class="nv">localhost</span><span class="p p-Indicator">,</span>
+         <span class="nv">bounca_admin_mail</span><span class="p p-Indicator">:</span> <span class="nv">bounca-admin@&lt;YOURDOMAIN&gt;</span><span class="p p-Indicator">,</span>
+         <span class="nv">bounca_from_mail</span><span class="p p-Indicator">:</span> <span class="nv">no-reply@&lt;YOURDOMAIN&gt;</span>
+    <span class="p p-Indicator">}</span>
+</pre></div>
+</div>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ansible-galaxy install repleo.bounca -p ./roles
+ansible-playbook install-bounca.yml -i &lt;YOUR_BOUNCA_NAME&gt;,
+</pre></div>
+</div>
+<p>There is <a href="#id1"><span class="problematic" id="id2">`a screencast`_</span></a> that will help you get started if you prefer.</p>
+<p><a href="#id3"><span class="problematic" id="id4">Sphinx_</span></a> is a tool that makes it easy to create beautiful documentation.
+Assuming you have <a href="#id5"><span class="problematic" id="id6">Python_</span></a> already, <a href="#id7"><span class="problematic" id="id8">`install Sphinx`_</span></a>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pip install sphinx sphinx-autobuild
+</pre></div>
+</div>
+<p>Create a directory inside your project to hold your docs:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ cd /path/to/project
+$ mkdir docs
+</pre></div>
+</div>
+<p>Run <code class="docutils literal"><span class="pre">sphinx-quickstart</span></code> in there:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ cd docs
+$ sphinx-quickstart
+</pre></div>
+</div>
+<p>This quick start will walk you through creating the basic configuration; in most cases, you
+can just accept the defaults. When it&#8217;s done, you&#8217;ll have an <code class="docutils literal"><span class="pre">index.rst</span></code>, a
+<code class="docutils literal"><span class="pre">conf.py</span></code> and some other files. Add these to revision control.</p>
+<p>Now, edit your <code class="docutils literal"><span class="pre">index.rst</span></code> and add some information about your project.
+Include as much detail as you like (refer to the <a href="#id9"><span class="problematic" id="id10">reStructuredText_</span></a> syntax
+or <a href="#id11"><span class="problematic" id="id12">`this template`_</span></a> if you need help). Build them to see how they look:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ make html
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can use <code class="docutils literal"><span class="pre">sphinx-autobuild</span></code> to auto-reload your docs. Run <code class="docutils literal"><span class="pre">sphinx-autobuild</span> <span class="pre">.</span> <span class="pre">_build_html</span></code> instead.</p>
+</div>
+<p>Edit your files and rebuild until you like what you see, then commit your changes and push to your public repository.
+Once you have Sphinx documentation in a public repository, you can start using Read the Docs.</p>
+</div>
+<div class="section" id="docker-deployment">
+<span id="deploy-docker"></span><h3>Docker Deployment<a class="headerlink" href="#docker-deployment" title="Permalink to this headline">¶</a></h3>
+<p>If you want to try BounCA or you want to create a couple of certificates without having a persistent CA, the <a class="reference external" href="http://www.docker.com/">Docker</a> deployment is the fastest way of getting BounCA.</p>
+<p>The only prerequisite is a working Docker installation.</p>
+<p>Create your BounCA installation with the following one-liner:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span><span class="c1"># Cool one-liner</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Don&#8217;t use the Docker installation for a persistent certificate authority.</p>
+</div>
+</div>
+<div class="section" id="manual-install">
+<h3>Manual Install<a class="headerlink" href="#manual-install" title="Permalink to this headline">¶</a></h3>
+<p>In case you want to customize the installation of BounCA, you can install it manually.
+BounCA is a <a class="reference external" href="https://www.djangoproject.com">Django</a> installation, and as long as Django 1.9 is available en openssl is available you would be able to install it.</p>
+<p>BounCA needs one configuration file <code class="docutils literal"><span class="pre">/etc/bounca/main.ini</span></code> for machine specific configuration.</p>
+<div class="highlight-cfg"><div class="highlight"><pre><span></span><span class="c1"># Cool one-liner</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="post-installation">
+<h2>Post Installation<a class="headerlink" href="#post-installation" title="Permalink to this headline">¶</a></h2>
+<p>When the installation is finished, you can reach your BounCA installation by browsing to your BounCA machine.
+You will see a login screen, please create an account an login.
+You are ready to create your Certificate Authorities!</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">While BounCA has a login feature, your keys are protected by passphrases.
+Passphrases are not stored in BounCA, so please remember them well as they cannot be recovered from your keys.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="features.html" class="btn btn-neutral float-right" title="BounCA features" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to BounCA’s documentation!" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Repleo, Amstelveen, Holland.
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1c0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
