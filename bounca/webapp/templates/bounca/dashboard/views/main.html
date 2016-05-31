@@ -46,7 +46,8 @@
 		         	<span class="label label-warning " ng-if="cert.type=='I'"><span class="glyphicon glyphicon-certificate"></span></span>
 		         	<span class="label label-primary " ng-if="cert.type=='S'"><span class="glyphicon glyphicon-hdd"></span></span>
 		         	<span class="label label-success " ng-if="cert.type=='C'"><span class="glyphicon glyphicon-user"></span></span>
-		         	{{ cert.shortname|limitTo:15 }}
+		         	<a href="#/dashboard/{{cert.id}}" ng-if="cert.type=='R' || cert.type=='I'">{{ cert.shortname|limitTo:15 }}</a>
+		         	<span ng-if="cert.type=='C' || cert.type=='S'">{{ cert.shortname|limitTo:15 }}</span>
 		         </td>
 		         <td class="vert-align">{{ cert.dn.commonName|limitTo:75 }}
 		         	<span ng-show="!!cert.dn.subjectAltNames.length">(has altNames, see info)</span>
