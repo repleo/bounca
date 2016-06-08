@@ -54,8 +54,8 @@ After you created the playbook, you can install BounCA by executing the followin
 
 .. code-block:: shell
 
-   ansible-galaxy install repleo.bounca -p ./roles
-   ansible-playbook install-bounca.yml -i <HOSTNAME_OR_IP>,
+   # ansible-galaxy install repleo.bounca -p ./roles
+   # ansible-playbook install-bounca.yml -i <HOSTNAME_OR_IP>,
 
 The first collects the ansible roles from Ansible's galaxy.
 The second command installs the actual BounCA system.
@@ -75,13 +75,15 @@ Make sure you have installed `Docker`_ including ``docker-compose`` and ``docker
 Clone the BounCA docker release script from the github repo: https://github.com/repleo/docker-compose-bounca.
 The only prerequisite is a working Docker installation.
 
-Create your BounCA installation with the following one-liner:
+Run the bash script ``launch-bounca.sh``
 
 .. code-block:: shell
-   
-   # Cool one-liner
 
-.. warning:: The Docker installation is not meant for a persistent certificate authority. Use this installer for trying BounCA or to generate a couple of self-signed certificates.
+   # git clone git@github.com:repleo/docker-compose-bounca.git
+   # cd docker-compose-bounca
+   # ./launch-bounca.sh
+   
+.. warning:: The Docker installation is not suited for a persistent certificate authority. Use this installer for trying BounCA or to generate a couple of self-signed certificates.
 
 .. _deploy-bare-hand:
 
@@ -92,7 +94,7 @@ In case you want to customize the installation of BounCA, you can install it man
 BounCA requires the following installed and configured packages:
 
 - nginx
-- uwsg
+- uwsgi
 - postgresql-9.4
 - python-3.4
 - virtualenv-3.4
@@ -105,6 +107,7 @@ Create a database and database user in postgresql.
 
 Create the BounCA configuration file ``/etc/bounca/main.ini`` for the machine specific configuration.
 It should contain the following parameters:
+
 
 .. code-block:: cfg
 
@@ -121,7 +124,8 @@ It should contain the following parameters:
    EMAIL_HOST: <value>
    ADMIN_MAIL: <value>
    FROM_MAIL: <value>
-   
+
+
 Replace the ``<value>`` placeholder with the right values for your installation
 
 Next step is to collect the static files: ``python3 manage.py collectstatic --noinput``
@@ -130,8 +134,9 @@ and create the database: ``python3 manage.py migrate --noinput``
 The last step is to configure uWSGI and NGINX.
 The uWSGI config might look like the following example:
 
+
 .. code-block:: cfg
-   
+
    [uwsgi]
    thread=4
    master=1
@@ -147,9 +152,10 @@ The uWSGI config might look like the following example:
    home  = /srv/www/bounca/env
    module = bounca.wsgi
 
+
 The NGINX config should contain a proxypass on the root and a location for the static files. For example the following server block
 
-.. code-block:: cfg
+.. code-block:: nginx
    
    server {
    

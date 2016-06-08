@@ -1,0 +1,13 @@
+[run]
+source = .
+omit =
+    bounca/management/*
+    bounca/management/commands/*
+    bounca/migrations/*
+    **/__init__.py
+    manage*
+    */test*
+    bounca/wsgi.py
+    env/*
+[html]
+title = Coverage Report for BounCA
