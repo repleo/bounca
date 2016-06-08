@@ -7,16 +7,21 @@ __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
 
-import rest_framework
-from rest_framework import generics, permissions
-from .serializers import CertificateSerializer
-from .serializers import CertificateRevokeSerializer
-from .serializers import CertificateCRLSerializer
-from ..x509_pki.models import Certificate
-from .mixins import TrapDjangoValidationErrorCreateMixin
-
-
+import io
 import logging
+import zipfile
+
+import rest_framework
+from django.conf import settings
+from django.http import HttpResponse, HttpResponseNotFound
+from django.views.generic import View
+from rest_framework import generics, permissions
+
+from ..x509_pki.models import Certificate, CertificateTypes
+from .mixins import TrapDjangoValidationErrorCreateMixin
+from .serializers import (CertificateCRLSerializer,
+                          CertificateRevokeSerializer, CertificateSerializer)
+
 logger = logging.getLogger(__name__)
 
 
@@ -90,9 +95,6 @@ class CertificateCRLView(generics.UpdateAPIView):
 
     
 
-from django.views.generic import View
-from django.http import HttpResponse
-from django.http import HttpResponseNotFound
 
 class CertificateInfoView(View):
     def get(self, request, pk, *args, **kwargs):
@@ -106,10 +108,6 @@ class CertificateInfoView(View):
         return HttpResponse(info)
 
 
-from django.conf import settings
-import io
-import zipfile
-from ..x509_pki.models import CertificateTypes
 
 class FileView(View):
     @staticmethod

@@ -7,22 +7,30 @@ __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
 
-from django.db import models
-from django_countries.fields import CountryField
-from django.core.validators import RegexValidator
-from django.db.models.signals import pre_save
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.core.exceptions import ValidationError
-from django.template.defaultfilters import slugify
-from django.contrib.postgres.fields import ArrayField
-from .types import CertificateTypes
 import uuid
 
-from ..certificate_engine.generator import generate_root_ca  
-from ..certificate_engine.generator import generate_intermediate_ca  
-from ..certificate_engine.generator import generate_server_cert
-from ..certificate_engine.generator import generate_client_cert  
+from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
+from django.db import models
+from django.db.models.signals import post_save, pre_save
+from django.dispatch import receiver
+from django.template.defaultfilters import slugify
+from django.utils import timezone
+from django_countries.fields import CountryField
+
+from ..certificate_engine.generator import (generate_client_cert,
+                                            generate_crl_file,
+                                            generate_intermediate_ca,
+                                            generate_root_ca,
+                                            generate_server_cert,
+                                            get_certificate_info,
+                                            is_passphrase_in_valid,
+                                            revoke_client_cert,
+                                            revoke_server_cert)
+from .types import CertificateTypes
+
 
 class DistinguishedName(models.Model):
     alphanumeric = RegexValidator(r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ \*]*$', 'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
@@ -86,7 +94,6 @@ def validation_rules_distinguished_name(sender,instance, *args, **kwargs):
     if instance.id:
         raise ValidationError('Not allowed to update a DistinguishedName record')
  
-from django.utils import timezone
 
 def validate_in_future(value):
     if value <= timezone.now().date():
@@ -100,12 +107,6 @@ class CertificateQuerySet(models.QuerySet):
         for obj in self:
             obj.delete()
  
-from ..certificate_engine.generator import revoke_server_cert  
-from ..certificate_engine.generator import revoke_client_cert
-from ..certificate_engine.generator import generate_crl_file   
-from ..certificate_engine.generator import get_certificate_info         
-from ..certificate_engine.generator import is_passphrase_in_valid
-from django.contrib.auth.models import User
 
 class Certificate(models.Model):
     objects = CertificateQuerySet.as_manager()
@@ -281,7 +282,3 @@ def generate_certificate(sender, instance, created, **kwargs):
             generate_server_cert(instance)            
         if instance.type==CertificateTypes.CLIENT_CERT:
             generate_client_cert(instance)     
-            
-
-
-

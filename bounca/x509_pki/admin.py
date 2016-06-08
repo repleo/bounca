@@ -7,8 +7,10 @@ __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
 from django.contrib import admin
-from .models import DistinguishedName
-from .forms import DistinguishedNameForm
+
+from .forms import CertificateForm, DistinguishedNameForm
+from .models import Certificate, DistinguishedName
+
 
 class X509_pki_DistinguishedNameAdmin(admin.ModelAdmin):
     search_fields = ['commonName','organizationName']
@@ -24,8 +26,6 @@ class X509_pki_DistinguishedNameAdmin(admin.ModelAdmin):
 
 admin.site.register(DistinguishedName, X509_pki_DistinguishedNameAdmin)
 
-from .models import Certificate
-from .forms import CertificateForm
 
 class X509_pki_CertificateAdmin(admin.ModelAdmin):
     search_fields = ['shortname','name']

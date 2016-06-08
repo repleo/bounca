@@ -8,11 +8,13 @@ __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
 
 from django import forms
-from django.utils import timezone
-from .models import DistinguishedName
-from .models import Certificate
-from .types import CertificateTypes
 from django.contrib.auth import password_validation
+from django.utils import timezone
+
+from .models import Certificate, DistinguishedName
+from .types import CertificateTypes
+
+
 class DistinguishedNameForm(forms.ModelForm):
 
     def clean(self):
@@ -201,4 +203,3 @@ class CertificateCRLForm(forms.ModelForm):
     class Meta:
         model = Certificate
         fields = ()
-

@@ -7,12 +7,14 @@ __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
 import os
+import sys
+from configparser import RawConfigParser
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 CONFIG_FILE_NAME = '/etc/bounca/main.ini'
 
 
-from configparser import RawConfigParser
 config = RawConfigParser()
 
 if os.path.exists(CONFIG_FILE_NAME):
@@ -40,7 +42,6 @@ DATABASES = {
     } 
 }
 
-import sys
 if 'test' in sys.argv:
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -250,9 +251,3 @@ LOGGING = {
         },
     }
 }
-
-
-
-
-
-

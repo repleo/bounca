@@ -6,8 +6,13 @@ __version__ = "2.0"
 __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
+import uuid
+
+from django.contrib.auth import password_validation
 from rest_framework import serializers
-from ..x509_pki.models import DistinguishedName
+
+from ..x509_pki.models import Certificate, DistinguishedName
+
 
 class DistinguishedNameSerializer(serializers.ModelSerializer):
 
@@ -15,10 +20,7 @@ class DistinguishedNameSerializer(serializers.ModelSerializer):
         fields = ('commonName','countryName','stateOrProvinceName','localityName','organizationName','organizationalUnitName','emailAddress', 'subjectAltNames')
         model = DistinguishedName
 
-from django.contrib.auth import password_validation
 
-from ..x509_pki.models import Certificate
-import uuid
 
 class CertificateSerializer(serializers.ModelSerializer):
     dn = DistinguishedNameSerializer()

@@ -6,10 +6,10 @@ __version__ = "2.0"
 __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
+from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.conf import settings
 
 from bounca.api.urls import urlpatterns as urlpatterns_api
 from bounca.webapp.urls import urlpatterns as urlpatterns_webapp
@@ -26,4 +26,3 @@ if settings.DEBUG:
     urlpatterns += url(r'^admin/', include(admin.site.urls)), # admin site is only available if running debug mode
     
 urlpatterns += staticfiles_urlpatterns()
-

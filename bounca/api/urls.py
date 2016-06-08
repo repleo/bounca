@@ -7,16 +7,13 @@ __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
 from django.conf.urls import include, url
-from .views import CertificateListView
-from .views import CertificateInstanceView
-from .views import CertificateInfoView
-from .views import CertificateRevokeView
-from .views import CertificateFilesView
-from .views import CertificateCRLView
-from .views import CertificateCRLFileView
-
-from rest_auth.urls import urlpatterns as urlpatterns_rest_auth
 from rest_auth.registration.urls import urlpatterns as urlpatterns_registration
+from rest_auth.urls import urlpatterns as urlpatterns_rest_auth
+
+from .views import (CertificateCRLFileView, CertificateCRLView,
+                    CertificateFilesView, CertificateInfoView,
+                    CertificateInstanceView, CertificateListView,
+                    CertificateRevokeView)
 
 urlpatterns_apiv1 = [
     url(r'^certificates/files/(?P<pk>[\d]+)$', CertificateFilesView.as_view(), name='certificate-files'),

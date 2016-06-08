@@ -7,20 +7,16 @@ __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
 
-from djng.forms import NgModelFormMixin, NgFormValidationMixin
-from ..x509_pki.forms import DistinguishedNameForm
-from ..x509_pki.forms import CertificateForm as CertificateFormX509
-from ..x509_pki.forms import CertificateRevokeForm as CertificateRevokeFormX509
-from ..x509_pki.forms import CertificateCRLForm as CertificateCRLFormX509
-from ..x509_pki.types import CertificateTypes
-
-
-from djng.forms import NgModelForm
-
-from djng.styling.bootstrap3.forms import Bootstrap3FormMixin
 from django import forms
 from django.utils import timezone
+from djng.forms import NgFormValidationMixin, NgModelForm, NgModelFormMixin
+from djng.styling.bootstrap3.forms import Bootstrap3FormMixin
 
+from ..x509_pki.forms import CertificateCRLForm as CertificateCRLFormX509
+from ..x509_pki.forms import CertificateForm as CertificateFormX509
+from ..x509_pki.forms import CertificateRevokeForm as CertificateRevokeFormX509
+from ..x509_pki.forms import DistinguishedNameForm
+from ..x509_pki.types import CertificateTypes
 
 
 class AddDistinguishedNameRootCAForm(  NgModelFormMixin, NgFormValidationMixin, Bootstrap3FormMixin, NgModelForm, DistinguishedNameForm):

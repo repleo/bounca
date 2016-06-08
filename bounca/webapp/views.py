@@ -9,19 +9,22 @@ __status__ = "Production"
 
 
 
-from django.views.generic.edit import FormView
-from django.core.urlresolvers import reverse_lazy
 from django.core.exceptions import ObjectDoesNotExist
-from .forms import AddRootCAForm
+from django.core.urlresolvers import reverse_lazy
+from django.views.generic.edit import FormView
+from django_ical.views import ICalFeed
+
+from ..x509_pki.models import Certificate, CertificateTypes
+from .forms import (AddClientCertificateForm, AddIntermediateCAForm,
+                    AddRootCAForm, AddServerCertificateForm,
+                    CertificateCRLForm, CertificateRevokeForm)
+
 
 class AddRootCAFormView(FormView):
     template_name = 'bounca/dashboard/forms/add-root-ca.html'
     form_class = AddRootCAForm
     success_url = reverse_lazy('bounca:index') 
 
-from .forms import AddIntermediateCAForm
-from ..x509_pki.models import Certificate
-from ..x509_pki.models import CertificateTypes
 
 class AddIntermediateCAFormView(FormView):
     template_name = 'bounca/dashboard/forms/add-intermediate-ca.html'
@@ -52,7 +55,6 @@ class AddIntermediateCAFormView(FormView):
         initial['ocsp_distribution_host']=parent.ocsp_distribution_host
         return initial
     
-from .forms import AddServerCertificateForm
 
 
 class AddServerCertificateFormView(FormView):
@@ -84,7 +86,6 @@ class AddServerCertificateFormView(FormView):
        
         return initial
     
-from .forms import AddClientCertificateForm
 
 
 class AddClientCertificateFormView(FormView):
@@ -116,19 +117,16 @@ class AddClientCertificateFormView(FormView):
        
         return initial
     
-from .forms import CertificateRevokeForm
 class CertificateRevokeFormView(FormView):
     template_name = 'bounca/dashboard/forms/revoke-cert.html'
     form_class = CertificateRevokeForm
     success_url = reverse_lazy('bounca:index') 
     
-from .forms import CertificateCRLForm
 class CertificateCRLFormView(FormView):
     template_name = 'bounca/dashboard/forms/crl-file.html'
     form_class = CertificateCRLForm
     success_url = reverse_lazy('bounca:index') 
 
-from django_ical.views import ICalFeed
 
 class CertificateExpireCalendarView(ICalFeed):
     product_id = '-//bounca.org//BounCA Certificate Expiration Dates//EN'
@@ -177,4 +175,3 @@ class CertificateExpireCalendarView(ICalFeed):
 
     def item_guid(self, item):
         return item.id
-    

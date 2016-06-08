@@ -7,18 +7,13 @@ __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
 from django.conf.urls import url
+from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 
-from django.contrib.auth.decorators import login_required
-from .views import AddRootCAFormView
-from .views import AddIntermediateCAFormView
-from .views import AddServerCertificateFormView
-from .views import AddClientCertificateFormView
-from .views import CertificateRevokeFormView
-from .views import CertificateCRLFormView
-
-from .views import CertificateExpireCalendarView
-
+from .views import (AddClientCertificateFormView, AddIntermediateCAFormView,
+                    AddRootCAFormView, AddServerCertificateFormView,
+                    CertificateCRLFormView, CertificateExpireCalendarView,
+                    CertificateRevokeFormView)
 
 urlpatterns = [
 

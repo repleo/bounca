@@ -7,18 +7,21 @@ __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
 
+import logging
 import os
-import string
 import random
+import string
 import subprocess
 from subprocess import CalledProcessError
-import logging
-logger = logging.getLogger(__name__)
 
 from django.conf import settings
 from django.template import loader
 
 from ..x509_pki.types import CertificateTypes
+
+logger = logging.getLogger(__name__)
+
+
 
 
 def generate_path(certificate):
@@ -470,5 +473,3 @@ def generate_crl_file(certificate, key_path='.', root_path='.'):
     logger.warning("Generate CRL File")
     subprocess.check_output([root_path + "generate_crl.sh",certificate.shortname])
     return 0
-
-
