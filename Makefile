@@ -35,6 +35,9 @@ isort_fix:
 flake8:
 	flake8 $(PYTHON_FOLDERS)
 
+autopep8:
+	autopep8 --in-place --aggressive --aggressive -r $(PYTHON_FOLDERS)
+	
 npmlint:
 	npm run -s lint
 
