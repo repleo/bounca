@@ -8,6 +8,8 @@ Welcome to BounCA - Your Own Chain of Trust
 
 [![Code Health](https://landscape.io/github/repleo/bounca/master/landscape.svg?style=flat-square)](https://landscape.io/github/repleo/bounca/master)
 [![Build Status](https://travis-ci.org/repleo/ansible-role-bounca.svg?branch=master)](https://travis-ci.org/repleo/ansible-role-bounca)
+[![Codacy Quality](https://api.codacy.com/project/badge/grade/cfd1ba4541f043919f5960dcce048600)](https://www.codacy.com/app/RawToast/chousen)
+
 
 **BounCA** is a tool to manage your personal SSL certificates and authorities in a central and easy to use interfaces. It provides an easy accessible web interface to manage your openssl based **root authority** without the hassle of knowing all the arguments of the command line tools. BounCA is also an administration tool for all your signed certificates and revocation lists. Create and manage your own X.509 / PKI key and certificate trust infrastructure in a couple of minutes.
 
