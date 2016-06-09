@@ -1,11 +1,4 @@
-__author__ = "Jeroen Arnoldus"
-__copyright__ = "Copyright 2016, Repleo, Amstelveen"
-__credits__ = ["Jeroen Arnoldus"]
-__license__ = "Apache License"
-__version__ = "2.0"
-__maintainer__ = "Jeroen Arnoldus"
-__email__ = "jeroen@repleo.nl"
-__status__ = "Production"
+"""API Views for certificate generation"""
 
 import io
 import logging
@@ -22,19 +15,32 @@ from .mixins import TrapDjangoValidationErrorCreateMixin
 from .serializers import (CertificateCRLSerializer,
                           CertificateRevokeSerializer, CertificateSerializer)
 
+__author__ = "Jeroen Arnoldus"
+__copyright__ = "Copyright 2016, Repleo, Amstelveen"
+__credits__ = ["Jeroen Arnoldus"]
+__license__ = "Apache License"
+__version__ = "2.0"
+__maintainer__ = "Jeroen Arnoldus"
+__email__ = "jeroen@repleo.nl"
+__status__ = "Production"
+
+
 logger = logging.getLogger(__name__)
 
 
 class APIPageNumberPagination(rest_framework.pagination.PageNumberPagination):
-    page_size=10
+    page_size = 10
 
-class CertificateListView(TrapDjangoValidationErrorCreateMixin, generics.ListCreateAPIView):
+
+class CertificateListView(
+        TrapDjangoValidationErrorCreateMixin,
+        generics.ListCreateAPIView):
     model = Certificate
     serializer_class = CertificateSerializer
     permission_classes = [
         permissions.IsAuthenticated
     ]
-    search_fields = ('shortname','name',)
+    search_fields = ('shortname', 'name',)
     pagination_class = APIPageNumberPagination
     filter_fields = ('type', 'parent',)
 
@@ -50,8 +56,9 @@ class CertificateListView(TrapDjangoValidationErrorCreateMixin, generics.ListCre
         return Certificate.objects.filter(owner=user)
 
     def create(self, request, *args, **kwargs):
-        request.data['owner']=request.user.id
-        return generics.ListCreateAPIView.create(self, request, *args, **kwargs)
+        request.data['owner'] = request.user.id
+        return generics.ListCreateAPIView.create(
+            self, request, *args, **kwargs)
 
 
 class CertificateInstanceView(generics.RetrieveAPIView):
@@ -64,15 +71,16 @@ class CertificateInstanceView(generics.RetrieveAPIView):
     def get_queryset(self):
         user = self.request.user
         return Certificate.objects.filter(owner=user)
-    
-    
-    
+
+
 class IsCertificateOwner(permissions.BasePermission):
+
     def has_object_permission(self, request, view, obj):
         if obj and request.user.id == obj.owner.id:
             return True
         return False
-    
+
+
 class CertificateRevokeView(generics.UpdateAPIView):
     model = Certificate
     serializer_class = CertificateRevokeSerializer
@@ -81,7 +89,8 @@ class CertificateRevokeView(generics.UpdateAPIView):
         permissions.IsAuthenticated,
         IsCertificateOwner
     ]
-    
+
+
 class CertificateCRLView(generics.UpdateAPIView):
     model = Certificate
     serializer_class = CertificateCRLSerializer
@@ -92,67 +101,65 @@ class CertificateCRLView(generics.UpdateAPIView):
     ]
 
 
-
-    
-
-
 class CertificateInfoView(View):
+
     def get(self, request, pk, *args, **kwargs):
-        cert=None
+        cert = None
         try:
             user = self.request.user
-            cert = Certificate.objects.get(pk=pk,owner=user);
+            cert = Certificate.objects.get(pk=pk, owner=user)
         except Exception:
             return HttpResponseNotFound("File not found")
         info = cert.get_certificate_info()
         return HttpResponse(info)
 
 
-
 class FileView(View):
+
     @staticmethod
     def read_file(filename):
-        with open(filename,'rb') as f:
-            file_content=f.read()
+        with open(filename, 'rb') as f:
+            file_content = f.read()
             return file_content
-    
+
     @classmethod
-    def generate_path(cls,certificate):
-        prefix_path=""
+    def generate_path(cls, certificate):
+        prefix_path = ""
         if certificate.parent and certificate.pk != certificate.parent.pk:
-            prefix_path=cls.generate_path(certificate.parent)
+            prefix_path = cls.generate_path(certificate.parent)
         return prefix_path + "/" + str(certificate.shortname)
 
-        
     @classmethod
-    def get_root_cert_path(cls,certificate):
+    def get_root_cert_path(cls, certificate):
         if certificate.parent and certificate.pk != certificate.parent.pk:
             return cls.get_root_cert_path(certificate.parent)
         else:
-            root_cert_path = settings.CA_ROOT + "/" + str(certificate.shortname) + "/certs/" + str(certificate.shortname) + ".cert.pem"
+            root_cert_path = settings.CA_ROOT + "/" + \
+                str(certificate.shortname) + "/certs/" + str(certificate.shortname) + ".cert.pem"
             return root_cert_path
 
-         
-        
+
 class CertificateCRLFileView(FileView):
 
     def get(self, request, pk, *args, **kwargs):
-        cert=None
-        user=None
+        cert = None
+        user = None
         try:
             user = self.request.user
-            cert = Certificate.objects.get(pk=pk,owner=user);
+            cert = Certificate.objects.get(pk=pk, owner=user)
         except Exception:
             return HttpResponseNotFound("File not found")
-        
+
         key_path = settings.CA_ROOT + self.generate_path(cert)
         if cert.type is CertificateTypes.INTERMEDIATE:
-            orig_file=key_path + "/crl/" + cert.shortname + ".crl.pem" 
+            orig_file = key_path + "/crl/" + cert.shortname + ".crl.pem"
             try:
-                file_content=self.read_file(orig_file)
-                filename="%s.crl" % (cert.shortname)
-                response = HttpResponse(file_content, content_type='application/octet-stream')
-                response['Content-Disposition'] = ('attachment; filename=%s' % (filename))
+                file_content = self.read_file(orig_file)
+                filename = "%s.crl" % (cert.shortname)
+                response = HttpResponse(
+                    file_content, content_type='application/octet-stream')
+                response[
+                    'Content-Disposition'] = ('attachment; filename=%s' % (filename))
                 return response
             except FileNotFoundError:
                 return HttpResponseNotFound("File not found")
@@ -162,20 +169,21 @@ class CertificateCRLFileView(FileView):
 class CertificateFilesView(FileView):
 
     @classmethod
-    def make_certificate_zip_response(cls,key_path,cert,cert_type):
-        root_cert_file=cls.get_root_cert_path(cert)
-        root_cert_file_content=cls.read_file(root_cert_file)
-        cert_chain_file=key_path + "/certs/" + cert_type + "/" + cert.shortname + "-chain.cert.pem"
-        cert_chain_file_content=cls.read_file(cert_chain_file)
-        cert_file=key_path + "/certs/" + cert_type + "/" + cert.shortname + ".cert.pem"
-        cert_file_content=cls.read_file(cert_file)
-        csr_file=key_path + "/csr/" + cert_type + "/" + cert.shortname + ".csr.pem"
-        csr_file_content=cls.read_file(csr_file)
-        key_file=key_path + "/private/" + cert_type + "/" + cert.shortname + ".key.pem"
-        key_file_content=cls.read_file(key_file)
-        p12_file=key_path + "/private/" + cert_type + "/" + cert.shortname + ".p12"
-        p12_file_content=cls.read_file(p12_file)
-        
+    def make_certificate_zip_response(cls, key_path, cert, cert_type):
+        root_cert_file = cls.get_root_cert_path(cert)
+        root_cert_file_content = cls.read_file(root_cert_file)
+        cert_chain_file = key_path + "/certs/" + cert_type + \
+            "/" + cert.shortname + "-chain.cert.pem"
+        cert_chain_file_content = cls.read_file(cert_chain_file)
+        cert_file = key_path + "/certs/" + cert_type + "/" + cert.shortname + ".cert.pem"
+        cert_file_content = cls.read_file(cert_file)
+        csr_file = key_path + "/csr/" + cert_type + "/" + cert.shortname + ".csr.pem"
+        csr_file_content = cls.read_file(csr_file)
+        key_file = key_path + "/private/" + cert_type + "/" + cert.shortname + ".key.pem"
+        key_file_content = cls.read_file(key_file)
+        p12_file = key_path + "/private/" + cert_type + "/" + cert.shortname + ".p12"
+        p12_file_content = cls.read_file(p12_file)
+
         zipped_file = io.BytesIO()
         with zipfile.ZipFile(zipped_file, 'w') as f:
             f.writestr("rootca.pem", root_cert_file_content)
@@ -187,56 +195,64 @@ class CertificateFilesView(FileView):
 
         zipped_file.seek(0)
 
-        filename="%s.server_cert.zip" % (cert.shortname)
-        response = HttpResponse(zipped_file, content_type='application/octet-stream')
-        response['Content-Disposition'] = ('attachment; filename=%s' % (filename))
+        filename = "%s.server_cert.zip" % (cert.shortname)
+        response = HttpResponse(zipped_file,
+                                content_type='application/octet-stream')
+        response[
+            'Content-Disposition'] = ('attachment; filename=%s' % (filename))
         return response
-                   
+
     def get(self, request, pk, *args, **kwargs):
-        cert=None
-        user=None
+        cert = None
+        user = None
         try:
             user = self.request.user
-            cert = Certificate.objects.get(pk=pk,owner=user);
+            cert = Certificate.objects.get(pk=pk, owner=user)
         except Exception:
             return HttpResponseNotFound("File not found")
-        
+
         key_path = settings.CA_ROOT + self.generate_path(cert)
         if cert.type is CertificateTypes.ROOT:
-            orig_file=key_path + "/certs/" + cert.shortname + ".cert.pem"
+            orig_file = key_path + "/certs/" + cert.shortname + ".cert.pem"
             try:
-                file_content=self.read_file(orig_file)
-                filename="%s.pem" % (cert.shortname)
-                response = HttpResponse(file_content, content_type='application/octet-stream')
-                response['Content-Disposition'] = ('attachment; filename=%s' % (filename))
+                file_content = self.read_file(orig_file)
+                filename = "%s.pem" % (cert.shortname)
+                response = HttpResponse(
+                    file_content, content_type='application/octet-stream')
+                response[
+                    'Content-Disposition'] = ('attachment; filename=%s' % (filename))
                 return response
             except FileNotFoundError:
                 return HttpResponseNotFound("File not found")
 
         if cert.type is CertificateTypes.INTERMEDIATE:
-            orig_file=key_path + "/certs/" + cert.shortname + "-chain.cert.pem"
+            orig_file = key_path + "/certs/" + cert.shortname + "-chain.cert.pem"
             try:
-                file_content=self.read_file(orig_file)
-                filename="%s-chain.pem" % (cert.shortname)
-                response = HttpResponse(file_content, content_type='application/octet-stream')
-                response['Content-Disposition'] = ('attachment; filename=%s' % (filename))
+                file_content = self.read_file(orig_file)
+                filename = "%s-chain.pem" % (cert.shortname)
+                response = HttpResponse(
+                    file_content, content_type='application/octet-stream')
+                response[
+                    'Content-Disposition'] = ('attachment; filename=%s' % (filename))
                 return response
             except FileNotFoundError:
                 return HttpResponseNotFound("File not found")
 
         key_path = settings.CA_ROOT + self.generate_path(cert.parent)
-        
+
         if cert.type is CertificateTypes.SERVER_CERT:
             try:
-                response = self.make_certificate_zip_response(key_path,cert,"server_cert")
+                response = self.make_certificate_zip_response(
+                    key_path, cert, "server_cert")
                 return response
             except FileNotFoundError:
                 return HttpResponseNotFound("File not found")
 
         if cert.type is CertificateTypes.CLIENT_CERT:
             try:
-                response = self.make_certificate_zip_response(key_path,cert,"usr_cert")
+                response = self.make_certificate_zip_response(
+                    key_path, cert, "usr_cert")
                 return response
             except FileNotFoundError:
-                return HttpResponseNotFound("File not found")    
+                return HttpResponseNotFound("File not found")
         return HttpResponseNotFound("File not found")

@@ -1,3 +1,7 @@
+"""Permission classes for retrieving certificates"""
+
+from rest_framework import permissions
+
 __author__ = "Jeroen Arnoldus"
 __copyright__ = "Copyright 2016, Repleo, Amstelveen"
 __credits__ = ["Jeroen Arnoldus"]
@@ -6,8 +10,6 @@ __version__ = "2.0"
 __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
-
-from rest_framework import permissions
 
 
 class MyUserPermissions(permissions.BasePermission):
@@ -20,9 +22,8 @@ class MyUserPermissions(permissions.BasePermission):
         else:
             return False
 
-
     def has_object_permission(self, request, view, obj):
         if view.action == 'retrieve':
-            return request.user.is_admin or obj == request.user                                                                       
-        else:                                                                              
+            return request.user.is_admin or obj == request.user
+        else:
             return False

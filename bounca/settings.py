@@ -1,3 +1,9 @@
+"""BounCA settings module"""
+
+import os
+import sys
+from configparser import RawConfigParser
+
 __author__ = "Jeroen Arnoldus"
 __copyright__ = "Copyright 2016, Repleo, Amstelveen"
 __credits__ = ["Jeroen Arnoldus"]
@@ -6,9 +12,6 @@ __version__ = "2.0"
 __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
-import os
-import sys
-from configparser import RawConfigParser
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -22,13 +25,8 @@ if os.path.exists(CONFIG_FILE_NAME):
     config.read(CONFIG_FILE_NAME)
 else:
     DEBUG = True
-    config.read(BASE_DIR+CONFIG_FILE_NAME)
+    config.read(BASE_DIR + CONFIG_FILE_NAME)
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-
-
-
-
 
 
 DATABASES = {
@@ -39,7 +37,7 @@ DATABASES = {
         'PASSWORD': config.get('database', 'DATABASE_PASSWORD'),
         'HOST': config.get('database', 'DATABASE_HOST'),
         'PORT': '5432'
-    } 
+    }
 }
 
 if 'test' in sys.argv:
@@ -55,11 +53,11 @@ ADMINS = (
 
 MANAGERS = ADMINS
 SITE_ID = 1
-EMAIL_HOST=config.get('email','EMAIL_HOST')
-DEFAULT_FROM_EMAIL=config.get('email', 'FROM_MAIL')
-SERVER_EMAIL=config.get('email', 'FROM_MAIL')
+EMAIL_HOST = config.get('email', 'EMAIL_HOST')
+DEFAULT_FROM_EMAIL = config.get('email', 'FROM_MAIL')
+SERVER_EMAIL = config.get('email', 'FROM_MAIL')
 
-SITE_NAME = "bounca" 
+SITE_NAME = "bounca"
 
 TIME_ZONE = 'Europe/Amsterdam'
 LANGUAGE_CODE = 'en-us'
@@ -71,10 +69,6 @@ USE_TZ = True
 ALLOWED_HOSTS = ["*"]
 
 # Application definition
-
-
-
-
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -91,7 +85,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
 
-    #3rd party libraries
+    # 3rd party libraries
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
@@ -102,9 +96,9 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'rest_auth.registration',
-    
-    #BounCA
-    'bounca.templatetags', #TODO Make Django Package
+
+    # BounCA
+    'bounca.templatetags',  # TODO Make Django Package
     'bounca.certificate_engine',
     'bounca.x509_pki',
     'bounca.app_settings',
@@ -126,12 +120,11 @@ MIDDLEWARE_CLASSES = [
 
 ROOT_URLCONF = 'bounca.urls'
 
-#REST_SESSION_LOGIN = False
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework.filters.DjangoFilterBackend', 
-        'rest_framework.filters.OrderingFilter', 
-        'rest_framework.filters.SearchFilter', 
+        'rest_framework.filters.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter',
+        'rest_framework.filters.SearchFilter',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
@@ -160,7 +153,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bounca.wsgi.application'
 
-#GRAPPELLI_INDEX_DASHBOARD = 'x509_pki.dashboard.CustomIndexDashboard'
 GRAPPELLI_ADMIN_TITLE = 'BounCA Admin'
 
 # Password validation
@@ -181,7 +173,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-ACCOUNT_EMAIL_VERIFICATION=None
+ACCOUNT_EMAIL_VERIFICATION = None
 
 
 # Static files (CSS, JavaScript, Images)
@@ -224,8 +216,8 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-             'formatter': 'simple',
-             'filters': ['require_debug_true']
+            'formatter': 'simple',
+            'filters': ['require_debug_true']
 
         },
         'null': {
@@ -235,8 +227,8 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'level':'DEBUG',
-            'handlers':['console'],
+            'level': 'DEBUG',
+            'handlers': ['console'],
             'propagate': True,
         },
         'django.request': {

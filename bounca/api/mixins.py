@@ -1,3 +1,8 @@
+"""Create serializer validation errors from django validation errors for automatic handling"""
+
+from django.core.exceptions import ValidationError as DjangoValidationError
+from rest_framework import serializers
+
 __author__ = "Jeroen Arnoldus"
 __copyright__ = "Copyright 2016, Repleo, Amstelveen"
 __credits__ = ["Jeroen Arnoldus"]
@@ -7,9 +12,6 @@ __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
 
-from django.core.exceptions import ValidationError as DjangoValidationError
-from rest_framework import serializers
-
 
 class TrapDjangoValidationErrorCreateMixin(object):
 
@@ -18,6 +20,7 @@ class TrapDjangoValidationErrorCreateMixin(object):
             serializer.save()
         except DjangoValidationError as detail:
             raise serializers.ValidationError(detail.messages)
+
 
 class TrapDjangoValidationErrorUpdateMixin(object):
 

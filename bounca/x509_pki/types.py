@@ -7,9 +7,10 @@ __maintainer__ = "Jeroen Arnoldus"
 __email__ = "jeroen@repleo.nl"
 __status__ = "Production"
 
+
 class CertificateTypes():
-    ROOT="R"
-    INTERMEDIATE="I"
-    SERVER_CERT="S"
-    CLIENT_CERT="C"
-    OCSP="O"
+    ROOT = "R"
+    INTERMEDIATE = "I"
+    SERVER_CERT = "S"
+    CLIENT_CERT = "C"
+    OCSP = "O"
