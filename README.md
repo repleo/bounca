@@ -1,5 +1,5 @@
 <a href="https://bounca.org/">
-    <img src="https://www.bounca.org/img/BounCA-logo.png" alt="BounCA logo" title="BounCA" align="right" height="60" />
+    <img src="https://www.bounca.org/_images/BounCA-logo.png" alt="BounCA logo" title="BounCA" align="right" height="60" />
 </a>
 
 Welcome to BounCA - Your Own Chain of Trust
@@ -13,7 +13,7 @@ Welcome to BounCA - Your Own Chain of Trust
 **BounCA** is a tool to manage your personal SSL certificates and authorities in a central and easy to use interfaces. It provides an easy accessible web interface to manage your openssl based **root authority** without the hassle of knowing all the arguments of the command line tools. BounCA is also an administration tool for all your signed certificates and revocation lists. Create and manage your own X.509 / PKI key and certificate trust infrastructure in a couple of minutes.
 
 
-[![BounCA](https://www.bounca.org/img/bounca/ssl_dashboard_bounca.png)](https://www.bounca.org)
+[![BounCA](https://www.bounca.org/_images/ssl_dashboard_bounca.png)](https://www.bounca.org)
 
 
 
