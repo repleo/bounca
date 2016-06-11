@@ -25,4 +25,4 @@ exclude_paths:
 - graphics/*
 - media/*
 - pki/*
-
+- bounca/static/*
