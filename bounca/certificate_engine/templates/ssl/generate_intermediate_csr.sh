@@ -3,9 +3,9 @@
 cd "$(dirname "$0")"
 
 passphrase_in=""
-if [ -e "./passphrase_in.txt" ]
+if [ -e "./passphrase_out.txt" ]
 then
-    passphrase_in="-passin file:./passphrase_in.txt"
+    passphrase_in="-passin file:./passphrase_out.txt"
 fi
 
 if ! [ -z "$1" ]

@@ -1,6 +1,11 @@
 # Change Log
 The BounCA change history
 
+## [0.1.1] - Release 2016-05-31
+
+* Bug fix in generation of intermediate CA
+* Code quality improvements
+
 ## [0.1] - Release 2016-05-31
 
 * Version bump
