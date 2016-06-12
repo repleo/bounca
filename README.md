@@ -89,7 +89,7 @@ After you created the playbook, you can install BounCA by executing the followin
 The first collects the ansible roles from Ansible's galaxy.
 The second command installs the actual BounCA system.
  
-More installation options, such as docker and manual: [BounCA Installation Tutorials](https://www.bounca.org/getting-started.html)
+More installation options, such as docker and manual: [BounCA Installation Tutorials](https://www.bounca.org/getting_started.html)
 
 Requirements
 ------------------
