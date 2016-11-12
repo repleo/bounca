@@ -7,3 +7,4 @@ exclude:
 - ./docs
 - ./etc
 - ./graphics
+- .*/migrations/*
