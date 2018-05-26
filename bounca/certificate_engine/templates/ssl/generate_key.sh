@@ -1,6 +1,7 @@
 #!/bin/bash -e 
 
 cd "$(dirname "$0")"
+export RANDFILE=.rnd
 
 passphrase_out=""
 if [ -e "./passphrase_out.txt" ]

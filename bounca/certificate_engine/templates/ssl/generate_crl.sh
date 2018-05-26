@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
 cd "$(dirname "$0")"
+export RANDFILE=.rnd
 
 if [ -z "$1" ]
 then
