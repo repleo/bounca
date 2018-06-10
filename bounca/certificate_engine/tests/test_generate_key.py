@@ -1,4 +1,7 @@
 # coding: utf-8
+import os
+from stat import ST_MODE
+
 from cryptography.hazmat.primitives.asymmetric import rsa
 
 from bounca.certificate_engine.ssl.generate_key import createKey
@@ -22,6 +25,8 @@ class GenerateKeyTest(CertificateTestCase):
     def test_store_keys_passphrase(self):
         key = createKey(4096)
         self.repo.write_private_key(key, 'test.key.pem', b'test_store_keys_passphrase')
+        # check if generate file is only readable by myself
+        self.assertEqual(oct(os.stat(os.path.join(self.repo.base, 'test.key.pem'))[ST_MODE]), '0o100400')
         key = self.repo.read_private_key('test.key.pem', b'test_store_keys_passphrase')
         self.assertIsInstance(key, rsa.RSAPrivateKey)
         self.assertEqual(key.key_size, 4096)

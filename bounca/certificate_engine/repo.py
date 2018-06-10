@@ -33,6 +33,8 @@ class Repo(object):
                 format=serialization.PrivateFormat.TraditionalOpenSSL,
                 encryption_algorithm=encryption,
             ))
+        # Make private key only readable by myself
+        os.chmod(_path, 0o400)
 
     def read_private_key(self, path, passphrase=None):
         _path = os.path.join(self.base, path)
