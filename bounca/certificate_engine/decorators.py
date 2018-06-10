@@ -2,7 +2,7 @@ import os
 
 from django.conf import settings
 
-from bounca.certificate_engine.utils import generate_path
+from bounca.certificate_engine.utils import generate_path, random_string_generator
 from bounca.x509_pki.types import CertificateTypes
 
 
@@ -12,7 +12,9 @@ class generate_key_path(object):
         self.f = f
 
     def __call__(self, certificate, *args):
-        key_path = generate_path(certificate.parent) if (certificate.type == CertificateTypes.CLIENT_CERT or certificate.type == CertificateTypes.SERVER_CERT) else generate_path(certificate)
+        key_path = generate_path(certificate.parent) if \
+            (certificate.type == CertificateTypes.CLIENT_CERT or certificate.type == CertificateTypes.SERVER_CERT) \
+            else generate_path(certificate)
         root_path = settings.CERTIFICATE_REPO_PATH + key_path + "/"
         os.makedirs(root_path, exist_ok=True)
         return self.f(

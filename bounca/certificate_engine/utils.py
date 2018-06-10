@@ -9,7 +9,6 @@ def generate_path(certificate):
     return prefix_path + "/" + str(certificate.shortname)
 
 
-
 def random_string_generator(
         size=300,
         chars=string.ascii_uppercase +

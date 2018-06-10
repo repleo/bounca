@@ -11,10 +11,10 @@ from bounca.certificate_engine.tests.testcases import CertificateTestCase
 class KeyTest(CertificateTestCase):
 
     def test_generate_private_key_2048(self):
-        key = Key(self.repo)
-        prvkey = key.create_key(2048)
-        self.assertEqual(prvkey.key_size, 2048)
-        pkey = prvkey.public_key()
+        keyhandler = Key(self.repo)
+        keyhandler.create_key(2048)
+        self.assertEqual(keyhandler.key.key_size, 2048)
+        pkey = keyhandler.key.public_key()
         self.assertIsInstance(pkey.public_numbers(), rsa.RSAPublicNumbers)
 
     def test_generate_private_key_4096(self):

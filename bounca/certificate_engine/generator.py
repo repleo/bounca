@@ -1,12 +1,9 @@
 """Certificate script generator and certificate generator"""
 import logging
 import os
-import random
-import string
 import subprocess
 from subprocess import CalledProcessError
 
-from django.conf import settings
 from django.template import loader
 
 from bounca.certificate_engine.decorators import generate_key_path, write_passphrase_files
@@ -14,9 +11,6 @@ from ..x509_pki.types import CertificateTypes
 
 
 logger = logging.getLogger(__name__)
-
-
-
 
 
 @generate_key_path

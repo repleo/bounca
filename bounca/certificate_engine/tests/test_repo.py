@@ -25,4 +25,3 @@ class RepoTest(TestCase):
         self.assertTrue(os.path.isdir(path))
         Repo.delete(path)
         self.assertFalse(os.path.isdir(path))
-

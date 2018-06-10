@@ -1,4 +1,3 @@
-
 import os
 
 from cryptography.hazmat.backends import default_backend
@@ -18,7 +17,7 @@ class Key(object):
 
     @property
     def key(self):
-        return self.key
+        return self._key
 
     def create_key(self, key_size):
         """
