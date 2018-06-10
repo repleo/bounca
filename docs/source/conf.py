@@ -13,14 +13,17 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
 import os
-import sys, os
+import sys
+
+from django.utils.version import get_docs_version, get_version
+
+import sphinx_rtd_theme
+from bounca import VERSION
+
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from bounca import VERSION
-from django.utils.version import get_version
-from django.utils.version import get_docs_version
 
 
 
@@ -127,7 +130,6 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 
-import sphinx_rtd_theme
 
 html_theme = "sphinx_rtd_theme"
 
@@ -377,4 +379,3 @@ epub_exclude_files = ['search.html']
 
 # If false, no index is generated.
 #epub_use_index = True
-

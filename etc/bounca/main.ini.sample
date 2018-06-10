@@ -1,14 +1,15 @@
 [database]
 DATABASE_USER: bounca
 DATABASE_PASSWORD: bounca
-DATABASE_HOST: mac-usb-serial-dev
+DATABASE_HOST: localhost
 DATABASE_NAME: bounca
 
 [database-unittest]
 DATABASE_USER: bounca
 DATABASE_PASSWORD: bounca
-DATABASE_HOST: mac-usb-serial-dev
+DATABASE_HOST: localhost
 DATABASE_NAME: testbounca
+
 
 [secrets]
 SECRET_KEY: pleasechangemeimsecret

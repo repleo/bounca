@@ -1,6 +1,7 @@
 """Models for storing subject and certificate information"""
 
 import uuid
+
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
@@ -11,25 +12,11 @@ from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django_countries.fields import CountryField
-from ..certificate_engine.generator import (generate_client_cert,
-                                            generate_crl_file,
-                                            generate_intermediate_ca,
-                                            generate_root_ca,
-                                            generate_server_cert,
-                                            get_certificate_info,
-                                            is_passphrase_in_valid,
-                                            revoke_client_cert,
-                                            revoke_server_cert)
-from .types import CertificateTypes
 
-__author__ = "Jeroen Arnoldus"
-__copyright__ = "Copyright 2016, Repleo, Amstelveen"
-__credits__ = ["Jeroen Arnoldus"]
-__license__ = "Apache License"
-__version__ = "2.0"
-__maintainer__ = "Jeroen Arnoldus"
-__email__ = "jeroen@repleo.nl"
-__status__ = "Production"
+from ..certificate_engine.generator import (
+    generate_client_cert, generate_crl_file, generate_intermediate_ca, generate_root_ca, generate_server_cert,
+    get_certificate_info, is_passphrase_in_valid, revoke_client_cert, revoke_server_cert)
+from .types import CertificateTypes
 
 
 class DistinguishedName(models.Model):
@@ -47,8 +34,7 @@ class DistinguishedName(models.Model):
         validators=[alphanumeric],
         default="Noord Holland",
         help_text="The state/region where your organization is located. " +
-        "This shouldn't be abbreviated. (1–128 characters)"
-        )
+        "This shouldn't be abbreviated. (1–128 characters)")
     localityName = models.CharField(
         "Locality Name",
         max_length=128,

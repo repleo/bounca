@@ -9,103 +9,14 @@ from subprocess import CalledProcessError
 from django.conf import settings
 from django.template import loader
 
+from bounca.certificate_engine.decorators import generate_key_path, write_passphrase_files
 from ..x509_pki.types import CertificateTypes
-
-__author__ = "Jeroen Arnoldus"
-__copyright__ = "Copyright 2016, Repleo, Amstelveen"
-__credits__ = ["Jeroen Arnoldus"]
-__license__ = "Apache License"
-__version__ = "2.0"
-__maintainer__ = "Jeroen Arnoldus"
-__email__ = "jeroen@repleo.nl"
-__status__ = "Production"
 
 
 logger = logging.getLogger(__name__)
 
 
-def generate_path(certificate):
-    prefix_path = ""
-    if certificate.parent and certificate.pk != certificate.parent.pk:
-        prefix_path = generate_path(certificate.parent)
-    return prefix_path + "/" + str(certificate.shortname)
 
-
-class generate_key_path(object):
-
-    def __init__(self, f):
-        self.f = f
-
-    def __call__(self, certificate, *args):
-        if(certificate.type == CertificateTypes.CLIENT_CERT or certificate.type == CertificateTypes.SERVER_CERT):
-            key_path = generate_path(certificate.parent)
-        else:
-            key_path = generate_path(certificate)
-        root_path = settings.CA_ROOT + key_path + "/"
-        os.makedirs(root_path, exist_ok=True)
-        return self.f(
-            certificate,
-            *args,
-            key_path=key_path,
-            root_path=root_path)
-
-
-def random_string_generator(
-        size=300,
-        chars=string.ascii_uppercase +
-        string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
-
-
-class write_passphrase_files(object):
-
-    def __init__(self, f):
-        self.f = f
-
-    def __call__(self, certificate, *args, key_path='.', root_path='.'):
-        try:
-            if certificate.passphrase_out:
-                with open(root_path + 'passphrase_out.txt', 'w') as f:
-                    f.write(certificate.passphrase_out)
-                os.chmod(root_path + 'passphrase_out.txt', 0o600)
-            else:
-                try:
-                    os.remove(root_path + 'passphrase_out.txt')
-                except FileNotFoundError:
-                    pass
-
-            if certificate.passphrase_in:
-                with open(root_path + 'passphrase_in.txt', 'w') as f:
-                    f.write(certificate.passphrase_in)
-                os.chmod(root_path + 'passphrase_in.txt', 0o600)
-            else:
-                try:
-                    os.remove(root_path + 'passphrase_in.txt')
-                except FileNotFoundError:
-                    pass
-
-            result = self.f(
-                certificate,
-                *args,
-                key_path=key_path,
-                root_path=root_path)
-
-            with open(root_path + 'passphrase_out.txt', 'w') as f:
-                f.write(random_string_generator())
-            os.remove(root_path + 'passphrase_out.txt')
-            with open(root_path + 'passphrase_in.txt', 'w') as f:
-                f.write(random_string_generator())
-            os.remove(root_path + 'passphrase_in.txt')
-
-            return result
-        except Exception as e:
-            with open(root_path + 'passphrase_out.txt', 'w') as f:
-                f.write(random_string_generator())
-            os.remove(root_path + 'passphrase_out.txt')
-            with open(root_path + 'passphrase_in.txt', 'w') as f:
-                f.write(random_string_generator())
-            os.remove(root_path + 'passphrase_in.txt')
-            raise e
 
 
 @generate_key_path

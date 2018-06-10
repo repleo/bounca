@@ -6,18 +6,9 @@ from django.views.generic.edit import FormView
 from django_ical.views import ICalFeed
 
 from ..x509_pki.models import Certificate, CertificateTypes
-from .forms import (AddClientCertificateForm, AddIntermediateCAForm,
-                    AddRootCAForm, AddServerCertificateForm,
-                    CertificateCRLForm, CertificateRevokeForm)
-
-__author__ = "Jeroen Arnoldus"
-__copyright__ = "Copyright 2016, Repleo, Amstelveen"
-__credits__ = ["Jeroen Arnoldus"]
-__license__ = "Apache License"
-__version__ = "2.0"
-__maintainer__ = "Jeroen Arnoldus"
-__email__ = "jeroen@repleo.nl"
-__status__ = "Production"
+from .forms import (
+    AddClientCertificateForm, AddIntermediateCAForm, AddRootCAForm, AddServerCertificateForm, CertificateCRLForm,
+    CertificateRevokeForm)
 
 
 class AddRootCAFormView(FormView):

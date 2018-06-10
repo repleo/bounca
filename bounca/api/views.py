@@ -12,17 +12,7 @@ from rest_framework import generics, permissions
 
 from ..x509_pki.models import Certificate, CertificateTypes
 from .mixins import TrapDjangoValidationErrorCreateMixin
-from .serializers import (CertificateCRLSerializer,
-                          CertificateRevokeSerializer, CertificateSerializer)
-
-__author__ = "Jeroen Arnoldus"
-__copyright__ = "Copyright 2016, Repleo, Amstelveen"
-__credits__ = ["Jeroen Arnoldus"]
-__license__ = "Apache License"
-__version__ = "2.0"
-__maintainer__ = "Jeroen Arnoldus"
-__email__ = "jeroen@repleo.nl"
-__status__ = "Production"
+from .serializers import CertificateCRLSerializer, CertificateRevokeSerializer, CertificateSerializer
 
 
 logger = logging.getLogger(__name__)
@@ -134,7 +124,7 @@ class FileView(View):
         if certificate.parent and certificate.pk != certificate.parent.pk:
             return cls.get_root_cert_path(certificate.parent)
         else:
-            root_cert_path = settings.CA_ROOT + "/" + \
+            root_cert_path = settings.CERTIFICATE_REPO_PATH + "/" + \
                 str(certificate.shortname) + "/certs/" + str(certificate.shortname) + ".cert.pem"
             return root_cert_path
 
@@ -150,7 +140,7 @@ class CertificateCRLFileView(FileView):
         except Exception:
             return HttpResponseNotFound("File not found")
 
-        key_path = settings.CA_ROOT + self.generate_path(cert)
+        key_path = settings.CERTIFICATE_REPO_PATH + self.generate_path(cert)
         if cert.type is CertificateTypes.INTERMEDIATE:
             orig_file = key_path + "/crl/" + cert.shortname + ".crl.pem"
             try:
@@ -211,7 +201,7 @@ class CertificateFilesView(FileView):
         except Exception:
             return HttpResponseNotFound("File not found")
 
-        key_path = settings.CA_ROOT + self.generate_path(cert)
+        key_path = settings.CERTIFICATE_REPO_PATH + self.generate_path(cert)
         if cert.type is CertificateTypes.ROOT:
             orig_file = key_path + "/certs/" + cert.shortname + ".cert.pem"
             try:
@@ -238,7 +228,7 @@ class CertificateFilesView(FileView):
             except FileNotFoundError:
                 return HttpResponseNotFound("File not found")
 
-        key_path = settings.CA_ROOT + self.generate_path(cert.parent)
+        key_path = settings.CERTIFICATE_REPO_PATH + self.generate_path(cert.parent)
 
         if cert.type is CertificateTypes.SERVER_CERT:
             try:

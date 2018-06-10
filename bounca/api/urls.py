@@ -4,19 +4,9 @@ from django.conf.urls import include, url
 from rest_auth.registration.urls import urlpatterns as urlpatterns_registration
 from rest_auth.urls import urlpatterns as urlpatterns_rest_auth
 
-from .views import (CertificateCRLFileView, CertificateCRLView,
-                    CertificateFilesView, CertificateInfoView,
-                    CertificateInstanceView, CertificateListView,
-                    CertificateRevokeView)
-
-__author__ = "Jeroen Arnoldus"
-__copyright__ = "Copyright 2016, Repleo, Amstelveen"
-__credits__ = ["Jeroen Arnoldus"]
-__license__ = "Apache License"
-__version__ = "2.0"
-__maintainer__ = "Jeroen Arnoldus"
-__email__ = "jeroen@repleo.nl"
-__status__ = "Production"
+from .views import (
+    CertificateCRLFileView, CertificateCRLView, CertificateFilesView, CertificateInfoView, CertificateInstanceView,
+    CertificateListView, CertificateRevokeView)
 
 
 urlpatterns_apiv1 = [

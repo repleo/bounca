@@ -4,14 +4,6 @@ import os
 import sys
 from configparser import RawConfigParser
 
-__author__ = "Jeroen Arnoldus"
-__copyright__ = "Copyright 2016, Repleo, Amstelveen"
-__credits__ = ["Jeroen Arnoldus"]
-__license__ = "Apache License"
-__version__ = "2.0"
-__maintainer__ = "Jeroen Arnoldus"
-__email__ = "jeroen@repleo.nl"
-__status__ = "Production"
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -28,23 +20,18 @@ else:
     config.read(BASE_DIR + CONFIG_FILE_NAME)
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+DBTYPE = 'database-unittest' if 'test' in sys.argv and config.get('database-unittest', 'DATABASE_NAME') else 'database'
 
 DATABASES = {
     'default': {
-        'NAME': config.get('database', 'DATABASE_NAME'),
+        'NAME': config.get(DBTYPE, 'DATABASE_NAME'),
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'USER': config.get('database', 'DATABASE_USER'),
-        'PASSWORD': config.get('database', 'DATABASE_PASSWORD'),
-        'HOST': config.get('database', 'DATABASE_HOST'),
+        'USER': config.get(DBTYPE, 'DATABASE_USER'),
+        'PASSWORD': config.get(DBTYPE, 'DATABASE_PASSWORD'),
+        'HOST': config.get(DBTYPE, 'DATABASE_HOST'),
         'PORT': '5432'
     }
 }
-
-if 'test' in sys.argv:
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': config.get('database', 'DATABASE_NAME')
-    }
 
 
 ADMINS = (
@@ -98,10 +85,9 @@ INSTALLED_APPS = [
     'rest_auth.registration',
 
     # BounCA
-    'bounca.templatetags',  # TODO Make Django Package
+    'bounca.templatetags',
     'bounca.certificate_engine',
     'bounca.x509_pki',
-    'bounca.app_settings',
     'bounca.api',
     'bounca.webapp',
 ]
@@ -186,8 +172,6 @@ STATICFILES_DIRS = (
     BASE_DIR + '/bounca/static',
 )
 
-CA_ROOT = os.path.join(BASE_DIR, 'pki/')
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -243,3 +227,6 @@ LOGGING = {
         },
     }
 }
+
+# Directory where all certificates are stores
+CERTIFICATE_REPO_PATH = os.path.join(BASE_DIR, 'pki/')

@@ -13,9 +13,15 @@ django-rest-auth==0.7.0
 django-allauth==0.25.2
 django-ical==1.4
 
+# SSL
+cryptography==2.2.2
+
 # Testing
-coverage==4.0.3
-tox==2.3.1
+coverage==4.5.1
+factory-boy==2.10.0
+Faker==0.8.11
+mock==2.0.0
+requests-mock==1.4.0
 
 # Code Quality
 flake8==2.5.4

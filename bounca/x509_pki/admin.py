@@ -4,15 +4,6 @@ from django.contrib import admin
 from .forms import CertificateForm, DistinguishedNameForm
 from .models import Certificate, DistinguishedName
 
-__author__ = "Jeroen Arnoldus"
-__copyright__ = "Copyright 2016, Repleo, Amstelveen"
-__credits__ = ["Jeroen Arnoldus"]
-__license__ = "Apache License"
-__version__ = "2.0"
-__maintainer__ = "Jeroen Arnoldus"
-__email__ = "jeroen@repleo.nl"
-__status__ = "Production"
-
 
 class X509_pki_DistinguishedNameAdmin(admin.ModelAdmin):
     search_fields = ['commonName', 'organizationName']
