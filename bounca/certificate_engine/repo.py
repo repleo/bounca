@@ -26,6 +26,9 @@ class Repo(object):
 
     def write_private_key(self, key, path, passphrase=None, encoding=serialization.Encoding.PEM):
         _path = os.path.join(self.base, path)
+        # Make file writable for update
+        if os.path.isfile(_path):
+            os.chmod(_path, 0o600)
         encryption = serialization.BestAvailableEncryption(passphrase) if passphrase else serialization.NoEncryption()
         with open(_path, "wb") as f:
             f.write(key.private_bytes(
