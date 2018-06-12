@@ -2,7 +2,8 @@ import os
 
 from django.test import TestCase
 
-from bounca.certificate_engine.repo import Repo
+from bounca.certificate_engine.ssl.repo import Repo
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEST_PATH = os.path.join(BASE_DIR, '.testpki/')

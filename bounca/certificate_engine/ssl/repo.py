@@ -12,11 +12,11 @@ class Repo(object):
     """ Repo handler for certificate files """
 
     @staticmethod
-    def create(path=REPO_PATH):
+    def create(path: str=REPO_PATH) -> None:
         os.makedirs(path, exist_ok=True)
 
     @staticmethod
-    def delete(path=REPO_PATH):
+    def delete(path: str=REPO_PATH) -> None:
         shutil.rmtree(path)
 
     def __init__(self, path=REPO_PATH):
@@ -24,8 +24,8 @@ class Repo(object):
         self.create(self._base)
 
     @property
-    def base(self):
+    def base(self) -> str:
         return self._base
 
-    def make_repo_path(self, path):
+    def make_repo_path(self, path: str) -> str:
         return os.path.join(self._base, path)

@@ -1,3 +1,5 @@
+from typing import List
+
 from setuptools import Command, find_packages, setup
 from setuptools.command.install import install as _install
 from setuptools.command.sdist import sdist as _sdist
@@ -8,7 +10,7 @@ packages = find_packages(src_dir)
 
 
 class FrontendBuilder(Command):
-    user_options = []
+    user_options = []  # type: List[str]
     description = 'builds the frontend assets using NPM'
 
     def run(self):

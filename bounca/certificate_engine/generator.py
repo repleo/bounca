@@ -7,6 +7,7 @@ from subprocess import CalledProcessError
 from django.template import loader
 
 from bounca.certificate_engine.decorators import generate_key_path, write_passphrase_files
+
 from ..x509_pki.types import CertificateTypes
 
 

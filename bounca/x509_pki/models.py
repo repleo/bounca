@@ -99,9 +99,6 @@ class DistinguishedName(models.Model):
     def slug_commonName(self):
         return slugify(self.commonName)
 
-    class Meta:
-        db_table = 'bounca_distinguished_name'
-
     def __unicode__(self):
         return str(self.commonName)
 
@@ -195,7 +192,8 @@ class Certificate(models.Model):
             return int((self.expires_at - self.created_at).days)
         else:
             return int((self.expires_at - timezone.now().date()).days)
-    days_valid.fget.short_description = 'Days valid'
+
+    # TODO days_valid.fget.short_description = 'Days valid'
 
     @property
     def slug_revoked_at(self):
@@ -261,7 +259,6 @@ class Certificate(models.Model):
         super().__init__(*args, **kwargs)
 
     class Meta:
-        db_table = 'bounca_certificate'
         unique_together = (('shortname', 'type', 'revoked_uuid'),
                            ('dn', 'type', 'revoked_uuid'),)
 
@@ -324,15 +321,15 @@ def validation_rules_certificate(sender, instance, *args, **kwargs):
             'Child Certificate should not expire later than ROOT CA')
 
 
-@receiver(post_save, sender=Certificate)
-def generate_certificate(sender, instance, created, **kwargs):
-    if created:
-        if instance.type == CertificateTypes.ROOT:
-            instance.passphrase_in = instance.passphrase_out
-            generate_root_ca(instance)
-        if instance.type == CertificateTypes.INTERMEDIATE:
-            generate_intermediate_ca(instance)
-        if instance.type == CertificateTypes.SERVER_CERT:
-            generate_server_cert(instance)
-        if instance.type == CertificateTypes.CLIENT_CERT:
-            generate_client_cert(instance)
+# @receiver(post_save, sender=Certificate)
+# def generate_certificate(sender, instance, created, **kwargs):
+#     if created:
+#         if instance.type == CertificateTypes.ROOT:
+#             instance.passphrase_in = instance.passphrase_out
+#             generate_root_ca(instance)
+#         if instance.type == CertificateTypes.INTERMEDIATE:
+#             generate_intermediate_ca(instance)
+#         if instance.type == CertificateTypes.SERVER_CERT:
+#             generate_server_cert(instance)
+#         if instance.type == CertificateTypes.CLIENT_CERT:
+#             generate_client_cert(instance)

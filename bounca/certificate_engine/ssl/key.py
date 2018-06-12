@@ -1,25 +1,26 @@
 import os
 
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 
-from bounca.certificate_engine.repo import Repo
+from bounca.certificate_engine.ssl.repo import Repo
 
 
 class Key(object):
 
-    def __init__(self, repo):
+    def __init__(self, repo: Repo) -> None:
         if not isinstance(repo, Repo):
             raise RuntimeError("Provide a valid repo")
         self._repo = repo
-        self._key = None
+        self._key = None  # type: RSAPrivateKey
 
     @property
-    def key(self):
+    def key(self) -> RSAPrivateKey:
         return self._key
 
-    def create_key(self, key_size):
+    def create_key(self, key_size: int) -> RSAPrivateKey:
         """
         Create a public/private key pair.
 
@@ -33,7 +34,7 @@ class Key(object):
         )
         return self._key
 
-    def write_private_key(self, path, passphrase=None, encoding=serialization.Encoding.PEM):
+    def write_private_key(self, path: str, passphrase: bytes=None, encoding: str=serialization.Encoding.PEM) -> None:
         """
         Write key to repo
 
@@ -56,7 +57,7 @@ class Key(object):
         # Make private key only readable by myself
         os.chmod(_path, 0o400)
 
-    def read_private_key(self, path, passphrase=None):
+    def read_private_key(self, path: str, passphrase: bytes=None) -> RSAPrivateKey:
         """
         Read key from repo
 
@@ -70,7 +71,7 @@ class Key(object):
         self._key = serialization.load_pem_private_key(pem, passphrase, backend=default_backend())
         return self._key
 
-    def check_passphrase(self, path, passphrase=None):
+    def check_passphrase(self, path: str, passphrase: bytes=None) -> bool:
         """
         Checks passphrase of a key from repo
 
