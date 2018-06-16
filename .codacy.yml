@@ -1,0 +1,29 @@
+engines:
+  eslint:
+    enabled: true
+  fixme:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - python
+        #mass_threshold: 30
+      - javascript
+  pep8:
+    enabled: true
+  radon:
+    enabled: true
+ratings:
+  paths:
+  - "**.py"
+exclude_paths:
+- "**/migrations/**/*"
+- "**/tests/**/*"
+- ci/*
+- docs/*
+- etc/*
+- graphics/*
+- media/*
+- pki/*
+- bounca/static/*
