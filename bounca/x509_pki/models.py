@@ -14,8 +14,7 @@ from django.utils import timezone
 from django_countries.fields import CountryField
 
 from ..certificate_engine.generator import (
-    generate_crl_file,
-    get_certificate_info, is_passphrase_in_valid, revoke_client_cert, revoke_server_cert)
+    generate_crl_file, get_certificate_info, is_passphrase_in_valid, revoke_client_cert, revoke_server_cert)
 from .types import CertificateTypes
 
 
@@ -176,7 +175,7 @@ class Certificate(models.Model):
         validators=[validate_in_future],
         help_text="Select the date that the certificate will expire: for root typically 20 years, " +
         "for intermediate 10 years for other types 1 year. Allowed date format: yyyy-mm-dd.")
-    revoked_at = models.DateTimeField(
+    revoked_at = models.DateField(
         editable=False, default=None, blank=True, null=True)
     revoked_uuid = models.UUIDField(default='00000000000000000000000000000001')
     serial = models.UUIDField(default=uuid.uuid4, editable=False)
