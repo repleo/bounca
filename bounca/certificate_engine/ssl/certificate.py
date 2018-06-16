@@ -169,16 +169,6 @@ class Certificate(object):
         self._set_basic(cert, private_key, issuer_key)
         return self._sign_certificate(issuer_key)
 
-    def _create_sign_request(self, cert: Certificate_model, private_key: Key) -> x509.Certificate:
-        self._builder = x509.CertificateSigningRequestBuilder()
-        self._set_basic(cert, private_key)
-        csr = self._builder.sign(
-            private_key=private_key.key, algorithm=hashes.SHA256(),
-            backend=default_backend()
-        )
-
-        print(csr.public_bytes(serialization.Encoding.PEM))
-
     def create_certificate(self, cert: Certificate_model, private_key: Key,
                            root_cert: Certificate_model=None, issuer_key: Key=None) \
             -> 'Certificate':
