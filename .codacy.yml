@@ -18,12 +18,13 @@ ratings:
   paths:
   - "**.py"
 exclude_paths:
-- '**/migrations/**/*'
-- '**/tests/**/*'
+- '**/migrations/**'
+- '**/tests/**'
 - 'ci/*'
 - 'docs/*'
 - 'etc/*'
 - 'graphics/*'
 - 'media/*'
 - 'pki/*'
-- 'bounca/static/**/*'
+- 'bounca/static/**'
+- 'bounca/webapp/static/**'
