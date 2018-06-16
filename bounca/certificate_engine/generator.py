@@ -403,15 +403,6 @@ def generate_server_cert(certificate, key_path='.', root_path='.'):
                              certificate.shortname, str(certificate.days_valid),
                              certificate.dn.subj, ' '.join(certificate.dn.subjectAltNames)])
 
-    try:
-        os.remove(
-            root_path +
-            'openssl-server_cert-%s.cnf' %
-            certificate.shortname)
-    except FileNotFoundError:
-        pass
-    return 0
-
 
 @generate_key_path
 @write_passphrase_files
