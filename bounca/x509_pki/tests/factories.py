@@ -52,7 +52,7 @@ class CertificateFactory(DjangoModelFactory):
         model = Certificate
 
     type = CertificateTypes.ROOT
-    shortname = fake.sentence(nb_words=3, variable_nb_words=True)
+    shortname = fake.word()
     name = fake.sentence(nb_words=6, variable_nb_words=True)
     dn = factory.LazyFunction(DistinguishedNameFactory)
     parent = None

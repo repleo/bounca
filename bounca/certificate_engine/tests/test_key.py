@@ -33,6 +33,11 @@ class KeyTest(CertificateTestCase):
         self.assertIsInstance(prvkey, rsa.RSAPrivateKey)
         self.assertEqual(prvkey.key_size, 4096)
 
+    def test_store_keys_no_object(self):
+        key = Key(self.repo)
+        with self.assertRaisesMessage(RuntimeError, "No key object"):
+            key.write_private_key('test.key.pem', b'test_store_keys_passphrase')
+
     def test_store_keys_no_passphrase(self):
         key = Key(self.repo)
         key.create_key(2048)

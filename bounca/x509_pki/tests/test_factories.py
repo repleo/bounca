@@ -39,6 +39,7 @@ class FactoriesTest(TestCase):
         self.assertIsNotNone(cert.crl_distribution_url)
         self.assertIsNotNone(cert.ocsp_distribution_host)
         self.assertIsNotNone(cert.owner)
+        self.assertIsNotNone(cert.serial)
         self.assertIsNotNone(cert.created_at)
         self.assertIsNotNone(cert.expires_at)
         self.assertIsNone(cert.revoked_at)

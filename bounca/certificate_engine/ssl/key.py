@@ -43,6 +43,10 @@ class Key(object):
                    encoding - optional different encoding
         Returns:   None
         """
+
+        if not self._key:
+            raise RuntimeError("No key object")
+
         _path = self._repo.make_repo_path(path)
         # Make file writable for update
         if os.path.isfile(_path):
@@ -65,6 +69,7 @@ class Key(object):
                    passphrase - optional passphrase (must be bytes)
         Returns:   The private key
         """
+
         _path = self._repo.make_repo_path(path)
         with open(_path, "rb") as f:
             pem = f.read()
@@ -79,8 +84,9 @@ class Key(object):
                    passphrase - passphrase (must be bytes)
         Returns:   true if passphrase is ok
         """
+        _path = self._repo.make_repo_path(path)
         try:
-            self.read_private_key(path, passphrase)
+            self.read_private_key(_path, passphrase)
             return True
         except ValueError as e:
             if str(e) == 'Bad decrypt. Incorrect password?':
