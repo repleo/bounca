@@ -1,26 +1,20 @@
-import os
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 
-from bounca.certificate_engine.ssl.repo import Repo
-
 
 class Key(object):
 
-    def __init__(self, repo: Repo) -> None:
-        if not isinstance(repo, Repo):
-            raise RuntimeError("Provide a valid repo")
-        self._repo = repo
+    def __init__(self) -> None:
         self._key = None  # type: RSAPrivateKey
 
     @property
     def key(self) -> RSAPrivateKey:
         return self._key
 
-    def create_key(self, key_size: int) -> RSAPrivateKey:
+    def create_key(self, key_size: int) -> 'Key':
         """
         Create a public/private key pair.
 
@@ -32,61 +26,49 @@ class Key(object):
             key_size=key_size,
             backend=default_backend()
         )
-        return self._key
+        return self
 
-    def write_private_key(self, path: str, passphrase: bytes=None, encoding: str=serialization.Encoding.PEM) -> None:
+    def serialize(self, passphrase: bytes=None, encoding: str=serialization.Encoding.PEM) -> bytes:
         """
-        Write key to repo
+        Serialize key
 
         Arguments: path - filename with relative path
                    passphrase - optional passphrase (must be bytes)
                    encoding - optional different encoding
-        Returns:   None
+        Returns:   bytes
         """
 
         if not self._key:
             raise RuntimeError("No key object")
 
-        _path = self._repo.make_repo_path(path)
-        # Make file writable for update
-        if os.path.isfile(_path):
-            os.chmod(_path, 0o600)
         encryption = serialization.BestAvailableEncryption(passphrase) if passphrase else serialization.NoEncryption()
-        with open(_path, "wb") as f:
-            f.write(self._key.private_bytes(
-                encoding=encoding,
-                format=serialization.PrivateFormat.TraditionalOpenSSL,
-                encryption_algorithm=encryption,
-            ))
-        # Make private key only readable by myself
-        os.chmod(_path, 0o400)
+        return self._key.private_bytes(
+            encoding=encoding,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=encryption,
+        )
 
-    def read_private_key(self, path: str, passphrase: bytes=None) -> RSAPrivateKey:
+    def load(self, pem: bytes, passphrase: bytes=None) -> RSAPrivateKey:
         """
-        Read key from repo
+        Read key from pem
 
-        Arguments: path - filename with relative path
+        Arguments: pem - bytes with key
                    passphrase - optional passphrase (must be bytes)
-        Returns:   The private key
+        Returns:   Self
         """
-
-        _path = self._repo.make_repo_path(path)
-        with open(_path, "rb") as f:
-            pem = f.read()
         self._key = serialization.load_pem_private_key(pem, passphrase, backend=default_backend())
-        return self._key
+        return self
 
-    def check_passphrase(self, path: str, passphrase: bytes=None) -> bool:
+    def check_passphrase(self, pem: bytes, passphrase: bytes=None) -> bool:
         """
-        Checks passphrase of a key from repo
+        Checks passphrase of a pem key file
 
-        Arguments: path - filename with relative path
+        Arguments: pem - bytes with key
                    passphrase - passphrase (must be bytes)
         Returns:   true if passphrase is ok
         """
-        _path = self._repo.make_repo_path(path)
         try:
-            self.read_private_key(_path, passphrase)
+            serialization.load_pem_private_key(pem, passphrase, backend=default_backend())
             return True
         except ValueError as e:
             if str(e) == 'Bad decrypt. Incorrect password?':

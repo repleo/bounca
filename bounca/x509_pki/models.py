@@ -7,7 +7,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from django.utils import timezone
@@ -25,33 +25,28 @@ class DistinguishedName(models.Model):
 
     countryName = CountryField(
         "Country Name",
-        default="NL",
         help_text="The two-character country name in ISO 3166 format.")
     stateOrProvinceName = models.CharField(
         "State or Province Name",
         max_length=128,
         validators=[alphanumeric],
-        default="Noord Holland",
         help_text="The state/region where your organization is located. " +
         "This shouldn't be abbreviated. (1–128 characters)")
     localityName = models.CharField(
         "Locality Name",
         max_length=128,
         validators=[alphanumeric],
-        default="Amstelveen",
         help_text="The city where your organization is located. (1–128 characters)")
     organizationName = models.CharField(
         "Organization Name",
         max_length=64,
         validators=[alphanumeric],
-        default="Repleo",
         help_text="The legal name of your organization. This should not be abbreviated and should include " +
         "suffixes such as Inc, Corp, or LLC.")
     organizationalUnitName = models.CharField(
         "Organization Unit Name",
         max_length=64,
         validators=[alphanumeric],
-        default="IT Department",
         help_text="The division of your organization handling the certificate.")
     emailAddress = models.EmailField(
         "Email Address",
@@ -93,6 +88,11 @@ class DistinguishedName(models.Model):
             '/ST=' + str(self.stateOrProvinceName) +\
             '/emailAddress=' + str(self.emailAddress) +\
             '/C=' + str(self.countryName)
+
+    # Create only model
+    def save(self, *args, **kwargs):
+        if self.id is None:
+            super(DistinguishedName, self).save(*args, **kwargs)
 
     @property
     def slug_commonName(self):
@@ -180,6 +180,9 @@ class Certificate(models.Model):
     revoked_uuid = models.UUIDField(default='00000000000000000000000000000001')
     serial = models.UUIDField(default=uuid.uuid4, editable=False)
 
+    key = models.TextField("Serialized Private Key")
+    crt = models.TextField("Serialized signed certificate")
+
     owner = models.ForeignKey(User)
 
     passphrase_in = ""
@@ -206,7 +209,7 @@ class Certificate(models.Model):
 
     @property
     def expired(self):
-        return (self.expires_at <= timezone.now().date())
+        return self.expires_at <= timezone.now().date()
 
     @property
     def cert_path(self):
@@ -228,6 +231,11 @@ class Certificate(models.Model):
         info = get_certificate_info(self)
         return info
 
+    # Create only model
+    def save(self, *args, **kwargs):
+        if self.id is None:
+            super(Certificate, self).save(*args, **kwargs)
+
     def delete(self, *args, **kwargs):
         if not self.revoked_at and (
                 self.type is CertificateTypes.SERVER_CERT or self.type is CertificateTypes.CLIENT_CERT):
@@ -242,7 +250,7 @@ class Certificate(models.Model):
         raise ValidationError('Delete of record not allowed')
 
     def generate_crl(self, *args, **kwargs):
-        if (self.type is CertificateTypes.INTERMEDIATE):
+        if self.type is CertificateTypes.INTERMEDIATE:
             generate_crl_file(self)
             return
         raise ValidationError(
@@ -320,16 +328,3 @@ def validation_rules_certificate(sender, instance, *args, **kwargs):
         raise ValidationError(
             'Child Certificate should not expire later than ROOT CA')
 
-
-# @receiver(post_save, sender=Certificate)
-# def generate_certificate(sender, instance, created, **kwargs):
-#     if created:
-#         if instance.type == CertificateTypes.ROOT:
-#             instance.passphrase_in = instance.passphrase_out
-#             generate_root_ca(instance)
-#         if instance.type == CertificateTypes.INTERMEDIATE:
-#             generate_intermediate_ca(instance)
-#         if instance.type == CertificateTypes.SERVER_CERT:
-#             generate_server_cert(instance)
-#         if instance.type == CertificateTypes.CLIENT_CERT:
-#             generate_client_cert(instance)

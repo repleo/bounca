@@ -3,6 +3,7 @@ import random
 import arrow
 import factory
 from django.contrib.auth.models import User
+from django.db.models import signals
 from django.utils import timezone
 from factory.django import DjangoModelFactory
 from faker import Factory as FakerFactory
@@ -46,6 +47,7 @@ class DistinguishedNameFactory(DjangoModelFactory):
     subjectAltNames = [factory.Faker('domain_name') for x in range(random.randint(0, 5))]
 
 
+@factory.django.mute_signals(signals.pre_save, signals.post_save)
 class CertificateFactory(DjangoModelFactory):
 
     class Meta:
@@ -64,3 +66,5 @@ class CertificateFactory(DjangoModelFactory):
     expires_at = factory.LazyFunction(lambda: arrow.get(timezone.now()).replace(days=+1).date())
     revoked_at = None
     revoked_uuid = '00000000000000000000000000000001'
+    key = b""
+    crt = b""
