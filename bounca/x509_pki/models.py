@@ -152,12 +152,13 @@ class Certificate(models.Model):
         blank=True,
         help_text="Long name of your key, if not set will be equal to your shortname + CommonName.")
 
-    dn = models.ForeignKey(DistinguishedName)
+    dn = models.ForeignKey(DistinguishedName, on_delete=models.PROTECT)
     parent = models.ForeignKey(
         "self",
         blank=True,
         null=True,
-        help_text="The signing authority (None for root certificate)")
+        help_text="The signing authority (None for root certificate)",
+        on_delete=models.PROTECT)
 
     crl_distribution_url = models.URLField(
         "CRL distribution url",
@@ -183,7 +184,7 @@ class Certificate(models.Model):
     key = models.TextField("Serialized Private Key")
     crt = models.TextField("Serialized signed certificate")
 
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, on_delete=models.PROTECT)
 
     passphrase_in = ""
     passphrase_out = ""
