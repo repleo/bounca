@@ -3,7 +3,7 @@ Django==1.11.26
 psycopg2>=2.6.1
 pytz>=2016.4
 requests==2.9.1
-djangorestframework==3.3.3
+djangorestframework==3.9.1
 django-grappelli==2.8.1
 django-countries>=3.4.1
 django-angular==1.0.2
