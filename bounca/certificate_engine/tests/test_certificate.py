@@ -125,6 +125,7 @@ class CertificateTest(TestCase):
         self.assertTrue(ext.critical)
         self.assertEqual(ext.value.digest, _key_identifier_from_public_key(key.key.public_key()))
 
+
     def test_generate_root_ca_no_crl_distribution(self):
         key = Key().create_key(2048)
         certificate = CertificateFactory(crl_distribution_url=None, key=key.serialize())
@@ -480,7 +481,7 @@ class CertificateTest(TestCase):
                              x509.ReasonFlags.privilege_withdrawn,
                              x509.ReasonFlags.cessation_of_operation,
                              x509.ReasonFlags.aa_compromise,
-                             x509.ReasonFlags.certificate_hold,
+                             x509.ReasonFlags.certificate_hold,Ss
                          ]))
 
         # OCSP
@@ -517,6 +518,36 @@ class CertificateTest(TestCase):
             x509.NameAttribute(NameOID.EMAIL_ADDRESS, int_certificate.dn.emailAddress),
             x509.NameAttribute(NameOID.COUNTRY_NAME, str(int_certificate.dn.countryName)),
         ])
+
+
+    def test_generate_server_certificate(self):
+        root_key = Key().create_key(2048)
+        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).replace(days=+6).date(),
+                                              key=root_key.serialize())
+        root_certhandler = Certificate()
+        root_certhandler.create_certificate(root_certificate)
+
+        subject = DistinguishedNameFactory(countryName=root_certificate.dn.countryName,
+                                           stateOrProvinceName=root_certificate.dn.stateOrProvinceName,
+                                           organizationName=root_certificate.dn.organizationName)
+
+        int_key = Key().create_key(2048)
+
+        int_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).replace(days=+5).date(),
+                                             type=CertificateTypes.INTERMEDIATE,
+                                             parent=root_certificate, dn=subject,
+                                             key=int_key.serialize())
+        int_certhandler = Certificate()
+        int_certhandler.create_certificate(int_certificate)
+
+        key = Key().create_key(2048)
+        server_subject = DistinguishedNameFactory(commonName=None)
+        certificate = CertificateFactory(type=CertificateTypes.SERVER_CERT,
+                                         parent=int_certificate, dn=server_subject,
+                                         key=key.serialize())
+        certhandler = Certificate()
+        certhandler.create_certificate(certificate)
+
 
     def test_generate_server_certificate_no_subject_altnames(self):
         root_key = Key().create_key(2048)

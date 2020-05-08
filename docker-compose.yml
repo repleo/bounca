@@ -1,0 +1,10 @@
+version: '2'
+services:
+    db:
+        image: postgres:11
+        environment:
+            - POSTGRES_DB=bounca
+            - POSTGRES_USER=bounca
+            - POSTGRES_PASSWORD=fsRWF2k2k
+        ports:
+            - "5432:5432"

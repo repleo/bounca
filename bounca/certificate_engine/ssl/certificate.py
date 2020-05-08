@@ -171,16 +171,28 @@ class Certificate(object):
 
     def _create_intermediate_certificate(self, cert: Certificate_model, private_key: Key,
                                          issuer_key: Key) -> x509.Certificate:
-        # TODO implement checks
-        # countryName = match
-        # stateOrProvinceName = match
-        # localityName = match
-        # organizationName = match
-        # organizationalUnitName = optional
-        # commonName = supplied
-        # emailAddress = optional
+
         if cert.parent.type != CertificateTypes.ROOT:
             raise RuntimeError("Multiple levels of intermediate certificates are not supported")
+
+        try:
+            root_crt = Certificate().load(cert.parent.pem).certificate
+        except SyntaxError:
+            pass # TODO implement handling
+
+        if root_crt.subject.get_attributes_for_oid(NameOID.COUNTRY_NAME) is not str(cert.dn.countryName) or \
+            root_crt.subject.get_attributes_for_oid(NameOID.STATE_OR_PROVINCE_NAME) is not cert.dn.stateOrProvinceName\
+            or root_crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME) is not cert.dn.localityName or \
+            root_crt.subject.get_attributes_for_oid(NameOID.ORGANIZATION_NAME) is not cert.dn.organizationName:
+            raise ValueError("Intermediate cerficate should match country, stater or province, "
+                             "locality and organizationName")
+        if  not cert.dn.commonName:
+            raise ValueError("CommonName has not been supplied")
+
+
+        if cert.parent:
+            raise RuntimeError("Multiple levels of intermediate certificates are not supported")
+
 
         self._builder = x509.CertificateBuilder()
         self._set_basic(cert, private_key, issuer_key)
@@ -189,16 +201,12 @@ class Certificate(object):
 
     def _create_server_certificate(self, cert: Certificate_model, private_key: Key,
                                    issuer_key: Key) -> x509.Certificate:
-        # TODO implement checks
-        # countryName = match
-        # stateOrProvinceName = match
-        # localityName = match
-        # organizationName = match
-        # organizationalUnitName = optional
-        # commonName = supplied
-        # emailAddress = optional
+
         if cert.parent.type != CertificateTypes.INTERMEDIATE and cert.parent.type != CertificateTypes.ROOT:
             raise RuntimeError("A root or intermediate parent is expected ")
+
+        if  not cert.dn.commonName:
+            raise ValueError("CommonName has not been supplied")
 
         self._builder = x509.CertificateBuilder()
         self._set_basic(cert, private_key, issuer_key)
