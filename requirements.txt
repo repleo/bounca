@@ -1,5 +1,5 @@
 # Framework
-Django==1.11.26
+Django==1.11.29
 psycopg2>=2.6.1
 pytz>=2016.4
 requests==2.9.1
