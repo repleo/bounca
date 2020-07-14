@@ -1,0 +1,18 @@
+psql:
+  dbname: bounca
+  username: bounca
+  password: fsRWF2k2k
+  host: postgres
+  port: 5432
+
+django:
+  debug: True
+  secret_key: 'pleasechangemeimsecret'
+  hosts:
+    - localhost
+    - 127.0.0.1
+
+mail:
+  host: localhost
+  admin: jeroen@bounca.org
+  from: no-reply@bounca.org

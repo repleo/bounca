@@ -19,6 +19,9 @@ arrow==0.15.6
 # SSL
 cryptography==2.9.2
 
+# Parsers
+yamlreader==3.0.4
+
 # Testing
 coverage==5.1
 factory-boy==2.12.0
