@@ -5,7 +5,6 @@ from rest_auth.registration.urls import urlpatterns as urlpatterns_registration
 from rest_auth.urls import urlpatterns as urlpatterns_rest_auth
 from rest_framework_swagger.views import get_swagger_view
 
-
 from .views import (
     CertificateCRLFileView, CertificateCRLView, CertificateFilesView, CertificateInfoView, CertificateInstanceView,
     CertificateListView, CertificateRevokeView)

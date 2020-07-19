@@ -1,15 +1,14 @@
-import random
-
 import arrow
 import factory
+import random
 from django.contrib.auth.models import User
 from django.db.models import signals
 from django.utils import timezone
 from factory.django import DjangoModelFactory
 from faker import Factory as FakerFactory
 
-from bounca.x509_pki.models import Certificate, DistinguishedName
-from bounca.x509_pki.types import CertificateTypes
+from certificate_engine.types import CertificateTypes
+from x509_pki.models import Certificate, DistinguishedName
 
 
 fake = FakerFactory.create()
@@ -63,7 +62,7 @@ class CertificateFactory(DjangoModelFactory):
     owner = factory.LazyFunction(UserFactory)
 
     created_at = factory.LazyFunction(lambda: arrow.get(timezone.now()).date())
-    expires_at = factory.LazyFunction(lambda: arrow.get(timezone.now()).replace(days=+1).date())
+    expires_at = factory.LazyFunction(lambda: arrow.get(timezone.now()).shift(days=+1).date())
     revoked_at = None
     revoked_uuid = '00000000000000000000000000000001'
     key = b""

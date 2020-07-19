@@ -1,7 +1,6 @@
 """Serializers for Certificate API"""
 
 import uuid
-
 from django.contrib.auth import password_validation
 from rest_framework import serializers
 

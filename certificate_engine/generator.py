@@ -2,13 +2,11 @@
 import logging
 import os
 import subprocess
+from django.template import loader
 from subprocess import CalledProcessError
 
-from django.template import loader
-
 from certificate_engine.decorators import generate_key_path, write_passphrase_files
-
-from x509_pki.types import CertificateTypes
+from certificate_engine.types import CertificateTypes
 
 
 logger = logging.getLogger(__name__)

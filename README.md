@@ -19,8 +19,8 @@ pip install -r requirements.docs.txt  # for local debugging
 Python setup, for mac and linux no additional actions
 
 ### Database
-Install Postgres version 9.4 and postgresql-server-dev-9.4:
-`sudo apt-get install postgresql-9.4 postgresql-server-dev-9.4`
+Install Postgres version 12 and postgresql-server-dev-12:
+`sudo apt-get install postgresql-12 postgresql-server-dev-12`
 
 Create user and database for Postgres
 ```
@@ -34,5 +34,5 @@ Optionally, set a password for the `bounca` user.
 
 ## Installation
 
-Create Python 3.4 virtualenv, activate, and install requirements.txt
-`virtualenv env -p python3.6 && . env/bin/activate && pip install -r requirements.txt`
+Create Python 3.7 virtualenv, activate, and install requirements.txt
+`virtualenv env -p python3.7 && . env/bin/activate && pip install -r requirements.txt`

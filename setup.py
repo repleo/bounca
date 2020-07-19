@@ -1,8 +1,7 @@
-from typing import List
-
 from setuptools import Command, find_packages, setup
 from setuptools.command.install import install as _install
 from setuptools.command.sdist import sdist as _sdist
+from typing import List
 
 
 src_dir = '.'

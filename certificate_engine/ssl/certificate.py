@@ -3,17 +3,17 @@
 
 import datetime
 import ipaddress
-
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.x509 import DirectoryName
 from cryptography.x509.extensions import _key_identifier_from_public_key
-from cryptography.x509.oid import AuthorityInformationAccessOID, NameOID, ExtendedKeyUsageOID
+from cryptography.x509.oid import AuthorityInformationAccessOID, ExtendedKeyUsageOID, NameOID
 
-from bounca.certificate_engine.ssl.key import Key
-from bounca.x509_pki.models import Certificate as Certificate_model, DistinguishedName
-from bounca.x509_pki.types import CertificateTypes
+from certificate_engine.ssl.key import Key
+from certificate_engine.types import CertificateTypes
+from x509_pki.models import Certificate as Certificate_model
+from x509_pki.models import DistinguishedName
 
 
 class PassPhraseError(RuntimeError):
@@ -32,15 +32,22 @@ class Certificate(object):
         return self._certificate
 
     def _build_subject_names(self, dn: DistinguishedName) -> x509.Name:
-        return x509.Name([
-            x509.NameAttribute(NameOID.COMMON_NAME, dn.commonName),
-            x509.NameAttribute(NameOID.ORGANIZATION_NAME, dn.organizationName),
-            x509.NameAttribute(NameOID.ORGANIZATIONAL_UNIT_NAME, dn.organizationalUnitName),
-            x509.NameAttribute(NameOID.LOCALITY_NAME, dn.localityName),
-            x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, dn.stateOrProvinceName),
-            x509.NameAttribute(NameOID.EMAIL_ADDRESS, dn.emailAddress),
-            x509.NameAttribute(NameOID.COUNTRY_NAME, str(dn.countryName)),
-        ])
+        attributes = [
+            x509.NameAttribute(NameOID.COMMON_NAME, dn.commonName)
+        ]
+        if dn.organizationName is not None:
+            attributes.append(x509.NameAttribute(NameOID.ORGANIZATION_NAME, dn.organizationName))
+        if dn.organizationalUnitName is not None:
+            attributes.append(x509.NameAttribute(NameOID.ORGANIZATIONAL_UNIT_NAME, dn.organizationalUnitName))
+        if dn.localityName is not None:
+            attributes.append(x509.NameAttribute(NameOID.LOCALITY_NAME, dn.localityName))
+        if dn.stateOrProvinceName is not None:
+            attributes.append(x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, dn.stateOrProvinceName))
+        if dn.emailAddress is not None:
+            attributes.append(x509.NameAttribute(NameOID.EMAIL_ADDRESS, dn.emailAddress))
+        if dn.countryName.code is not None:
+            attributes.append(x509.NameAttribute(NameOID.COUNTRY_NAME, dn.countryName.code))
+        return x509.Name(attributes)
 
     def _set_issuer_name(self, cert: Certificate_model) -> None:
         dn = cert.parent.dn if cert.parent else cert.dn
@@ -49,13 +56,16 @@ class Certificate(object):
     def _set_subject_name(self, cert: Certificate_model) -> None:
         self._builder = self._builder.subject_name(self._build_subject_names(cert.dn))
 
-    def _set_public_key(self, cert: Certificate_model, private_key: Key, issuer_key: Key=None) -> None:
+    def _get_root_cert(self, cert):
+        return self._get_root_cert(cert.parent) if cert.parent else cert
+
+    def _set_public_key(self, cert: Certificate_model, private_key: Key, issuer_key: Key = None) -> None:
         self._builder = self._builder.public_key(private_key.key.public_key())
-        root_cert = cert.parent if cert.parent and cert.type == CertificateTypes.INTERMEDIATE else \
-            cert.parent.parent if cert.parent and cert.parent.parent and \
-            (cert.type == CertificateTypes.SERVER_CERT or cert.type == CertificateTypes.CLIENT_CERT) else None
-        root_ca_subject = [DirectoryName(self._build_subject_names(root_cert.dn))] if root_cert else None
-        authority_cert_serial_number = int(cert.parent.serial) if root_cert else None
+        root_ca_subject = authority_cert_serial_number = None
+        if cert.type != CertificateTypes.ROOT:
+            root_cert = self._get_root_cert(cert.parent)
+            root_ca_subject = [DirectoryName(self._build_subject_names(root_cert.dn))]
+            authority_cert_serial_number = int(cert.parent.serial)
         self._builder = self._builder.add_extension(
             x509.AuthorityKeyIdentifier(key_identifier=_key_identifier_from_public_key(issuer_key.key.public_key()),
                                         authority_cert_issuer=root_ca_subject,
@@ -68,7 +78,7 @@ class Certificate(object):
         )
 
     def _set_crl_distribution_url(self, cert: Certificate_model) -> None:
-        if cert.type == CertificateTypes.SERVER_CERT or cert.type == CertificateTypes.CLIENT_CERT:
+        if cert.type in {CertificateTypes.SERVER_CERT, cert.type == CertificateTypes.CLIENT_CERT}:
             cert = cert.parent
         if cert.crl_distribution_url:
             self._builder = self._builder.add_extension(
@@ -96,7 +106,7 @@ class Certificate(object):
             )
 
     def _set_ocsp_distribution_url(self, cert: Certificate_model) -> None:
-        if cert.type == CertificateTypes.SERVER_CERT or cert.type == CertificateTypes.CLIENT_CERT:
+        if cert.type in {CertificateTypes.SERVER_CERT, cert.type == CertificateTypes.CLIENT_CERT}:
             cert = cert.parent
         if cert.ocsp_distribution_host:
             self._builder = self._builder.add_extension(
@@ -109,7 +119,9 @@ class Certificate(object):
             )
 
     def _set_basic_constraints(self, cert: Certificate_model) -> None:
-        path_length = 0 if cert.type == CertificateTypes.INTERMEDIATE else None
+        path_length = None
+        if cert.type == CertificateTypes.INTERMEDIATE:
+            path_length = 0  # TODO check with multiple intermediates
         ca = cert.type == CertificateTypes.ROOT or cert.type == CertificateTypes.INTERMEDIATE
         self._builder = self._builder.add_extension(
             x509.BasicConstraints(ca=ca, path_length=path_length),
@@ -172,27 +184,32 @@ class Certificate(object):
     def _create_intermediate_certificate(self, cert: Certificate_model, private_key: Key,
                                          issuer_key: Key) -> x509.Certificate:
 
-        if cert.parent.type != CertificateTypes.ROOT:
+        root_crt = Certificate().load(cert.parent.crt).certificate
+
+        # TODO Test this
+        if root_crt.type != CertificateTypes.ROOT or root_crt.parent:
+            raise RuntimeError("Multiple levels of intermediate certificates are currently not supported")
+        if root_crt.parent:
             raise RuntimeError("Multiple levels of intermediate certificates are not supported")
 
-        try:
-            root_crt = Certificate().load(cert.parent.pem).certificate
-        except SyntaxError:
-            pass # TODO implement handling
+        # The root CA should only sign intermediate certificates that match.
+        for e in [(NameOID.COUNTRY_NAME, "countryName"), (NameOID.STATE_OR_PROVINCE_NAME, "stateOrProvinceName"),
+                  (NameOID.ORGANIZATION_NAME, "organizationName")]:
+            if not root_crt.subject.get_attributes_for_oid(e[0]):
+                raise RuntimeError("Root certificate has no attribute {} field {}"
+                                   .format(e[0], e[1]))
+            if root_crt.subject.get_attributes_for_oid(e[0])[0].value != getattr(cert.dn, e[1]):
+                raise ValueError("Intermediate certificate should match field {} "
+                                 "(root cert: {}, intermediate cert: {})"
+                                 .format(e[1], root_crt.subject.get_attributes_for_oid(e[0])[0].value,
+                                         getattr(cert.dn, e[1])))
 
-        if root_crt.subject.get_attributes_for_oid(NameOID.COUNTRY_NAME) is not str(cert.dn.countryName) or \
-            root_crt.subject.get_attributes_for_oid(NameOID.STATE_OR_PROVINCE_NAME) is not cert.dn.stateOrProvinceName\
-            or root_crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME) is not cert.dn.localityName or \
-            root_crt.subject.get_attributes_for_oid(NameOID.ORGANIZATION_NAME) is not cert.dn.organizationName:
-            raise ValueError("Intermediate cerficate should match country, stater or province, "
-                             "locality and organizationName")
-        if  not cert.dn.commonName:
+        if not cert.dn.commonName:
             raise ValueError("CommonName has not been supplied")
 
-
-        if cert.parent:
-            raise RuntimeError("Multiple levels of intermediate certificates are not supported")
-
+        # TODO make test
+        if root_crt.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value == cert.dn.commonName:
+            raise ValueError("CommonName {} should not be equal to common name of rootcert".format(cert.dn.commonName))
 
         self._builder = x509.CertificateBuilder()
         self._set_basic(cert, private_key, issuer_key)
@@ -202,10 +219,10 @@ class Certificate(object):
     def _create_server_certificate(self, cert: Certificate_model, private_key: Key,
                                    issuer_key: Key) -> x509.Certificate:
 
-        if cert.parent.type != CertificateTypes.INTERMEDIATE and cert.parent.type != CertificateTypes.ROOT:
+        if cert.parent.type not in {CertificateTypes.INTERMEDIATE, CertificateTypes.ROOT}:
             raise RuntimeError("A root or intermediate parent is expected ")
 
-        if  not cert.dn.commonName:
+        if not cert.dn.commonName:
             raise ValueError("CommonName has not been supplied")
 
         self._builder = x509.CertificateBuilder()
@@ -238,13 +255,13 @@ class Certificate(object):
                     alt = x509.IPAddress(ipaddress.ip_address(altname))
                     alts.append(alt)
                     continue
-                except:
+                except ValueError:
                     pass
                 try:
                     alt = x509.DNSName(altname)
                     alts.append(alt)
                     continue
-                except:
+                except ValueError:
                     pass
 
             self._builder = self._builder.add_extension(
@@ -256,16 +273,12 @@ class Certificate(object):
 
     def _create_client_certificate(self, cert: Certificate_model, private_key: Key,
                                    issuer_key: Key) -> x509.Certificate:
-        # TODO implement checks
-        # countryName = match
-        # stateOrProvinceName = match
-        # localityName = match
-        # organizationName = match
-        # organizationalUnitName = optional
-        # commonName = supplied
-        # emailAddress = optional
-        if cert.parent.type != CertificateTypes.INTERMEDIATE and cert.parent.type != CertificateTypes.ROOT:
+
+        if cert.parent.type not in {CertificateTypes.INTERMEDIATE, CertificateTypes.ROOT}:
             raise RuntimeError("A root or intermediate parent is expected ")
+
+        if not cert.dn.commonName:
+            raise ValueError("CommonName has not been supplied")
 
         self._builder = x509.CertificateBuilder()
         self._set_basic(cert, private_key, issuer_key)
@@ -297,7 +310,7 @@ class Certificate(object):
                     alt = x509.RFC822Name(altname)
                     alts.append(alt)
                     continue
-                except:
+                except ValueError:
                     pass
 
             self._builder = self._builder.add_extension(
@@ -307,47 +320,52 @@ class Certificate(object):
 
         return self._sign_certificate(issuer_key)
 
-    def create_certificate(self, cert: Certificate_model, passphrase: bytes=None, passphrase_issuer: bytes=None) \
+    def create_certificate(self, cert_request: Certificate_model, passphrase: bytes = None,
+                           passphrase_issuer: bytes = None) \
             -> 'Certificate':
         """
         Create a certificate.
 
-        Arguments:
-        Returns:   The certificate
+        Arguments: cert_request - The certificate request, containing all the information
+                   passphrase - The passphrase of the key of the certificate
+                   passphrase_issuer - The passphrase of the key of the signing certificate
+        Returns:   The certificate object
         """
 
         try:
-            private_key = Key().load(cert.key, passphrase)
+            private_key = Key().load(cert_request.key, passphrase)
         except ValueError:
             raise PassPhraseError("Bad passphrase, could not decode private key")
 
         try:
-            if cert.parent:
-                issuer_key = Key().load(cert.parent.key, passphrase_issuer)
+            if cert_request.parent:
+                issuer_key = Key().load(cert_request.parent.key, passphrase_issuer)
         except ValueError:
             raise PassPhraseError("Bad passphrase, could not decode issuer key")
 
-        if cert.type == CertificateTypes.ROOT:
-            self._certificate = self._create_root_certificate(cert, private_key)
-        elif cert.type == CertificateTypes.INTERMEDIATE:
-            self._certificate = self._create_intermediate_certificate(cert, private_key, issuer_key)
-        elif cert.type == CertificateTypes.SERVER_CERT:
-            self._certificate = self._create_server_certificate(cert, private_key, issuer_key)
-        elif cert.type == CertificateTypes.CLIENT_CERT:
-            self._certificate = self._create_client_certificate(cert, private_key, issuer_key)
-
+        if cert_request.type == CertificateTypes.ROOT:
+            self._certificate = self._create_root_certificate(cert_request, private_key)
+        elif cert_request.type == CertificateTypes.INTERMEDIATE:
+            self._certificate = self._create_intermediate_certificate(cert_request, private_key, issuer_key)
+        elif cert_request.type == CertificateTypes.SERVER_CERT:
+            self._certificate = self._create_server_certificate(cert_request, private_key, issuer_key)
+        elif cert_request.type == CertificateTypes.CLIENT_CERT:
+            self._certificate = self._create_client_certificate(cert_request, private_key, issuer_key)
         return self
 
-    def serialize(self, encoding: str=serialization.Encoding.PEM) -> bytes:
+    def serialize(self, encoding: str = serialization.Encoding.PEM) -> bytes:
         """
         Serialize certificate
 
-        Arguments: path - filename with relative path
-                   encoding - optional different encoding
+        Arguments: encoding - optional different encoding
         Returns:   bytes
         """
         if not self._certificate:
             raise RuntimeError("No certificate object")
+
+        # TODO test
+        if encoding not in serialization.Encoding:
+            raise ValueError("{} is not a valid encoding")
 
         return self._certificate.public_bytes(encoding=encoding)
 

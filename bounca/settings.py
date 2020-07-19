@@ -3,8 +3,9 @@
 import os
 import re
 import sys
-from yamlreader import yaml_load
 from django.utils.translation import ugettext_lazy as _
+from yamlreader import yaml_load
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

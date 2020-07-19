@@ -1,7 +1,7 @@
 # coding: utf-8
 from django.test import TestCase
 
-from bounca.x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactory, UserFactory
+from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactory, UserFactory
 
 
 class FactoriesTest(TestCase):

@@ -4,8 +4,9 @@ from django import forms
 from django.contrib.auth import password_validation
 from django.utils import timezone
 
+from certificate_engine.types import CertificateTypes
+
 from .models import Certificate, DistinguishedName
-from .types import CertificateTypes
 
 
 class DistinguishedNameForm(forms.ModelForm):

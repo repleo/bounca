@@ -1,25 +1,24 @@
 # coding: utf-8
-import datetime
-from ipaddress import IPv4Address
-
 import arrow
+import datetime
 from cryptography import x509
 from cryptography.x509 import ExtensionOID
 from cryptography.x509.extensions import ExtensionNotFound, _key_identifier_from_public_key
-from cryptography.x509.oid import AuthorityInformationAccessOID, NameOID, ExtendedKeyUsageOID
-from django.utils import timezone
+from cryptography.x509.oid import AuthorityInformationAccessOID, ExtendedKeyUsageOID, NameOID
 from django.test import TestCase
+from django.utils import timezone
+from ipaddress import IPv4Address
 
-from bounca.certificate_engine.ssl.certificate import Certificate, PassPhraseError
-from bounca.certificate_engine.ssl.key import Key
-from bounca.x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactory
-from bounca.x509_pki.types import CertificateTypes
+from certificate_engine.ssl.certificate import Certificate, PassPhraseError
+from certificate_engine.ssl.key import Key
+from certificate_engine.types import CertificateTypes
+from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactory
 
 
 class CertificateTest(TestCase):
 
     def test_generate_root_ca(self):
-        key = Key().create_key(2048)
+        key = Key().create_key(4096)
         certificate = CertificateFactory(key=key.serialize())
         certhandler = Certificate()
         certhandler.create_certificate(certificate)
@@ -201,17 +200,18 @@ class CertificateTest(TestCase):
             certhandler.serialize('test_root_Ca.pem')
 
     def test_generate_intermediate_certificate(self):
-        root_key = Key().create_key(2048)
-        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).replace(days=+3).date(),
+        root_key = Key().create_key(4096)
+        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+3).date(),
                                               key=root_key.serialize())
         root_certhandler = Certificate()
         root_certhandler.create_certificate(root_certificate)
 
         subject = DistinguishedNameFactory(countryName=root_certificate.dn.countryName,
                                            stateOrProvinceName=root_certificate.dn.stateOrProvinceName,
-                                           organizationName=root_certificate.dn.organizationName)
+                                           organizationName=root_certificate.dn.organizationName,
+                                           localityName=root_certificate.dn.localityName)
 
-        key = Key().create_key(2048)
+        key = Key().create_key(4096)
 
         certificate = CertificateFactory(type=CertificateTypes.INTERMEDIATE,
                                          parent=root_certificate, dn=subject,
@@ -326,14 +326,15 @@ class CertificateTest(TestCase):
 
     def test_generate_intermediate_certificate_passphrase(self):
         root_key = Key().create_key(2048)
-        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).replace(days=+3).date(),
+        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+3).date(),
                                               key=root_key.serialize(passphrase=b'SecretRootPP'))
         root_certhandler = Certificate()
         root_certhandler.create_certificate(root_certificate, passphrase=b'SecretRootPP')
 
         subject = DistinguishedNameFactory(countryName=root_certificate.dn.countryName,
                                            stateOrProvinceName=root_certificate.dn.stateOrProvinceName,
-                                           organizationName=root_certificate.dn.organizationName)
+                                           organizationName=root_certificate.dn.organizationName,
+                                           localityName=root_certificate.dn.localityName)
 
         key = Key().create_key(2048)
 
@@ -355,7 +356,7 @@ class CertificateTest(TestCase):
 
     def test_generate_intermediate_certificate_passphrase_wrong_issuer(self):
         root_key = Key().create_key(2048)
-        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).replace(days=+3).date(),
+        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+3).date(),
                                               key=root_key.serialize(passphrase=b'SecretRootPP'))
         root_certhandler = Certificate()
         root_certhandler.create_certificate(root_certificate, passphrase=b'SecretRootPP')
@@ -377,7 +378,7 @@ class CertificateTest(TestCase):
 
     def test_generate_server_certificate(self):
         root_key = Key().create_key(2048)
-        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).replace(days=+6).date(),
+        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+6).date(),
                                               key=root_key.serialize())
         root_certhandler = Certificate()
         root_certhandler.create_certificate(root_certificate)
@@ -388,7 +389,7 @@ class CertificateTest(TestCase):
 
         int_key = Key().create_key(2048)
 
-        int_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).replace(days=+5).date(),
+        int_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+5).date(),
                                              type=CertificateTypes.INTERMEDIATE,
                                              parent=root_certificate, dn=subject,
                                              key=int_key.serialize())
@@ -522,18 +523,19 @@ class CertificateTest(TestCase):
 
     def test_generate_server_certificate(self):
         root_key = Key().create_key(2048)
-        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).replace(days=+6).date(),
+        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+6).date(),
                                               key=root_key.serialize())
         root_certhandler = Certificate()
         root_certhandler.create_certificate(root_certificate)
 
         subject = DistinguishedNameFactory(countryName=root_certificate.dn.countryName,
                                            stateOrProvinceName=root_certificate.dn.stateOrProvinceName,
-                                           organizationName=root_certificate.dn.organizationName)
+                                           organizationName=root_certificate.dn.organizationName,
+                                           localityName=root_certificate.dn.localityName)
 
         int_key = Key().create_key(2048)
 
-        int_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).replace(days=+5).date(),
+        int_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+5).date(),
                                              type=CertificateTypes.INTERMEDIATE,
                                              parent=root_certificate, dn=subject,
                                              key=int_key.serialize())
@@ -551,7 +553,7 @@ class CertificateTest(TestCase):
 
     def test_generate_server_certificate_no_subject_altnames(self):
         root_key = Key().create_key(2048)
-        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).replace(days=+6).date(),
+        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+6).date(),
                                               key=root_key.serialize())
         root_certhandler = Certificate()
         root_certhandler.create_certificate(root_certificate)
@@ -562,7 +564,7 @@ class CertificateTest(TestCase):
 
         int_key = Key().create_key(2048)
 
-        int_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).replace(days=+5).date(),
+        int_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+5).date(),
                                              type=CertificateTypes.INTERMEDIATE,
                                              parent=root_certificate, dn=subject,
                                              key=int_key.serialize())
@@ -589,7 +591,7 @@ class CertificateTest(TestCase):
 
     def test_generate_server_certificate_no_intermediate_ca(self):
         root_key = Key().create_key(2048)
-        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).replace(days=+6).date(),
+        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+6).date(),
                                               key=root_key.serialize())
         root_certhandler = Certificate()
         root_certhandler.create_certificate(root_certificate)
@@ -645,7 +647,7 @@ class CertificateTest(TestCase):
 
     def test_generate_user_certificate(self):
         root_key = Key().create_key(2048)
-        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).replace(days=+6).date(),
+        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+6).date(),
                                               key=root_key.serialize())
         root_certhandler = Certificate()
         root_certhandler.create_certificate(root_certificate)
@@ -656,7 +658,7 @@ class CertificateTest(TestCase):
 
         int_key = Key().create_key(2048)
 
-        int_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).replace(days=+5).date(),
+        int_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+5).date(),
                                              type=CertificateTypes.INTERMEDIATE,
                                              parent=root_certificate, dn=subject,
                                              key=int_key.serialize())

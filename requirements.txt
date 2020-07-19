@@ -1,20 +1,20 @@
 # Framework
-Django==3.0.6
+Django==3.0.8
 psycopg2==2.8.5
 pytz==2020.1
-requests==2.23.0
+requests==2.24.0
 djangorestframework==3.11.0
-django-grappelli==2.14.1
+django-grappelli==2.14.2
 django-countries==6.1.2
 django-angular==2.3
 django-rest-swagger==2.2.0
-django-filter==2.2.0
+django-filter==2.3.0
 django-rest-auth==0.9.5
-django-allauth==0.41.0
-django-ical==1.7.0
+django-allauth==0.42.0
+django-ical==1.7.1
 
 # Date
-arrow==0.15.6
+arrow==0.15.7
 
 # SSL
 cryptography==2.9.2
@@ -23,16 +23,16 @@ cryptography==2.9.2
 yamlreader==3.0.4
 
 # Testing
-coverage==5.1
+coverage==5.2
 factory-boy==2.12.0
-Faker==4.0.3
+Faker==4.1.1
 mock==4.0.2
 requests-mock==1.8.0
 
 # Code Quality
-flake8==3.7.9
-isort==4.3.21
-autopep8==1.5.2
-mypy==0.770
+flake8==3.8.3
+isort==5.1.1
+autopep8==1.5.3
+mypy==0.782
 pur==5.3.0
 

@@ -1,19 +1,19 @@
 """API Views for certificate generation"""
 
 import io
-import logging
-import zipfile
 
+import logging
 import rest_framework
+import zipfile
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseNotFound
 from django.views.generic import View
 from rest_framework import generics, permissions
 from rest_framework.pagination import PageNumberPagination
 
-from x509_pki.models import Certificate, CertificateTypes
 from api.mixins import TrapDjangoValidationErrorCreateMixin
 from api.serializers import CertificateCRLSerializer, CertificateRevokeSerializer, CertificateSerializer
+from x509_pki.models import Certificate, CertificateTypes
 
 
 logger = logging.getLogger(__name__)

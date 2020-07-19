@@ -1,9 +1,8 @@
 import os
-
 from django.conf import settings
 
+from certificate_engine.types import CertificateTypes
 from certificate_engine.utils import generate_path, random_string_generator
-from x509_pki.types import CertificateTypes
 
 
 class generate_key_path(object):

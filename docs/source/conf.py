@@ -14,11 +14,10 @@
 # serve to show the default.
 
 import os
+import sphinx_rtd_theme
 import sys
-
 from django.utils.version import get_docs_version, get_version
 
-import sphinx_rtd_theme
 from bounca import VERSION
 
 

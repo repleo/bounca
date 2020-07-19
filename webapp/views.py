@@ -5,10 +5,10 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 from django_ical.views import ICalFeed
 
-from x509_pki.models import Certificate, CertificateTypes
 from webapp.forms import (
     AddClientCertificateForm, AddIntermediateCAForm, AddRootCAForm, AddServerCertificateForm, CertificateCRLForm,
     CertificateRevokeForm)
+from x509_pki.models import Certificate, CertificateTypes
 
 
 class AddRootCAFormView(FormView):

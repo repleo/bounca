@@ -1,13 +1,12 @@
 """Models for storing subject and certificate information"""
 
 import uuid
-
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from django.utils import timezone
@@ -15,79 +14,100 @@ from django_countries.fields import CountryField
 
 from certificate_engine.generator import (
     generate_crl_file, get_certificate_info, is_passphrase_in_valid, revoke_client_cert, revoke_server_cert)
-from .types import CertificateTypes
+from certificate_engine.types import CertificateTypes
 
 
 class DistinguishedName(models.Model):
-    alphanumeric = RegexValidator(
+    alphanumeric_validator = RegexValidator(
+        r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ \*]*$',
+        'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
+    country_validator = RegexValidator(
         r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ \*]*$',
         'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
 
     countryName = CountryField(
         "Country Name",
-        help_text="The two-character country name in ISO 3166 format.")
+        help_text="The two-character country name in ISO 3166 format.",
+        blank=True,
+        null=True)
     stateOrProvinceName = models.CharField(
         "State or Province Name",
         max_length=128,
-        validators=[alphanumeric],
+        validators=[alphanumeric_validator],
         help_text="The state/region where your organization is located. " +
-        "This shouldn't be abbreviated. (1–128 characters)")
+        "This shouldn't be abbreviated. (1–128 characters)",
+        blank=True,
+        null=True)
     localityName = models.CharField(
         "Locality Name",
         max_length=128,
-        validators=[alphanumeric],
-        help_text="The city where your organization is located. (1–128 characters)")
+        validators=[alphanumeric_validator],
+        help_text="The city where your organization is located. (1–128 characters)",
+        blank=True,
+        null=True)
     organizationName = models.CharField(
         "Organization Name",
         max_length=64,
-        validators=[alphanumeric],
+        validators=[alphanumeric_validator],
         help_text="The legal name of your organization. This should not be abbreviated and should include " +
-        "suffixes such as Inc, Corp, or LLC.")
+        "suffixes such as Inc, Corp, or LLC.",
+        blank=True,
+        null=True)
     organizationalUnitName = models.CharField(
         "Organization Unit Name",
         max_length=64,
-        validators=[alphanumeric],
-        help_text="The division of your organization handling the certificate.")
+        validators=[alphanumeric_validator],
+        help_text="The division of your organization handling the certificate.",
+        blank=True,
+        null=True)
     emailAddress = models.EmailField(
         "Email Address",
         max_length=64,
-        validators=[alphanumeric],
+        validators=[alphanumeric_validator],
         default="ca@repleo.nl",
-        help_text="The email address to contact your organization. Also used by BounCA for authentication.")
+        help_text="The email address to contact your organization. Also used by BounCA for authentication.",
+        blank=True,
+        null=True)
     commonName = models.CharField(
         "Common Name",
         max_length=64,
-        validators=[alphanumeric],
+        validators=[alphanumeric_validator],
         help_text="The fully qualified domain name (FQDN) of your server. This must match " +
         "exactly what you type in your web browser or you will receive a name mismatch error.")
     subjectAltNames = ArrayField(
         models.CharField(
             max_length=64,
-            validators=[alphanumeric]),
+            validators=[alphanumeric_validator]),
         help_text="subjectAltName list, i.e. dns names for server certs and email adresses " +
         "for client certs. (separate by comma)",
         blank=True,
         null=True)
 
+    def _to_dn(self, email_label='EMAIL'):
+        dn = []
+        if self.commonName is not None:
+            dn.append("CN={}".format(self.commonName))
+        if self.organizationName is not None:
+            dn.append("O={}".format(self.organizationName))
+        if self.organizationalUnitName is not None:
+            dn.append("OU={}".format(self.organizationalUnitName))
+        if self.localityName is not None:
+            dn.append("L={}".format(self.localityName))
+        if self.stateOrProvinceName is not None:
+            dn.append("ST={}".format(self.stateOrProvinceName))
+        if self.emailAddress is not None:
+            dn.append("{}}={}".format(self.email_label, self.emailAddress))
+        if self.countryName is not None:
+            dn.append("C={}".format(self.countryName))
+        return dn
+
     @property
     def dn(self):
-        return 'CN=' + str(self.commonName) +\
-            ', O=' + str(self.organizationName) +\
-            ', OU=' + str(self.organizationalUnitName) +\
-            ', L=' + str(self.localityName) +\
-            ', ST=' + str(self.stateOrProvinceName) +\
-            ', EMAIL=' + str(self.emailAddress) +\
-            ', C=' + str(self.countryName)
+        return self._to_dn(email_label='EMAIL').join(', ')
 
     @property
     def subj(self):
-        return '/CN=' + str(self.commonName) +\
-            '/O=' + str(self.organizationName) +\
-            '/OU=' + str(self.organizationalUnitName) +\
-            '/L=' + str(self.localityName) +\
-            '/ST=' + str(self.stateOrProvinceName) +\
-            '/emailAddress=' + str(self.emailAddress) +\
-            '/C=' + str(self.countryName)
+        return ([''] + self._to_dn(email_label='emailAddress')).join('/')
 
     # Create only model
     def save(self, *args, **kwargs):
@@ -180,7 +200,7 @@ class Certificate(models.Model):
         "for intermediate 10 years for other types 1 year. Allowed date format: yyyy-mm-dd.")
     revoked_at = models.DateField(
         editable=False, default=None, blank=True, null=True)
-    revoked_uuid = models.UUIDField(default='00000000000000000000000000000001')
+    revoked_uuid = models.UUIDField(default=0)  # TODO check this
     serial = models.UUIDField(default=uuid.uuid4, editable=False)
 
     key = models.TextField("Serialized Private Key")

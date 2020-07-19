@@ -1,10 +1,9 @@
 # coding: utf-8
 
+from cryptography.hazmat.primitives.asymmetric import rsa
 from django.test import TestCase
 
-from cryptography.hazmat.primitives.asymmetric import rsa
-
-from bounca.certificate_engine.ssl.key import Key
+from certificate_engine.ssl.key import Key
 
 
 class KeyTest(TestCase):
