@@ -176,7 +176,6 @@ class Certificate(models.Model):
 
     parent = models.ForeignKey(
         "self",
-        on_delete=models.CASCADE,
         blank=True,
         null=True,
         help_text="The signing authority (None for root certificate)",
@@ -206,11 +205,7 @@ class Certificate(models.Model):
     key = models.TextField("Serialized Private Key")
     crt = models.TextField("Serialized signed certificate")
 
-<<<<<<< HEAD:bounca/x509_pki/models.py
     owner = models.ForeignKey(User, on_delete=models.PROTECT)
-=======
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
->>>>>>> refactoring ssl engine:x509_pki/models.py
 
     passphrase_in = ""
     passphrase_out = ""
