@@ -16,28 +16,27 @@ from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactor
 
 
 class IntermediateCertificateTest(TestCase):
-    def generate_root_certificate(self):
-        root_key = Key().create_key(4096)
-        root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+3).date(),
+    @classmethod
+    def setUpTestData(cls):
+        root_key = Key().create_key(8192)
+        cls.root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+3).date(),
                                               key=root_key.serialize())
-        root_certhandler = Certificate()
-        root_certhandler.create_certificate(root_certificate)
+        certificate = Certificate()
+        certificate.create_certificate(cls.root_certificate)
 
-        return root_certificate, root_key
+        cls.root_certificate.crt = certificate.serialize()
+        cls.root_certificate.key = root_key.serialize()
+        cls.root_certificate.save()
 
     def test_generate_intermediate_certificate(self):
-        root_certificate, root_key = self.generate_root_certificate()
-
         key = Key().create_key(4096)
 
-        subject = DistinguishedNameFactory(countryName=root_certificate.dn.countryName,
-                                           stateOrProvinceName=root_certificate.dn.stateOrProvinceName,
-                                           organizationName=root_certificate.dn.organizationName,
-                                           localityName=root_certificate.dn.localityName)
+        subject = DistinguishedNameFactory(countryName=self.root_certificate.dn.countryName,
+                                           stateOrProvinceName=self.root_certificate.dn.stateOrProvinceName,
+                                           organizationName=self.root_certificate.dn.organizationName)
 
         certificate = CertificateFactory(type=CertificateTypes.INTERMEDIATE,
-                                         parent=root_certificate, dn=subject,
-                                         crt=root_certificate.serialize(),
+                                         parent=self.root_certificate, dn=subject,
                                          key=key.serialize())
 
         certhandler = Certificate()

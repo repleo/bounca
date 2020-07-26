@@ -64,7 +64,6 @@ class DistinguishedName(models.Model):
         "Email Address",
         max_length=64,
         validators=[alphanumeric_validator],
-        default="ca@repleo.nl",
         help_text="The email address to contact your organization. Also used by BounCA for authentication.",
         blank=True,
         null=True)

@@ -19,11 +19,11 @@ def generate_files(
         key_path='.',
         root_path='.'):
 
-    logger.warning(
-        "Create directory for certificate " +
-        str(certificate) +
-        " with the path: " +
-        root_path)
+    # logger.warning(
+    #     "Create directory for certificate " +
+    #     str(certificate) +
+    #     " with the path: " +
+    #     root_path)
     os.makedirs(root_path + "certs", exist_ok=True)
     if certificate.type == CertificateTypes.INTERMEDIATE:
         os.makedirs(root_path + "crl", exist_ok=True)
@@ -420,13 +420,13 @@ def generate_client_cert(certificate, key_path='.', root_path='.'):
     subprocess.check_output([root_path + "generate_signed_usr_cert_certificate.sh",
                              certificate.shortname, str(certificate.days_valid),
                              certificate.dn.subj, ' '.join(certificate.dn.subjectAltNames)])
-    try:
-        os.remove(
-            root_path +
-            'openssl-usr_cert-%s.cnf' %
-            certificate.shortname)
-    except FileNotFoundError:
-        pass
+    # try:
+    #     os.remove(
+    #         root_path +
+    #         'openssl-usr_cert-%s.cnf' %
+    #         certificate.shortname)
+    # except FileNotFoundError:
+    #     pass
     return 0
 
 

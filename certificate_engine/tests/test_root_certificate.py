@@ -5,7 +5,7 @@ from cryptography.x509 import ExtensionOID
 from cryptography.x509.extensions import ExtensionNotFound, _key_identifier_from_public_key
 from cryptography.x509.oid import AuthorityInformationAccessOID, NameOID
 
-from certificate_engine.ssl.certificate import Certificate, PassPhraseError
+from certificate_engine.ssl.certificate import Certificate, PassPhraseError, PolicyError
 from certificate_engine.ssl.key import Key
 from certificate_engine.tests.helpers import CertificateTestCase
 from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactory
@@ -14,16 +14,61 @@ from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactor
 class RootCertificateTest(CertificateTestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.key = Key().create_key(4096)
+        cls.key = Key().create_key(8192)
+
+    def root_ca_missing_attribute(self, dn, attribute_name):
+        with self.assertRaises(PolicyError) as context:
+            certificate_request = CertificateFactory(key=self.key.serialize(), dn=dn)
+            certhandler = Certificate()
+            certhandler.create_certificate(certificate_request)
+
+        self.assertEqual("Attribute '{}' is required".format(attribute_name), str(context.exception))
+
+    def test_generate_root_ca_missing_countryName(self):
+        dn = DistinguishedNameFactory(countryName=None,
+                                      organizationalUnitName=None,
+                                      emailAddress=None)
+        self.root_ca_missing_attribute(dn, 'countryName')
+
+    def test_generate_root_ca_missing_countryName_space(self):
+        dn = DistinguishedNameFactory(countryName='',
+                                      organizationalUnitName=None,
+                                      emailAddress=None)
+        self.root_ca_missing_attribute(dn, 'countryName')
+
+    def test_generate_root_ca_missing_stateOrProvinceName(self):
+        dn = DistinguishedNameFactory(stateOrProvinceName=None,
+                                      organizationalUnitName=None,
+                                      emailAddress=None)
+        self.root_ca_missing_attribute(dn, 'stateOrProvinceName')
+
+    def test_generate_root_ca_missing_stateOrProvinceName_space(self):
+        dn = DistinguishedNameFactory(stateOrProvinceName='',
+                                      organizationalUnitName=None,
+                                      emailAddress=None)
+        self.root_ca_missing_attribute(dn, 'stateOrProvinceName')
+
+    def test_generate_root_ca_missing_organizationName(self):
+        dn = DistinguishedNameFactory(organizationName=None,
+                                      organizationalUnitName=None,
+                                      emailAddress=None)
+        self.root_ca_missing_attribute(dn, 'organizationName')
+
+    def test_generate_root_ca_missing_organizationName_space(self):
+        dn = DistinguishedNameFactory(organizationName='',
+                                      organizationalUnitName=None,
+                                      emailAddress=None)
+        self.root_ca_missing_attribute(dn, 'organizationName')
+
+    def test_generate_root_ca_missing_commonName(self):
+        dn = DistinguishedNameFactory(commonName='',
+                                      organizationalUnitName=None,
+                                      emailAddress=None)
+        self.root_ca_missing_attribute(dn, 'commonName')
 
     def test_generate_minimal_root_ca(self):
-        dn = DistinguishedNameFactory(countryName=None,
-                                      stateOrProvinceName=None,
-                                      localityName=None,
-                                      organizationName=None,
-                                      organizationalUnitName=None,
-                                      emailAddress=None,
-                                      subjectAltNames=None)
+        dn = DistinguishedNameFactory(organizationalUnitName=None,
+                                      emailAddress=None)
         certificate_request = CertificateFactory(key=self.key.serialize(), dn=dn)
         certhandler = Certificate()
         certhandler.create_certificate(certificate_request)
@@ -45,15 +90,10 @@ class RootCertificateTest(CertificateTestCase):
         ))
 
         # subject
-        self.assertIsInstance(crt.subject, x509.Name)
-        self.assertListEqual(list(crt.subject), [
-            x509.NameAttribute(NameOID.COMMON_NAME, certificate_request.dn.commonName),
-        ])
+        self.assert_subject(crt.subject, certificate_request)
         # issuer
         self.assertIsInstance(crt.issuer, x509.Name)
-        self.assertListEqual(list(crt.issuer), [
-            x509.NameAttribute(NameOID.COMMON_NAME, certificate_request.dn.commonName),
-        ])
+        self.assert_subject(crt.issuer, certificate_request)
         self.assert_crl_distribution(crt, certificate_request)
         self.assert_root_authority(crt, certificate_request)
 
@@ -99,8 +139,11 @@ class RootCertificateTest(CertificateTestCase):
 
         # subject
         self.assert_subject(crt.subject, certificate_request)
+        self.assertListEqual([], crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME))
         # issuer
         self.assert_subject(crt.issuer, certificate_request)
+        self.assertListEqual([], crt.issuer.get_attributes_for_oid(NameOID.LOCALITY_NAME))
+
         self.assert_crl_distribution(crt, certificate_request)
         self.assert_root_authority(crt, certificate_request)
 

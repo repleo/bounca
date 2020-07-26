@@ -9,9 +9,11 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.x509 import DirectoryName
 from cryptography.x509.extensions import _key_identifier_from_public_key
 from cryptography.x509.oid import AuthorityInformationAccessOID, ExtendedKeyUsageOID, NameOID
+from functools import reduce
 
 from certificate_engine.ssl.key import Key
-from certificate_engine.types import CertificateTypes
+from certificate_engine.types import (
+    CertificateIntermediatePolicy, CertificatePolicy, CertificateRootPolicy, CertificateTypes)
 from x509_pki.models import Certificate as Certificate_model
 from x509_pki.models import DistinguishedName
 
@@ -21,8 +23,17 @@ class PassPhraseError(RuntimeError):
     pass
 
 
-class Certificate(object):
+class PolicyError(ValueError):
+    """Base class for policy errors in this module."""
+    pass
 
+
+class CertificateError(ValueError):
+    """Base class for mallformed certificates in this module."""
+    pass
+
+
+class Certificate(object):
     def __init__(self) -> None:
         self._certificate = None  # type: x509.Certificate
         self._builder = None  # type: x509.CertificateBuilder
@@ -31,30 +42,71 @@ class Certificate(object):
     def certificate(self):
         return self._certificate
 
-    def _build_subject_names(self, dn: DistinguishedName) -> x509.Name:
-        attributes = [
-            x509.NameAttribute(NameOID.COMMON_NAME, dn.commonName)
-        ]
-        if dn.organizationName is not None:
-            attributes.append(x509.NameAttribute(NameOID.ORGANIZATION_NAME, dn.organizationName))
-        if dn.organizationalUnitName is not None:
-            attributes.append(x509.NameAttribute(NameOID.ORGANIZATIONAL_UNIT_NAME, dn.organizationalUnitName))
-        if dn.localityName is not None:
-            attributes.append(x509.NameAttribute(NameOID.LOCALITY_NAME, dn.localityName))
-        if dn.stateOrProvinceName is not None:
-            attributes.append(x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, dn.stateOrProvinceName))
-        if dn.emailAddress is not None:
-            attributes.append(x509.NameAttribute(NameOID.EMAIL_ADDRESS, dn.emailAddress))
-        if dn.countryName.code is not None:
-            attributes.append(x509.NameAttribute(NameOID.COUNTRY_NAME, dn.countryName.code))
+    @staticmethod
+    def _get_certificate_policy(cert: Certificate_model) -> CertificatePolicy:
+        return CertificateRootPolicy() if cert.type == CertificateTypes.ROOT else \
+            CertificateIntermediatePolicy() if cert.type == CertificateTypes.INTERMEDIATE else \
+            CertificatePolicy()
+
+    @staticmethod
+    def _build_subject_names(cert: Certificate_model) -> x509.Name:
+        dn = cert.dn
+        policy = Certificate._get_certificate_policy(cert).policy
+        attributes = []
+        for attr in reduce(lambda x, y: x + y, [policy[k] for k in policy.keys()]):
+            value = getattr(dn, attr[0])
+            if value is not None:
+                if attr[0] == 'countryName':
+                    value = getattr(value, 'code')
+                attributes.append(x509.NameAttribute(attr[1], value))
         return x509.Name(attributes)
 
+    @staticmethod
+    def _check_common_name(cert: Certificate_model, common_name: str):
+        # TODO make test
+        if not cert.parent:
+            return
+
+        parent_crt = Certificate().load(cert.parent.crt).certificate
+        if parent_crt.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value == common_name:
+            raise ValueError("CommonName '{}' should not be equal to common name of parent".format(cert.dn.commonName))
+
+    @staticmethod
+    def _check_policies(cert: Certificate_model):
+        dn = cert.dn
+        subject = {}
+        policy = Certificate._get_certificate_policy(cert).policy
+        for attr in policy['optional']:
+            if getattr(dn, attr[0]) is not None:
+                subject[attr[0]] = getattr(dn, attr[0])
+
+        for attr in policy['supplied']:
+            if not getattr(dn, attr[0]):
+                raise PolicyError("Attribute '{}' is required".format(attr[0]))
+            subject[attr[0]] = getattr(dn, attr[0])
+
+        if policy['match']:
+            if not cert.parent:
+                raise PolicyError("Parent certificate is required".format())
+            parent_crt = Certificate().load(cert.parent.crt).certificate
+            if not parent_crt.subject.get_attributes_for_oid(attr[1]):
+                raise PolicyError("Attribute '{}' is not provided by parent".format(attr[0]))
+            if parent_crt.subject.get_attributes_for_oid(attr[1])[0].value != getattr(dn, attr[0]):
+                raise ValueError("Certificate should match field '{}' "
+                                 "(issuer certificate: {}, certificate: {})"
+                                 .format(attr[0], parent_crt.subject.get_attributes_for_oid(attr[1])[0].value,
+                                         getattr(dn, attr[0])))
+            subject[attr[0]] = getattr(dn, attr[0])
+
+        Certificate._check_common_name(cert, getattr(dn, 'commonName'))
+        cert.dn = DistinguishedName(**subject)
+
     def _set_issuer_name(self, cert: Certificate_model) -> None:
-        dn = cert.parent.dn if cert.parent else cert.dn
-        self._builder = self._builder.issuer_name(self._build_subject_names(dn))
+        issuer_cert = cert.parent if cert.parent else cert
+        self._builder = self._builder.issuer_name(Certificate._build_subject_names(issuer_cert))
 
     def _set_subject_name(self, cert: Certificate_model) -> None:
-        self._builder = self._builder.subject_name(self._build_subject_names(cert.dn))
+        self._builder = self._builder.subject_name(Certificate._build_subject_names(cert))
 
     def _get_root_cert(self, cert):
         return self._get_root_cert(cert.parent) if cert.parent else cert
@@ -64,7 +116,7 @@ class Certificate(object):
         root_ca_subject = authority_cert_serial_number = None
         if cert.type != CertificateTypes.ROOT:
             root_cert = self._get_root_cert(cert.parent)
-            root_ca_subject = [DirectoryName(self._build_subject_names(root_cert.dn))]
+            root_ca_subject = [DirectoryName(Certificate._build_subject_names(root_cert))]
             authority_cert_serial_number = int(cert.parent.serial)
         self._builder = self._builder.add_extension(
             x509.AuthorityKeyIdentifier(key_identifier=_key_identifier_from_public_key(issuer_key.key.public_key()),
@@ -176,6 +228,8 @@ class Certificate(object):
         )
 
     def _create_root_certificate(self, cert: Certificate_model, private_key: Key) -> x509.Certificate:
+        Certificate._check_policies(cert)
+
         self._builder = x509.CertificateBuilder()
         self._set_basic(cert, private_key, private_key)
         self._set_key_usage()
@@ -184,32 +238,14 @@ class Certificate(object):
     def _create_intermediate_certificate(self, cert: Certificate_model, private_key: Key,
                                          issuer_key: Key) -> x509.Certificate:
 
-        root_crt = Certificate().load(cert.parent.crt).certificate
+        if cert.parent and cert.parent.type != CertificateTypes.ROOT:
+            raise CertificateError("Parent is not a root certificate. "
+                                   "Multiple levels of intermediate certificates are currently not supported")
+        if cert.parent and cert.parent.parent:
+            raise CertificateError("Parent certificate has a parent. "
+                                   "Multiple levels of intermediate certificates are currently not supported")
 
-        # TODO Test this
-        if root_crt.type != CertificateTypes.ROOT or root_crt.parent:
-            raise RuntimeError("Multiple levels of intermediate certificates are currently not supported")
-        if root_crt.parent:
-            raise RuntimeError("Multiple levels of intermediate certificates are not supported")
-
-        # The root CA should only sign intermediate certificates that match.
-        for e in [(NameOID.COUNTRY_NAME, "countryName"), (NameOID.STATE_OR_PROVINCE_NAME, "stateOrProvinceName"),
-                  (NameOID.ORGANIZATION_NAME, "organizationName")]:
-            if not root_crt.subject.get_attributes_for_oid(e[0]):
-                raise RuntimeError("Root certificate has no attribute {} field {}"
-                                   .format(e[0], e[1]))
-            if root_crt.subject.get_attributes_for_oid(e[0])[0].value != getattr(cert.dn, e[1]):
-                raise ValueError("Intermediate certificate should match field {} "
-                                 "(root cert: {}, intermediate cert: {})"
-                                 .format(e[1], root_crt.subject.get_attributes_for_oid(e[0])[0].value,
-                                         getattr(cert.dn, e[1])))
-
-        if not cert.dn.commonName:
-            raise ValueError("CommonName has not been supplied")
-
-        # TODO make test
-        if root_crt.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value == cert.dn.commonName:
-            raise ValueError("CommonName {} should not be equal to common name of rootcert".format(cert.dn.commonName))
+        Certificate._check_policies(cert)
 
         self._builder = x509.CertificateBuilder()
         self._set_basic(cert, private_key, issuer_key)
