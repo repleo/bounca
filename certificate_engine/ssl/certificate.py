@@ -72,31 +72,40 @@ class Certificate(object):
             raise ValueError("CommonName '{}' should not be equal to common name of parent".format(cert.dn.commonName))
 
     @staticmethod
-    def _check_policies(cert: Certificate_model):
-        dn = cert.dn
-        subject = {}
-        policy = Certificate._get_certificate_policy(cert).policy
+    def _check_policies_optional(dn: DistinguishedName, subject: dict, policy: CertificatePolicy):
         for attr in policy['optional']:
             if getattr(dn, attr[0]) is not None:
                 subject[attr[0]] = getattr(dn, attr[0])
 
+    @staticmethod
+    def _check_policies_supplied(dn: DistinguishedName, subject: dict, policy: CertificatePolicy):
         for attr in policy['supplied']:
             if not getattr(dn, attr[0]):
                 raise PolicyError("Attribute '{}' is required".format(attr[0]))
             subject[attr[0]] = getattr(dn, attr[0])
 
+    @staticmethod
+    def _check_policies(cert: Certificate_model):
+        dn = cert.dn
+        subject = {}
+        policy = Certificate._get_certificate_policy(cert).policy
+        Certificate._check_policies_optional(dn, subject, policy)
+        Certificate._check_policies_supplied(dn, subject, policy)
         if policy['match']:
             if not cert.parent:
-                raise PolicyError("Parent certificate is required".format())
+                raise RuntimeError("Parent certificate is required")
+            if not cert.parent.crt:
+                raise RuntimeError("Parent certificate object has not been set")
             parent_crt = Certificate().load(cert.parent.crt).certificate
-            if not parent_crt.subject.get_attributes_for_oid(attr[1]):
-                raise PolicyError("Attribute '{}' is not provided by parent".format(attr[0]))
-            if parent_crt.subject.get_attributes_for_oid(attr[1])[0].value != getattr(dn, attr[0]):
-                raise ValueError("Certificate should match field '{}' "
-                                 "(issuer certificate: {}, certificate: {})"
-                                 .format(attr[0], parent_crt.subject.get_attributes_for_oid(attr[1])[0].value,
-                                         getattr(dn, attr[0])))
-            subject[attr[0]] = getattr(dn, attr[0])
+            for attr in policy['match']:
+                if not parent_crt.subject.get_attributes_for_oid(attr[1]):
+                    raise PolicyError("Attribute '{}' is not provided by parent".format(attr[0]))
+                if parent_crt.subject.get_attributes_for_oid(attr[1])[0].value != getattr(dn, attr[0]):
+                    raise PolicyError("Certificate should match field '{}' "
+                                      "(issuer certificate: {}, certificate: {})"
+                                      .format(attr[0], parent_crt.subject.get_attributes_for_oid(attr[1])[0].value,
+                                              getattr(dn, attr[0])))
+                subject[attr[0]] = getattr(dn, attr[0])
 
         Certificate._check_common_name(cert, getattr(dn, 'commonName'))
         cert.dn = DistinguishedName(**subject)
@@ -373,6 +382,7 @@ class Certificate(object):
         except ValueError:
             raise PassPhraseError("Bad passphrase, could not decode private key")
 
+        issuer_key = None
         try:
             if cert_request.parent:
                 issuer_key = Key().load(cert_request.parent.key, passphrase_issuer)

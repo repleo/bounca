@@ -114,7 +114,7 @@ class CertificateForm(forms.ModelForm):
         if Certificate.objects.filter(
                 shortname=shortname,
                 type=cert_type,
-                revoked_uuid='00000000000000000000000000000001').count() > 0:
+                revoked_uuid=0).count() > 0:
             raise forms.ValidationError(
                 "Shortname (" +
                 shortname +
@@ -126,7 +126,7 @@ class CertificateForm(forms.ModelForm):
         if Certificate.objects.filter(
                 dn=dn,
                 type=cert_type,
-                revoked_uuid='00000000000000000000000000000001').count() > 0:
+                revoked_uuid=0).count() > 0:
             raise forms.ValidationError(
                 "DN (" +
                 str(dn) +

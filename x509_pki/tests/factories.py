@@ -64,6 +64,5 @@ class CertificateFactory(DjangoModelFactory):
     created_at = factory.LazyFunction(lambda: arrow.get(timezone.now()).date())
     expires_at = factory.LazyFunction(lambda: arrow.get(timezone.now()).shift(days=+1).date())
     revoked_at = None
-    revoked_uuid = '00000000000000000000000000000001'
     key = b""
     crt = b""

@@ -68,7 +68,8 @@ class RootCertificateTest(CertificateTestCase):
 
     def test_generate_minimal_root_ca(self):
         dn = DistinguishedNameFactory(organizationalUnitName=None,
-                                      emailAddress=None)
+                                      emailAddress=None,
+                                      localityName=None)
         certificate_request = CertificateFactory(key=self.key.serialize(), dn=dn)
         certhandler = Certificate()
         certhandler.create_certificate(certificate_request)

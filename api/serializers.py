@@ -106,7 +106,7 @@ class CertificateSerializer(serializers.ModelSerializer):
         if Certificate.objects.filter(
                 shortname=shortname,
                 type=cert_type,
-                revoked_uuid=uuid.UUID('00000000000000000000000000000001')).count() > 0:
+                revoked_uuid=0).count() > 0:
             raise serializers.ValidationError(
                 dict(
                     Certificate.TYPES)[cert_type] +

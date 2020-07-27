@@ -24,30 +24,6 @@ class CertificateTestCase(TestCase):
                 nr_of_attributes += 1
         self.assertEqual(len(subject), nr_of_attributes)
 
-    def assert_intermediate_subject(self, subject, certificate_request):
-        self.assertIsInstance(subject, x509.Name)
-        self.assertListEqual(list(subject), [
-            x509.NameAttribute(NameOID.COMMON_NAME, certificate_request.dn.commonName),
-            x509.NameAttribute(NameOID.ORGANIZATION_NAME, certificate_request.dn.organizationName),
-            x509.NameAttribute(NameOID.ORGANIZATIONAL_UNIT_NAME, certificate_request.dn.organizationalUnitName),
-            x509.NameAttribute(NameOID.LOCALITY_NAME, certificate_request.dn.localityName),
-            x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, certificate_request.dn.stateOrProvinceName),
-            x509.NameAttribute(NameOID.EMAIL_ADDRESS, certificate_request.dn.emailAddress),
-            x509.NameAttribute(NameOID.COUNTRY_NAME, str(certificate_request.dn.countryName)),
-        ])
-
-    def assert_server_subject(self, subject, certificate_request):
-        self.assertIsInstance(subject, x509.Name)
-        self.assertListEqual(list(subject), [
-            x509.NameAttribute(NameOID.COMMON_NAME, certificate_request.dn.commonName),
-            x509.NameAttribute(NameOID.ORGANIZATION_NAME, certificate_request.dn.organizationName),
-            x509.NameAttribute(NameOID.ORGANIZATIONAL_UNIT_NAME, certificate_request.dn.organizationalUnitName),
-            x509.NameAttribute(NameOID.LOCALITY_NAME, certificate_request.dn.localityName),
-            x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, certificate_request.dn.stateOrProvinceName),
-            x509.NameAttribute(NameOID.EMAIL_ADDRESS, certificate_request.dn.emailAddress),
-            x509.NameAttribute(NameOID.COUNTRY_NAME, str(certificate_request.dn.countryName)),
-        ])
-
     def assert_crl_distribution(self, crt, certificate_request):
         # crlDistributionspoints
         ext = crt.extensions.get_extension_for_oid(ExtensionOID.CRL_DISTRIBUTION_POINTS)

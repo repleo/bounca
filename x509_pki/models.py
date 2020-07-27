@@ -160,6 +160,7 @@ class Certificate(models.Model):
         (CertificateTypes.OCSP, 'OCSP Signing Certificate'),
     )
     type = models.CharField(max_length=1, choices=TYPES)
+    #TODO check if shortname is still required as OPENSSL is not used anymore
     shortname = models.CharField(
         "Short Name",
         max_length=128,
@@ -198,7 +199,9 @@ class Certificate(models.Model):
         "for intermediate 10 years for other types 1 year. Allowed date format: yyyy-mm-dd.")
     revoked_at = models.DateField(
         editable=False, default=None, blank=True, null=True)
-    revoked_uuid = models.UUIDField(default=0)  # TODO check this
+    # when not revoked, uuid is 0. The revoked_uuid is used in the unique constraint
+    # to ensure only one signed certificate has been issued
+    revoked_uuid = models.UUIDField(default=0)
     serial = models.UUIDField(default=uuid.uuid4, editable=False)
 
     key = models.TextField("Serialized Private Key")
@@ -225,8 +228,7 @@ class Certificate(models.Model):
 
     @property
     def revoked(self):
-        return (self.revoked_uuid != uuid.UUID(
-            '00000000000000000000000000000001'))
+        return self.revoked_uuid != 0
 
     @property
     def expired(self):
