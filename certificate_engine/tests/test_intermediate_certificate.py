@@ -1,10 +1,6 @@
-# coding: utf-8
 import arrow
-import datetime
-from cryptography import x509
-from cryptography.x509 import ExtensionOID
-from cryptography.x509.extensions import _key_identifier_from_public_key
-from cryptography.x509.oid import AuthorityInformationAccessOID, NameOID
+# noinspection PyUnresolvedReferences
+from cryptography.x509.oid import NameOID
 from django.utils import timezone
 
 from certificate_engine.ssl.certificate import Certificate, PassPhraseError, PolicyError
@@ -100,9 +96,24 @@ class IntermediateCertificateTest(CertificateTestCase):
                                            organizationName='BJA Electronics')
         self.root_ca_not_matching_attribute(subject, 'organizationName')
 
-    def test_generate_intermediate_certificate(self):
-        key = Key().create_key(4096)
+    def test_generate_intermediate_certificate_duplicate_commonName(self):
+        subject = DistinguishedNameFactory(countryName=self.root_certificate.dn.countryName,
+                                           stateOrProvinceName=self.root_certificate.dn.stateOrProvinceName,
+                                           organizationName=self.root_certificate.dn.organizationName,
+                                           commonName=self.root_certificate.dn.commonName)
+        with self.assertRaises(PolicyError) as context:
+            certificate_request = CertificateFactory(type=CertificateTypes.INTERMEDIATE,
+                                                     shortname="test_certificate_duplicate_commonName",
+                                                     parent=self.root_certificate, dn=subject,
+                                                     key=self.key.serialize())
+            certhandler = Certificate()
+            certhandler.create_certificate(certificate_request)
 
+        self.assertEqual("CommonName '{}' should not be equal to common "
+                         "name of parent".format(self.root_certificate.dn.commonName),
+                         str(context.exception))
+
+    def test_generate_intermediate_certificate(self):
         subject = DistinguishedNameFactory(countryName=self.root_certificate.dn.countryName,
                                            stateOrProvinceName=self.root_certificate.dn.stateOrProvinceName,
                                            organizationName=self.root_certificate.dn.organizationName)
@@ -110,25 +121,13 @@ class IntermediateCertificateTest(CertificateTestCase):
         certificate_request = CertificateFactory(type=CertificateTypes.INTERMEDIATE,
                                                  shortname="test_generate_intermediate_certificate",
                                                  parent=self.root_certificate, dn=subject,
-                                                 key=key.serialize())
+                                                 key=self.key.serialize())
 
         certhandler = Certificate()
         certhandler.create_certificate(certificate_request)
         crt = certhandler.certificate
 
-        self.assertEqual(crt.serial_number, int(certificate_request.serial))
-        self.assertEqual(crt.public_key().public_numbers(), key.key.public_key().public_numbers())
-        self.assertEqual(crt.not_valid_before, datetime.datetime(
-            year=certificate_request.created_at.year,
-            month=certificate_request.created_at.month,
-            day=certificate_request.created_at.day
-        ))
-
-        self.assertEqual(crt.not_valid_after, datetime.datetime(
-            year=certificate_request.expires_at.year,
-            month=certificate_request.expires_at.month,
-            day=certificate_request.expires_at.day
-        ))
+        self.assert_basic_information(crt, certificate_request)
 
         # subject
         self.assert_subject(crt.subject, certificate_request)
@@ -141,52 +140,17 @@ class IntermediateCertificateTest(CertificateTestCase):
         # crlDistributionspoints
         self.assert_crl_distribution(crt, certificate_request)
 
-        # keyUsage = basicConstraints = critical, CA:true
-        ext = crt.extensions.get_extension_for_oid(ExtensionOID.BASIC_CONSTRAINTS)
-        self.assertTrue(ext.critical)
-        self.assertEqual(ext.value, x509.BasicConstraints(
-            ca=True,
-            path_length=0
-        ))
-
-        # keyUsage = critical, digitalSignature, cRLSign, keyCertSign
-        ext = crt.extensions.get_extension_for_oid(ExtensionOID.KEY_USAGE)
-        self.assertTrue(ext.critical)
-        self.assertEqual(ext.value, x509.KeyUsage(
-            digital_signature=True,
-            content_commitment=False,
-            key_encipherment=False,
-            data_encipherment=False,
-            key_agreement=False,
-            key_cert_sign=True,
-            crl_sign=True,
-            encipher_only=False,
-            decipher_only=False
-        ))
+        self.assert_intermediate_authority(crt)
 
         # OCSP
         # authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
-        ext = crt.extensions.get_extension_for_oid(ExtensionOID.AUTHORITY_INFORMATION_ACCESS)
-        self.assertTrue(ext.critical)
-        self.assertEqual(ext.value[0], x509.AccessDescription(
-            AuthorityInformationAccessOID.OCSP,
-            x509.UniformResourceIdentifier(certificate_request.ocsp_distribution_host)
-        ))
+        self.assert_oscp(crt, certificate_request)
 
         # authorityKeyIdentifier = keyid:always, issuer
-        ext = crt.extensions.get_extension_for_oid(ExtensionOID.AUTHORITY_KEY_IDENTIFIER)
-        self.assertTrue(ext.critical)
-        self.assertEqual(ext.value.key_identifier, _key_identifier_from_public_key(self.root_key.key.public_key()))
-        self.assertEqual(ext.value.authority_cert_serial_number, int(self.root_certificate.serial))
-        self.assertEqual([x.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value for x in
-                          ext.value.authority_cert_issuer[0].value.rdns if
-                          x.get_attributes_for_oid(NameOID.COMMON_NAME)][0],
-                         str(self.root_certificate.dn))
+        self.assert_authority_key(crt, self.root_key, self.root_certificate)
 
         # subjectKeyIdentifier = hash
-        ext = crt.extensions.get_extension_for_oid(ExtensionOID.SUBJECT_KEY_IDENTIFIER)
-        self.assertTrue(ext.critical)
-        self.assertEqual(ext.value.digest, _key_identifier_from_public_key(key.key.public_key()))
+        self.assert_hash(crt)
 
     def test_generate_intermediate_certificate_minimal(self):
         key = Key().create_key(4096)

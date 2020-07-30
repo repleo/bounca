@@ -1,9 +1,10 @@
 # coding: utf-8
-import datetime
 from cryptography import x509
 from cryptography.x509 import ExtensionOID
-from cryptography.x509.extensions import ExtensionNotFound, _key_identifier_from_public_key
-from cryptography.x509.oid import AuthorityInformationAccessOID, NameOID
+# noinspection PyUnresolvedReferences
+from cryptography.x509.extensions import ExtensionNotFound
+# noinspection PyUnresolvedReferences
+from cryptography.x509.oid import NameOID
 
 from certificate_engine.ssl.certificate import Certificate, PassPhraseError, PolicyError
 from certificate_engine.ssl.key import Key
@@ -76,19 +77,7 @@ class RootCertificateTest(CertificateTestCase):
 
         crt = certhandler.certificate
 
-        self.assertEqual(crt.serial_number, int(certificate_request.serial))
-        self.assertEqual(crt.public_key().public_numbers(), self.key.key.public_key().public_numbers())
-        self.assertEqual(crt.not_valid_before, datetime.datetime(
-            year=certificate_request.created_at.year,
-            month=certificate_request.created_at.month,
-            day=certificate_request.created_at.day
-        ))
-
-        self.assertEqual(crt.not_valid_after, datetime.datetime(
-            year=certificate_request.expires_at.year,
-            month=certificate_request.expires_at.month,
-            day=certificate_request.expires_at.day
-        ))
+        self.assert_basic_information(crt, certificate_request)
 
         # subject
         self.assert_subject(crt.subject, certificate_request)
@@ -96,26 +85,17 @@ class RootCertificateTest(CertificateTestCase):
         self.assertIsInstance(crt.issuer, x509.Name)
         self.assert_subject(crt.issuer, certificate_request)
         self.assert_crl_distribution(crt, certificate_request)
-        self.assert_root_authority(crt, certificate_request)
+        self.assert_root_authority(crt)
 
         # OCSP
         # authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
-        ext = crt.extensions.get_extension_for_oid(ExtensionOID.AUTHORITY_INFORMATION_ACCESS)
-        self.assertTrue(ext.critical)
-        self.assertEqual(ext.value[0], x509.AccessDescription(
-            AuthorityInformationAccessOID.OCSP,
-            x509.UniformResourceIdentifier(certificate_request.ocsp_distribution_host)
-        ))
+        self.assert_oscp(crt, certificate_request)
 
         # authorityKeyIdentifier = keyid:always, issuer
-        ext = crt.extensions.get_extension_for_oid(ExtensionOID.AUTHORITY_KEY_IDENTIFIER)
-        self.assertTrue(ext.critical)
-        self.assertEqual(ext.value.key_identifier, _key_identifier_from_public_key(self.key.key.public_key()))
+        self.assert_authority_key(crt, self.key)
 
         # subjectKeyIdentifier = hash
-        ext = crt.extensions.get_extension_for_oid(ExtensionOID.SUBJECT_KEY_IDENTIFIER)
-        self.assertTrue(ext.critical)
-        self.assertEqual(ext.value.digest, _key_identifier_from_public_key(self.key.key.public_key()))
+        self.assert_hash(crt)
 
     def test_generate_root_ca(self):
         certificate_request = CertificateFactory(key=self.key.serialize())
@@ -124,20 +104,7 @@ class RootCertificateTest(CertificateTestCase):
 
         crt = certhandler.certificate
 
-        self.assertEqual(crt.serial_number, int(certificate_request.serial))
-        self.assertEqual(crt.public_key().public_numbers(), self.key.key.public_key().public_numbers())
-        self.assertEqual(crt.not_valid_before, datetime.datetime(
-            year=certificate_request.created_at.year,
-            month=certificate_request.created_at.month,
-            day=certificate_request.created_at.day
-        ))
-
-        self.assertEqual(crt.not_valid_after, datetime.datetime(
-            year=certificate_request.expires_at.year,
-            month=certificate_request.expires_at.month,
-            day=certificate_request.expires_at.day
-        ))
-
+        self.assert_basic_information(crt, certificate_request)
         # subject
         self.assert_subject(crt.subject, certificate_request)
         self.assertListEqual([], crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME))
@@ -146,26 +113,17 @@ class RootCertificateTest(CertificateTestCase):
         self.assertListEqual([], crt.issuer.get_attributes_for_oid(NameOID.LOCALITY_NAME))
 
         self.assert_crl_distribution(crt, certificate_request)
-        self.assert_root_authority(crt, certificate_request)
+        self.assert_root_authority(crt)
 
         # OCSP
         # authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
-        ext = crt.extensions.get_extension_for_oid(ExtensionOID.AUTHORITY_INFORMATION_ACCESS)
-        self.assertTrue(ext.critical)
-        self.assertEqual(ext.value[0], x509.AccessDescription(
-            AuthorityInformationAccessOID.OCSP,
-            x509.UniformResourceIdentifier(certificate_request.ocsp_distribution_host)
-        ))
+        self.assert_oscp(crt, certificate_request)
 
         # authorityKeyIdentifier = keyid:always, issuer
-        ext = crt.extensions.get_extension_for_oid(ExtensionOID.AUTHORITY_KEY_IDENTIFIER)
-        self.assertTrue(ext.critical)
-        self.assertEqual(ext.value.key_identifier, _key_identifier_from_public_key(self.key.key.public_key()))
+        self.assert_authority_key(crt, self.key)
 
         # subjectKeyIdentifier = hash
-        ext = crt.extensions.get_extension_for_oid(ExtensionOID.SUBJECT_KEY_IDENTIFIER)
-        self.assertTrue(ext.critical)
-        self.assertEqual(ext.value.digest, _key_identifier_from_public_key(self.key.key.public_key()))
+        self.assert_hash(crt)
 
     def test_generate_root_ca_no_crl_distribution(self):
         certificate_request = CertificateFactory(crl_distribution_url=None, key=self.key.serialize())
@@ -178,7 +136,7 @@ class RootCertificateTest(CertificateTestCase):
         self.assert_subject(crt.subject, certificate_request)
         # issuer
         self.assert_subject(crt.issuer, certificate_request)
-        self.assert_root_authority(crt, certificate_request)
+        self.assert_root_authority(crt)
 
         self.assertEqual(crt.serial_number, int(certificate_request.serial))
         self.assertEqual(crt.public_key().public_numbers(), self.key.key.public_key().public_numbers())
@@ -200,7 +158,7 @@ class RootCertificateTest(CertificateTestCase):
         # issuer
         self.assert_subject(crt.issuer, certificate_request)
         self.assert_crl_distribution(crt, certificate_request)
-        self.assert_root_authority(crt, certificate_request)
+        self.assert_root_authority(crt)
 
         self.assertEqual(crt.serial_number, int(certificate_request.serial))
         self.assertEqual(crt.public_key().public_numbers(), self.key.key.public_key().public_numbers())
@@ -222,7 +180,7 @@ class RootCertificateTest(CertificateTestCase):
         # issuer
         self.assert_subject(crt.issuer, certificate_request)
         self.assert_crl_distribution(crt, certificate_request)
-        self.assert_root_authority(crt, certificate_request)
+        self.assert_root_authority(crt)
 
         self.assertEqual(crt.serial_number, int(certificate_request.serial))
         self.assertEqual(crt.public_key().public_numbers(), self.key.key.public_key().public_numbers())
@@ -234,23 +192,17 @@ class RootCertificateTest(CertificateTestCase):
             certhandler.create_certificate(certificate, passphrase=b"superSecret_wrong")
 
     def test_serialize_root_certificate(self):
-        certificate = CertificateFactory(key=self.key.serialize())
+        certificate_request = CertificateFactory(key=self.key.serialize())
         certhandler = Certificate()
-        certhandler.create_certificate(certificate)
+        certhandler.create_certificate(certificate_request)
 
         pem = certhandler.serialize()
 
         crt = certhandler.load(pem).certificate
 
-        self.assertEqual(crt.serial_number, int(certificate.serial))
-        self.assertEqual(crt.public_key().public_numbers(), self.key.key.public_key().public_numbers())
-        self.assertEqual(crt.not_valid_before, datetime.datetime(
-            year=certificate.created_at.year,
-            month=certificate.created_at.month,
-            day=certificate.created_at.day
-        ))
+        self.assert_basic_information(crt, certificate_request)
 
     def test_serialize_no_certificate(self):
         certhandler = Certificate()
         with self.assertRaisesMessage(RuntimeError, "No certificate object"):
-            certhandler.serialize('test_root_Ca.pem')
+            certhandler.serialize()

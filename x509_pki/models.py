@@ -95,18 +95,18 @@ class DistinguishedName(models.Model):
         if self.stateOrProvinceName is not None:
             dn.append("ST={}".format(self.stateOrProvinceName))
         if self.emailAddress is not None:
-            dn.append("{}}={}".format(self.email_label, self.emailAddress))
+            dn.append("{}={}".format(email_label, self.emailAddress))
         if self.countryName is not None:
             dn.append("C={}".format(self.countryName))
         return dn
 
     @property
     def dn(self):
-        return self._to_dn(email_label='EMAIL').join(', ')
+        return ', '.join(self._to_dn(email_label='EMAIL'))
 
     @property
     def subj(self):
-        return ([''] + self._to_dn(email_label='emailAddress')).join('/')
+        return '/'.join([''] + self._to_dn(email_label='emailAddress'))
 
     # Create only model
     def save(self, *args, **kwargs):

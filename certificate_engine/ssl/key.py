@@ -5,10 +5,9 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 
 
+# noinspection PyUnresolvedReferences
 class Key(object):
-
-    def __init__(self) -> None:
-        self._key = None  # type: RSAPrivateKey
+    _key: RSAPrivateKey = None
 
     @property
     def key(self) -> RSAPrivateKey:
@@ -28,7 +27,8 @@ class Key(object):
         )
         return self
 
-    def serialize(self, passphrase: bytes = None, encoding: str = serialization.Encoding.PEM) -> bytes:
+    def serialize(self, passphrase: bytes = None,
+                  encoding: serialization.Encoding = serialization.Encoding.PEM) -> bytes:
         """
         Serialize key
 
@@ -48,7 +48,7 @@ class Key(object):
             encryption_algorithm=encryption,
         )
 
-    def load(self, pem: bytes, passphrase: bytes = None) -> RSAPrivateKey:
+    def load(self, pem: bytes, passphrase: bytes = None) -> 'Key':
         """
         Read key from pem
 
@@ -59,7 +59,8 @@ class Key(object):
         self._key = serialization.load_pem_private_key(pem, passphrase, backend=default_backend())
         return self
 
-    def check_passphrase(self, pem: bytes, passphrase: bytes = None) -> bool:
+    @staticmethod
+    def check_passphrase(pem: bytes, passphrase: bytes = None) -> bool:
         """
         Checks passphrase of a pem key file
 

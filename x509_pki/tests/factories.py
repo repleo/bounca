@@ -43,8 +43,9 @@ class DistinguishedNameFactory(DjangoModelFactory):
     organizationalUnitName = fake.sentence(nb_words=3, variable_nb_words=True)
     emailAddress = factory.Faker('email')
     commonName = factory.Faker('domain_name')
-    subjectAltNames = [factory.Faker('domain_name') for x in range(random.randint(0, 5))]
-
+    subjectAltNames = factory.List([
+        factory.Faker('domain_name') for _ in range(random.randint(1, 5))
+    ])
 
 @factory.django.mute_signals(signals.pre_save, signals.post_save)
 class CertificateFactory(DjangoModelFactory):

@@ -7,7 +7,9 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.x509 import DirectoryName
+# noinspection PyProtectedMember,PyUnresolvedReferences
 from cryptography.x509.extensions import _key_identifier_from_public_key
+# noinspection PyUnresolvedReferences
 from cryptography.x509.oid import AuthorityInformationAccessOID, ExtendedKeyUsageOID, NameOID
 from functools import reduce
 
@@ -29,14 +31,14 @@ class PolicyError(ValueError):
 
 
 class CertificateError(ValueError):
-    """Base class for mallformed certificates in this module."""
+    """Base class for malformed certificates in this module."""
     pass
 
 
+# noinspection PyTypeChecker
 class Certificate(object):
-    def __init__(self) -> None:
-        self._certificate = None  # type: x509.Certificate
-        self._builder = None  # type: x509.CertificateBuilder
+    _certificate: x509.Certificate = None
+    _builder: x509.CertificateBuilder = None
 
     @property
     def certificate(self):
@@ -55,30 +57,31 @@ class Certificate(object):
         attributes = []
         for attr in reduce(lambda x, y: x + y, [policy[k] for k in policy.keys()]):
             value = getattr(dn, attr[0])
+            if attr[0] == 'countryName' and value is not None:
+                value = getattr(value, 'code')
             if value is not None:
-                if attr[0] == 'countryName':
-                    value = getattr(value, 'code')
                 attributes.append(x509.NameAttribute(attr[1], value))
         return x509.Name(attributes)
 
     @staticmethod
     def _check_common_name(cert: Certificate_model, common_name: str):
-        # TODO make test
         if not cert.parent:
             return
-
         parent_crt = Certificate().load(cert.parent.crt).certificate
         if parent_crt.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value == common_name:
-            raise ValueError("CommonName '{}' should not be equal to common name of parent".format(cert.dn.commonName))
+            raise PolicyError("CommonName '{}' should not be equal to common name of parent".format(common_name))
+        Certificate._check_common_name(cert.parent, common_name)
 
     @staticmethod
     def _check_policies_optional(dn: DistinguishedName, subject: dict, policy: CertificatePolicy):
+        # noinspection PyUnresolvedReferences
         for attr in policy['optional']:
             if getattr(dn, attr[0]) is not None:
                 subject[attr[0]] = getattr(dn, attr[0])
 
     @staticmethod
     def _check_policies_supplied(dn: DistinguishedName, subject: dict, policy: CertificatePolicy):
+        # noinspection PyUnresolvedReferences
         for attr in policy['supplied']:
             if not getattr(dn, attr[0]):
                 raise PolicyError("Attribute '{}' is required".format(attr[0]))
@@ -88,6 +91,8 @@ class Certificate(object):
     def _check_policies(cert: Certificate_model):
         dn = cert.dn
         subject = {}
+        if cert.dn.subjectAltNames:
+            subject['subjectAltNames'] = cert.dn.subjectAltNames
         policy = Certificate._get_certificate_policy(cert).policy
         Certificate._check_policies_optional(dn, subject, policy)
         Certificate._check_policies_supplied(dn, subject, policy)
@@ -106,9 +111,15 @@ class Certificate(object):
                                       .format(attr[0], parent_crt.subject.get_attributes_for_oid(attr[1])[0].value,
                                               getattr(dn, attr[0])))
                 subject[attr[0]] = getattr(dn, attr[0])
-
         Certificate._check_common_name(cert, getattr(dn, 'commonName'))
         cert.dn = DistinguishedName(**subject)
+
+    @staticmethod
+    def _check_issuer_provided(cert: Certificate_model):
+        if not cert.parent:
+            raise CertificateError("A parent certificate is expected")
+        if cert.parent.type not in {CertificateTypes.INTERMEDIATE, CertificateTypes.ROOT}:
+            raise CertificateError("A root or intermediate parent is expected")
 
     def _set_issuer_name(self, cert: Certificate_model) -> None:
         issuer_cert = cert.parent if cert.parent else cert
@@ -117,20 +128,17 @@ class Certificate(object):
     def _set_subject_name(self, cert: Certificate_model) -> None:
         self._builder = self._builder.subject_name(Certificate._build_subject_names(cert))
 
-    def _get_root_cert(self, cert):
-        return self._get_root_cert(cert.parent) if cert.parent else cert
-
     def _set_public_key(self, cert: Certificate_model, private_key: Key, issuer_key: Key = None) -> None:
         self._builder = self._builder.public_key(private_key.key.public_key())
-        root_ca_subject = authority_cert_serial_number = None
+        issuer_cert_subject = issuer_cert_serial_number = None
         if cert.type != CertificateTypes.ROOT:
-            root_cert = self._get_root_cert(cert.parent)
-            root_ca_subject = [DirectoryName(Certificate._build_subject_names(root_cert))]
-            authority_cert_serial_number = int(cert.parent.serial)
+            issuer_cert = cert.parent
+            issuer_cert_subject = [DirectoryName(Certificate._build_subject_names(issuer_cert))]
+            issuer_cert_serial_number = int(issuer_cert.serial)
         self._builder = self._builder.add_extension(
             x509.AuthorityKeyIdentifier(key_identifier=_key_identifier_from_public_key(issuer_key.key.public_key()),
-                                        authority_cert_issuer=root_ca_subject,
-                                        authority_cert_serial_number=authority_cert_serial_number),
+                                        authority_cert_issuer=issuer_cert_subject,
+                                        authority_cert_serial_number=issuer_cert_serial_number),
             critical=True,
         )
         self._builder = self._builder.add_extension(
@@ -139,7 +147,7 @@ class Certificate(object):
         )
 
     def _set_crl_distribution_url(self, cert: Certificate_model) -> None:
-        if cert.type in {CertificateTypes.SERVER_CERT, cert.type == CertificateTypes.CLIENT_CERT}:
+        if cert.type in {CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT}:
             cert = cert.parent
         if cert.crl_distribution_url:
             self._builder = self._builder.add_extension(
@@ -220,7 +228,8 @@ class Certificate(object):
             )
         )
 
-    def _set_basic(self, cert: Certificate_model, private_key: Key, issuer_key: Key) -> None:
+    def _set_basic(self, cert: Certificate_model, private_key: Key,
+                   issuer_key: Key) -> None:
         self._builder = self._builder.serial_number(int(cert.serial))
         self._set_issuer_name(cert)
         self._set_dates(cert)
@@ -264,11 +273,8 @@ class Certificate(object):
     def _create_server_certificate(self, cert: Certificate_model, private_key: Key,
                                    issuer_key: Key) -> x509.Certificate:
 
-        if cert.parent.type not in {CertificateTypes.INTERMEDIATE, CertificateTypes.ROOT}:
-            raise RuntimeError("A root or intermediate parent is expected ")
-
-        if not cert.dn.commonName:
-            raise ValueError("CommonName has not been supplied")
+        Certificate._check_issuer_provided(cert)
+        Certificate._check_policies(cert)
 
         self._builder = x509.CertificateBuilder()
         self._set_basic(cert, private_key, issuer_key)
@@ -319,11 +325,8 @@ class Certificate(object):
     def _create_client_certificate(self, cert: Certificate_model, private_key: Key,
                                    issuer_key: Key) -> x509.Certificate:
 
-        if cert.parent.type not in {CertificateTypes.INTERMEDIATE, CertificateTypes.ROOT}:
-            raise RuntimeError("A root or intermediate parent is expected ")
-
-        if not cert.dn.commonName:
-            raise ValueError("CommonName has not been supplied")
+        Certificate._check_issuer_provided(cert)
+        Certificate._check_policies(cert)
 
         self._builder = x509.CertificateBuilder()
         self._set_basic(cert, private_key, issuer_key)
@@ -399,7 +402,7 @@ class Certificate(object):
             self._certificate = self._create_client_certificate(cert_request, private_key, issuer_key)
         return self
 
-    def serialize(self, encoding: str = serialization.Encoding.PEM) -> bytes:
+    def serialize(self, encoding: serialization.Encoding = serialization.Encoding.PEM) -> str:
         """
         Serialize certificate
 
@@ -409,13 +412,12 @@ class Certificate(object):
         if not self._certificate:
             raise RuntimeError("No certificate object")
 
-        # TODO test
         if encoding not in serialization.Encoding:
             raise ValueError("{} is not a valid encoding")
 
-        return self._certificate.public_bytes(encoding=encoding)
+        return self._certificate.public_bytes(encoding=encoding).decode('utf8')
 
-    def load(self, pem: bytes) -> 'Certificate':
+    def load(self, pem: str) -> 'Certificate':
         """
         Read certificate from pem
 
@@ -423,5 +425,5 @@ class Certificate(object):
         Returns:   Self
         """
 
-        self._certificate = x509.load_pem_x509_certificate(pem, backend=default_backend())
+        self._certificate = x509.load_pem_x509_certificate(pem.encode('utf8'), backend=default_backend())
         return self

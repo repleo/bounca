@@ -1,6 +1,10 @@
+import datetime
 from cryptography import x509
 from cryptography.x509 import ExtensionOID
-from cryptography.x509.oid import NameOID
+# noinspection PyProtectedMember,PyUnresolvedReferences
+from cryptography.x509.extensions import _key_identifier_from_public_key
+# noinspection PyUnresolvedReferences
+from cryptography.x509.oid import AuthorityInformationAccessOID, NameOID
 from django.test import TestCase
 
 
@@ -43,13 +47,13 @@ class CertificateTestCase(TestCase):
                              x509.ReasonFlags.certificate_hold,
                          ]))
 
-    def assert_root_authority(self, crt, certificate_request):
+    def assert_root_authority(self, crt, path_length=None):
         # keyUsage = basicConstraints = critical, CA:true
         ext = crt.extensions.get_extension_for_oid(ExtensionOID.BASIC_CONSTRAINTS)
         self.assertTrue(ext.critical)
         self.assertEqual(ext.value, x509.BasicConstraints(
             ca=True,
-            path_length=None
+            path_length=path_length
         ))
 
         # keyUsage = critical, digitalSignature, cRLSign, keyCertSign
@@ -66,3 +70,74 @@ class CertificateTestCase(TestCase):
             encipher_only=False,
             decipher_only=False
         ))
+
+    def assert_user_certificate(self, crt, content_commitment=False):
+        ext = crt.extensions.get_extension_for_oid(ExtensionOID.BASIC_CONSTRAINTS)
+        self.assertFalse(ext.critical)
+        self.assertEqual(ext.value, x509.BasicConstraints(
+            ca=False,
+            path_length=None
+        ))
+
+        ext = crt.extensions.get_extension_for_oid(ExtensionOID.KEY_USAGE)
+        self.assertTrue(ext.critical)
+        self.assertEqual(ext.value, x509.KeyUsage(
+            digital_signature=True,
+            content_commitment=content_commitment,
+            key_encipherment=True,
+            data_encipherment=False,
+            key_agreement=False,
+            key_cert_sign=False,
+            crl_sign=False,
+            encipher_only=False,
+            decipher_only=False
+        ))
+
+    def assert_intermediate_authority(self, crt, path_length=0):
+        self.assert_root_authority(crt, path_length=path_length)
+
+    def assert_basic_information(self, crt, certificate):
+        self.assertEqual(crt.serial_number, int(certificate.serial))
+        # noinspection PyUnresolvedReferences
+        self.assertEqual(crt.public_key().public_numbers(), self.key.key.public_key().public_numbers())
+        self.assertEqual(crt.not_valid_before, datetime.datetime(
+            year=certificate.created_at.year,
+            month=certificate.created_at.month,
+            day=certificate.created_at.day
+        ))
+
+        self.assertEqual(crt.not_valid_after, datetime.datetime(
+            year=certificate.expires_at.year,
+            month=certificate.expires_at.month,
+            day=certificate.expires_at.day
+        ))
+
+    def assert_hash(self, crt):
+        ext = crt.extensions.get_extension_for_oid(ExtensionOID.SUBJECT_KEY_IDENTIFIER)
+        self.assertTrue(ext.critical)
+        # noinspection PyUnresolvedReferences
+        self.assertEqual(ext.value.digest, _key_identifier_from_public_key(self.key.key.public_key()))
+
+    def assert_oscp(self, crt, certificate):
+        ext = crt.extensions.get_extension_for_oid(ExtensionOID.AUTHORITY_INFORMATION_ACCESS)
+        self.assertTrue(ext.critical)
+        self.assertEqual(ext.value[0], x509.AccessDescription(
+            AuthorityInformationAccessOID.OCSP,
+            x509.UniformResourceIdentifier(certificate.ocsp_distribution_host)
+        ))
+
+    def assert_authority_key(self, crt, key, issuer_certificate=None):
+        ext = crt.extensions.get_extension_for_oid(ExtensionOID.AUTHORITY_KEY_IDENTIFIER)
+        self.assertTrue(ext.critical)
+        self.assertEqual(ext.value.key_identifier, _key_identifier_from_public_key(key.key.public_key()))
+        if issuer_certificate:
+            self.assertEqual(ext.value.authority_cert_serial_number, int(issuer_certificate.serial))
+            self.assertEqual([x.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value for x in
+                              ext.value.authority_cert_issuer[0].value.rdns if
+                              x.get_attributes_for_oid(NameOID.COMMON_NAME)][0],
+                             str(issuer_certificate.dn))
+
+    def assert_extension(self, crt, oid, value):
+        ext = crt.extensions.get_extension_for_oid(oid)
+        self.assertFalse(ext.critical)
+        self.assertEqual([x for x in ext.value], value)

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from cryptography.hazmat.primitives.asymmetric import rsa
 from django.test import TestCase
 
