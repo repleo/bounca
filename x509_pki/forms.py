@@ -107,17 +107,17 @@ class CertificateForm(forms.ModelForm):
             raise forms.ValidationError(
                 'Not allowed to update an existing certificate!')
 
-        shortname = cleaned_data.get("shortname")
+        name = cleaned_data.get("name")
         cert_type = cleaned_data.get("type")
         dn = cleaned_data.get("dn")
-
+        # TODO to format
         if Certificate.objects.filter(
-                shortname=shortname,
+                name=name,
                 type=cert_type,
                 revoked_uuid=0).count() > 0:
             raise forms.ValidationError(
-                "Shortname (" +
-                shortname +
+                "name (" +
+                name +
                 ") for " +
                 dict(
                     Certificate.TYPES)[cert_type] +
@@ -195,7 +195,6 @@ class CertificateForm(forms.ModelForm):
     class Meta:
         model = Certificate
         fields = (
-            'shortname',
             'name',
             'parent',
             'type',

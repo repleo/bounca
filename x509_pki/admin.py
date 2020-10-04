@@ -37,9 +37,8 @@ admin.site.register(DistinguishedName, X509_pki_DistinguishedNameAdmin)
 
 
 class X509_pki_CertificateAdmin(admin.ModelAdmin):
-    search_fields = ['shortname', 'name']
+    search_fields = ['name']
     list_display = (
-        'shortname',
         'name',
         'parent',
         'type',
@@ -55,7 +54,6 @@ class X509_pki_CertificateAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj:  # This is the case when obj is already created i.e. it's an edit
             return [
-                'shortname',
                 'name',
                 'parent',
                 'type',

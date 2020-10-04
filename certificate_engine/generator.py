@@ -433,6 +433,8 @@ def generate_client_cert(certificate, key_path='.', root_path='.'):
 @generate_key_path
 @write_passphrase_files
 def revoke_server_cert(certificate, root_path='.', **kwargs):
+    # TODO implement new logic
+    return 0
     logger.warning("Revoke server certificate")
     subprocess.check_output([root_path + "revoke_server_cert_certificate.sh",
                              certificate.shortname, str(certificate.slug_revoked_at)])

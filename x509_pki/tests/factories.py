@@ -2,8 +2,8 @@ import arrow
 import factory
 import random
 from django.contrib.auth.models import User
-from django.db.models import signals
 from django.utils import timezone
+from factory import BUILD_STRATEGY
 from factory.django import DjangoModelFactory
 from faker import Factory as FakerFactory
 
@@ -47,14 +47,14 @@ class DistinguishedNameFactory(DjangoModelFactory):
         factory.Faker('domain_name') for _ in range(random.randint(1, 5))
     ])
 
-@factory.django.mute_signals(signals.pre_save, signals.post_save)
+
 class CertificateFactory(DjangoModelFactory):
 
     class Meta:
         model = Certificate
+        strategy = BUILD_STRATEGY
 
     type = CertificateTypes.ROOT
-    shortname = fake.word()
     name = fake.sentence(nb_words=6, variable_nb_words=True)
     dn = factory.LazyFunction(DistinguishedNameFactory)
     parent = None

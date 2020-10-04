@@ -12,8 +12,7 @@ from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django_countries.fields import CountryField
 
-from certificate_engine.generator import (
-    generate_crl_file, get_certificate_info, is_passphrase_in_valid, revoke_client_cert, revoke_server_cert)
+from certificate_engine.generator import get_certificate_info, is_passphrase_in_valid
 from certificate_engine.types import CertificateTypes
 
 
@@ -34,8 +33,8 @@ class DistinguishedName(models.Model):
         "State or Province Name",
         max_length=128,
         validators=[alphanumeric_validator],
-        help_text="The state/region where your organization is located. " +
-        "This shouldn't be abbreviated. (1–128 characters)",
+        help_text="The state/region where your organization is located. "
+                  "This shouldn't be abbreviated. (1–128 characters)",
         blank=True,
         null=True)
     localityName = models.CharField(
@@ -49,7 +48,7 @@ class DistinguishedName(models.Model):
         "Organization Name",
         max_length=64,
         validators=[alphanumeric_validator],
-        help_text="The legal name of your organization. This should not be abbreviated and should include " +
+        help_text="The legal name of your organization. This should not be abbreviated and should include "
         "suffixes such as Inc, Corp, or LLC.",
         blank=True,
         null=True)
@@ -71,14 +70,15 @@ class DistinguishedName(models.Model):
         "Common Name",
         max_length=64,
         validators=[alphanumeric_validator],
-        help_text="The fully qualified domain name (FQDN) of your server. This must match " +
-        "exactly what you type in your web browser or you will receive a name mismatch error.")
+        help_text="The fully qualified domain name (FQDN) of your server. This must match "
+                  "exactly what you type in your web browser or you will receive a name mi"
+                  "smatch error.")
     subjectAltNames = ArrayField(
         models.CharField(
             max_length=64,
             validators=[alphanumeric_validator]),
-        help_text="subjectAltName list, i.e. dns names for server certs and email adresses " +
-        "for client certs. (separate by comma)",
+        help_text="subjectAltName list, i.e. dns names for server certs and email adresses "
+                  "for client certs. (separate by comma)",
         blank=True,
         null=True)
 
@@ -112,6 +112,9 @@ class DistinguishedName(models.Model):
     def save(self, *args, **kwargs):
         if self.id is None:
             super(DistinguishedName, self).save(*args, **kwargs)
+        else:
+            raise ValidationError(
+                'Not allowed to update a DistinguishedName record')
 
     @property
     def slug_commonName(self):
@@ -122,13 +125,6 @@ class DistinguishedName(models.Model):
 
     def __str__(self):
         return str(self.commonName)
-
-
-@receiver(pre_save, sender=DistinguishedName)
-def validation_rules_distinguished_name(sender, instance, *args, **kwargs):
-    if instance.id:
-        raise ValidationError(
-            'Not allowed to update a DistinguishedName record')
 
 
 def validate_in_future(value):
@@ -148,9 +144,6 @@ class Certificate(models.Model):
     alphanumeric = RegexValidator(
         r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ ]*$',
         'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
-    alphanumericshort = RegexValidator(
-        r'^[0-9a-zA-Z\_\.]*$',
-        'Only alphanumeric characters and [_.] are allowed.')
 
     TYPES = (
         (CertificateTypes.ROOT, 'Root CA Certificate'),
@@ -160,17 +153,11 @@ class Certificate(models.Model):
         (CertificateTypes.OCSP, 'OCSP Signing Certificate'),
     )
     type = models.CharField(max_length=1, choices=TYPES)
-    #TODO check if shortname is still required as OPENSSL is not used anymore
-    shortname = models.CharField(
-        "Short Name",
-        max_length=128,
-        validators=[alphanumericshort],
-        help_text="Short name to identify your key.")
     name = models.CharField(
         max_length=128,
         validators=[alphanumeric],
         blank=True,
-        help_text="Long name of your key, if not set will be equal to your shortname + CommonName.")
+        help_text="Name of your key, if not set will be equal to your CommonName.")
 
     dn = models.ForeignKey(DistinguishedName, on_delete=models.PROTECT)
 
@@ -195,8 +182,9 @@ class Certificate(models.Model):
     created_at = models.DateField(auto_now_add=True)
     expires_at = models.DateField(
         validators=[validate_in_future],
-        help_text="Select the date that the certificate will expire: for root typically 20 years, " +
-        "for intermediate 10 years for other types 1 year. Allowed date format: yyyy-mm-dd.")
+        help_text="Select the date that the certificate will expire: for root typically 20 years, "
+                  "for intermediate 10 years for other types 1 year. Allowed date format: yyyy-mm-"
+                  "dd.")
     revoked_at = models.DateField(
         editable=False, default=None, blank=True, null=True)
     # when not revoked, uuid is 0. The revoked_uuid is used in the unique constraint
@@ -220,28 +208,21 @@ class Certificate(models.Model):
         else:
             return int((self.expires_at - timezone.now().date()).days)
 
-    # TODO days_valid.fget.short_description = 'Days valid'
+    # TODO check if this makes sense
+    days_valid.fget.short_description = 'Days valid'
 
     @property
     def slug_revoked_at(self):
-        return slugify(self.revoked_at)
+        if self.revoked_at:
+            return slugify(self.revoked_at)
 
     @property
     def revoked(self):
-        return self.revoked_uuid != 0
+        return self.revoked_uuid != uuid.UUID(int=0)
 
     @property
     def expired(self):
         return self.expires_at <= timezone.now().date()
-
-    @property
-    def cert_path(self):
-        if self.parent:
-            cert_path = self.parent.cert_path
-            cert_path.append({'id': self.id, 'shortname': self.shortname})
-            return cert_path
-        else:
-            return [{'id': self.id, 'shortname': self.shortname}]
 
     def is_passphrase_valid(self):
         valid = is_passphrase_in_valid(self)
@@ -257,24 +238,27 @@ class Certificate(models.Model):
     # Create only model
     def save(self, *args, **kwargs):
         if self.id is None:
-            super(Certificate, self).save(*args, **kwargs)
+            super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         if not self.revoked_at and (
                 self.type is CertificateTypes.SERVER_CERT or self.type is CertificateTypes.CLIENT_CERT):
             self.revoked_at = timezone.now()
             self.revoked_uuid = uuid.uuid4()
-            if self.type == CertificateTypes.SERVER_CERT:
-                revoke_server_cert(self)
-            if self.type == CertificateTypes.CLIENT_CERT:
-                revoke_client_cert(self)
-            self.save(*args, **kwargs)
-            return None
-        raise ValidationError('Delete of record not allowed')
+            # TODO implement revocation
+            # if self.type == CertificateTypes.SERVER_CERT:
+            #     revoke_server_cert(self)
+            # if self.type == CertificateTypes.CLIENT_CERT:
+            #     revoke_client_cert(self)
+            kwargs['update_fields'] = ['revoked_at', 'revoked_uuid']
+            super().save(*args, **kwargs)
+            return
+        raise ValidationError('Delete of certificate not allowed')
 
     def generate_crl(self, *args, **kwargs):
         if self.type is CertificateTypes.INTERMEDIATE:
-            generate_crl_file(self)
+            # TODO implement generate_crl_file
+            # §generate_crl_file(self)
             return
         raise ValidationError(
             'CRL File can only be generated for Intermediate Certificates')
@@ -290,7 +274,7 @@ class Certificate(models.Model):
         super().__init__(*args, **kwargs)
 
     class Meta:
-        unique_together = (('shortname', 'type', 'revoked_uuid'),
+        unique_together = (('name', 'type', 'revoked_uuid'),
                            ('dn', 'type', 'revoked_uuid'),)
 
     def __unicode__(self):
@@ -303,39 +287,44 @@ class Certificate(models.Model):
 @receiver(pre_save, sender=Certificate)
 def set_fields_certificate(sender, instance, *args, **kwargs):
     if not instance.name:
-        instance.name = str(instance.shortname) + " - " + \
-            str(instance.dn.commonName)
+        instance.name = str(instance.dn.commonName)
 
 
-@receiver(pre_save, sender=Certificate)
-def validation_rules_certificate(sender, instance, *args, **kwargs):
+def check_if_not_update_certificate(instance, *args, **kwargs):
     if instance.id:  # check_if_not_update_certificate
-        # allow update of revoked_at field, this is a bit buggy: should filter
-        # all other fields TODO
-        if instance.revoked_at and (
-                instance.type is CertificateTypes.SERVER_CERT or instance.type is CertificateTypes.CLIENT_CERT):
+        if 'update_fields' in kwargs and set(kwargs['update_fields']) == set(['revoked_at', 'revoked_uuid']) and (
+                instance.type in {CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT}):
             return
         raise ValidationError('Not allowed to update a Certificate record')
 
+
+def check_if_passphrases_are_matching(instance, *args, **kwargs):
     if instance.passphrase_out and instance.passphrase_out_confirmation and \
        instance.passphrase_out != instance.passphrase_out_confirmation:
         raise ValidationError("The two passphrase fields didn't match.")
 
-    if instance.type == CertificateTypes.ROOT and instance.parent:  # check_if_root_has_no_parent
-        raise ValidationError(
-            'Not allowed to have a parent certificate for a ROOT CA certificate')
-    # check_if_non_root_certificate_has_parent
-    if instance.type is not CertificateTypes.ROOT and not instance.parent:
-        raise ValidationError('Non ROOT certificate should have a parent')
-    # check_if_non_root_certificate_has_parent
-    if instance.type is CertificateTypes.SERVER_CERT and instance.parent.type is not CertificateTypes.INTERMEDIATE:
-        raise ValidationError(
-            'Server certificate can only be generated for intermediate CA parent')
-    # check_if_non_root_certificate_has_parent
-    if instance.type is CertificateTypes.CLIENT_CERT and instance.parent.type is not CertificateTypes.INTERMEDIATE:
-        raise ValidationError(
-            'Client certificate can only be generated for intermediate CA parent')
 
+def check_if_root_has_no_parent(instance, *args, **kwargs):
+    if instance.type == CertificateTypes.ROOT and instance.parent:
+        raise ValidationError(
+            'Not allowed to have a parent certificate for a Root CA certificate')
+
+
+def check_if_non_root_certificate_has_parent(instance, *args, **kwargs):
+    if instance.type is not CertificateTypes.ROOT:
+        if not instance.parent:
+            raise ValidationError('Non Root certificate should have a parent')
+        cert_types = {CertificateTypes.CLIENT_CERT: 'Client',
+                      CertificateTypes.SERVER_CERT: 'Server',
+                      CertificateTypes.OCSP: 'OCSP'}
+        if instance.parent.type is not CertificateTypes.INTERMEDIATE and \
+           instance.type in cert_types:
+            raise ValidationError(
+                '{} certificate can only be generated for '
+                'intermediate CA parent'.format(cert_types[instance.type]))
+
+
+def check_intermediate_policies(instance, *args, **kwargs):
     if instance.type is CertificateTypes.INTERMEDIATE and instance.parent.type is CertificateTypes.ROOT:
         if instance.dn.countryName != instance.parent.dn.countryName:
             raise ValidationError(
@@ -347,7 +336,20 @@ def validation_rules_certificate(sender, instance, *args, **kwargs):
             raise ValidationError(
                 'Organization Name of Intermediate CA and Root CA should match (policy strict)')
 
+
+def check_if_child_not_expires_after_parent(instance, *args, **kwargs):
     if instance.parent and instance.days_valid > instance.parent.days_valid:
         raise ValidationError(
-            'Child Certificate should not expire later than ROOT CA')
+            'Child Certificate (expire date: {}) should not '
+            'expire later than parent CA (expire date: {})'
+            .format(instance.expires_at, instance.parent.expires_at))
 
+
+@receiver(pre_save, sender=Certificate)
+def validation_rules_certificate(sender, instance, *args, **kwargs):
+    check_if_not_update_certificate(instance, *args, **kwargs)
+    check_if_root_has_no_parent(instance, *args, **kwargs)
+    check_if_non_root_certificate_has_parent(instance, *args, **kwargs)
+    check_intermediate_policies(instance, *args, **kwargs)
+    check_if_child_not_expires_after_parent(instance, *args, **kwargs)
+    check_if_passphrases_are_matching(instance, *args, **kwargs)

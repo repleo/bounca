@@ -1,9 +1,7 @@
 """BounCA settings module"""
 
 import os
-import re
 import sys
-from django.utils.translation import ugettext_lazy as _
 from yamlreader import yaml_load
 
 
@@ -52,7 +50,6 @@ DATABASES = {
         }
     }
 }
-
 
 
 ADMINS = (
