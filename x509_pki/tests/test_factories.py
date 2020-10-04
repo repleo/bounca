@@ -32,7 +32,6 @@ class FactoriesTest(TestCase):
     def test_certificate_factory(self):
         cert = CertificateFactory()
         self.assertIsNotNone(cert.type)
-        self.assertIsNotNone(cert.shortname)
         self.assertIsNotNone(cert.name)
         self.assertIsNotNone(cert.dn)
         self.assertIsNone(cert.parent)
