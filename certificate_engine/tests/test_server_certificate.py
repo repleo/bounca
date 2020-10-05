@@ -26,9 +26,10 @@ class ServerCertificateTest(CertificateTestCase):
                                            organizationName='Repleo')
 
         cls.root_certificate = CertificateFactory(dn=subject,
-                                                  shortname="test_server_root_certificate",
-                                                  expires_at=arrow.get(timezone.now()).shift(days=+3).date(),
+                                                  name="test_server_root_certificate",
+                                                  expires_at=arrow.get(timezone.now()).shift(days=+30).date(),
                                                   key=cls.root_key.serialize())
+        cls.root_certificate.save()
         certhandler = Certificate()
         certhandler.create_certificate(cls.root_certificate)
 
@@ -40,10 +41,11 @@ class ServerCertificateTest(CertificateTestCase):
                                            stateOrProvinceName=cls.root_certificate.dn.stateOrProvinceName,
                                            organizationName=cls.root_certificate.dn.organizationName)
         cls.int_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+5).date(),
-                                                 shortname="test_server_intermediate_certificate",
+                                                 name="test_server_intermediate_certificate",
                                                  type=CertificateTypes.INTERMEDIATE,
                                                  parent=cls.root_certificate, dn=subject,
                                                  key=cls.int_key.serialize())
+        cls.int_certificate.save()
         int_certhandler = Certificate()
         int_certhandler.create_certificate(cls.int_certificate)
         cls.int_certificate.crt = int_certhandler.serialize()
@@ -56,7 +58,7 @@ class ServerCertificateTest(CertificateTestCase):
                                                                    "www.mac-usb-serial.com",
                                                                    "127.0.0.1"])
         certificate = CertificateFactory(type=CertificateTypes.SERVER_CERT,
-                                         shortname="test_generate_server_certificate",
+                                         name="test_generate_server_certificate",
                                          parent=self.int_certificate, dn=server_subject,
                                          key=self.key.serialize())
         certhandler = Certificate()
@@ -105,7 +107,7 @@ class ServerCertificateTest(CertificateTestCase):
                                                   emailAddress=None,
                                                   subjectAltNames=None)
         certificate = CertificateFactory(type=CertificateTypes.SERVER_CERT,
-                                         shortname="test_generate_server_certificate_minimal",
+                                         name="test_generate_server_certificate_minimal",
                                          parent=self.int_certificate, dn=server_subject,
                                          key=self.key.serialize())
         certhandler = Certificate()
@@ -186,7 +188,7 @@ class ServerCertificateTest(CertificateTestCase):
         server_subject = DistinguishedNameFactory(commonName=self.int_certificate.dn.commonName)
         with self.assertRaises(PolicyError) as context:
             certificate_request = CertificateFactory(type=CertificateTypes.SERVER_CERT,
-                                                     shortname="test_certificate_duplicate_commonName_intermediate",
+                                                     name="test_certificate_duplicate_commonName_intermediate",
                                                      parent=self.int_certificate, dn=server_subject,
                                                      key=self.key.serialize())
             certhandler = Certificate()
@@ -201,7 +203,7 @@ class ServerCertificateTest(CertificateTestCase):
 
         with self.assertRaises(PolicyError) as context:
             certificate_request = CertificateFactory(type=CertificateTypes.SERVER_CERT,
-                                                     shortname="test_certificate_duplicate_commonName_root",
+                                                     name="test_certificate_duplicate_commonName_root",
                                                      parent=self.int_certificate, dn=server_subject,
                                                      key=self.key.serialize())
             certhandler = Certificate()
@@ -215,7 +217,7 @@ class ServerCertificateTest(CertificateTestCase):
         server_subject = DistinguishedNameFactory()
         with self.assertRaises(CertificateError) as context:
             certificate_request = CertificateFactory(type=CertificateTypes.SERVER_CERT,
-                                                     shortname="test_generate_server_certificate_no_parent",
+                                                     name="test_generate_server_certificate_no_parent",
                                                      parent=None, dn=server_subject,
                                                      key=self.key.serialize())
             certhandler = Certificate()
@@ -226,7 +228,7 @@ class ServerCertificateTest(CertificateTestCase):
     def test_generate_server_certificate_parent_server_cert(self):
         server_subject = DistinguishedNameFactory(subjectAltNames=None)
         certificate = CertificateFactory(type=CertificateTypes.SERVER_CERT,
-                                         shortname="test_generate_server_certificate_parent_server_cert_1",
+                                         name="test_generate_server_certificate_parent_server_cert_1",
                                          parent=self.int_certificate, dn=server_subject,
                                          key=self.key.serialize())
         certhandler = Certificate()
@@ -235,7 +237,7 @@ class ServerCertificateTest(CertificateTestCase):
         server_subject = DistinguishedNameFactory()
         with self.assertRaises(CertificateError) as context:
             certificate_request = CertificateFactory(type=CertificateTypes.SERVER_CERT,
-                                                     shortname="test_generate_server_certificate_parent_server_cert_2",
+                                                     name="test_generate_server_certificate_parent_server_cert_2",
                                                      parent=certificate, dn=server_subject,
                                                      key=self.key.serialize())
             certhandler = Certificate()

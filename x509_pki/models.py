@@ -217,6 +217,10 @@ class Certificate(models.Model):
             return slugify(self.revoked_at)
 
     @property
+    def slug_name(self):
+        return slugify(self.name)
+
+    @property
     def revoked(self):
         return self.revoked_uuid != uuid.UUID(int=0)
 

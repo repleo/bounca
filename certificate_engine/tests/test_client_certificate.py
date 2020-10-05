@@ -22,9 +22,10 @@ class EmailCertificateTest(CertificateTestCase):
                                            organizationName='Repleo')
 
         cls.root_certificate = CertificateFactory(dn=subject,
-                                                  shortname="test_client_root_certificate",
-                                                  expires_at=arrow.get(timezone.now()).shift(days=+3).date(),
+                                                  name="test client root certificate",
+                                                  expires_at=arrow.get(timezone.now()).shift(days=+30).date(),
                                                   key=cls.root_key.serialize())
+        cls.root_certificate.save()
         certhandler = Certificate()
         certhandler.create_certificate(cls.root_certificate)
 
@@ -36,10 +37,11 @@ class EmailCertificateTest(CertificateTestCase):
                                            stateOrProvinceName=cls.root_certificate.dn.stateOrProvinceName,
                                            organizationName=cls.root_certificate.dn.organizationName)
         cls.int_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+5).date(),
-                                                 shortname="test_client_intermediate_certificate",
+                                                 name="test client intermediate certificate",
                                                  type=CertificateTypes.INTERMEDIATE,
                                                  parent=cls.root_certificate, dn=subject,
                                                  key=cls.int_key.serialize())
+        cls.int_certificate.save()
         int_certhandler = Certificate()
         int_certhandler.create_certificate(cls.int_certificate)
         cls.int_certificate.crt = int_certhandler.serialize()
@@ -97,9 +99,10 @@ class EmailCertificateTest(CertificateTestCase):
                                                   emailAddress=None,
                                                   subjectAltNames=None)
         certificate = CertificateFactory(type=CertificateTypes.CLIENT_CERT,
-                                         shortname="test_generate_client_certificate_minimal",
+                                         name="test_generate_client_certificate_minimal",
                                          parent=self.int_certificate, dn=client_subject,
                                          key=self.key.serialize())
+        certificate.save()
         certhandler = Certificate()
         certhandler.create_certificate(certificate)
 
@@ -179,16 +182,17 @@ class EmailCertificateTest(CertificateTestCase):
     def test_generate_client_certificate_parent_client_cert(self):
         client_subject = DistinguishedNameFactory(subjectAltNames=None)
         certificate = CertificateFactory(type=CertificateTypes.SERVER_CERT,
-                                         shortname="test_generate_client_certificate_parent_client_cert_1",
+                                         name="test_generate_client_certificate_parent_client_cert_1",
                                          parent=self.int_certificate, dn=client_subject,
                                          key=self.key.serialize())
+        certificate.save()
         certhandler = Certificate()
         certhandler.create_certificate(certificate)
 
         client_subject = DistinguishedNameFactory()
         with self.assertRaises(CertificateError) as context:
             certificate_request = CertificateFactory(type=CertificateTypes.SERVER_CERT,
-                                                     shortname="test_generate_client_certificate_parent_client_cert_2",
+                                                     name="test_generate_client_certificate_parent_client_cert_2",
                                                      parent=certificate, dn=client_subject,
                                                      key=self.key.serialize())
             certhandler = Certificate()

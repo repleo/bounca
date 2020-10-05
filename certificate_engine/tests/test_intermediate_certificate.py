@@ -21,6 +21,7 @@ class IntermediateCertificateTest(CertificateTestCase):
         cls.root_certificate = CertificateFactory(dn=subject,
                                                   expires_at=arrow.get(timezone.now()).shift(days=+3).date(),
                                                   key=cls.root_key.serialize())
+        cls.root_certificate.save()
         certificate = Certificate()
         certificate.create_certificate(cls.root_certificate)
 
@@ -34,7 +35,7 @@ class IntermediateCertificateTest(CertificateTestCase):
                                            organizationName=self.root_certificate.dn.organizationName,
                                            localityName=self.root_certificate.dn.localityName)
         certificate = CertificateFactory(type=CertificateTypes.INTERMEDIATE,
-                                         shortname="test_parent_object_not_set",
+                                         name="test_parent_object_not_set",
                                          parent=None, dn=subject,
                                          key=self.key.serialize())
         with self.assertRaises(RuntimeError) as context:
@@ -48,14 +49,14 @@ class IntermediateCertificateTest(CertificateTestCase):
                                            organizationName=self.root_certificate.dn.organizationName,
                                            localityName=self.root_certificate.dn.localityName)
         root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+3).date(),
-                                              shortname="root_test_parent_object_not_set",
+                                              name="root_test_parent_object_not_set",
                                               key=self.root_key.serialize())
         certificate = Certificate()
         certificate.create_certificate(root_certificate)
 
         key = Key().create_key(2048)
         certificate = CertificateFactory(type=CertificateTypes.INTERMEDIATE,
-                                         shortname="test_parent_object_not_set",
+                                         name="test_parent_object_not_set",
                                          parent=root_certificate, dn=subject,
                                          key=key.serialize())
         with self.assertRaises(RuntimeError) as context:
@@ -66,7 +67,7 @@ class IntermediateCertificateTest(CertificateTestCase):
     def root_ca_not_matching_attribute(self, subject, attribute_name):
         with self.assertRaises(PolicyError) as context:
             certificate_request = CertificateFactory(type=CertificateTypes.INTERMEDIATE,
-                                                     shortname="root_ca_not_matching_attribute",
+                                                     name="root_ca_not_matching_attribute",
                                                      parent=self.root_certificate, dn=subject,
                                                      key=self.key.serialize())
             certhandler = Certificate()
@@ -103,7 +104,7 @@ class IntermediateCertificateTest(CertificateTestCase):
                                            commonName=self.root_certificate.dn.commonName)
         with self.assertRaises(PolicyError) as context:
             certificate_request = CertificateFactory(type=CertificateTypes.INTERMEDIATE,
-                                                     shortname="test_certificate_duplicate_commonName",
+                                                     name="test_certificate_duplicate_commonName",
                                                      parent=self.root_certificate, dn=subject,
                                                      key=self.key.serialize())
             certhandler = Certificate()
@@ -119,10 +120,10 @@ class IntermediateCertificateTest(CertificateTestCase):
                                            organizationName=self.root_certificate.dn.organizationName)
 
         certificate_request = CertificateFactory(type=CertificateTypes.INTERMEDIATE,
-                                                 shortname="test_generate_intermediate_certificate",
+                                                 name="test_generate_intermediate_certificate",
                                                  parent=self.root_certificate, dn=subject,
                                                  key=self.key.serialize())
-
+        certificate_request.save()
         certhandler = Certificate()
         certhandler.create_certificate(certificate_request)
         crt = certhandler.certificate
@@ -163,10 +164,10 @@ class IntermediateCertificateTest(CertificateTestCase):
                                            organizationName=self.root_certificate.dn.organizationName)
 
         certificate_request = CertificateFactory(type=CertificateTypes.INTERMEDIATE,
-                                                 shortname="test_generate_intermediate_certificate_minimal",
+                                                 name="test_generate_intermediate_certificate_minimal",
                                                  parent=self.root_certificate, dn=subject,
                                                  key=key.serialize())
-
+        certificate_request.save()
         certhandler = Certificate()
         certhandler.create_certificate(certificate_request)
         crt = certhandler.certificate
@@ -183,12 +184,12 @@ class IntermediateCertificateTest(CertificateTestCase):
     def test_generate_intermediate_certificate_passphrase(self):
         root_key = Key().create_key(2048)
         root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+3).date(),
-                                              shortname="root_test_generate_intermediate_certificate_passphrase",
+                                              name="root_test_generate_intermediate_certificate_passphrase",
                                               key=root_key.serialize(passphrase=b'SecretRootPP'))
+        root_certificate.save()
         root_certhandler = Certificate()
         root_certhandler.create_certificate(root_certificate, passphrase=b'SecretRootPP')
         root_certificate.crt = root_certhandler.serialize()
-        root_certificate.save()
 
         subject = DistinguishedNameFactory(countryName=root_certificate.dn.countryName,
                                            stateOrProvinceName=root_certificate.dn.stateOrProvinceName,
@@ -196,7 +197,7 @@ class IntermediateCertificateTest(CertificateTestCase):
                                            localityName=root_certificate.dn.localityName)
 
         certificate_request = CertificateFactory(type=CertificateTypes.INTERMEDIATE,
-                                                 shortname="test_generate_intermediate_certificate_passphrase",
+                                                 name="test_generate_intermediate_certificate_passphrase",
                                                  parent=root_certificate, dn=subject,
                                                  key=self.key.serialize(passphrase=b'SecretPP'))
         certhandler = Certificate()
@@ -214,7 +215,7 @@ class IntermediateCertificateTest(CertificateTestCase):
     def test_generate_intermediate_certificate_passphrase_wrong_cert_passphrase(self):
         root_key = Key().create_key(2048)
         root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+3).date(),
-                                              shortname="root_test_certificate_passphrase_wrong_cert_passphrase",
+                                              name="root_test_certificate_passphrase_wrong_cert_passphrase",
                                               key=root_key.serialize(passphrase=b'SecretRootPP'))
         root_certhandler = Certificate()
         root_certhandler.create_certificate(root_certificate, passphrase=b'SecretRootPP')
@@ -224,7 +225,7 @@ class IntermediateCertificateTest(CertificateTestCase):
                                            organizationName=root_certificate.dn.organizationName)
 
         certificate = CertificateFactory(type=CertificateTypes.INTERMEDIATE,
-                                         shortname="test_certificate_passphrase_wrong_cert_passphrase",
+                                         name="test_certificate_passphrase_wrong_cert_passphrase",
                                          parent=root_certificate, dn=subject,
                                          key=self.key.serialize(passphrase=b'SecretPP'))
         certhandler = Certificate()
@@ -236,7 +237,7 @@ class IntermediateCertificateTest(CertificateTestCase):
     def test_generate_intermediate_certificate_passphrase_wrong_issuer_passphrase(self):
         root_key = Key().create_key(2048)
         root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+3).date(),
-                                              shortname="root_test_certificate_passphrase_wrong_issuer_passphrase",
+                                              name="root_test_certificate_passphrase_wrong_issuer_passphrase",
                                               key=root_key.serialize(passphrase=b'SecretRootPP'))
         root_certhandler = Certificate()
         root_certhandler.create_certificate(root_certificate, passphrase=b'SecretRootPP')
@@ -246,7 +247,7 @@ class IntermediateCertificateTest(CertificateTestCase):
                                            organizationName=root_certificate.dn.organizationName)
 
         certificate = CertificateFactory(type=CertificateTypes.INTERMEDIATE,
-                                         shortname="test_certificate_passphrase_wrong_issuer_passphrase",
+                                         name="test_certificate_passphrase_wrong_issuer_passphrase",
                                          parent=root_certificate, dn=subject,
                                          key=self.key.serialize(passphrase=b'SecretPP'))
         certhandler = Certificate()

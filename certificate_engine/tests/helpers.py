@@ -34,7 +34,7 @@ class CertificateTestCase(TestCase):
         self.assertTrue(ext.critical)
         crl_dp = ext.value
         self.assertEqual(crl_dp[0].full_name[0].value,
-                         'URI:{}{}.crl'.format(certificate_request.crl_distribution_url, certificate_request.shortname))
+                         'URI:{}{}.crl'.format(certificate_request.crl_distribution_url, certificate_request.slug_name))
         self.assertEqual(crl_dp[0].reasons,
                          frozenset([
                              x509.ReasonFlags.key_compromise,

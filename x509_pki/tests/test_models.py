@@ -97,7 +97,7 @@ class ModelCertificateTest(TestCase):
         dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
                                       localityName='Amsterdam', organizationName='Repleo',
                                       organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                      commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
+                                      commonName="test bounca org", subjectAltNames=["demo.bounca.org"])
         cert = Certificate()
         cert.type = CertificateTypes.ROOT
         cert.name = "repleo root ca1"
@@ -111,7 +111,7 @@ class ModelCertificateTest(TestCase):
         cert.save()
         cert.refresh_from_db()
 
-        self.assertEqual(cert.dn.dn, "CN=test.bounca.org, O=Repleo, OU=IT Department, "
+        self.assertEqual(cert.dn.dn, "CN=test bounca org, O=Repleo, OU=IT Department, "
                                      "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL")
         self.assertEqual(cert.type, CertificateTypes.ROOT)
         self.assertEqual(cert.name, "repleo root ca1")
@@ -126,6 +126,7 @@ class ModelCertificateTest(TestCase):
         self.assertIsNone(cert.slug_revoked_at)
         self.assertFalse(cert.revoked)
         self.assertFalse(cert.expired)
+        self.assertEqual(cert.slug_name, "repleo-root-ca1")
 
         with self.assertRaises(ValidationError) as c:
             cert.generate_crl()
@@ -334,6 +335,7 @@ class ModelCertificateTest(TestCase):
         cert.save()
         cert.refresh_from_db()
         self.assertEqual(cert.name, cert.dn.commonName)
+        self.assertEqual(cert.slug_name, "testbouncaorg")
 
     def test_generate_root_certificate_unique_violate_name(self):
         cert = CertificateFactory()

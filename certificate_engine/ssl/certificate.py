@@ -152,12 +152,11 @@ class Certificate(object):
         if cert.crl_distribution_url:
             self._builder = self._builder.add_extension(
                 x509.CRLDistributionPoints([
-                    #TODO use slugify for cert.name
                     x509.DistributionPoint(
                         full_name=[x509.UniformResourceIdentifier(
                             'URI:{}{}{}.crl'.format(cert.crl_distribution_url,
                                                     "/" if not cert.crl_distribution_url.endswith("/") else "",
-                                                    cert.name)
+                                                    cert.slug_name)
                         )],
                         relative_name=None,
                         reasons=frozenset([
