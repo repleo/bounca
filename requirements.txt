@@ -17,7 +17,7 @@ django-ical==1.7.1
 arrow==0.15.7
 
 # SSL
-cryptography==2.9.2
+cryptography==3.2
 
 # Parsers
 yamlreader==3.0.4
