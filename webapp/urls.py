@@ -4,9 +4,10 @@ from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 
-from .views import (
-    AddClientCertificateFormView, AddIntermediateCAFormView, AddRootCAFormView, AddServerCertificateFormView,
-    CertificateCRLFormView, CertificateExpireCalendarView, CertificateRevokeFormView)
+
+# from .views import (
+#     AddClientCertificateFormView, AddIntermediateCAFormView, AddRootCAFormView, AddServerCertificateFormView,
+#     CertificateCRLFormView, CertificateExpireCalendarView, CertificateRevokeFormView)
 
 
 urlpatterns = [
@@ -45,29 +46,29 @@ urlpatterns = [
         TemplateView.as_view(template_name='bounca/auth/views/verifyemail.html'),
         name='auth.verifyemail'),
 
-    url(r'^dashboard/forms/add-root-ca.html$',
-        login_required(AddRootCAFormView.as_view()),
-        name='add-root-ca-form'),
-    url(r'^dashboard/forms/add-intermediate-ca.html$',
-        login_required(AddIntermediateCAFormView.as_view()),
-        name='add-intermediate-ca-form'),
-    url(r'^dashboard/forms/add-client-cert.html$',
-        login_required(AddClientCertificateFormView.as_view()),
-        name='add-client-cert-form'),
-    url(r'^dashboard/forms/add-server-cert.html$',
-        login_required(AddServerCertificateFormView.as_view()),
-        name='add-server-cert-form'),
-    url(r'^dashboard/forms/cert-revoke-form.html$',
-        login_required(CertificateRevokeFormView.as_view()),
-        name='cert-revoke-form'),
-    url(r'^dashboard/forms/cert-crl-file-form.html$',
-        login_required(CertificateCRLFormView.as_view()),
-        name='cert-crl-file-form'),
-
-
-    url(r'^dashboard/calendar/certificates.ics$',
-        login_required(CertificateExpireCalendarView()),
-        name='calendar-expire'),
+    # url(r'^dashboard/forms/add-root-ca.html$',
+    #     login_required(AddRootCAFormView.as_view()),
+    #     name='add-root-ca-form'),
+    # url(r'^dashboard/forms/add-intermediate-ca.html$',
+    #     login_required(AddIntermediateCAFormView.as_view()),
+    #     name='add-intermediate-ca-form'),
+    # url(r'^dashboard/forms/add-client-cert.html$',
+    #     login_required(AddClientCertificateFormView.as_view()),
+    #     name='add-client-cert-form'),
+    # url(r'^dashboard/forms/add-server-cert.html$',
+    #     login_required(AddServerCertificateFormView.as_view()),
+    #     name='add-server-cert-form'),
+    # url(r'^dashboard/forms/cert-revoke-form.html$',
+    #     login_required(CertificateRevokeFormView.as_view()),
+    #     name='cert-revoke-form'),
+    # url(r'^dashboard/forms/cert-crl-file-form.html$',
+    #     login_required(CertificateCRLFormView.as_view()),
+    #     name='cert-crl-file-form'),
+    #
+    #
+    # url(r'^dashboard/calendar/certificates.ics$',
+    #     login_required(CertificateExpireCalendarView()),
+    #     name='calendar-expire'),
 
     url(r'^dashboard/views/main.html$',
         login_required(TemplateView.as_view(template_name='bounca/dashboard/views/main.html')),

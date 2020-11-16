@@ -24,7 +24,7 @@ class DistinguishedNameSerializer(serializers.ModelSerializer):
 
 class CertificateSerializer(serializers.ModelSerializer):
     dn = DistinguishedNameSerializer()
-    passphrase_in = serializers.CharField(
+    passphrase_issuer = serializers.CharField(
         max_length=200,
         required=False,
         allow_null=True,
@@ -55,14 +55,14 @@ class CertificateSerializer(serializers.ModelSerializer):
             'revoked',
             'crl_distribution_url',
             'ocsp_distribution_host',
-            'passphrase_in',
+            'passphrase_issuer',
             'passphrase_out',
             'passphrase_out_confirmation')
         model = Certificate
         extra_kwargs = {
             'passphrase_out': {
                 'write_only': True}, 'passphrase_out_confirmation': {
-                'write_only': True}, 'passphrase_in': {
+                'write_only': True}, 'passphrase_issuer': {
                 'write_only': True}}
 
     def validate_passphrase_out(self, passphrase_out):
@@ -72,18 +72,18 @@ class CertificateSerializer(serializers.ModelSerializer):
             return passphrase_out
         return None
 
-    def validate_passphrase_in(self, passphrase_in):
-        if passphrase_in:
+    def validate_passphrase_issuer(self, passphrase_issuer):
+        if passphrase_issuer:
             if not self.initial_data.get('parent'):
                 raise serializers.ValidationError(
                     "You should provide a parent certificate if you provide a passphrase in")
             parent = Certificate.objects.get(
                 pk=self.initial_data.get('parent'))
-            parent.passphrase_in = passphrase_in
+            parent.passphrase_issuer = passphrase_issuer
             if not parent.is_passphrase_valid():
                 raise serializers.ValidationError(
-                    "Passphrase incorrect. Not allowed to sign your certificate")
-            return passphrase_in
+                    "Passphrase issuer incorrect. Not allowed to sign your certificate")
+            return passphrase_issuer
         return None
 
     def validate_passphrase_out_confirmation(
@@ -125,46 +125,46 @@ class CertificateSerializer(serializers.ModelSerializer):
 
 
 class CertificateRevokeSerializer(serializers.ModelSerializer):
-    passphrase_in = serializers.CharField(max_length=200, required=True)
+    passphrase_issuer = serializers.CharField(max_length=200, required=True)
 
     class Meta:
-        fields = ('passphrase_in',)
+        fields = ('passphrase_issuer',)
         model = Certificate
-        extra_kwargs = {'passphrase_in': {'write_only': True}}
+        extra_kwargs = {'passphrase_issuer': {'write_only': True}}
 
-    def validate_passphrase_in(self, passphrase_in):
-        if passphrase_in:
-            self.instance.parent.passphrase_in = passphrase_in
+    def validate_passphrase_issuer(self, passphrase_issuer):
+        if passphrase_issuer:
+            self.instance.parent.passphrase_issuer = passphrase_issuer
             if not self.instance.parent.is_passphrase_valid():
                 raise serializers.ValidationError(
-                    "Passphrase incorrect. Not allowed to revoke your certificate")
-            return passphrase_in
+                    "Passphrase issuer incorrect. Not allowed to revoke your certificate")
+            return passphrase_issuer
         return None
 
     def update(self, instance, validated_data):
-        instance.passphrase_in = validated_data['passphrase_in']
+        instance.passphrase_issuer = validated_data['passphrase_issuer']
         instance.delete()
         return instance
 
 
 class CertificateCRLSerializer(serializers.ModelSerializer):
-    passphrase_in = serializers.CharField(max_length=200, required=True)
+    passphrase_issuer = serializers.CharField(max_length=200, required=True)
 
     class Meta:
-        fields = ('passphrase_in',)
+        fields = ('passphrase_issuer',)
         model = Certificate
-        extra_kwargs = {'passphrase_in': {'write_only': True}}
+        extra_kwargs = {'passphrase_issuer': {'write_only': True}}
 
-    def validate_passphrase_in(self, passphrase_in):
-        if passphrase_in:
-            self.instance.passphrase_in = passphrase_in
+    def validate_passphrase_issuer(self, passphrase_issuer):
+        if passphrase_issuer:
+            self.instance.passphrase_issuer = passphrase_issuer
             if not self.instance.is_passphrase_valid():
                 raise serializers.ValidationError(
-                    "Passphrase incorrect. No permission to create CRL File")
-            return passphrase_in
+                    "Passphrase issuer incorrect. No permission to create CRL File")
+            return passphrase_issuer
         return None
 
     def update(self, instance, validated_data):
-        instance.passphrase_in = validated_data['passphrase_in']
+        instance.passphrase_issuer = validated_data['passphrase_issuer']
         instance.generate_crl()
         return instance

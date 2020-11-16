@@ -6,13 +6,13 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models.signals import pre_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django_countries.fields import CountryField
 
-from certificate_engine.generator import get_certificate_info, is_passphrase_in_valid
+from certificate_engine.generator import get_certificate_info
 from certificate_engine.types import CertificateTypes
 
 
@@ -111,7 +111,8 @@ class DistinguishedName(models.Model):
     # Create only model
     def save(self, *args, **kwargs):
         if self.id is None:
-            super(DistinguishedName, self).save(*args, **kwargs)
+            self.full_clean()
+            super().save(*args, **kwargs)
         else:
             raise ValidationError(
                 'Not allowed to update a DistinguishedName record')
@@ -192,12 +193,9 @@ class Certificate(models.Model):
     revoked_uuid = models.UUIDField(default=0)
     serial = models.UUIDField(default=uuid.uuid4, editable=False)
 
-    key = models.TextField("Serialized Private Key")
-    crt = models.TextField("Serialized signed certificate")
-
     owner = models.ForeignKey(User, on_delete=models.PROTECT)
 
-    passphrase_in = ""
+    passphrase_issuer = ""
     passphrase_out = ""
     passphrase_out_confirmation = ""
 
@@ -229,11 +227,12 @@ class Certificate(models.Model):
         return self.expires_at <= timezone.now().date()
 
     def is_passphrase_valid(self):
-        valid = is_passphrase_in_valid(self)
-        if valid:
-            return True
-        else:
-            return False
+        return False
+        # valid = is_passphrase_issuer_valid(self)
+        # if valid:
+        #     return True
+        # else:
+        #     return False
 
     def get_certificate_info(self):
         info = get_certificate_info(self)
@@ -242,6 +241,7 @@ class Certificate(models.Model):
     # Create only model
     def save(self, *args, **kwargs):
         if self.id is None:
+            self.full_clean()
             super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
@@ -268,8 +268,8 @@ class Certificate(models.Model):
             'CRL File can only be generated for Intermediate Certificates')
 
     def __init__(self, *args, **kwargs):
-        if 'passphrase_in' in kwargs:
-            self.passphrase_in = kwargs.pop('passphrase_in')
+        if 'passphrase_issuer' in kwargs:
+            self.passphrase_issuer = kwargs.pop('passphrase_issuer')
         if 'passphrase_out' in kwargs:
             self.passphrase_out = kwargs.pop('passphrase_out')
         if 'passphrase_out_confirmation' in kwargs:
@@ -296,7 +296,8 @@ def set_fields_certificate(sender, instance, *args, **kwargs):
 
 def check_if_not_update_certificate(instance, *args, **kwargs):
     if instance.id:  # check_if_not_update_certificate
-        if 'update_fields' in kwargs and set(kwargs['update_fields']) == set(['revoked_at', 'revoked_uuid']) and (
+        if kwargs and 'update_fields' in kwargs \
+            and set(kwargs['update_fields']) == set(['revoked_at', 'revoked_uuid']) and (
                 instance.type in {CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT}):
             return
         raise ValidationError('Not allowed to update a Certificate record')
@@ -357,3 +358,38 @@ def validation_rules_certificate(sender, instance, *args, **kwargs):
     check_intermediate_policies(instance, *args, **kwargs)
     check_if_child_not_expires_after_parent(instance, *args, **kwargs)
     check_if_passphrases_are_matching(instance, *args, **kwargs)
+
+
+class KeyStore(models.Model):
+    key = models.TextField("Serialized Private Key")
+    crt = models.TextField("Serialized signed certificate")
+    certificate = models.OneToOneField(
+        Certificate,
+        on_delete=models.CASCADE,
+    )
+
+    # Create only model
+    def save(self, full_clean=True, *args, **kwargs):
+        if self.id is None:
+            if full_clean:
+                self.full_clean()
+            super().save(*args, **kwargs)
+        else:
+            raise ValidationError(
+                'Not allowed to update a KeyStore record')
+
+
+@receiver(post_save, sender=Certificate)
+def generate_certificate(sender, instance, created, **kwargs):
+    if created:
+        # TODO support elliptic keys
+        # TODO make settings of key strength
+        from certificate_engine.ssl.certificate import Certificate as CertificateGenerator
+        from certificate_engine.ssl.key import Key as KeyGenerator
+        keystore = KeyStore(certificate=instance)
+        key_size = 4096 if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE] else 2048
+        keystore.key = KeyGenerator().create_key(key_size).serialize(instance.passphrase_out)
+        certhandler = CertificateGenerator()
+        certhandler.create_certificate(instance, keystore.key, instance.passphrase_out, instance.passphrase_issuer)
+        keystore.crt = certhandler.serialize()
+        keystore.save()

@@ -2,6 +2,7 @@ import arrow
 import factory
 import random
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from factory import BUILD_STRATEGY
 from factory.django import DjangoModelFactory
@@ -29,6 +30,14 @@ class UserFactory(DjangoModelFactory):
     is_superuser = False
     is_staff = False
     is_active = True
+
+    @classmethod
+    def default(cls):
+        try:
+            user = User.objects.get(username='jeroen')
+        except ObjectDoesNotExist:
+            user = UserFactory.create(username='jeroen')
+        return user
 
 
 class DistinguishedNameFactory(DjangoModelFactory):
@@ -60,10 +69,8 @@ class CertificateFactory(DjangoModelFactory):
     parent = None
     crl_distribution_url = 'https://example.com/crl/'
     ocsp_distribution_host = 'https://example.com/ocsp/'
-    owner = factory.LazyFunction(UserFactory)
+    owner = factory.LazyFunction(UserFactory.default)
 
     created_at = factory.LazyFunction(lambda: arrow.get(timezone.now()).date())
     expires_at = factory.LazyFunction(lambda: arrow.get(timezone.now()).shift(days=+1).date())
     revoked_at = None
-    key = b""
-    crt = b""

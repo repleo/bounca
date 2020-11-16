@@ -43,5 +43,3 @@ class FactoriesTest(TestCase):
         self.assertIsNotNone(cert.expires_at)
         self.assertIsNone(cert.revoked_at)
         self.assertIsNotNone(cert.revoked_uuid)
-        self.assertIsNotNone(cert.key)
-        self.assertIsNotNone(cert.crt)

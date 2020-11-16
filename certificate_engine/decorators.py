@@ -40,9 +40,9 @@ class write_passphrase_files(object):
                 except FileNotFoundError:
                     pass
 
-            if certificate.passphrase_in:
+            if certificate.passphrase_issuer:
                 with open(root_path + 'passphrase_in.txt', 'w') as f:
-                    f.write(certificate.passphrase_in)
+                    f.write(certificate.passphrase_issuer)
                 os.chmod(root_path + 'passphrase_in.txt', 0o600)
             else:
                 try:

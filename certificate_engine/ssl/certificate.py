@@ -67,7 +67,7 @@ class Certificate(object):
     def _check_common_name(cert: Certificate_model, common_name: str):
         if not cert.parent:
             return
-        parent_crt = Certificate().load(cert.parent.crt).certificate
+        parent_crt = Certificate().load(cert.parent.keystore.crt).certificate
         if parent_crt.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value == common_name:
             raise PolicyError("CommonName '{}' should not be equal to common name of parent".format(common_name))
         Certificate._check_common_name(cert.parent, common_name)
@@ -99,9 +99,9 @@ class Certificate(object):
         if policy['match']:
             if not cert.parent:
                 raise RuntimeError("Parent certificate is required")
-            if not cert.parent.crt:
+            if not cert.parent.keystore.crt:
                 raise RuntimeError("Parent certificate object has not been set")
-            parent_crt = Certificate().load(cert.parent.crt).certificate
+            parent_crt = Certificate().load(cert.parent.keystore.crt).certificate
             for attr in policy['match']:
                 if not parent_crt.subject.get_attributes_for_oid(attr[1]):
                     raise PolicyError("Attribute '{}' is not provided by parent".format(attr[0]))
@@ -368,8 +368,8 @@ class Certificate(object):
 
         return self._sign_certificate(issuer_key)
 
-    def create_certificate(self, cert_request: Certificate_model, passphrase: bytes = None,
-                           passphrase_issuer: bytes = None) \
+    def create_certificate(self, cert_request: Certificate_model, key: str, passphrase: str = None,
+                           passphrase_issuer: str = None) \
             -> 'Certificate':
         """
         Create a certificate.
@@ -381,14 +381,14 @@ class Certificate(object):
         """
 
         try:
-            private_key = Key().load(cert_request.key, passphrase)
+            private_key = Key().load(key, passphrase)
         except ValueError:
             raise PassPhraseError("Bad passphrase, could not decode private key")
 
         issuer_key = None
         try:
             if cert_request.parent:
-                issuer_key = Key().load(cert_request.parent.key, passphrase_issuer)
+                issuer_key = Key().load(cert_request.parent.keystore.key, passphrase_issuer)
         except ValueError:
             raise PassPhraseError("Bad passphrase, could not decode issuer key")
 

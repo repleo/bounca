@@ -22,15 +22,15 @@ class KeyTest(TestCase):
     def test_serialize_keys_passphrase(self):
         key = Key()
         key.create_key(4096)
-        pem = key.serialize(b'test_store_keys_passphrase')
-        prvkey = key.load(pem, b'test_store_keys_passphrase')
+        pem = key.serialize('test_store_keys_passphrase')
+        prvkey = key.load(pem, 'test_store_keys_passphrase')
         self.assertIsInstance(prvkey.key, rsa.RSAPrivateKey)
         self.assertEqual(prvkey.key.key_size, 4096)
 
     def test_store_keys_no_object(self):
         key = Key()
         with self.assertRaisesMessage(RuntimeError, "No key object"):
-            key.serialize(b'test_store_keys_passphrase')
+            key.serialize('test_store_keys_passphrase')
 
     def test_store_keys_no_passphrase(self):
         key = Key()
@@ -44,18 +44,18 @@ class KeyTest(TestCase):
     def test_store_keys_wrong_passphrase(self):
         key = Key()
         key.create_key(2048)
-        pem = key.serialize(b'test_store_keys_wrong_passphrase')
+        pem = key.serialize('test_store_keys_wrong_passphrase')
         with self.assertRaisesMessage(ValueError, 'Bad decrypt. Incorrect password?'):
-            key.load(pem, b'test_store_keys_passphrase')
+            key.load(pem, 'test_store_keys_passphrase')
 
     def test_check_passphrase_valid(self):
         key = Key()
         key.create_key(2048)
-        pem = key.serialize(b'check_passphrase')
-        self.assertTrue(key.check_passphrase(pem, b'check_passphrase'))
+        pem = key.serialize('check_passphrase')
+        self.assertTrue(key.check_passphrase(pem, 'check_passphrase'))
 
     def test_check_passphrase_invalid(self):
         key = Key()
         key.create_key(2048)
-        pem = key.serialize(b'test_check_passphrase_invalid')
-        self.assertFalse(key.check_passphrase(pem, b'check_passphrase'))
+        pem = key.serialize('test_check_passphrase_invalid')
+        self.assertFalse(key.check_passphrase(pem, 'check_passphrase'))

@@ -19,9 +19,9 @@ class RootCertificateTest(CertificateTestCase):
 
     def root_ca_missing_attribute(self, dn, attribute_name):
         with self.assertRaises(PolicyError) as context:
-            certificate_request = CertificateFactory(key=self.key.serialize(), dn=dn)
+            certificate_request = CertificateFactory(dn=dn)
             certhandler = Certificate()
-            certhandler.create_certificate(certificate_request)
+            certhandler.create_certificate(certificate_request, self.key.serialize())
 
         self.assertEqual("Attribute '{}' is required".format(attribute_name), str(context.exception))
 
@@ -44,36 +44,36 @@ class RootCertificateTest(CertificateTestCase):
         self.root_ca_missing_attribute(dn, 'stateOrProvinceName')
 
     def test_generate_root_ca_missing_stateOrProvinceName_space(self):
-        dn = DistinguishedNameFactory(stateOrProvinceName='',
-                                      organizationalUnitName=None,
-                                      emailAddress=None)
+        dn = DistinguishedNameFactory.build(stateOrProvinceName='',
+                                            organizationalUnitName=None,
+                                            emailAddress=None)
         self.root_ca_missing_attribute(dn, 'stateOrProvinceName')
 
     def test_generate_root_ca_missing_organizationName(self):
-        dn = DistinguishedNameFactory(organizationName=None,
-                                      organizationalUnitName=None,
-                                      emailAddress=None)
+        dn = DistinguishedNameFactory.build(organizationName=None,
+                                            organizationalUnitName=None,
+                                            emailAddress=None)
         self.root_ca_missing_attribute(dn, 'organizationName')
 
     def test_generate_root_ca_missing_organizationName_space(self):
-        dn = DistinguishedNameFactory(organizationName='',
-                                      organizationalUnitName=None,
-                                      emailAddress=None)
+        dn = DistinguishedNameFactory.build(organizationName='',
+                                            organizationalUnitName=None,
+                                            emailAddress=None)
         self.root_ca_missing_attribute(dn, 'organizationName')
 
     def test_generate_root_ca_missing_commonName(self):
-        dn = DistinguishedNameFactory(commonName='',
-                                      organizationalUnitName=None,
-                                      emailAddress=None)
+        dn = DistinguishedNameFactory.build(commonName='',
+                                            organizationalUnitName=None,
+                                            emailAddress=None)
         self.root_ca_missing_attribute(dn, 'commonName')
 
     def test_generate_minimal_root_ca(self):
         dn = DistinguishedNameFactory(organizationalUnitName=None,
                                       emailAddress=None,
                                       localityName=None)
-        certificate_request = CertificateFactory(key=self.key.serialize(), dn=dn)
+        certificate_request = CertificateFactory(dn=dn)
         certhandler = Certificate()
-        certhandler.create_certificate(certificate_request)
+        certhandler.create_certificate(certificate_request, self.key.serialize())
 
         crt = certhandler.certificate
 
@@ -98,9 +98,9 @@ class RootCertificateTest(CertificateTestCase):
         self.assert_hash(crt)
 
     def test_generate_root_ca(self):
-        certificate_request = CertificateFactory(key=self.key.serialize())
+        certificate_request = CertificateFactory()
         certhandler = Certificate()
-        certhandler.create_certificate(certificate_request)
+        certhandler.create_certificate(certificate_request, self.key.serialize())
 
         crt = certhandler.certificate
 
@@ -126,9 +126,9 @@ class RootCertificateTest(CertificateTestCase):
         self.assert_hash(crt)
 
     def test_generate_root_ca_no_crl_distribution(self):
-        certificate_request = CertificateFactory(crl_distribution_url=None, key=self.key.serialize())
+        certificate_request = CertificateFactory(crl_distribution_url=None)
         certhandler = Certificate()
-        certhandler.create_certificate(certificate_request)
+        certhandler.create_certificate(certificate_request, self.key.serialize())
 
         crt = certhandler.certificate
 
@@ -147,9 +147,9 @@ class RootCertificateTest(CertificateTestCase):
             crt.extensions.get_extension_for_oid(ExtensionOID.CRL_DISTRIBUTION_POINTS)
 
     def test_generate_root_ca_no_ocsp(self):
-        certificate_request = CertificateFactory(ocsp_distribution_host=None, key=self.key.serialize())
+        certificate_request = CertificateFactory(ocsp_distribution_host=None)
         certhandler = Certificate()
-        certhandler.create_certificate(certificate_request)
+        certhandler.create_certificate(certificate_request, self.key.serialize())
 
         crt = certhandler.certificate
 
@@ -170,9 +170,10 @@ class RootCertificateTest(CertificateTestCase):
             crt.extensions.get_extension_for_oid(ExtensionOID.AUTHORITY_INFORMATION_ACCESS)
 
     def test_generate_root_ca_passphrase(self):
-        certificate_request = CertificateFactory(key=self.key.serialize(passphrase=b"superSecret"))
+        certificate_request = CertificateFactory()
         certhandler = Certificate()
-        certhandler.create_certificate(certificate_request, passphrase=b"superSecret")
+        certhandler.create_certificate(certificate_request, self.key.serialize(passphrase="superSecret"),
+                                       passphrase="superSecret")
 
         crt = certhandler.certificate
         # subject
@@ -186,15 +187,16 @@ class RootCertificateTest(CertificateTestCase):
         self.assertEqual(crt.public_key().public_numbers(), self.key.key.public_key().public_numbers())
 
     def test_generate_root_ca_wrong_passphrase(self):
-        certificate = CertificateFactory(key=self.key.serialize(passphrase=b"superSecret"))
+        certificate = CertificateFactory()
         certhandler = Certificate()
         with self.assertRaisesMessage(PassPhraseError, "Bad passphrase, could not decode private key"):
-            certhandler.create_certificate(certificate, passphrase=b"superSecret_wrong")
+            certhandler.create_certificate(certificate, self.key.serialize(passphrase="superSecret"),
+                                           passphrase="superSecret_wrong")
 
     def test_serialize_root_certificate(self):
-        certificate_request = CertificateFactory(key=self.key.serialize())
+        certificate_request = CertificateFactory()
         certhandler = Certificate()
-        certhandler.create_certificate(certificate_request)
+        certhandler.create_certificate(certificate_request, self.key.serialize())
 
         pem = certhandler.serialize()
 

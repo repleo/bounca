@@ -37,12 +37,12 @@ class CertificateForm(forms.ModelForm):
         'password_mismatch': "The two passphrase fields didn't match."
     }
 
-    passphrase_in = forms.CharField(
-        label="Passphrase in",
+    passphrase_issuer = forms.CharField(
+        label="Passphrase issuer",
         initial="",
+        required=False,
         widget=forms.PasswordInput,
         strip=False,
-        #        help_text=password_validation.password_validators_help_text_html(),
         help_text="The passphrase for unlocking your signing key.",
     )
     passphrase_out = forms.CharField(
@@ -50,7 +50,6 @@ class CertificateForm(forms.ModelForm):
         initial="",
         widget=forms.PasswordInput,
         strip=False,
-        #        help_text=password_validation.password_validators_help_text_html(),
         help_text="Passphrase for protecting the key of your new certificate.",
     )
     passphrase_out_confirmation = forms.CharField(
@@ -61,14 +60,26 @@ class CertificateForm(forms.ModelForm):
         help_text="Enter the same passphrase as before, for verification.",
     )
 
+    def __init__(self, *args, **kwargs):
+        self._user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        inst = super().save(commit=False)
+        inst.owner = self._user
+        if commit:
+            inst.save()
+        return inst
+
     def validate(self, data):
         if data['passphrase_out1'] != data['passphrase_out_confirmation']:
             raise forms.ValidationError(
                 "The two passphrase fields didn't match.")
         return data
 
-    def clean_passphrase_in(self, passphrase_in):
-        if passphrase_in:
+    def clean_passphrase_issuer(self):
+        passphrase_issuer = self.cleaned_data.get("passphrase_issuer")
+        if passphrase_issuer:
             if not self.cleaned_data.get('parent'):
                 raise forms.ValidationError(
                     "You should provide a parent certificate if you provide a passphrase in")
@@ -76,8 +87,8 @@ class CertificateForm(forms.ModelForm):
                 pk=self.cleaned_data.get('parent'))
             if not parent.is_passphrase_valid():
                 raise forms.ValidationError(
-                    "Passphrase incorrect. Not allowed to sign your certificate")
-            return passphrase_in
+                    "Passphrase issuer incorrect. Not allowed to sign your certificate")
+            return passphrase_issuer
         return None
 
     def clean_passphrase_out(self):
@@ -99,7 +110,6 @@ class CertificateForm(forms.ModelForm):
         return passphrase_out_confirmation
 
     def clean(self):
-        """ This is the form's clean method, not a particular field's clean method """
         cleaned_data = self.cleaned_data
 
         pk = self.instance.pk
@@ -110,30 +120,19 @@ class CertificateForm(forms.ModelForm):
         name = cleaned_data.get("name")
         cert_type = cleaned_data.get("type")
         dn = cleaned_data.get("dn")
-        # TODO to format
         if Certificate.objects.filter(
                 name=name,
                 type=cert_type,
                 revoked_uuid=0).count() > 0:
             raise forms.ValidationError(
-                "name (" +
-                name +
-                ") for " +
-                dict(
-                    Certificate.TYPES)[cert_type] +
-                " already exists.")
+                "name ({}) for {} already exists.".format(name, dict(Certificate.TYPES)[cert_type]))
 
         if Certificate.objects.filter(
                 dn=dn,
                 type=cert_type,
                 revoked_uuid=0).count() > 0:
             raise forms.ValidationError(
-                "DN (" +
-                str(dn) +
-                ") for " +
-                dict(
-                    Certificate.TYPES)[cert_type] +
-                " already used.")
+                "DN ({}) for {} already exists.".format(dn, dict(Certificate.TYPES)[cert_type]))
 
         parent = cleaned_data.get("parent")
         if cert_type == CertificateTypes.ROOT and parent:  # check_if_root_has_no_parent
@@ -160,12 +159,8 @@ class CertificateForm(forms.ModelForm):
                     parent=parent,
                     type=CertificateTypes.INTERMEDIATE).count() > 0:
                 raise forms.ValidationError(
-                    "DN (" +
-                    str(dn) +
-                    ") for " +
-                    dict(
-                        Certificate.TYPES)[cert_type] +
-                    "-Certificate already used as intermediate CA.")
+                    "DN ({}) for {}-Certificate already "
+                    "used as intermediate CA.".format(dn, dict(Certificate.TYPES)[cert_type]))
 
         if cert_type is CertificateTypes.INTERMEDIATE and parent.type is CertificateTypes.ROOT:
             if dn.countryName != parent.dn.countryName:
@@ -178,9 +173,6 @@ class CertificateForm(forms.ModelForm):
                 raise forms.ValidationError(
                     'Organization Name of Intermediate CA and Root CA should match (policy strict)')
 
-        if cert_type is CertificateTypes.INTERMEDIATE and parent.crl_distribution_url:
-            cleaned_data['crl_distribution_url'] = parent.crl_distribution_url
-
         if cleaned_data.get('expires_at'):
             now = timezone.now().date()
             expires_at = cleaned_data.get("expires_at")
@@ -189,6 +181,13 @@ class CertificateForm(forms.ModelForm):
             if parent and days_valid > parent.days_valid:
                 raise forms.ValidationError(
                     'Child Certificate expiration data should be before parent expiration date')
+
+        #TODO is this expected behavior? Check with standards
+        if cert_type is CertificateTypes.INTERMEDIATE and parent.crl_distribution_url:
+            cleaned_data['crl_distribution_url'] = parent.crl_distribution_url
+
+        if cert_type is CertificateTypes.INTERMEDIATE and parent.ocsp_distribution_host:
+            cleaned_data['ocsp_distribution_host'] = parent.ocsp_distribution_host
 
         return cleaned_data
 
@@ -205,8 +204,7 @@ class CertificateForm(forms.ModelForm):
 
 
 class CertificateRevokeForm(forms.ModelForm):
-
-    passphrase_in = forms.CharField(
+    passphrase_issuer = forms.CharField(
         label="Passphrase in",
         initial="",
         widget=forms.PasswordInput,
@@ -215,8 +213,8 @@ class CertificateRevokeForm(forms.ModelForm):
         help_text="The passphrase for unlocking your signing key.",
     )
 
-    def clean_passphrase_in(self, passphrase_in):
-        if passphrase_in:
+    def clean_passphrase_issuer(self, passphrase_issuer):
+        if passphrase_issuer:
             if not self.cleaned_data.get('parent'):
                 raise forms.ValidationError(
                     "You should provide a parent certificate if you provide a passphrase in")
@@ -224,8 +222,8 @@ class CertificateRevokeForm(forms.ModelForm):
                 pk=self.cleaned_data.get('parent'))
             if not parent.is_passphrase_valid():
                 raise forms.ValidationError(
-                    "Passphrase incorrect. Not allowed to sign your certificate")
-            return passphrase_in
+                    "Passphrase issuer incorrect. Not allowed to sign your certificate")
+            return passphrase_issuer
         return None
 
     class Meta:
@@ -235,8 +233,8 @@ class CertificateRevokeForm(forms.ModelForm):
 
 class CertificateCRLForm(forms.ModelForm):
 
-    passphrase_in = forms.CharField(
-        label="Passphrase in",
+    passphrase_issuer = forms.CharField(
+        label="Passphrase issuer",
         initial="",
         widget=forms.PasswordInput,
         strip=False,
@@ -244,8 +242,8 @@ class CertificateCRLForm(forms.ModelForm):
         help_text="The passphrase for unlocking your signing key.",
     )
 
-    def clean_passphrase_in(self, passphrase_in):
-        if passphrase_in:
+    def clean_passphrase_issuer(self, passphrase_issuer):
+        if passphrase_issuer:
             if not self.cleaned_data.get('parent'):
                 raise forms.ValidationError(
                     "You should provide a parent certificate if you provide a passphrase in")
@@ -253,8 +251,8 @@ class CertificateCRLForm(forms.ModelForm):
                 pk=self.cleaned_data.get('parent'))
             if not parent.is_passphrase_valid():
                 raise forms.ValidationError(
-                    "Passphrase incorrect. Not allowed to sign your certificate")
-            return passphrase_in
+                    "Passphrase issuer incorrect. Not allowed to sign your certificate")
+            return passphrase_issuer
         return None
 
     class Meta:

@@ -57,7 +57,7 @@ class AddRootCAForm(
 
         self.fields['parent'].widget = forms.HiddenInput()
         self.fields['type'].widget = forms.HiddenInput()
-        self.fields['passphrase_in'].widget = forms.HiddenInput()
+        self.fields['passphrase_issuer'].widget = forms.HiddenInput()
         if 'scope_prefix' in kwargs:
             kwargs.pop('scope_prefix')
         if 'prefix' in kwargs:
