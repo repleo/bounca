@@ -6,8 +6,14 @@ __pycache__/
 *.swp
 *.DS_Store
 **/doc/_build
-*.log
 .mypy_cache
+
+# log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
 
 # C extensions
 *.so
@@ -56,9 +62,6 @@ nosetests.xml
 *.mo
 *.pot
 
-# Django stuff:
-*.log
-
 # Sphinx documentation
 docs/_build/
 
@@ -73,6 +76,12 @@ target/
 .pydevproject
 .idea
 .settings
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # Other
 tmp/
@@ -82,8 +91,12 @@ pki/
 # Static
 media/static
 
+#frontend
+front/node_modules
+front/dist
 
-
-
+# local env files
+.env.local
+.env.*.local
 
 

@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     # 3rd party libraries
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
     'django_filters',
     'djng',
     'django_countries',
@@ -96,6 +97,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'rest_auth.registration',
+
 
     # BounCA
     'webapp.templatetags',
@@ -106,6 +108,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'djng.middleware.AngularUrlMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -245,6 +248,7 @@ CERTIFICATE_REPO_PATH = os.path.join(BASE_DIR, 'pki/')
 
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    CORS_ORIGIN_ALLOW_ALL = True
 else:
     EMAIL_HOST = "localhost"
 

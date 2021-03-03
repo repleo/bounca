@@ -1,4 +1,4 @@
-{% load i18n %}{% load staticfiles %}
+{% load i18n %}{% load static %}
 {#{% load version_tags %}#}
 
 <!DOCTYPE html>
@@ -10,7 +10,7 @@
     <meta name="description" content="">
     <meta name="author" content="Repleo, Jeroen Arnoldus <jeroen@repleo.nl>">
 
-{#    <title>BounCA (release: {%bounca_version%}) - Your Own Chain of Trust</title>#}
+{#    <title>BounCA (release: bounca_version) - Your Own Chain of Trust</title>#}
 
     <link href="{% static "libs/bootstrap/3.3.5/css/bootstrap.min.css" %}" rel="stylesheet">
     <link href="{% static "bounca/css/app.css" %}" rel="stylesheet">
@@ -56,7 +56,7 @@
 				  <img class="logo-button left" src="/static/bounca/img/BounCA-logo.png">
 				  <div class="text left">
 					  <div class="brand">BounCA</div>
-					  <div class="version">{%bounca_version%}</div>
+					  <div class="version">bounca_version</div>
 				  </div>
 			</a>
 

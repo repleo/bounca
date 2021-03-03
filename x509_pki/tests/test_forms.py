@@ -187,7 +187,8 @@ class CertificateFormTest(TestCase):
             'passphrase_out_confirmation': 'test_password'
         })
         self.assertDictEqual(
-            form.errors, {'passphrase_issuer': ['You should provide a parent certificate if you provide a passphrase in']}
+            form.errors, {'passphrase_issuer':
+                              ['You should provide a parent certificate if you provide a passphrase in']}
         )
 
     @skip("FIXME")

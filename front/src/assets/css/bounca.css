@@ -1,0 +1,13 @@
+.btn-bounca-blue {
+    background: #2554FF;
+    color: #ffffff;
+}
+
+.alert  {
+    border-left: 12px solid;
+}
+.alert-danger {
+    padding: 14px 36px 18px 18px;
+    margin-bottom: 1.5em;
+    background: #f2f2f2;
+}
