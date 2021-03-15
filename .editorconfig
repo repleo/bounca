@@ -19,8 +19,20 @@ indent_size = 2
 [*.{yaml,yml}]
 indent_size = 2
 
-[.eslintrc]
+[*.eslintrc]
 indent_size = 2
+
+[*.vue]
+indent_size = 2
+tab_width = 2
+ij_continuation_indent_size = 2
+ij_vue_indent_children_of_top_level = template
+ij_vue_interpolation_new_line_after_start_delimiter = true
+ij_vue_interpolation_new_line_before_end_delimiter = true
+ij_vue_interpolation_wrap = off
+ij_vue_keep_indents_on_empty_lines = false
+ij_vue_spaces_within_interpolation_expressions = true
+ij_vue_uniform_indent = true
 
 [Makefile]
 indent_style = tab

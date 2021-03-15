@@ -11,9 +11,9 @@ from webapp.urls import urlpatterns as urlpatterns_webapp
 
 urlpatterns = [
     url(r'^api/', include(urlpatterns_api)),
+    url('^', include('django.contrib.auth.urls')),
+
     url(r'^grappelli/', include('grappelli.urls')),  # grappelli URLS
-
-
     url(r'^', include(urlpatterns_webapp)),
 ]
 

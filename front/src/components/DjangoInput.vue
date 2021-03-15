@@ -17,12 +17,12 @@
 
 <script>
 export default {
-    inheritAttrs: false,
-    props: ["value", "label"],
-    model: {
-      prop: "value",
-      event: "update"
-    }
+  inheritAttrs: false,
+  props: ['value', 'label'],
+  model: {
+    prop: 'value',
+    event: 'update',
+  },
 };
 </script>
 

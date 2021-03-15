@@ -1,31 +1,34 @@
 import session from './session';
 
+
+// TODO use config param for URI
+
 export default {
-  login(username, password) {
-    return session.post('/auth/login/', { username, password });
+  login(data) {
+    return session.post('http://localhost:8000/api/v1/auth/login/', data);
   },
   logout() {
-    return session.post('/auth/logout/', {});
+    return session.post('http://localhost:8000/api/v1/auth/logout/', {});
   },
-  createAccount(username, password1, password2, email) {
-    return session.post('/registration/', { username, password1, password2, email });
+  createAccount(data) {
+    return session.post('http://localhost:8000/api/v1/auth/registration/', data);
   },
-  changeAccountPassword(password1, password2) {
-    return session.post('/auth/password/change/', { password1, password2 });
+  changeAccountPassword(data) {
+    return session.post('http://localhost:8000/api/v1/auth/password/change/', data);
   },
-  sendAccountPasswordResetEmail(email) {
-    return session.post('/auth/password/reset/', { email });
+  sendAccountPasswordResetEmail(data) {
+    return session.post('http://localhost:8000/api/v1/auth/password/reset/', data);
   },
-  resetAccountPassword(uid, token, new_password1, new_password2) { // eslint-disable-line camelcase
-    return session.post('/auth/password/reset/confirm/', { uid, token, new_password1, new_password2 });
+  resetAccountPassword(data) {
+    return session.post('http://localhost:8000/api/v1/auth/password/reset/confirm/', data);
   },
   getAccountDetails() {
-    return session.get('/auth/user/');
+    return session.get('http://localhost:8000/api/v1/auth/user/');
   },
   updateAccountDetails(data) {
-    return session.patch('/auth/user/', data);
+    return session.patch('http://localhost:8000/api/v1/auth/user/', data);
   },
-  verifyAccountEmail(key) {
-    return session.post('/registration/verify-email/', { key });
+  verifyAccountEmail(data) {
+    return session.post('http://localhost:8000/api/v1/registration/verify-email/', data);
   },
 };

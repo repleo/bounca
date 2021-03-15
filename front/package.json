@@ -18,6 +18,7 @@
     "vue": "^2.6.12",
     "vue-cookie": "^1.1.4",
     "vue-router": "^3.5.1",
+    "vuetify": "^2.4.0",
     "vuex": "^3.6.2"
   },
   "devDependencies": {
@@ -42,10 +43,15 @@
     "eslint-loader": "^1.7.1",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-vue": "^6.2.2",
+    "extract-text-webpack-plugin": "^3.0.2",
     "postcss-import": "11.0.0",
     "postcss-loader": "2.0.8",
     "postcss-url": "7.2.1",
-    "vue-template-compiler": "^2.6.11"
+    "sass": "^1.32.0",
+    "sass-loader": "^10.0.0",
+    "vue-cli-plugin-vuetify": "~2.2.2",
+    "vue-template-compiler": "^2.6.11",
+    "vuetify-loader": "^1.7.0"
   },
   "eslintConfig": {
     "root": true,

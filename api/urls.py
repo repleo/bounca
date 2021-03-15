@@ -1,8 +1,8 @@
 """API v1 end-points"""
 
 from django.conf.urls import include, url
-from rest_auth.registration.urls import urlpatterns as urlpatterns_registration
-from rest_auth.urls import urlpatterns as urlpatterns_rest_auth
+from dj_rest_auth.registration.urls import urlpatterns as urlpatterns_registration
+from dj_rest_auth.urls import urlpatterns as urlpatterns_rest_auth
 from rest_framework_swagger.views import get_swagger_view
 
 from .views import (

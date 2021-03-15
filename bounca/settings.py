@@ -93,11 +93,10 @@ INSTALLED_APPS = [
     'djng',
     'django_countries',
     'rest_framework_swagger',
-    'rest_auth',
     'allauth',
     'allauth.account',
-    'rest_auth.registration',
-
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
 
     # BounCA
     'webapp.templatetags',
@@ -132,6 +131,15 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     )
 }
+
+ACCOUNT_EMAIL_VERIFICATION = None
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
 
 TEMPLATES = [
     {
@@ -174,7 +182,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-ACCOUNT_EMAIL_VERIFICATION = None
+
 
 
 # Static files (CSS, JavaScript, Images)
