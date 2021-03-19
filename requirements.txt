@@ -3,7 +3,7 @@ Django==3.0.8
 psycopg2==2.8.5
 pytz==2020.1
 requests==2.24.0
-djangorestframework==3.11.0
+djangorestframework==3.11.2
 django-grappelli==2.14.2
 django-countries==6.1.2
 django-angular==2.3
