@@ -1,15 +1,11 @@
 <template>
   <v-container fill-height>
-    <Login/>
+    <router-view></router-view>
   </v-container>
 </template>
 
 <script>
-import Login from '../../components/auth/Login';
-
 export default {
-  components: {
-    Login,
-  },
+  name: 'AuthView',
 };
 </script>

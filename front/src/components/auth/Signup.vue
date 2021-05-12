@@ -11,10 +11,11 @@
               border="left"
               colored-border
               type="info"
-              v-if="authenticated"
+              v-if="authenticated || detail"
             >
-            You are already logged in! You don't need to register.
-            </v-alert>
+            <div v-if="authenticated">You are already logged in! You don't need to register.</div>
+            <div v-else>{{detail}}</div>
+          </v-alert>
           <ValidationObserver v-else ref="form" v-slot="{ errors }">
           <ValidationProvider name="non_field_errors" vid="non_field_errors">
             <v-alert
@@ -99,6 +100,7 @@
             color="secondary"
             class="px-4"
             @click="register"
+            v-if="!detail"
           >
             Register
           </v-btn>
@@ -123,6 +125,7 @@ export default {
         password2: '',
         email: '',
       },
+      detail: '',
       password1_visible: false,
       password2_visible: false,
     };
@@ -131,13 +134,16 @@ export default {
     register() {
       this.$refs.form.validate().then((isValid) => {
         if (isValid) {
-          this.password1_visible = false; // ensure password vaults dont see password fields as user
+          // ensure password vaults dont recognize password fields as user
+          this.password1_visible = false;
           this.password2_visible = false;
           auth.createAccount(this.subscription).then((response) => {
-            console.log(response);
-            // this.$cookie.set('token', response.data.key);
-            // this.$emit('authenticated', true);
-            // this.$router.replace({ name: 'secure' });
+            if ('detail' in response.data) {
+              this.detail = response.data.detail;
+            } else {
+              // this.$store.dispatch('login', response.data.key);
+              // this.$router.push('/');
+            }
           }).catch((r) => {
             this.$refs.form.setErrors(r.response.data);
           });

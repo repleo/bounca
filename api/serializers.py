@@ -41,10 +41,8 @@ class CertificateSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'owner',
-            'shortname',
             'name',
             'parent',
-            'cert_path',
             'type',
             'dn',
             'created_at',

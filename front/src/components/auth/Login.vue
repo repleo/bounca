@@ -72,8 +72,6 @@
 </template>
 
 <script>
-import auth from '../../api/auth';
-
 export default {
   name: 'Login',
   data() {
@@ -96,16 +94,13 @@ export default {
             delete this.credentials.email;
             this.credentials.username = this.usernameOrEmail;
           }
-          auth.login(this.credentials).then((response) => {
-            console.log(response);
-            this.$cookie.set('token', response.data.key);
-            // this.$emit('authenticated', true);
-            // this.$router.replace({ name: 'secure' });
-          }).catch((r) => {
-            const errors = r.response.data;
-            errors.usernameOrEmail = errors.username + errors.email;
-            this.$refs.form.setErrors(errors);
-          });
+          this.$store.dispatch('login', this.credentials)
+            .then(() => this.$router.push('/dashboard'))
+            .catch((r) => {
+              const errors = r.response.data;
+              errors.usernameOrEmail = errors.username + errors.email;
+              this.$refs.form.setErrors(errors);
+            });
         }
       });
     },

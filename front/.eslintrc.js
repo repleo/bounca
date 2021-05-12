@@ -25,6 +25,9 @@ module.exports = {
   },
   // add your custom rules here
   rules: {
+    // In an arrow function, this does not refer to the owner of the function.
+    // https://michaelnthiessen.com/this-is-undefined/
+    'object-shorthand': 'off',
     // don't require .vue extension when importing
     'import/extensions': ['error', 'always', {
       js: 'never',

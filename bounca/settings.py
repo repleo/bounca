@@ -132,7 +132,8 @@ REST_FRAMEWORK = {
     )
 }
 
-ACCOUNT_EMAIL_VERIFICATION = None
+ACCOUNT_EMAIL_VERIFICATION = ["mandatory", "optional", "none"][2]
+ACCOUNT_EMAIL_REQUIRED = ACCOUNT_EMAIL_VERIFICATION in ["mandatory", "optional"]
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
