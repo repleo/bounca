@@ -1,0 +1,24 @@
+{% if field.help_text %}
+<v-tooltip bottom>
+<template v-slot:activator="{ on, attrs }">
+{%  endif %}
+<ValidationProvider name="{{ field.name }}" vid="{{ field.name }}"
+                    rules="required" v-slot="{ errors }">
+<v-text-field
+  prepend-icon="person"
+  label="{{ field.label }}"
+  v-model="rootcert.{{ field.name }}"
+  :error-messages="errors"
+  type="{{ style.input_type }}"
+  required
+  {% if field.help_text %}
+  v-bind="attrs"
+  v-on="on"
+  {%  endif %}
+></v-text-field>
+</ValidationProvider>
+{% if field.help_text %}
+</template>
+<span>{{ field.help_text|safe }}</span>
+</v-tooltip>
+{% endif %}

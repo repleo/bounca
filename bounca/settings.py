@@ -98,6 +98,11 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     'dj_rest_auth.registration',
 
+    # TODO only load when management commando is called
+    # development,
+    'crispy_forms',
+    'vuetifyforms',
+
     # BounCA
     'webapp.templatetags',
     'certificate_engine',
@@ -105,6 +110,7 @@ INSTALLED_APPS = [
     'api',
     'webapp',
 ]
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -161,7 +167,11 @@ TEMPLATES = [
     },
 ]
 
+CRISPY_TEMPLATE_PACK = "vuetify"
+
 WSGI_APPLICATION = 'bounca.wsgi.application'
+
+#TODO still grappelli?
 
 GRAPPELLI_ADMIN_TITLE = 'BounCA Admin'
 

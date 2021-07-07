@@ -1,0 +1,6 @@
+{% if form.form_html %}
+    {% if include_media %}{{ form.media }}{% endif %}
+    {{ form.form_html }}
+{% else %}
+    {% include "vuetify/uni_form.html" %}
+{% endif %}

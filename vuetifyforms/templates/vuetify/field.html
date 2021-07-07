@@ -1,0 +1,55 @@
+{% load crispy_forms_vuetify %}
+{% load crispy_forms_field %}
+
+{% if field.is_hidden %}
+    {{ field }}
+{% else %}
+{% if field.help_text %}
+<v-tooltip bottom>
+<template v-slot:activator="{ on, attrs }">
+{%  endif %}
+<ValidationProvider name="{{ field.label|safe }}" vid="{{ field.name }}"
+                    rules="{% vee_validate_rules field %}" v-slot="{ errors }">
+{% if field|is_select %}
+<v-select
+  v-model="{{ form.form_object }}.{{ field.name }}"
+  :items="formdata_{{ form.form_object }}_{{ field.name|dottounderscore }}_values"
+  label="{{ field.label|safe }}{% if field.field.required %}*{% endif %}"
+  {{ flat_attrs|safe }}
+></v-select>
+{% elif field|is_array %}
+<v-combobox
+  v-model="{{ form.form_object }}.{{ field.name }}"
+  label="{{ field.label|safe }}{% if field.field.required %}*{% endif %}"
+  {{ flat_attrs|safe }}
+></v-combobox>
+{%  else %}
+<v-text-field
+  label="{{ field.label|safe }}{% if field.field.required %}*{% endif %}"
+  v-model="{{ form.form_object }}.{{ field.name }}"
+  :error-messages="errors"
+  {% if field.widget_type == "password" %}
+  :append-icon="{{ field.name }}_visible ? 'visibility' : 'visibility_off'"
+  @click:append="() => ({{ field.name }}_visible = !{{ field.name }}_visible)"
+  :type="{{ field.name }}_visible ? 'text' : 'password' "
+  {% else %}
+  type="{{ field.widget_type }}"
+  {% endif %}
+  {% if field.field.required %}required{% endif %}
+  {{ flat_attrs|safe }}
+  {% if field.help_text %}
+  v-bind="attrs"
+  v-on="on"
+  {%  endif %}
+></v-text-field>
+{%  endif %}
+
+
+</ValidationProvider>
+{% if field.help_text %}
+</template>
+<span>{{ field.help_text|safe }}</span>
+</v-tooltip>
+{% endif %}
+
+{% endif %}

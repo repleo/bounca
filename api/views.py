@@ -7,10 +7,11 @@ import rest_framework
 import zipfile
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseNotFound
-from django.views.generic import View
+from django.views.generic import View, FormView
 from rest_framework import generics, permissions
 from rest_framework.pagination import PageNumberPagination
 
+from api.forms import AddRootCAForm
 from api.mixins import TrapDjangoValidationErrorCreateMixin
 from api.serializers import CertificateCRLSerializer, CertificateRevokeSerializer, CertificateSerializer
 from x509_pki.models import Certificate, CertificateTypes
@@ -19,6 +20,12 @@ from x509_pki.models import Certificate, CertificateTypes
 logger = logging.getLogger(__name__)
 
 
+class TestFormView(FormView):
+    form_class = AddRootCAForm
+    template_name = "testform.html"
+
+
+#TODO can this class be removed?
 class APIPageNumberPagination(PageNumberPagination):
     page_size = 10
 

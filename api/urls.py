@@ -6,8 +6,9 @@ from dj_rest_auth.urls import urlpatterns as urlpatterns_rest_auth
 from rest_framework_swagger.views import get_swagger_view
 
 from .views import (
-    CertificateCRLFileView, CertificateCRLView, CertificateFilesView, CertificateInfoView, CertificateInstanceView,
-    CertificateListView, CertificateRevokeView)
+    CertificateCRLFileView, CertificateCRLView, CertificateFilesView, CertificateInfoView,
+    CertificateInstanceView,
+    CertificateListView, CertificateRevokeView, TestFormView)
 
 
 urlpatterns_apiv1 = [
@@ -29,6 +30,7 @@ urlpatterns_apiv1 = [
 schema_view = get_swagger_view(title='BounCA API')
 
 urlpatterns = [
+    url(r'testform/', TestFormView.as_view()),
     url(r'^v1/', include(urlpatterns_apiv1)),
     url(r'docs/', schema_view),
 ]

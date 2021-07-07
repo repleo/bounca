@@ -25,7 +25,7 @@ class DistinguishedName(models.Model):
         'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
 
     countryName = CountryField(
-        "Country Name",
+        "Country",
         help_text="The two-character country name in ISO 3166 format.",
         blank=True,
         null=True)
@@ -63,7 +63,7 @@ class DistinguishedName(models.Model):
         "Email Address",
         max_length=64,
         validators=[alphanumeric_validator],
-        help_text="The email address to contact your organization. Also used by BounCA for authentication.",
+        help_text="The email address to contact your organization.",
         blank=True,
         null=True)
     commonName = models.CharField(
@@ -184,8 +184,7 @@ class Certificate(models.Model):
     expires_at = models.DateField(
         validators=[validate_in_future],
         help_text="Select the date that the certificate will expire: for root typically 20 years, "
-                  "for intermediate 10 years for other types 1 year. Allowed date format: yyyy-mm-"
-                  "dd.")
+                  "for intermediate 10 years for other types 1 year.")
     revoked_at = models.DateField(
         editable=False, default=None, blank=True, null=True)
     # when not revoked, uuid is 0. The revoked_uuid is used in the unique constraint

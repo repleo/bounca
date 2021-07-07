@@ -1,0 +1,14 @@
+fubar
+
+{% if form.form_html %}
+    neehoezo
+    {% if include_media %}{{ form.media }}{% endif %}
+    {% if form_show_errors %}
+        {% include "bootstraptest/errors.html" %}
+    {% endif %}
+    form_html
+    {{ form.form_html }}
+{% else %}
+    oja
+    {% include "bootstraptest/uni_form.html" %}
+{% endif %}

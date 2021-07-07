@@ -1,0 +1,38 @@
+{#<ValidationProvider name="{{ field.name }}" vid="{{ field.name }}"#}
+{#                    rules="required" v-slot="{ errors }">#}
+{#{% if field.help_text %}<v-tooltip bottom>{%  endif %}#}
+{#    <v-select#}
+{#  prepend-icon="person"#}
+{#  label="{{ field.label }}"#}
+{#  items=[{% for select in field.iter_options %}{% if select.start_option_group %}{divider: true, header: "{{ select.label }}"}{% elif select.end_option_group %}{% else %}{ value: "{{ select.value }}", text: "{{ select.display_text }}",  disabled: {{ select.disabled }}}{% endif %}{% endfor %}]#}
+{##}
+{#  v-model="rootcert.{{ field.name }}"#}
+{#  :error-messages="errors"#}
+{#  required#}
+{#></v-select>#}
+{#{% if field.help_text %}</v-tooltip>#}
+{#<span>{{ field.help_text|safe }}</span>{% endif %}#}
+{#</ValidationProvider>#}
+{% if field.help_text %}
+<v-tooltip bottom>
+<template v-slot:activator="{ on, attrs }">
+{%  endif %}
+<ValidationProvider name="{{ field.name }}" vid="{{ field.name }}"
+                    rules="required" v-slot="{ errors }">
+<v-select
+  prepend-icon="person"
+  label="{{ field.label }}"
+{#  items=[{% for select in field.iter_options %}{% if select.start_option_group %}{divider: true, header: "{{ select.label }}"}{% elif select.end_option_group %}{% else %}{ value: "{{ select.value }}", text: "{{ select.display_text }}",  disabled: {{ select.disabled }}}{% endif %}{% endfor %}]#}
+{#  items="languages"#}
+  :items="[{% for select in field.iter_options %}{% if select.start_option_group %}{% elif select.end_option_group %}{% else %}'{{ select.display_text }}',{% endif %}{% endfor %}]"
+{#  :items="['Apple', 'Pear', 'Cherry']"#}
+  v-model="rootcert.{{ field.name }}"
+  :error-messages="errors"
+  required
+></v-select>
+</ValidationProvider>
+{% if field.help_text %}
+</template>
+<span>{{ field.help_text|safe }}</span>
+</v-tooltip>
+{% endif %}

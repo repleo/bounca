@@ -1,0 +1,4 @@
+<v-card class="{{ fieldset.css_class }} {{ form_style }}" {{ fieldset.flat_attrs|safe }}>
+{% if legend %}<v-card-title class="headline">{{ legend|safe }}</v-card-title>{% endif %}
+    <v-card-text>{{ fields|safe }}</v-card-text>
+</v-card>
