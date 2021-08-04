@@ -25,7 +25,7 @@
       <v-icon dark>add</v-icon>
     </v-btn>
     <v-dialog v-model='dialog' width='800px'>
-      <forms-RootCert v-on:close-dialog="closeDialog"/>
+      <forms-RootCert v-on:close-dialog="closeDialog" ref="rootCertForm"/>
 <!--      <v-card class="elevation-10">-->
 <!--        <v-toolbar dark flat color="primary">-->
 <!--          <v-toolbar-title>Create Root Certificate</v-toolbar-title>-->
@@ -323,14 +323,22 @@ export default {
         },
     };
   },
+  watch: {
+    dialog(val) {
+      if (!val) {
+        // Clear content of child form
+        this.$refs.rootCertForm.resetForm();
+      }
+    },
+  },
   methods: {
     complete(index) {
       this.list[index] = !this.list[index];
     },
     closeDialog() {
-      console.log('close dialog 2');
       this.dialog = false;
     },
   },
+
 };
 </script>

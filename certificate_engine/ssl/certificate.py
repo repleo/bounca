@@ -1,6 +1,5 @@
 # import os
-
-
+import copy
 import datetime
 import ipaddress
 from cryptography import x509
@@ -84,7 +83,7 @@ class Certificate(object):
         # noinspection PyUnresolvedReferences
         for attr in policy['supplied']:
             if not getattr(dn, attr[0]):
-                raise PolicyError("Attribute '{}' is required".format(attr[0]))
+                raise PolicyError({f"dn__{attr[0]}": f"Attribute '{attr[0]}' is required"})
             subject[attr[0]] = getattr(dn, attr[0])
 
     @staticmethod
@@ -367,6 +366,10 @@ class Certificate(object):
             )
 
         return self._sign_certificate(issuer_key)
+
+    def check_policies(self, cert_request: Certificate_model) \
+            -> bool:
+        return self._check_policies(copy.deepcopy(cert_request))
 
     def create_certificate(self, cert_request: Certificate_model, key: str, passphrase: str = None,
                            passphrase_issuer: str = None) \

@@ -17,7 +17,7 @@
           border="left"
           {% autoescape off %}v-if="errors.non_field_errors && errors.non_field_errors.length"{% endautoescape %}
           >
-          <div v-for="error in errors.non_field_errors" :key="error">{{error}}</div>
+          <div v-for="error in errors.non_field_errors" :key="error">{% verbatim %}{{error}}{% endverbatim %}</div>
         </v-alert>
       </ValidationProvider>
 

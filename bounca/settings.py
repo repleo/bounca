@@ -135,7 +135,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-    )
+    ),
+    'EXCEPTION_HANDLER': 'vuetifyforms.views.vue_exception_handler'
 }
 
 ACCOUNT_EMAIL_VERIFICATION = ["mandatory", "optional", "none"][2]

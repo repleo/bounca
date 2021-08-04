@@ -3,6 +3,8 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 
+from certificate_engine.ssl.certificate import PolicyError
+
 
 class TrapDjangoValidationErrorCreateMixin(object):
 
@@ -11,6 +13,8 @@ class TrapDjangoValidationErrorCreateMixin(object):
             serializer.save()
         except DjangoValidationError as detail:
             raise serializers.ValidationError(detail.messages)
+        except PolicyError as detail:
+            raise serializers.ValidationError(detail.args[0])
 
 
 class TrapDjangoValidationErrorUpdateMixin(object):
@@ -20,3 +24,5 @@ class TrapDjangoValidationErrorUpdateMixin(object):
             serializer.save()
         except DjangoValidationError as detail:
             raise serializers.ValidationError(detail.messages)
+        except PolicyError as detail:
+            raise serializers.ValidationError(detail.args[0])

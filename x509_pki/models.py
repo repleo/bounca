@@ -122,10 +122,10 @@ class DistinguishedName(models.Model):
         return slugify(self.commonName)
 
     def __unicode__(self):
-        return str(self.commonName)
+        return str(f"{self.id}-{self.commonName}")
 
     def __str__(self):
-        return str(self.commonName)
+        return str(f"{self.id}-{self.commonName}")
 
 
 def validate_in_future(value):
@@ -376,6 +376,13 @@ class KeyStore(models.Model):
         else:
             raise ValidationError(
                 'Not allowed to update a KeyStore record')
+
+
+@receiver(pre_save, sender=Certificate)
+def check_policies_certificate(sender, instance, **kwargs):
+    from certificate_engine.ssl.certificate import Certificate as CertificateGenerator
+    certhandler = CertificateGenerator()
+    certhandler.check_policies(instance)
 
 
 @receiver(post_save, sender=Certificate)

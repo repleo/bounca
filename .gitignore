@@ -7,6 +7,8 @@ __pycache__/
 *.DS_Store
 **/doc/_build
 .mypy_cache
+node_modules
+package-lock.json
 
 # log files
 npm-debug.log*

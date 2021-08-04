@@ -109,6 +109,7 @@ class Spacer(Div):
 
     template = "%s/layout/spacer.html"
 
+
 class VueScriptElem(LayoutObject):
     """
     Layout object.
@@ -177,6 +178,40 @@ class Button(BaseInput):
         super().__init__(*args, **kwargs)
 
 
+class VueField(Field):
+    """
+    Layout object, It contains one field name, and you can add attributes to it easily.
+    For setting class attributes, you need to use `css_class`, as `class` is a Python keyword.
+
+    Example::
+
+        Field('field_name', style="color: #333;", css_class="whatever", id="field_name")
+    """
+
+    template = "%s/field.html"
+
+    def __init__(self, *args, **kwargs):
+        self.fields = list(args)
+
+        if not hasattr(self, "attrs"):
+            self.attrs = {}
+        else:
+            # Make sure shared state is not edited.
+            self.attrs = self.attrs.copy()
+
+        if "css_class" in kwargs:
+            if "class" in self.attrs:
+                self.attrs["class"] += " %s" % kwargs.pop("css_class")
+            else:
+                self.attrs["class"] = kwargs.pop("css_class")
+
+        self.wrapper_class = kwargs.pop("wrapper_class", None)
+        self.template = kwargs.pop("template", self.template)
+
+        # We use kwargs as HTML attributes, turning data_id='test' into data-id='test'
+        self.attrs.update({k.replace("_", "-"): v for k, v in kwargs.items()})
+
+
 class AddRootCAForm(CertificateForm):
     scope_prefix = 'cert_data'
     form_title = 'Root Certificate'
@@ -200,7 +235,7 @@ class AddRootCAForm(CertificateForm):
                                 Column('dn.commonName', md="8"),
                                 Column('expires_at')
                              ),
-                             Row(Column(Field('dn.subjectAltNames',
+                             Row(Column(VueField('dn.subjectAltNames',
                                               multiple=True, chips=True,
                                               deletable_chips=True, append_icon=""),
                                         xs12=True, md12=True)),
@@ -257,7 +292,8 @@ onCcreateCertificate() {
     if (isValid) {
       this.passphrase_out_visible = false;
       this.passphrase_out_confirmation_visible = false;
-      certificates.createAccount(this.rootcert).then((response) => {
+      this.rootcert.type = 'R';
+      certificates.create(this.rootcert).then((response) => {
           // this.$store.dispatch('login', response.data.key);
           // this.$router.push('/');
 
@@ -269,7 +305,7 @@ onCcreateCertificate() {
 }               """,
                 """
 onCancel(){
-  console.log('CANCEL SUBMIT');
+  this.resetForm();
   this.$emit('close-dialog');
 }
                 """

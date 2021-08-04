@@ -75,5 +75,6 @@ export default new Vuex.Store({
   },
   getters: {
     isLoggedIn: state => !!state.key,
+    accessToken: state => state.key,
   },
 });

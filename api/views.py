@@ -38,7 +38,7 @@ class CertificateListView(
     permission_classes = [
         permissions.IsAuthenticated
     ]
-    search_fields = ('shortname', 'name',)
+    search_fields = ('name',)
     pagination_class = APIPageNumberPagination
     filter_fields = ('type', 'parent',)
 

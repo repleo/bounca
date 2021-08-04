@@ -27,8 +27,10 @@ def rule_EmailValidator(v):
 def rule_URLValidator(v):
     return "url"
 
+
 def rule_PasswordConfirmValidator(v):
     return f"confirmed:{v.field}"
+
 
 class VeeValidateNode(template.Node):
     def __init__(self, field):
@@ -69,9 +71,22 @@ def vee_validate_rules(parser, token):
 def is_array(field):
     return isinstance(field.field, SimpleArrayField)
 
+
 @register.filter
 def dottounderscore(val):
     return val.replace('.', '_')
+
+
+@register.filter
+def error_field(val):
+    return val.replace(".", "__")
+
+
+@register.filter
+def error_slot_suffix(val):
+    suffix = val.split('.')
+    suffix.pop()
+    return "".join([f'_{v}' for v in suffix])
 
 
 def _set_sub_field(obj, keys, value):
@@ -83,13 +98,16 @@ def _set_sub_field(obj, keys, value):
     elif keys:
         obj[keys[0]] = value
 
+
 def _set_field_data(obj, form_object_name, field_name, field):
     if isinstance(field, LazyTypedChoiceField):
-        obj[f'formdata_{form_object_name}_{field_name.replace(".","_")}_values'] = [v[1] for v in field.widget.choices if v[0]]
+        obj[f'formdata_{form_object_name}_{field_name.replace(".","_")}_values'] = [{'text': v[1], 'value': v[0]} for v in field.widget.choices if v[0]]
+
 
 def _set_password_visible_vars(obj, field_name, field):
     if isinstance(field.widget, PasswordInput):
         obj[f'{field_name.replace(".","_")}_visible'] = False
+
 
 def _get_empty_value(field):
     if isinstance(field, CharField) or isinstance(field, URLField):
@@ -102,6 +120,7 @@ def _get_empty_value(field):
         return []
     else:
         raise NotImplementedError(f"Implement empty value for field class '{type(field).__name__}'")
+
 
 class DataObjectNode(template.Node):
     def __init__(self, form):
@@ -122,22 +141,12 @@ class DataObjectNode(template.Node):
                 _set_password_visible_vars(data, k, form.fields[k])
                 _set_field_data(data, form.form_object, k, form.fields[k])
 
-
             data[form.form_object] = fields
 
             return json.dumps(data)
         except template.VariableDoesNotExist:
             return json.dumps({})
 
-
-    # return {
-    #     dialog: false,
-    #     languages: ["foo", "bar", "flu"],
-    #     formdata_rootcert_countryName_values: ["foo", "bar", "flu"],
-    #     {{form.form_object}}: {
-    #         { % for field in form %}
-    #     data_obj.{{form.form_object}}.{{field.name}} = null;
-    # { % endfor %}
 
 @register.tag
 def make_data_object(parser, token):

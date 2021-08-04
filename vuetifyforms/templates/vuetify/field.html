@@ -8,11 +8,12 @@
 <v-tooltip bottom>
 <template v-slot:activator="{ on, attrs }">
 {%  endif %}
-<ValidationProvider name="{{ field.label|safe }}" vid="{{ field.name }}"
+<ValidationProvider name="{{ field.label|safe }}" vid="{{ field.name|error_field }}"
                     rules="{% vee_validate_rules field %}" v-slot="{ errors }">
 {% if field|is_select %}
 <v-select
   v-model="{{ form.form_object }}.{{ field.name }}"
+  :error-messages="errors"
   :items="formdata_{{ form.form_object }}_{{ field.name|dottounderscore }}_values"
   label="{{ field.label|safe }}{% if field.field.required %}*{% endif %}"
   {{ flat_attrs|safe }}
@@ -20,6 +21,7 @@
 {% elif field|is_array %}
 <v-combobox
   v-model="{{ form.form_object }}.{{ field.name }}"
+  :error-messages="errors"
   label="{{ field.label|safe }}{% if field.field.required %}*{% endif %}"
   {{ flat_attrs|safe }}
 ></v-combobox>

@@ -61,7 +61,7 @@ class CertificateForm(forms.ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
-        self._user = kwargs.pop('user')
+        # self._user = kwargs.pop('user')
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):

@@ -98,26 +98,27 @@ class CertificateSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
 
-        shortname = data.get("shortname")
+        name = data.get("name")
         cert_type = data.get("type")
 
         if Certificate.objects.filter(
-                shortname=shortname,
+                name=name,
                 type=cert_type,
                 revoked_uuid=0).count() > 0:
             raise serializers.ValidationError(
-                dict(
-                    Certificate.TYPES)[cert_type] +
-                " \"" +
-                shortname +
-                "\" already exists.")
+                f"{dict(Certificate.TYPES)[cert_type]} "
+                f"\"{name}\" already exists.")
 
         return data
 
     def create(self, validated_data):
         dn_data = validated_data.pop('dn')
-
         dn = DistinguishedName.objects.create(**dn_data)
+        # dn.refresh_from_db()
+        # print(dn.id)
+        # validated_data['dn'] = dn
+        # print(validated_data)
+        #dn = DistinguishedName.objects.create(**validated_data.get('dn', {}))
         certificate = Certificate.objects.create(dn=dn, **validated_data)
         return certificate
 
