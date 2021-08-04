@@ -18,7 +18,7 @@ django-cors-headers==3.5.0
 arrow==0.17.0
 
 # SSL
-cryptography==3.2.1
+cryptography==3.3.2
 
 # Parsers
 yamlreader==3.0.4
