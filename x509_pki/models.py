@@ -3,7 +3,7 @@
 import uuid
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.signals import post_save, pre_save
@@ -12,7 +12,7 @@ from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django_countries.fields import CountryField
 
-from certificate_engine.generator import get_certificate_info
+from certificate_engine.ssl.info import get_certificate_info
 from certificate_engine.types import CertificateTypes
 
 
@@ -234,7 +234,11 @@ class Certificate(models.Model):
         #     return False
 
     def get_certificate_info(self):
-        info = get_certificate_info(self)
+        # TODO implement try/catch when keystore is not availble
+        if not hasattr(self, 'keystore'):
+            raise KeyStore.DoesNotExist("Certificate has no cert, something went wrong during generation")
+        crt = self.keystore.crt
+        info = get_certificate_info(crt)
         return info
 
     # Create only model

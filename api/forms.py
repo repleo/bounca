@@ -215,6 +215,7 @@ class VueField(Field):
 class AddRootCAForm(CertificateForm):
     scope_prefix = 'cert_data'
     form_title = 'Root Certificate'
+    form_component_name = 'RootCert'
     form_object = 'rootcert'
 
     def __init__(self, *args, **kwargs):
@@ -294,9 +295,9 @@ onCcreateCertificate() {
       this.passphrase_out_confirmation_visible = false;
       this.rootcert.type = 'R';
       certificates.create(this.rootcert).then((response) => {
-          // this.$store.dispatch('login', response.data.key);
-          // this.$router.push('/');
-
+          this.$emit('update-dasboard');
+          this.resetForm();
+          this.$emit('close-dialog');
       }).catch((r) => {
         this.$refs.form.setErrors(r.response.data);
       });

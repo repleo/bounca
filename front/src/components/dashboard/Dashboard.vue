@@ -1,344 +1,270 @@
 <template>
   <v-container fluid>
-    <v-row
-      align='center'
-      justify='center'
-    >
-      <v-col cols='10'>
-        <v-card>
-          <v-data-table :headers='headers' :items='items'>
-            <template slot='headerCell' slot-scope='{ header }'>
-              <span class='font-weight-light text-warning text--darken-3' v-text='header.text'/>
-            </template>
-            <template slot='items' slot-scope='{ index, item }'>
-              <td>{{ index + 1 }}</td>
-              <td>{{ item.name }}</td>
-              <td class='text-xs-right'>{{ item.salary }}</td>
-              <td class='text-xs-right'>{{ item.country }}</td>
-              <td class='text-xs-right'>{{ item.city }}</td>
-            </template>
-          </v-data-table>
-        </v-card>
-      </v-col>
-    </v-row>
-    <v-btn fab dark large color='pink' fixed right bottom @click='dialog = !dialog'>
-      <v-icon dark>add</v-icon>
-    </v-btn>
-    <v-dialog v-model='dialog' width='800px'>
-      <forms-RootCert v-on:close-dialog="closeDialog" ref="rootCertForm"/>
-<!--      <v-card class="elevation-10">-->
-<!--        <v-toolbar dark flat color="primary">-->
-<!--          <v-toolbar-title>Create Root Certificate</v-toolbar-title>-->
-<!--        </v-toolbar>-->
-<!--        <forms-RootCert/>-->
-<!--        <v-card-actions class="mr-2 pb-4" >-->
-<!--          <v-btn-->
-<!--            color="darkgrey"-->
-<!--            plain-->
-<!--            text-->
-<!--            :to="{ name: 'auth_login'}"-->
-<!--          >-->
-<!--            sign in?-->
-<!--          </v-btn>-->
-<!--          <v-spacer></v-spacer>-->
-<!--          <v-btn-->
-<!--            dark-->
-<!--            color="secondary"-->
-<!--            class="px-4"-->
-<!--            @click="register"-->
-<!--          >-->
-<!--            Register-->
-<!--          </v-btn>-->
-<!--        </v-card-actions>-->
-<!--      </v-card>-->
+   <v-row align="center" class="list px-3 mx-auto">
 
-<!--      <v-card class="elevation-10">-->
-<!--        <v-toolbar dark flat color="primary">-->
-<!--          <v-toolbar-title>Create Root Certificate</v-toolbar-title>-->
-<!--        </v-toolbar>-->
-<!--        <forms-RootCert/>-->
-<!--        <v-card-actions class="mr-2 pb-4" >-->
-<!--          <v-btn-->
-<!--            color="darkgrey"-->
-<!--            plain-->
-<!--            text-->
-<!--            :to="{ name: 'auth_login'}"-->
-<!--          >-->
-<!--            sign in?-->
-<!--          </v-btn>-->
-<!--          <v-spacer></v-spacer>-->
-<!--          <v-btn-->
-<!--            dark-->
-<!--            color="secondary"-->
-<!--            class="px-4"-->
-<!--            @click="register"-->
-<!--          >-->
-<!--            Register-->
-<!--          </v-btn>-->
-<!--        </v-card-actions>-->
-<!--      </v-card>-->
-    </v-dialog>
+
+    <v-col cols="12" sm="12">
+      <v-card class="mx-auto" tile>
+        <v-data-table
+          :headers="headers"
+          :items="certificates"
+          :options.sync="pagination"
+          :server-items-length="totalCertificates"
+          :loading="loading"
+          :page.sync="page"
+          class="elevation-1"
+          :footer-props="{'items-per-page options': items_per_page_selector}"
+        >
+          <template v-slot:top>
+            <v-toolbar
+              flat
+            >
+              <v-toolbar-title>Root Certificates</v-toolbar-title>
+            </v-toolbar>
+            <v-toolbar
+              flat
+            >
+              <v-btn
+                color="primary"
+                dark
+                class="mb-2"
+                @click='dialog = !dialog'
+              >
+                New Certficate
+              </v-btn>
+              <v-spacer></v-spacer>
+              <v-col cols="4" sm="4">
+                <v-text-field
+                  v-model="filter"
+                  @input="page = 1; updateDashboard();"
+                  append-icon="mdi-magnify"
+                  label="Search"
+                  single-line
+                  hide-details
+                ></v-text-field>
+              </v-col>
+            </v-toolbar>
+          </template>
+          <template v-slot:[`item.actions`]="{ item }">
+            <!-- TODO: add logic for revoked & expired certificates -->
+            <v-icon class="mr-2" color="red darken-2" @click="revokeCertificate(item.id)">
+              mdi-delete
+            </v-icon>
+            <v-icon class="mr-2" color="blue darken-2" @click="infoCertificate(item.id)">
+              mdi-information
+            </v-icon>
+            <v-icon class="mr-2" color="grey darken-2" @click="downloadCertificate(item.id)">
+              mdi-download
+            </v-icon>
+          </template>
+        </v-data-table>
+      </v-card>
+    </v-col>
+  </v-row>
+
+  <v-dialog v-model='dialog' width='800px'>
+    <forms-RootCert v-on:close-dialog="closeDialog"
+                    v-on:update-dasboard="updateDashboard" ref="rootCertForm"/>
+  </v-dialog>
+  <v-dialog v-model="dialogDelete" max-width="600px">
+    <v-card>
+      <v-card-title class="text-h5">Are you sure you want to
+        revoke this certificate?</v-card-title>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
+        <v-btn color="blue darken-1" text
+               @click="revokeCertificateConfirm">OK</v-btn>
+        <v-spacer></v-spacer>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+    <v-dialog v-model="dialogInfo" width="800px">
+    <v-card :loading="dialogInfoLoading">
+      <v-card-title class="text-h5">Certificate info</v-card-title>
+      <v-divider class="mx-4"></v-divider>
+      <v-card-text>
+        <pre style="white-space: pre-wrap"><div v-html="dialogInfoText"></div></pre>
+      </v-card-text>
+      <v-divider class="mx-4"></v-divider>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+          <v-btn
+            color="blue darken-2"
+            text
+            @click="dialogInfo = false"
+          >
+            Close
+          </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
   </v-container>
 </template>
 
 <script>
+import certificates from '../../api/certificates';
+
+
 export default {
   name: 'Dashboard',
   data() {
     return {
       dialog: false,
+      dialogDelete: false,
+      dialogInfo: false,
+      dialogInfoText: '',
+      dialogInfoLoading: true,
+      loading: true,
+      items_per_page_selector: [10, 25, 50],
+      pagination: {},
+      certificates: [],
+      filter: '',
       headers: [
-        {
-          sortable: true,
-          text: 'Name',
-          value: 'name',
-        },
-        {
-          sortable: false,
-          text: 'Common name',
-          value: 'commonname',
-          align: 'right',
-        },
-        {
-          sortable: false,
-          text: 'Country',
-          value: 'country',
-          align: 'right',
-        },
-        {
-          sortable: false,
-          text: 'City',
-          value: 'city',
-          align: 'right',
-        },
+        { text: 'Name', align: 'start', sortable: true, value: 'name' },
+        { text: 'Common Name', value: 'commonName', sortable: true },
+        { text: 'Email Address', value: 'emailAddress', sortable: true },
+        { text: 'Expires At', value: 'expiresAt', sortable: true },
+        { text: 'Actions', value: 'actions', sortable: false },
       ],
-      items: [
-        {
-          name: 'Dakota Rice',
-          country: 'Niger',
-          city: 'Oud-Tunrhout',
-          salary: '$35,738',
-        },
-        {
-          name: 'Minerva Hooper',
-          country: 'Curaçao',
-          city: 'Sinaai-Waas',
-          salary: '$23,738',
-        }, {
-          name: 'Sage Rodriguez',
-          country: 'Netherlands',
-          city: 'Overland Park',
-          salary: '$56,142',
-        }, {
-          name: 'Philip Chanley',
-          country: 'Korea, South',
-          city: 'Gloucester',
-          salary: '$38,735',
-        }, {
-          name: 'Doris Greene',
-          country: 'Malawi',
-          city: 'Feldkirchen in Kārnten',
-          salary: '$63,542',
-        },
-      ],
-      formfields:
-        {
-          id: {
-            type: 'integer', required: false, read_only: true, label: 'ID',
-          },
-          owner: {
-            type: 'field', required: true, read_only: false, label: 'Owner',
-          },
-          name: {
-            type: 'string',
-            required: false,
-            read_only: false,
-            label: 'Name',
-            help_text: 'Name of your key, if not set will be equal to your CommonName.',
-            max_length: 128,
-          },
-          parent: {
-            type: 'field',
-            required: false,
-            read_only: false,
-            label: 'Parent',
-            help_text: 'The signing authority (None for root certificate)',
-          },
-          type: {
-            type: 'choice',
-            required: true,
-            read_only: false,
-            label: 'Type',
-            choices: [{
-              value: 'R', display_name: 'Root CA Certificate' }, {
-              value: 'I', display_name: 'Intermediate CA Certificate',
-            }, { value: 'S', display_name: 'Server Certificate' }, {
-              value: 'C',
-              display_name: 'Client Certificate',
-            }, { value: 'O', display_name: 'OCSP Signing Certificate' }],
-          },
-          dn: {
-            type: 'nested object',
-            required: true,
-            read_only: false,
-            label: 'Dn',
-            children: {
-              commonName: {
-                type: 'string',
-                required: true,
-                read_only: false,
-                label: 'Common Name',
-                help_text: 'The fully qualified domain name (FQDN) of your server. This must match exactly what you type in your web browser or you will receive a name mismatch error.',
-                max_length: 64,
-              },
-              countryName: {
-                type: 'choice',
-                required: false,
-                read_only: false,
-                label: 'Country Name',
-                help_text: 'The two-character country name in ISO 3166 format.',
-                choices: [
-                  { value: 'AF', display_name: 'Afghanistan' },
-                  { value: 'AX', display_name: 'Åland Islands' },
-                  { value: 'AL', display_name: 'Albania' },
-                  { value: 'DZ', display_name: 'Algeria' },
-                  { value: 'AS', display_name: 'American Samoa' },
-                  { value: 'AD', display_name: 'Andorra' },
-                  { value: 'AO', display_name: 'Angola' },
-                  { value: 'AI', display_name: 'Anguilla' },
-                  { value: 'AQ', display_name: 'Antarctica' },
-                  { value: 'AG', display_name: 'Antigua and Barbuda' },
-                  { value: 'AR', display_name: 'Argentina' },
-                  { value: 'AM', display_name: 'Armenia' },
-                  { value: 'AW', display_name: 'Aruba' },
-                  { value: 'AU', display_name: 'Australia' },
-                  { value: 'AT', display_name: 'Austria' },
-                ],
-              },
-              stateOrProvinceName: {
-                type: 'string',
-                required: false,
-                read_only: false,
-                label: 'State or Province Name',
-                help_text: 'The state/region where your organization is located. This shouldn\'t be abbreviated. (1–128 characters)',
-                max_length: 128,
-              },
-              localityName: {
-                type: 'string',
-                required: false,
-                read_only: false,
-                label: 'Locality Name',
-                help_text: 'The city where your organization is located. (1–128 characters)',
-                max_length: 128,
-              },
-              organizationName: {
-                type: 'string',
-                required: false,
-                read_only: false,
-                label: 'Organization Name',
-                help_text: 'The legal name of your organization. This should not be abbreviated and should include suffixes such as Inc, Corp, or LLC.',
-                max_length: 64,
-              },
-              organizationalUnitName: {
-                type: 'string',
-                required: false,
-                read_only: false,
-                label: 'Organization Unit Name',
-                help_text: 'The division of your organization handling the certificate.',
-                max_length: 64,
-              },
-              emailAddress: {
-                type: 'email',
-                required: false,
-                read_only: false,
-                label: 'Email Address',
-                help_text: 'The email address to contact your organization. Also used by BounCA for authentication.',
-                max_length: 64,
-              },
-              subjectAltNames: {
-                type: 'list',
-                required: false,
-                read_only: false,
-                label: 'SubjectAltNames',
-                help_text: 'subjectAltName list, i.e. dns names for server certs and email adresses for client certs. (separate by comma)',
-                child: {
-                  type: 'string',
-                  required: true,
-                  read_only: false,
-                  label: 'SubjectAltNames',
-                  max_length: 64,
-                },
-              },
-            },
-          },
-          created_at: { type: 'date', required: false, read_only: true, label: 'Created at' },
-          expires_at: {
-            type: 'date',
-            required: true,
-            read_only: false,
-            label: 'Expires at',
-            help_text: 'Select the date that the certificate will expire: for root typically 20 years, for intermediate 10 years for other types 1 year. Allowed date format: yyyy-mm-dd.',
-          },
-          revoked_at: { type: 'date', required: false, read_only: true, label: 'Revoked at' },
-          days_valid: { type: 'field', required: false, read_only: true, label: 'Days valid' },
-          expired: { type: 'field', required: false, read_only: true, label: 'Expired' },
-          revoked: { type: 'field', required: false, read_only: true, label: 'Revoked' },
-          crl_distribution_url: {
-            type: 'url',
-            required: false,
-            read_only: false,
-            label: 'CRL distribution url',
-            help_text: 'Base URL for certificate revocation list (CRL)',
-            max_length: 200,
-          },
-          ocsp_distribution_host: {
-            type: 'url',
-            required: false,
-            read_only: false,
-            label: 'OCSP distribution host',
-            help_text: 'Host URL for Online Certificate Status Protocol (OCSP)',
-            max_length: 200,
-          },
-          passphrase_issuer: {
-            type: 'string',
-            required: false,
-            read_only: false,
-            label: 'Passphrase issuer',
-            max_length: 200,
-          },
-          passphrase_out: {
-            type: 'string',
-            required: false,
-            read_only: false,
-            label: 'Passphrase out',
-            max_length: 200,
-          },
-          passphrase_out_confirmation: {
-            type: 'string',
-            required: false,
-            read_only: false,
-            label: 'Passphrase out confirmation',
-            max_length: 200,
-          },
-        },
+      page: 1,
+      totalCertificates: 0,
     };
   },
   watch: {
     dialog(val) {
       if (!val) {
-        // Clear content of child form
         this.$refs.rootCertForm.resetForm();
       }
     },
+    dialogDelete(val) {
+      if (!val) {
+        this.closeDelete();
+      }
+    },
+    dialogInfo(val) {
+      if (!val) {
+        this.closeInfo();
+      }
+    },
+    pagination: {
+      handler() {
+        this.updateDashboard();
+      },
+      deep: true,
+    },
   },
   methods: {
-    complete(index) {
-      this.list[index] = !this.list[index];
+    getRequestParams(filter, pagination) {
+      const params = { type: 'R' };
+      const { sortBy, sortDesc, page, itemsPerPage } = pagination;
+
+      if (sortBy.length === 1 && sortDesc.length === 1) {
+        if (sortBy[0] === 'expiresAt') {
+          params.ordering = 'expires_at';
+        } else if (sortBy[0] === 'commonName') {
+          params.ordering = 'dn__commonName';
+        } else if (sortBy[0] === 'emailAddress') {
+          params.ordering = 'dn__emailAddress';
+        } else {
+          params.ordering = sortBy[0];
+        }
+        if (sortDesc[0]) {
+          params.ordering = `-${params.ordering}`;
+        }
+      }
+
+      if (filter) {
+        params.search = filter;
+      }
+
+      if (page) {
+        params.page = page;
+      }
+
+      if (itemsPerPage) {
+        params.page_size = itemsPerPage;
+      }
+
+      return params;
+    },
+
+    retrieveCertificates() {
+      const params = this.getRequestParams(
+        this.filter,
+        this.pagination,
+      );
+      this.loading = true;
+      certificates.getAll(params)
+        .then((response) => {
+          this.loading = false;
+          const count = response.count;
+          const results = response.results;
+          this.certificates = results.map(this.getDisplayCertificate);
+          this.totalCertificates = count;
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+
+    getDisplayCertificate(certificate) {
+      return {
+        id: certificate.id,
+        name: certificate.name,
+        commonName: certificate.dn.commonName,
+        emailAddress: certificate.dn.emailAddress,
+        expiresAt: certificate.expires_at,
+      };
+    },
+
+    infoCertificate(item) {
+      this.dialogInfoText = '';
+      this.dialogInfoLoading = true;
+      this.dialogInfo = true;
+      certificates.getInfo(item)
+        .then((response) => {
+          this.dialogInfoLoading = false;
+          this.dialogInfoText = response.text;
+        })
+        .catch((e) => {
+          console.log(e);
+          this.dialogInfoLoading = false;
+          this.dialogInfoText = 'No data, please check your certificate';
+        });
+    },
+
+    revokeCertificate(item) {
+      this.dialogDelete = true;
+      console.log(item);
+    },
+
+    revokeCertificateConfirm() {
+      this.closeDelete();
+    },
+
+    closeDelete() {
+      this.dialogDelete = false;
+      this.$nextTick(() => {
+        console.log('FUBAR BJA');
+        // this.editedItem = Object.assign({}, this.defaultItem);
+        // this.editedIndex = -1;
+      });
+    },
+
+    closeInfo() {
+      this.dialogInfo = false;
+    },
+
+    updateDashboard() {
+      this.retrieveCertificates();
     },
     closeDialog() {
       this.dialog = false;
     },
   },
-
+  mounted() {
+    this.updateDashboard();
+  },
 };
 </script>

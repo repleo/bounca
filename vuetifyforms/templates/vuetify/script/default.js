@@ -6,7 +6,7 @@ function initialState (){
 }
 
 export default {
-    name: '{{ form.form_title }}',
+    name: '{{ form.form_component_name }}',
 
     data() {
         return initialState();

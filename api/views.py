@@ -3,19 +3,19 @@
 import io
 
 import logging
-import rest_framework
 import zipfile
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.views.generic import View, FormView
 from rest_framework import generics, permissions
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from api.forms import AddRootCAForm
 from api.mixins import TrapDjangoValidationErrorCreateMixin
 from api.serializers import CertificateCRLSerializer, CertificateRevokeSerializer, CertificateSerializer
-from x509_pki.models import Certificate, CertificateTypes
-
+from x509_pki.models import Certificate, CertificateTypes, KeyStore
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +28,7 @@ class TestFormView(FormView):
 #TODO can this class be removed?
 class APIPageNumberPagination(PageNumberPagination):
     page_size = 10
+    page_size_query_param = 'page_size'
 
 
 class CertificateListView(
@@ -38,7 +39,7 @@ class CertificateListView(
     permission_classes = [
         permissions.IsAuthenticated
     ]
-    search_fields = ('name',)
+    search_fields = ['name', 'dn__commonName', 'dn__emailAddress', 'expires_at']
     pagination_class = APIPageNumberPagination
     filter_fields = ('type', 'parent',)
 
@@ -99,17 +100,23 @@ class CertificateCRLView(generics.UpdateAPIView):
     ]
 
 
-class CertificateInfoView(View):
+class CertificateInfoView(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]
 
     def get(self, request, pk, *args, **kwargs):
-        cert = None
         try:
             user = self.request.user
             cert = Certificate.objects.get(pk=pk, owner=user)
-        except Exception:
-            return HttpResponseNotFound("File not found")
-        info = cert.get_certificate_info()
-        return HttpResponse(info)
+        except Certificate.DoesNotExist:
+            raise Http404("Certificate not found")
+        try:
+            info = cert.get_certificate_info()
+        except KeyStore.DoesNotExist:
+            raise Http404("Certificate has no keystore, "
+                          "generation of certificate object went wrong")
+        return Response({'text': info})
 
 
 class FileView(View):

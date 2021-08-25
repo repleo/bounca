@@ -36,3 +36,7 @@ Optionally, set a password for the `bounca` user.
 
 Create Python 3.7 virtualenv, activate, and install requirements.txt
 `virtualenv env -p python3.7 && . env/bin/activate && pip install -r requirements.txt`
+
+Extra requirements:
+
+openssl

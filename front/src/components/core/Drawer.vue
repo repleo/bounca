@@ -9,11 +9,7 @@
   >
 
         <v-list-item>
-          <v-text-field
-            class="purple-input search-input"
-            label="Search..."
-            color="purple"
-          />
+
         </v-list-item>
         <v-list-item
           v-for="(link, i) in links"

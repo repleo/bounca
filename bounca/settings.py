@@ -139,6 +139,7 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'vuetifyforms.views.vue_exception_handler'
 }
 
+
 ACCOUNT_EMAIL_VERIFICATION = ["mandatory", "optional", "none"][2]
 ACCOUNT_EMAIL_REQUIRED = ACCOUNT_EMAIL_VERIFICATION in ["mandatory", "optional"]
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
@@ -168,7 +169,7 @@ TEMPLATES = [
     },
 ]
 
-CRISPY_TEMPLATE_PACK = "vuetify"
+
 
 WSGI_APPLICATION = 'bounca.wsgi.application'
 
@@ -276,3 +277,9 @@ else:
 if IS_UNITTEST:
     EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
     LANGUAGE_CODE = 'en-us'
+
+IS_GENERATE_FRONTEND = 'generate_forms' in sys.argv or \
+                       any(['generate_forms' in arg for arg in sys.argv])
+
+if IS_GENERATE_FRONTEND:
+    CRISPY_TEMPLATE_PACK = "vuetify"

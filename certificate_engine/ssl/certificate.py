@@ -424,7 +424,7 @@ class Certificate(object):
         """
         Read certificate from pem
 
-        Arguments: pem - bytes with certificate
+        Arguments: pem - Bytes with certificate
         Returns:   Self
         """
 

@@ -1,13 +1,17 @@
 """Serializers for Certificate API"""
 
 import uuid
+
+import django_countries
 from django.contrib.auth import password_validation
 from rest_framework import serializers
 
 from x509_pki.models import Certificate, DistinguishedName
 
+countries = django_countries.Countries()
 
 class DistinguishedNameSerializer(serializers.ModelSerializer):
+    #countryName = serializers.ChoiceField(choices=['a', 'b', 'c'])
 
     class Meta:
         fields = (
