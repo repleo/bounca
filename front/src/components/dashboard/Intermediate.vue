@@ -19,7 +19,9 @@
             <v-toolbar
               flat
             >
-              <v-toolbar-title>Root Certificates</v-toolbar-title>
+              <v-toolbar-title>
+                Intermediate Certificates for parent {{ parentCertificate.name }}
+              </v-toolbar-title>
             </v-toolbar>
             <v-toolbar
               flat
@@ -51,9 +53,9 @@
               class="ma-1"
               color="blue darken-2"
               plain
+              v-html="item.name"
               @click="selectCertificate(item)"
             >
-              {{ item.name }}
             </v-btn>
            </template>
           <template v-slot:[`item.actions`]="{ item }">
@@ -82,8 +84,9 @@
   </v-row>
 
   <v-dialog v-model='dialog' width='800px'>
-    <forms-RootCert v-on:close-dialog="closeDialog"
-                    v-on:update-dasboard="updateDashboard" ref="rootCertForm"/>
+    <forms-IntermediateCert :parent="this.parentCertificate"
+                    v-on:close-dialog="closeDialog"
+                    v-on:update-dasboard="updateDashboard" ref="intermediateCertForm"/>
   </v-dialog>
   <v-dialog v-model="dialogDelete" max-width="565px">
     <v-card>
@@ -185,8 +188,8 @@
       colored-border
       type="error"
       elevation="2"
-            >
-              {{ dialogErrorText }}
+    >
+        <div v-html="dialogErrorText"></div>
             </v-alert>
       </v-card-text>
       <v-card-actions>
@@ -210,9 +213,13 @@ import certificates from '../../api/certificates';
 
 
 export default {
-  name: 'Dashboard',
+  name: 'Intermediate',
   data() {
     return {
+      parentCertificate: {
+        type: '',
+        name: '',
+      },
       revoke: {
         passphrase_issuer: null,
       },
@@ -270,7 +277,7 @@ export default {
   methods: {
     ...mapMutations('dashboard', ['setRoot', 'setIntermediate']),
     getRequestParams(filter, pagination) {
-      const params = { type: 'R' };
+      const params = { type: 'I', parent: this.parentCertificate.id };
 
       if ('sortBy' in pagination && pagination.sortBy.length === 1 &&
         'sortDesc' in pagination && pagination.sortDesc.length === 1) {
@@ -304,6 +311,9 @@ export default {
     },
 
     retrieveCertificates() {
+      if (!Object.prototype.hasOwnProperty.call(this.parentCertificate, 'id')) {
+        return;
+      }
       const params = this.getRequestParams(
         this.filter,
         this.pagination,
@@ -397,21 +407,48 @@ export default {
       this.dialogInfo = false;
     },
 
-    updateDashboard() {
-      this.retrieveCertificates();
-    },
     closeDialog() {
       this.dialog = false;
     },
 
     selectCertificate(item) {
-      this.$router.push(`/dashboard/intermediate/${item.id}`);
+      this.$router.push(`/dashboard/certificate/${item.id}`);
+    },
+    updateDashboard() {
+      this.retrieveCertificates();
+    },
+    setupDashboard() {
+      certificates.get(this.$route.params.id)
+        .then((response) => {
+          if (response.type !== 'R') {
+            this.dialogErrorText = `${response.name} is not a root certificate`;
+            this.dialogError = true;
+          } else if (response.revoked) {
+            this.dialogErrorText = `${response.name} has been revoked`;
+            this.dialogError = true;
+          } else if (response.expired) {
+            this.dialogErrorText = `${response.name} has been expired`;
+            this.dialogError = true;
+          } else {
+            this.parentCertificate = response;
+            this.setRoot({
+              id: this.parentCertificate.id,
+              name: this.parentCertificate.name,
+              active: true,
+            });
+            this.setIntermediate({ id: null, name: '', active: false });
+            this.updateDashboard();
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+          this.dialogErrorText = e;
+          this.dialogError = true;
+        });
     },
   },
   mounted() {
-    this.setRoot({ id: null, name: '', active: false });
-    this.setIntermediate({ id: null, name: '', active: false });
-    this.updateDashboard();
+    this.setupDashboard();
   },
 };
 </script>

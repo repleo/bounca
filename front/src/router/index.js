@@ -2,8 +2,8 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Meta from 'vue-meta';
 // import NProgress from "nprogress";
+import store from '@/store';
 
-import store from '../api/store';
 // Routes
 import home from './home';
 import auth from './auth';
@@ -30,7 +30,7 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (store.getters.isLoggedIn) {
+    if (store.getters['auth/isLoggedIn']) {
       next();
       return;
     }

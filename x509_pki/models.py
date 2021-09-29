@@ -225,18 +225,20 @@ class Certificate(models.Model):
     def expired(self):
         return self.expires_at <= timezone.now().date()
 
-    def is_passphrase_valid(self):
-        return False
-        # valid = is_passphrase_issuer_valid(self)
-        # if valid:
-        #     return True
-        # else:
-        #     return False
+    def is_passphrase_valid(self, passphrase):
+        if not hasattr(self, 'keystore'):
+            raise KeyStore.DoesNotExist("Certificate has no cert, "
+                                        "something went wrong during generation")
+        valid = check_passphrase_issuer(self.keystore.key, passphrase)
+        if valid:
+            return True
+        else:
+            return False
 
     def get_certificate_info(self):
-        # TODO implement try/catch when keystore is not availble
         if not hasattr(self, 'keystore'):
-            raise KeyStore.DoesNotExist("Certificate has no cert, something went wrong during generation")
+            raise KeyStore.DoesNotExist("Certificate has no cert, "
+                                        "something went wrong during generation")
         crt = self.keystore.crt
         info = get_certificate_info(crt)
         return info
@@ -248,8 +250,18 @@ class Certificate(models.Model):
             super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        if not self.revoked_at and (
-                self.type is CertificateTypes.SERVER_CERT or self.type is CertificateTypes.CLIENT_CERT):
+        if self.revoked_at:
+            return
+
+        if self.type is CertificateTypes.ROOT:
+            self.revoked_at = timezone.now()
+            self.revoked_uuid = uuid.uuid4()
+            # TODO implement cascade revocation
+            kwargs['update_fields'] = ['revoked_at', 'revoked_uuid']
+            super().save(*args, **kwargs)
+            return
+        elif self.type is CertificateTypes.SERVER_CERT or\
+           self.type is CertificateTypes.CLIENT_CERT:
             self.revoked_at = timezone.now()
             self.revoked_uuid = uuid.uuid4()
             # TODO implement revocation
@@ -260,7 +272,6 @@ class Certificate(models.Model):
             kwargs['update_fields'] = ['revoked_at', 'revoked_uuid']
             super().save(*args, **kwargs)
             return
-        raise ValidationError('Delete of certificate not allowed')
 
     def generate_crl(self, *args, **kwargs):
         if self.type is CertificateTypes.INTERMEDIATE:
@@ -301,7 +312,8 @@ def check_if_not_update_certificate(instance, *args, **kwargs):
     if instance.id:  # check_if_not_update_certificate
         if kwargs and 'update_fields' in kwargs \
             and set(kwargs['update_fields']) == set(['revoked_at', 'revoked_uuid']) and (
-                instance.type in {CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT}):
+                instance.type in {CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT},
+                CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE):
             return
         raise ValidationError('Not allowed to update a Certificate record')
 
@@ -380,6 +392,12 @@ class KeyStore(models.Model):
         else:
             raise ValidationError(
                 'Not allowed to update a KeyStore record')
+
+
+# TODO, to different file? cyclic dependency?
+def check_passphrase_issuer(key, passphrase):
+    from certificate_engine.ssl.key import Key as KeyGenerator
+    return KeyGenerator().check_passphrase(key, passphrase)
 
 
 @receiver(pre_save, sender=Certificate)

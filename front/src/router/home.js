@@ -1,4 +1,5 @@
-import store from '../api/store';
+
+import store from '@/store';
 
 export default [
   {
@@ -21,7 +22,7 @@ export default [
       import(/* webpackChunkName: 'routes' */ '@/views/Public.vue'),
     // redirect if already signed in
     beforeEnter: (to, from, next) => {
-      if (store.getters.isLoggedIn) {
+      if (store.auth.getters.isLoggedIn) {
         next('/dashboard');
       } else {
         next();

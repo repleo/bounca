@@ -53,8 +53,8 @@ class CertificateForm(forms.ModelForm, VuetifyFormMixin):
         'password_mismatch': "The two passphrase fields didn't match."
     }
 
-    passphrase_in = forms.CharField(
-        label="Passphrase in",
+    passphrase_issuer = forms.CharField(
+        label="Passphrase issuer",
         initial="",
         widget=forms.PasswordInput,
         strip=False,
@@ -226,7 +226,7 @@ class AddRootCAForm(CertificateForm):
         self.fields.pop('dn')
         self.fields.pop('parent')
         self.fields.pop('type')
-        self.fields.pop('passphrase_in')
+        self.fields.pop('passphrase_issuer')
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
@@ -278,7 +278,7 @@ class AddRootCAForm(CertificateForm):
             ButtonHolder(
                 Spacer(),
                 Button('cancel', 'Cancel',  **{'@click': 'onCancel'}),
-                Submit('submit', 'Create', **{'@click': 'onCcreateCertificate', 'css_class': 'px-6'}),
+                Submit('submit', 'Create', **{'@click': 'onCreateCertificate', 'css_class': 'px-6'}),
                 css_class="mt-4",
                 outlined=True,
             )
@@ -288,7 +288,7 @@ class AddRootCAForm(CertificateForm):
             ]
         self.vue_methods = [
                 """
-onCcreateCertificate() {
+onCreateCertificate() {
   this.$refs.form.validate().then((isValid) => {
     if (isValid) {
       this.passphrase_out_visible = false;
@@ -313,41 +313,243 @@ onCancel(){
         ]
 
 
-      #   """
-      # dark
-      # color="secondary"
-      # class="px-4"
-      # @click="register"
-      #           """
+class AddIntermediateCAForm(CertificateForm):
+    scope_prefix = 'cert_data'
+    form_title = 'Intermediate Certificate'
+    form_component_name = 'IntermediateCert'
+    form_object = 'intermediatecert'
 
-    # def clean_parent(self):
-    #     return None
-    #
-    #
-    # def __init__(self, *args, **kwargs):
-    #     kwargs.update(auto_id=False, scope_prefix=self.scope_prefix)
-    #     super().__init__(*args, **kwargs)
-    #     self.fields.pop('dn')
-    #     self.initial['parent'] = None
-    #     self.initial['type'] = CertificateTypes.ROOT
-    #     self.initial['expires_at'] = timezone.now(
-    #     ) + timezone.timedelta(weeks=1040)
-    #
-    #     self.fields['expires_at'].help_text = \
-    #         'Expiration date of the root certificate, ' + \
-    #         'typically 20 years. (format: yyyy-mm-dd)'
-    #
-    #     self.fields['parent'].widget = forms.HiddenInput()
-    #     self.fields['type'].widget = forms.HiddenInput()
-    #     self.fields['passphrase_issuer'].widget = forms.HiddenInput()
-    #     if 'scope_prefix' in kwargs:
-    #         kwargs.pop('scope_prefix')
-    #     if 'prefix' in kwargs:
-    #         kwargs.pop('prefix')
-    #     if 'initial' in kwargs and 'dn' in kwargs['initial']:
-    #         initial = kwargs.pop('initial')
-    #         kwargs['initial'] = initial['dn']
-    #     self.dn = AddDistinguishedNameRootCAForm(
-    #         scope_prefix='cert_data.dn', **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        dn_fields = {f"dn.{f}": DistinguishedNameForm().fields[f]
+                     for f in DistinguishedNameForm().fields}
+        self.fields.update(dn_fields)
+        self.fields.pop('dn')
+        self.fields.pop('parent')
+        self.fields.pop('type')
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column(
+                    Fieldset('Distinguished Name',
+                             Row(
+                                Column('dn.commonName', md="8"),
+                                Column('expires_at')
+                             ),
+                             Row(Column(VueField('dn.subjectAltNames',
+                                              multiple=True, chips=True,
+                                              deletable_chips=True, append_icon=""),
+                                        xs12=True, md12=True)),
+                             Row(
+                                 Column(VueField('dn.organizationName', disabled=True)),
+                                 Column('dn.organizationalUnitName', xs12=True, md6=True)
+                             ),
+                             Row(Column('dn.emailAddress', xs12=True, md12=True)),
+                             Row(
+                                 Column(VueField('dn.stateOrProvinceName', disabled=True), md="5"),
+                                 Column('dn.localityName', md="5"),
+                                 Column(VueField('dn.countryName', disabled=True))
+                             ),
+                             outlined=True,
+                             )
+                )
+            ),
+            Row(
+                Column(
+                    Fieldset('Revocation Services',
+                             'crl_distribution_url',
+                             'ocsp_distribution_host',
+                             outlined=True,
+                             )
+                )
+            ),
+            Row(
+                Column(
+                    Fieldset('Certificate',
+                             'name',
+                             Row(
+                                 Column('passphrase_out'),
+                                 Column('passphrase_out_confirmation')
+                             ),
+                             outlined=True,
+                             )
+                )
+            ),
+            Row(
+                Column(
+                    Fieldset('Signing credentials',
+                             'passphrase_issuer',
+                             outlined=True,
+                             )
+                )
+            ),
+            ButtonHolder(
+                Spacer(),
+                Button('cancel', 'Cancel',  **{'@click': 'onCancel'}),
+                Submit('submit', 'Create', **{'@click': 'onCreateCertificate', 'css_class': 'px-6'}),
+                css_class="mt-4",
+                outlined=True,
+            )
+        )
+        self.vue_imports = [
+                ('certificates', '../../api/certificates')
+            ]
+        self.vue_props = ['parent']
+        self.vue_extra_init_rules = \
+            """
+this.setParentData();
+            """
+        self.vue_watchers = [
+        ]
+        self.vue_mounted = \
+            """
+this.setParentData();
+            """
+        self.vue_methods = [
+                """
+setParentData() {
+    this.intermediatecert.dn.organizationName = this.parent.dn.organizationName;
+    this.intermediatecert.dn.stateOrProvinceName = this.parent.dn.stateOrProvinceName;
+    this.intermediatecert.dn.countryName = this.parent.dn.countryName;
+}
+                """,
+                """
+onCreateCertificate() {
+  this.$refs.form.validate().then((isValid) => {
+    if (isValid) {
+      this.passphrase_out_visible = false;
+      this.passphrase_out_confirmation_visible = false;
+      this.passphrase_in_visible = false;
+      this.intermediatecert.type = 'I';
+      this.intermediatecert.parent = this.parent.id;
+      certificates.create(this.intermediatecert).then((response) => {
+          this.$emit('update-dasboard');
+          this.resetForm();
+          this.$emit('close-dialog');
+      }).catch((r) => {
+        this.$refs.form.setErrors(r.response.data);
+      });
+    }
+  });
+}               """,
+                """
+onCancel(){
+  this.resetForm();
+  this.$emit('close-dialog');
+}
+                """
+        ]
 
 
+class AddCertificateForm(CertificateForm):
+    scope_prefix = 'cert_data'
+    form_title = 'Certificate'
+    form_component_name = 'Certificate'
+    form_object = 'certificate'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        dn_fields = {f"dn.{f}": DistinguishedNameForm().fields[f]
+                     for f in DistinguishedNameForm().fields}
+        self.fields.update(dn_fields)
+        self.fields.pop('dn')
+        self.fields.pop('parent')
+        self.fields.pop('type')
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column(
+                    Fieldset('Distinguished Name',
+                             Row(
+                                Column('dn.commonName', md="8"),
+                                Column('expires_at')
+                             ),
+                             Row(Column(VueField('dn.subjectAltNames',
+                                              multiple=True, chips=True,
+                                              deletable_chips=True, append_icon=""),
+                                        xs12=True, md12=True)),
+                             Row(
+                                 Column('dn.organizationName'),
+                                 Column('dn.organizationalUnitName', xs12=True, md6=True)
+                             ),
+                             Row(Column('dn.emailAddress', xs12=True, md12=True)),
+                             Row(
+                                 Column('dn.stateOrProvinceName', md="5"),
+                                 Column('dn.localityName', md="5"),
+                                 Column('dn.countryName')
+                             ),
+                             outlined=True,
+                             )
+                )
+            ),
+            Row(
+                Column(
+                    Fieldset('Revocation Services',
+                             'crl_distribution_url',
+                             'ocsp_distribution_host',
+                             outlined=True,
+                             )
+                )
+            ),
+            Row(
+                Column(
+                    Fieldset('Certificate',
+                             'name',
+                             Row(
+                                 Column('passphrase_out'),
+                                 Column('passphrase_out_confirmation')
+                             ),
+                             outlined=True,
+                             )
+                )
+            ),
+            Row(
+                Column(
+                    Fieldset('Signing credentials',
+                             'passphrase_issuer',
+                             outlined=True,
+                             )
+                )
+            ),
+            ButtonHolder(
+                Spacer(),
+                Button('cancel', 'Cancel',  **{'@click': 'onCancel'}),
+                Submit('submit', 'Create', **{'@click': 'onCreateCertificate', 'css_class': 'px-6'}),
+                css_class="mt-4",
+                outlined=True,
+            )
+        )
+        self.vue_imports = [
+                ('certificates', '../../api/certificates')
+            ]
+        self.vue_props = ['parent']
+        self.vue_watchers = [
+        ]
+        self.vue_methods = [
+
+                """
+onCreateCertificate() {
+  this.$refs.form.validate().then((isValid) => {
+    if (isValid) {
+      this.passphrase_out_visible = false;
+      this.passphrase_out_confirmation_visible = false;
+      this.passphrase_in_visible = false;
+      this.certificate.type = 'S';
+      this.certificate.parent = this.parent.id;
+      certificates.create(this.certificate).then((response) => {
+          this.$emit('update-dasboard');
+          this.resetForm();
+          this.$emit('close-dialog');
+      }).catch((r) => {
+        this.$refs.form.setErrors(r.response.data);
+      });
+    }
+  });
+}               """,
+                """
+onCancel(){
+  this.resetForm();
+  this.$emit('close-dialog');
+}
+                """
+        ]

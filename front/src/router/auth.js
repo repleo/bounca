@@ -1,4 +1,5 @@
-import store from '../api/store';
+import store from '@/store';
+
 
 const redirectLogout = (to, from, next) => {
   store.dispatch('logout')

@@ -6,12 +6,13 @@ import django_countries
 from django.contrib.auth import password_validation
 from rest_framework import serializers
 
-from x509_pki.models import Certificate, DistinguishedName
+from certificate_engine.types import CertificateTypes
+from x509_pki.models import Certificate, DistinguishedName, KeyStore
 
 countries = django_countries.Countries()
 
+
 class DistinguishedNameSerializer(serializers.ModelSerializer):
-    #countryName = serializers.ChoiceField(choices=['a', 'b', 'c'])
 
     class Meta:
         fields = (
@@ -78,13 +79,18 @@ class CertificateSerializer(serializers.ModelSerializer):
         if passphrase_issuer:
             if not self.initial_data.get('parent'):
                 raise serializers.ValidationError(
-                    "You should provide a parent certificate if you provide a passphrase in")
+                    "You should provide a parent certificate if you provide an issuer passphrase")
             parent = Certificate.objects.get(
                 pk=self.initial_data.get('parent'))
-            parent.passphrase_issuer = passphrase_issuer
-            if not parent.is_passphrase_valid():
+            try:
+                if not parent.is_passphrase_valid(passphrase_issuer):
+                    raise serializers.ValidationError(
+                        "Passphrase incorrect. Not allowed "
+                        "to revoke your certificate")
+            except KeyStore.DoesNotExist:
                 raise serializers.ValidationError(
-                    "Passphrase issuer incorrect. Not allowed to sign your certificate")
+                    "Certificate has no cert, something went "
+                    "wrong during generation")
             return passphrase_issuer
         return None
 
@@ -101,7 +107,6 @@ class CertificateSerializer(serializers.ModelSerializer):
         return None
 
     def validate(self, data):
-
         name = data.get("name")
         cert_type = data.get("type")
 
@@ -118,11 +123,6 @@ class CertificateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         dn_data = validated_data.pop('dn')
         dn = DistinguishedName.objects.create(**dn_data)
-        # dn.refresh_from_db()
-        # print(dn.id)
-        # validated_data['dn'] = dn
-        # print(validated_data)
-        #dn = DistinguishedName.objects.create(**validated_data.get('dn', {}))
         certificate = Certificate.objects.create(dn=dn, **validated_data)
         return certificate
 
@@ -137,10 +137,19 @@ class CertificateRevokeSerializer(serializers.ModelSerializer):
 
     def validate_passphrase_issuer(self, passphrase_issuer):
         if passphrase_issuer:
-            self.instance.parent.passphrase_issuer = passphrase_issuer
-            if not self.instance.parent.is_passphrase_valid():
+            if self.instance.type == CertificateTypes.ROOT:
+                revoke_issuer = self.instance
+            else:
+                revoke_issuer = self.instance.parent
+            try:
+                if not revoke_issuer.is_passphrase_valid(passphrase_issuer):
+                    raise serializers.ValidationError(
+                        "Passphrase incorrect. Not allowed "
+                        "to revoke your certificate")
+            except KeyStore.DoesNotExist:
                 raise serializers.ValidationError(
-                    "Passphrase issuer incorrect. Not allowed to revoke your certificate")
+                    "Certificate has no cert, something went "
+                    "wrong during generation")
             return passphrase_issuer
         return None
 

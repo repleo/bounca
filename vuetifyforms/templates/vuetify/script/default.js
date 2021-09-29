@@ -7,9 +7,17 @@ function initialState (){
 
 export default {
     name: '{{ form.form_component_name }}',
-
+    props: [{% for prop in form.vue_props %}'{{ prop }}'{% if not forloop.last %},{% endif %}{% endfor %}],
     data() {
         return initialState();
     },
-{% include "vuetify/script/methods.js" %}
+    watch: {
+      {% for watch in form.vue_watchers %}
+        {{ watch|safe }},
+      {% endfor %}
+    },
+    mounted() {
+       {{ form.vue_mounted|safe }}
+    },
+    {% include "vuetify/script/methods.js" %}
 };

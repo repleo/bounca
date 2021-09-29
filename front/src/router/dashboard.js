@@ -1,20 +1,35 @@
 export default [
   {
     path: '/dashboard',
-    meta: {
-      displayName: 'Dashboard',
-      requiresAuth: true,
-    },
+    redirect: '/dashboard/root',
     component: () => import('@/views/Dashboard.vue'),
     children: [
       {
-        path: '',
-        name: 'Dashboard',
+        path: 'root',
+        name: 'Root',
         meta: {
           requiresAuth: true,
-          displayName: 'Dashboard',
+          displayName: 'Root',
         },
-        component: () => import('@/components/dashboard/Dashboard.vue'),
+        component: () => import('@/components/dashboard/Dashboard'),
+      },
+      {
+        path: 'intermediate/:id',
+        name: 'Intermediate',
+        meta: {
+          requiresAuth: true,
+          displayName: 'Intermediate',
+        },
+        component: () => import('@/components/dashboard/Intermediate'),
+      },
+      {
+        path: 'certificate/:id',
+        name: 'Certificate',
+        meta: {
+          requiresAuth: true,
+          displayName: 'Certificate',
+        },
+        component: () => import('@/components/dashboard/Certificate.vue'),
       },
       {
         path: 'user/profile',
@@ -23,7 +38,7 @@ export default [
           requiresAuth: true,
           displayName: 'Profile',
         },
-        component: () => import('@/components/dashboard/user/UserProfile.vue'),
+        component: () => import('@/components/dashboard/user/UserProfile'),
       },
       {
         path: 'user/settings',
@@ -32,7 +47,7 @@ export default [
           requiresAuth: true,
           displayName: 'Settings',
         },
-        component: () => import('@/components/dashboard/user/UserSettings.vue'),
+        component: () => import('@/components/dashboard/user/UserSettings'),
       },
     ],
   },

@@ -8,7 +8,7 @@ from rest_framework_swagger.views import get_swagger_view
 from .views import (
     CertificateCRLFileView, CertificateCRLView, CertificateFilesView, CertificateInfoView,
     CertificateInstanceView,
-    CertificateListView, CertificateRevokeView, TestFormView)
+    CertificateListView)
 
 
 urlpatterns_apiv1 = [
@@ -16,6 +16,9 @@ urlpatterns_apiv1 = [
     url(r'^certificates/crl/(?P<pk>[\d]+)$', CertificateCRLView.as_view(), name='certificate-crl'),
 
     url(r'^certificates/crlfile/(?P<pk>[\d]+)$', CertificateCRLFileView.as_view(), name='certificate-crl-file'),
+
+    url(r'^certificates/(?P<pk>[\d]+)/download$', CertificateFilesView.as_view(),
+        name='certificate-download'),
 
     url(r'^certificates/(?P<pk>[\d]+)/info$', CertificateInfoView.as_view(),
         name='certificate-info'),
@@ -31,7 +34,6 @@ urlpatterns_apiv1 = [
 schema_view = get_swagger_view(title='BounCA API')
 
 urlpatterns = [
-    url(r'testform/', TestFormView.as_view()),
     url(r'^v1/', include(urlpatterns_apiv1)),
     url(r'docs/', schema_view),
 ]

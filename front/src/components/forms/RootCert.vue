@@ -605,7 +605,7 @@
     Cancel
 </v-btn>
 <v-btn
-       @click="onCcreateCertificate" color="secondary" dark class=" px-6"
+       @click="onCreateCertificate" color="secondary" dark class=" px-6"
 >
     Create
 </v-btn>
@@ -637,18 +637,25 @@ function initialState (){
 
 export default {
     name: 'RootCert',
-
+    props: [],
     data() {
         return initialState();
     },
-methods: {
+    watch: {
+      
+    },
+    mounted() {
+       
+    },
+    methods: {
     resetForm: function (){
         Object.assign(this.$data, initialState());
         this.$refs.form.reset();
+        
     },
 
     
-onCcreateCertificate() {
+onCreateCertificate() {
   this.$refs.form.validate().then((isValid) => {
     if (isValid) {
       this.passphrase_out_visible = false;

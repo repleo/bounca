@@ -1,80 +1,80 @@
-import auth from '../api/auth';
-import session from '../api/session';
-import {
-  LOGIN_BEGIN,
-  LOGIN_FAILURE,
-  LOGIN_SUCCESS,
-  LOGOUT,
-  REMOVE_TOKEN,
-  SET_TOKEN,
-} from './types';
+import axios from 'axios';
+import auth from '@/api/auth';
 
-const TOKEN_STORAGE_KEY = 'TOKEN_STORAGE_KEY';
-const isProduction = process.env.NODE_ENV === 'production';
 
 const initialState = {
-  authenticating: false,
-  error: false,
-  token: null,
-};
-
-const getters = {
-  isAuthenticated: state => !!state.token,
-};
-
-const actions = {
-  login({ commit }, { username, password }) {
-    commit(LOGIN_BEGIN);
-    return auth.login(username, password)
-      .then(({ data }) => commit(SET_TOKEN, data.key))
-      .then(() => commit(LOGIN_SUCCESS))
-      .catch(() => commit(LOGIN_FAILURE));
-  },
-  logout({ commit }) {
-    return auth.logout()
-      .then(() => commit(LOGOUT))
-      .finally(() => commit(REMOVE_TOKEN));
-  },
-  initialize({ commit }) {
-    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
-
-    if (isProduction && token) {
-      commit(REMOVE_TOKEN);
-    }
-
-    if (!isProduction && token) {
-      commit(SET_TOKEN, token);
-    }
-  },
+  key: localStorage.getItem('key') || '',
 };
 
 const mutations = {
-  [LOGIN_BEGIN](state) {
-    state.authenticating = true;
-    state.error = false;
+  auth_request(state) {
+    state.status = 'loading';
   },
-  [LOGIN_FAILURE](state) {
-    state.authenticating = false;
-    state.error = true;
+  auth_success(state, key) {
+    state.status = 'success';
+    state.key = key;
   },
-  [LOGIN_SUCCESS](state) {
-    state.authenticating = false;
-    state.error = false;
+  auth_error(state) {
+    state.status = 'error';
   },
-  [LOGOUT](state) {
-    state.authenticating = false;
-    state.error = false;
+  logout(state) {
+    state.status = '';
+    state.key = '';
   },
-  [SET_TOKEN](state, token) {
-    if (!isProduction) localStorage.setItem(TOKEN_STORAGE_KEY, token);
-    session.defaults.headers.Authorization = `Token ${token}`;
-    state.token = token;
+};
+
+const actions = {
+  login({ commit }, credentials) {
+    return new Promise((resolve, reject) => {
+      commit('auth_request');
+      auth.login(credentials).then((resp) => {
+        const key = resp.data.key;
+        localStorage.setItem('key', key);
+        axios.defaults.headers.common.Authorization = key;
+        commit('auth_success', key);
+        resolve(resp);
+      }).catch((err) => {
+        commit('auth_error');
+        localStorage.removeItem('key');
+        reject(err);
+      });
+    });
   },
-  [REMOVE_TOKEN](state) {
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
-    delete session.defaults.headers.Authorization;
-    state.token = null;
+  register({ commit }, user) {
+    return new Promise((resolve, reject) => {
+      commit('auth_request');
+      auth.createAccount(user).then((resp) => {
+        const key = resp.data.key;
+        localStorage.setItem('key', key);
+        // Add the following line:
+        commit('auth_success', key);
+        axios.defaults.headers.common.Authorization = key;
+        resolve(resp);
+      }).catch((err) => {
+        commit('auth_error');
+        localStorage.removeItem('key');
+        reject(err);
+      });
+    });
   },
+  logout({ commit }) {
+    return new Promise((resolve, reject) => {
+      auth.logout().then((resp) => {
+        commit('logout');
+        localStorage.removeItem('key');
+        delete axios.defaults.headers.common.Authorization;
+        resolve(resp);
+      }).catch((err) => {
+        console.log(err);
+        reject(err);
+      });
+    });
+  },
+};
+
+const getters = {
+  isLoggedIn: state => !!state.key,
+  accessToken: state => state.key,
 };
 
 export default {

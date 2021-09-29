@@ -6,7 +6,7 @@ import * as rules from 'vee-validate/dist/rules';
 
 import App from './App';
 import router from './router';
-import store from './api/store';
+import store from './store';
 
 // Components
 import './components/index';

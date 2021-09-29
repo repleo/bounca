@@ -3,18 +3,22 @@ import Vuex from 'vuex';
 import createLogger from 'vuex/dist/logger';
 
 import auth from './auth';
-import password from './password';
-import signup from './signup';
+import dashboard from './dashboard';
 
-const debug = process.env.NODE_ENV !== 'production';
+// import password from './password';
+// import signup from './signup';
+
+const debug = true; // TODO process.env.NODE_ENV !== 'production';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   modules: {
-    auth,
-    password,
-    signup,
+    auth: auth,
+    dashboard: dashboard,
+    // TODO can it be removed? not used?
+    // password,
+    // signup,
   },
   strict: debug,
   plugins: debug ? [createLogger()] : [],

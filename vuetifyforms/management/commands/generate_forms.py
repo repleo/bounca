@@ -15,7 +15,7 @@ from django.views.generic import FormView
 from factory.django import mute_signals
 from rest_framework.renderers import HTMLFormRenderer
 
-from api.forms import AddRootCAForm
+from api.forms import AddRootCAForm, AddIntermediateCAForm, AddCertificateForm
 from api.serializers import CertificateSerializer
 # from vuetifyforms.forms import AddRootCAForm
 
@@ -37,20 +37,28 @@ class Command(BaseCommand):
     #         form_class = self.get_form_class()
     #     return form_class(**self.get_form_kwargs())
 
-    def generate_forms_not_handy(self):
-        r = HTMLFormRenderer()
-        serializer = CertificateSerializer()
-        html_form = r.render(
-            serializer.data,
-            None,
-            {'style': {'template_pack': 'vuetifydrf'}}
-        )
-        print(html_form)
-        with open("/Users/bjarnoldus/github/bounca/front/src/components/forms/RootCert.vue", "w") as f:
-            f.write(html_form)
-        sdfdsfds
 
     def generate_forms(self):
+        form = AddCertificateForm()
+        html_form = render_crispy_form(form, context={'form': form})
+
+        print(html_form)
+        #print(form.as_vuetify())
+
+        with open("/Users/bjarnoldus/github/bounca/front/src/components/forms/Certificate.vue", "w") as f:
+            f.write(html_form)
+
+        fdsfsdfdsf
+        form = AddIntermediateCAForm()
+        html_form = render_crispy_form(form, context={'form': form})
+
+        print(html_form)
+        #print(form.as_vuetify())
+
+        with open("/Users/bjarnoldus/github/bounca/front/src/components/forms/IntermediateCert.vue", "w") as f:
+            f.write(html_form)
+        # sdtfgsfgdfsg
+
         form = AddRootCAForm()
         html_form = render_crispy_form(form, context={'form': form})
 
