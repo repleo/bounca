@@ -19,37 +19,11 @@
             <v-toolbar
               flat
             >
-              <v-toolbar-title>
-                Certificates for intermediate {{ parentCertificate.name }}
-              </v-toolbar-title>
+              <v-toolbar-title>Certificates</v-toolbar-title>
             </v-toolbar>
             <v-toolbar
               flat
             >
-              <v-btn
-                color="primary"
-                dark
-                class="mb-2"
-                @click='certtype = "S";dialog = !dialog'
-              >
-                New Server Cert
-              </v-btn>
-              <v-btn
-                color="primary"
-                dark
-                class="mb-2 ml-6"
-                @click='certtype = "C";dialog = !dialog'
-              >
-                New Client Cert
-              </v-btn>
-              <v-btn
-                color="primary"
-                dark
-                class="mb-2 ml-6"
-                @click='certtype = "O";dialog = !dialog'
-              >
-                New OCSP Cert
-              </v-btn>
               <v-spacer></v-spacer>
               <v-col cols="4" sm="4">
                 <v-text-field
@@ -63,7 +37,41 @@
               </v-col>
             </v-toolbar>
           </template>
-          <template v-slot:[`item.type`]="{item}">
+          <template v-slot:[`item.name`]="{ item }">
+            <v-btn
+              :disabled="item.revoked || item.expired"
+              class="ma-1"
+              color="blue darken-2"
+              plain
+              v-if="item.type == 'R'"
+              @click="selectRootCertificate(item)"
+            >
+              {{ item.name }}
+            </v-btn>
+            <v-btn
+              :disabled="item.revoked || item.expired"
+              class="ma-1"
+              color="blue darken-2"
+              plain
+              v-if="item.type == 'I'"
+              @click="selectIntermediateCertificate(item)"
+            >
+              {{ item.name }}
+            </v-btn>
+            <div
+              class="text-button ml-5 blue-grey--text"
+              v-if="!(item.type == 'I' | item.type == 'R')"
+            >
+              {{ item.name }}
+            </div>
+           </template>
+                    <template v-slot:[`item.type`]="{item}">
+            <span v-if="item.type == 'R'" class="">
+              Root
+            </span>
+            <span v-if="item.type == 'I'" class="">
+              Intermediate
+            </span>
             <span v-if="item.type == 'S'" class="">
               Server
             </span>
@@ -99,11 +107,6 @@
     </v-col>
   </v-row>
 
-  <v-dialog v-model='dialog' width='800px'>
-    <forms-Certificate :parent="this.parentCertificate" :certtype="this.certtype"
-                    v-on:close-dialog="closeDialog"
-                    v-on:update-dasboard="updateDashboard" ref="certificateForm"/>
-  </v-dialog>
   <v-dialog v-model="dialogDelete" max-width="565px">
     <v-card>
       <v-card-title class="text-h5">Are you sure you want to
@@ -204,8 +207,8 @@
       colored-border
       type="error"
       elevation="2"
-    >
-        <div v-html="dialogErrorText"></div>
+            >
+              {{ dialogErrorText }}
             </v-alert>
       </v-card-text>
       <v-card-actions>
@@ -229,19 +232,13 @@ import certificates from '../../api/certificates';
 
 
 export default {
-  name: 'Certificate',
+  name: 'Dashboard',
   data() {
     return {
-      parentCertificate: {
-        type: '',
-        name: '',
-      },
-      certtype: 'S',
       revoke: {
         passphrase_issuer: null,
       },
       revoke_passphrase_visible: false,
-      dialog: false,
       dialogDownloading: false,
       dialogDelete: false,
       deleteItem: null,
@@ -272,7 +269,7 @@ export default {
   watch: {
     dialog(val) {
       if (!val) {
-        this.$refs.certificateForm.resetForm();
+        this.$refs.rootCertForm.resetForm();
       }
     },
     dialogDelete(val) {
@@ -293,9 +290,9 @@ export default {
     },
   },
   methods: {
-    ...mapMutations('dashboard', ['setIntermediate', 'setRoot']),
+    ...mapMutations('dashboard', ['setRoot', 'setIntermediate']),
     getRequestParams(filter, pagination) {
-      const params = { parent: this.parentCertificate.id };
+      const params = { };
 
       if ('sortBy' in pagination && pagination.sortBy.length === 1 &&
         'sortDesc' in pagination && pagination.sortDesc.length === 1) {
@@ -329,9 +326,6 @@ export default {
     },
 
     retrieveCertificates() {
-      if (!Object.prototype.hasOwnProperty.call(this.parentCertificate, 'id')) {
-        return;
-      }
       const params = this.getRequestParams(
         this.filter,
         this.pagination,
@@ -426,56 +420,21 @@ export default {
       this.dialogInfo = false;
     },
 
-    closeDialog() {
-      this.dialog = false;
-    },
-
     updateDashboard() {
       this.retrieveCertificates();
     },
-    setupDashboard() {
-      certificates.get(this.$route.params.id)
-        .then((response) => {
-          if (response.type !== 'I') {
-            this.dialogErrorText = `${response.name} is not an intermediate certificate`;
-            this.dialogError = true;
-          } else if (response.revoked) {
-            this.dialogErrorText = `${response.name} has been revoked`;
-            this.dialogError = true;
-          } else if (response.expired) {
-            this.dialogErrorText = `${response.name} has been expired`;
-            this.dialogError = true;
-          } else {
-            this.parentCertificate = response;
-            this.setIntermediate({
-              id: this.parentCertificate.id,
-              name: this.parentCertificate.name,
-              active: true,
-            });
-            this.updateDashboard();
-            certificates.get(this.parentCertificate.parent)
-              .then((r) => {
-                this.setRoot({
-                  id: r.id,
-                  name: r.name,
-                  active: true,
-                });
-              }).catch((e) => {
-                console.log(e);
-                this.dialogErrorText = e;
-                this.dialogError = true;
-              });
-          }
-        })
-        .catch((e) => {
-          console.log(e);
-          this.dialogErrorText = e;
-          this.dialogError = true;
-        });
+
+    selectRootCertificate(item) {
+      this.$router.push(`/dashboard/intermediate/${item.id}`);
+    },
+    selectIntermediateCertificate(item) {
+      this.$router.push(`/dashboard/certificate/${item.id}`);
     },
   },
   mounted() {
-    this.setupDashboard();
+    this.setRoot({ id: null, name: '', active: false });
+    this.setIntermediate({ id: null, name: '', active: false });
+    this.updateDashboard();
   },
 };
 </script>

@@ -1,27 +1,44 @@
 <template>
   <v-footer
-    id="core-footer"
+    dark
+    padless
     app
   >
-    <div class="footer-items">
-      <span v-for="link in links" :key="link.name">
+    <v-card
+      class="flex"
+      flat
+      tile
+    >
+      <v-card-title class="teal">
+        <strong class="subheading">More info and get connected!</strong>
+        <v-spacer></v-spacer>
+        <v-btn
+          v-for="link in links"
+          :href="link.href"
+          :key="link.name"
+          class="mx-3"
+          plain
+          dark
+          target="_blank"
+        >
+          {{ link.name }}
+        </v-btn>
+      </v-card-title>
+
+      <v-card-text class="py-2 white--text text-center">
+        &copy; 2016 - {{ (new Date()).getFullYear() }} —
         <a
-          :href="link.Link"
-          class="tertiary--text footer-links">{{ link.name }}</a>
-      </span>
-    </div>
-    <v-spacer/>
-    <span class="font-weight-light copyright">
-      &copy;
-      {{ (new Date()).getFullYear() }}
-      <a
-        href="https://twitter.com/Cleesus"
-        target="_blank">@cleesus</a>, made with
-      <v-icon
-        color="tertiary"
-        size="17">mdi-heart</v-icon>
-      for a better web
-    </span>
+          href="https://www.bounca.org"
+          target="_blank"
+          class="white--text font-weight-black"
+        >
+          BounCA.org</a>, made by
+        <a
+          href="https://www.repleo.nl"
+          class="white--text font-weight-black"
+          target="_blank">Repleo.nl</a>, Amsterdam, The Netherlands
+      </v-card-text>
+    </v-card>
   </v-footer>
 </template>
 
@@ -29,16 +46,17 @@
 export default {
   data: () => ({
     links: [
-      { name: 'Home', Link: '/dashboard' },
-      { name: 'Demo', Link: 'https://clintoxx.github.io/vuetify-admin-dashboard/' },
-      { name: 'GitHub', Link: 'https://github.com/ClintOxx' },
+      { name: 'API', href: '/api' },
+      { name: 'Documentation', href: 'https://www.bounca.org/' },
+      { name: 'GitLab', href: 'https://gitlab.com/bounca/bounca' },
+      { name: 'Twitter', href: 'https://twitter.com/gobounca' },
     ],
   }),
 };
 </script>
 
 <style>
-#core-footer {
-  z-index: 0;
+a{
+ text-decoration: none;
 }
 </style>

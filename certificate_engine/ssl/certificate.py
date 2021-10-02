@@ -367,6 +367,53 @@ class Certificate(object):
 
         return self._sign_certificate(issuer_key)
 
+    def _create_ocsp_certificate(self, cert: Certificate_model, private_key: Key,
+                                   issuer_key: Key) -> x509.Certificate:
+
+        Certificate._check_issuer_provided(cert)
+        Certificate._check_policies(cert)
+        self._builder = x509.CertificateBuilder()
+        self._set_basic(cert, private_key, issuer_key)
+        # TODO fix this https://jamielinux.com/docs/openssl-certificate-authority/online-certificate-status-protocol.html
+
+        raise NotImplementedError()
+        self._builder = self._builder.add_extension(
+            x509.KeyUsage(
+                digital_signature=True,
+                content_commitment=True,
+                key_encipherment=True,
+                data_encipherment=False,
+                key_agreement=False,
+                key_cert_sign=False,
+                crl_sign=False,
+                encipher_only=False,
+                decipher_only=False
+            ),
+            critical=True,
+        )
+
+        self._builder = self._builder.add_extension(
+            x509.ExtendedKeyUsage([ExtendedKeyUsageOID.CLIENT_AUTH, ExtendedKeyUsageOID.EMAIL_PROTECTION]),
+            critical=False,
+        )
+
+        if cert.dn.subjectAltNames:
+            alts = []
+            for altname in cert.dn.subjectAltNames:
+                try:
+                    alt = x509.RFC822Name(altname)
+                    alts.append(alt)
+                    continue
+                except ValueError:
+                    pass
+
+            self._builder = self._builder.add_extension(
+                x509.SubjectAlternativeName(alts),
+                critical=False,
+            )
+
+        return self._sign_certificate(issuer_key)
+
     def check_policies(self, cert_request: Certificate_model) \
             -> bool:
         return self._check_policies(copy.deepcopy(cert_request))
@@ -403,6 +450,8 @@ class Certificate(object):
             self._certificate = self._create_server_certificate(cert_request, private_key, issuer_key)
         elif cert_request.type == CertificateTypes.CLIENT_CERT:
             self._certificate = self._create_client_certificate(cert_request, private_key, issuer_key)
+        elif cert_request.type == CertificateTypes.OCSP:
+            self._certificate = self._create_ocsp_certificate(cert_request, private_key, issuer_key)
         return self
 
     def serialize(self, encoding: serialization.Encoding = serialization.Encoding.PEM) -> str:

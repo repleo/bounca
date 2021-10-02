@@ -22,7 +22,7 @@ export default [
       import(/* webpackChunkName: 'routes' */ '@/views/Public.vue'),
     // redirect if already signed in
     beforeEnter: (to, from, next) => {
-      if (store.auth.getters.isLoggedIn) {
+      if (store.getters['auth/isLoggedIn']) {
         next('/dashboard');
       } else {
         next();

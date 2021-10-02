@@ -1,9 +1,18 @@
 export default [
   {
     path: '/dashboard',
-    redirect: '/dashboard/root',
+    redirect: '/dashboard/overview',
     component: () => import('@/views/Dashboard.vue'),
     children: [
+      {
+        path: 'overview',
+        name: 'Overview',
+        meta: {
+          requiresAuth: true,
+          displayName: 'Overview',
+        },
+        component: () => import('@/components/dashboard/Overview.vue'),
+      },
       {
         path: 'root',
         name: 'Root',
@@ -11,7 +20,7 @@ export default [
           requiresAuth: true,
           displayName: 'Root',
         },
-        component: () => import('@/components/dashboard/Dashboard'),
+        component: () => import('@/components/dashboard/Root.vue'),
       },
       {
         path: 'intermediate/:id',

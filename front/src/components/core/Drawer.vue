@@ -1,7 +1,6 @@
 <template>
   <v-navigation-drawer
     id="app-drawer"
-    v-model="inputValue"
     clipped
     permanent
     app
@@ -15,8 +14,6 @@
           v-for="(link, i) in links"
           :key="i"
           :to="link.to"
-          :active-class="color"
-          avatar
           :disabled="!link.active"
           class="v-list-item"
         >
@@ -36,13 +33,19 @@
 
 <script>
 import {
-  // mapMutations,
   mapState,
 } from 'vuex';
 
 export default {
   data: () => ({
     links: [
+      {
+        to: '/dashboard/overview',
+        icon: 'mdi-home',
+        text: 'Overview',
+        subtext: '',
+        active: true,
+      },
       {
         to: '/dashboard/root',
         icon: 'mdi-application-cog',
@@ -59,7 +62,7 @@ export default {
       },
       {
         to: '/dashboard/certificate/56',
-        icon: 'mdi-badge-account-horizontal-outline',
+        icon: 'mdi-certificate',
         text: 'Certificates',
         subtext: '',
         active: false,
@@ -71,14 +74,14 @@ export default {
   },
   methods: {
     setRoot() {
-      this.links[1].active = this.navigation.root.active;
-      this.links[0].subtext = this.navigation.root.name;
-      this.links[1].link = `/dashboard/intermediate/${this.navigation.root.id}`;
+      this.links[2].active = this.navigation.root.active;
+      this.links[1].subtext = this.navigation.root.name;
+      this.links[2].link = `/dashboard/intermediate/${this.navigation.root.id}`;
     },
     setIntermediate() {
-      this.links[2].active = this.navigation.intermediate.active;
-      this.links[1].subtext = this.navigation.intermediate.name;
-      this.links[2].link = `/dashboard/certificate/${this.navigation.intermediate.id}`;
+      this.links[3].active = this.navigation.intermediate.active;
+      this.links[2].subtext = this.navigation.intermediate.name;
+      this.links[3].link = `/dashboard/certificate/${this.navigation.intermediate.id}`;
     },
   },
   watch: {

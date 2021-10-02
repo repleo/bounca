@@ -95,9 +95,8 @@ export default {
             this.credentials.username = this.usernameOrEmail;
           }
           this.$store.dispatch('auth/login', this.credentials)
-            .then(() => this.$router.push('/dashboard/root'))
+            .then(() => this.$router.push('/dashboard'))
             .catch((r) => {
-              console.log(r);
               const errors = r.response.data;
               errors.usernameOrEmail = errors.username + errors.email;
               this.$refs.form.setErrors(errors);

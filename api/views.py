@@ -265,10 +265,15 @@ class CertificateFilesView(FileView):
             response['Access-Control-Expose-Headers'] = "Content-Disposition"
             return response
 
-        if cert.type is CertificateTypes.SERVER_CERT:
+        if cert.type in [CertificateTypes.SERVER_CERT,
+                         CertificateTypes.CLIENT_CERT,
+                         CertificateTypes.OCSP]:
             try:
                 zipped_file = self.make_certificate_zip(cert)
-                filename = f"{cert.name}.server_cert.zip"
+                name = {CertificateTypes.SERVER_CERT: 'server_cert',
+                        CertificateTypes.CLIENT_CERT: 'client_cert',
+                        CertificateTypes.OCSP: 'ocsp_cert'}[cert.type]
+                filename = f"{cert.name}.{name}.zip"
                 response = HttpResponse(zipped_file,
                                         content_type='application/octet-stream')
                 response['Content-Disposition'] = (f"attachment; filename={filename}")

@@ -2,12 +2,12 @@ import store from '@/store';
 
 
 const redirectLogout = (to, from, next) => {
-  store.dispatch('logout')
+  store.dispatch('auth/logout')
     .then(() => next('/'));
 };
 
 const redirectLoggedIn = (to, from, next) => {
-  if (store.getters.isLoggedIn) {
+  if (store.getters['auth/isLoggedIn']) {
     next('/dashboard');
   } else {
     next();

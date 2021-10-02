@@ -12,7 +12,7 @@ class TrapDjangoValidationErrorCreateMixin(object):
         try:
             serializer.save()
         except DjangoValidationError as detail:
-            raise serializers.ValidationError(detail.messages)
+            raise serializers.ValidationError({'non_field_errors': detail.messages})
         except PolicyError as detail:
             raise serializers.ValidationError(detail.args[0])
 
@@ -23,6 +23,6 @@ class TrapDjangoValidationErrorUpdateMixin(object):
         try:
             serializer.save()
         except DjangoValidationError as detail:
-            raise serializers.ValidationError(detail.messages)
+            raise serializers.ValidationError({'non_field_errors': detail.messages})
         except PolicyError as detail:
             raise serializers.ValidationError(detail.args[0])

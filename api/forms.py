@@ -443,7 +443,7 @@ onCancel(){
 
 class AddCertificateForm(CertificateForm):
     scope_prefix = 'cert_data'
-    form_title = 'Certificate'
+    form_title = '{{ {"S": "Server", "C": "Client", "O": "OCSP"}[this.certtype] }} certificate '
     form_component_name = 'Certificate'
     form_object = 'certificate'
 
@@ -452,8 +452,14 @@ class AddCertificateForm(CertificateForm):
         dn_fields = {f"dn.{f}": DistinguishedNameForm().fields[f]
                      for f in DistinguishedNameForm().fields}
         self.fields.update(dn_fields)
+        self.fields['passphrase_out'].required = False
+        self.fields['passphrase_out_confirmation'].required = False
+
         self.fields.pop('dn')
         self.fields.pop('parent')
+        self.fields.pop('crl_distribution_url')
+        self.fields.pop('ocsp_distribution_host')
+
         self.fields.pop('type')
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -478,15 +484,6 @@ class AddCertificateForm(CertificateForm):
                                  Column('dn.localityName', md="5"),
                                  Column('dn.countryName')
                              ),
-                             outlined=True,
-                             )
-                )
-            ),
-            Row(
-                Column(
-                    Fieldset('Revocation Services',
-                             'crl_distribution_url',
-                             'ocsp_distribution_host',
                              outlined=True,
                              )
                 )
@@ -522,7 +519,7 @@ class AddCertificateForm(CertificateForm):
         self.vue_imports = [
                 ('certificates', '../../api/certificates')
             ]
-        self.vue_props = ['parent']
+        self.vue_props = ['parent', 'certtype']
         self.vue_watchers = [
         ]
         self.vue_methods = [
@@ -534,7 +531,7 @@ onCreateCertificate() {
       this.passphrase_out_visible = false;
       this.passphrase_out_confirmation_visible = false;
       this.passphrase_in_visible = false;
-      this.certificate.type = 'S';
+      this.certificate.type = this.certtype;
       this.certificate.parent = this.parent.id;
       certificates.create(this.certificate).then((response) => {
           this.$emit('update-dasboard');

@@ -254,7 +254,7 @@ export default {
   watch: {
     dialog(val) {
       if (!val) {
-        this.$refs.rootCertForm.resetForm();
+        this.$refs.intermediateCertForm.resetForm();
       }
     },
     dialogDelete(val) {

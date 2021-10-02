@@ -47,7 +47,7 @@ export default {
   },
   create(data) {
     const url = `${API_URL}/api/v1/certificates/`;
-    const headers = { Authorization: `Token ${store.getters['auth/accessToken\']']}` };
+    const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };
     return axios.post(url, data, { headers: headers });
   },
 };
