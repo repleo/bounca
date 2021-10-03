@@ -1,14 +1,17 @@
 <template>
     <v-app-bar id="core-toolbar" flat clipped-left app>
       <v-list-item>
-          <v-list-item-avatar
-            size="65"
-          >
-            <v-img
-              :src="require('../../assets/img/BounCA-logo.png')"
-              contain
-            />
+          <router-link to="/">
+            <v-list-item-avatar
+              size="65"
+            >
+              <v-img
+                :src="require('../../assets/img/BounCA-logo.png')"
+                contain
+              />
           </v-list-item-avatar>
+          </router-link>
+
           <v-list-item-title class="title">
             BounCA - Key Management
           </v-list-item-title>

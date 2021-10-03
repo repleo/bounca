@@ -104,11 +104,9 @@ INSTALLED_APPS = [
     'vuetifyforms',
 
     # BounCA
-    'webapp.templatetags',
     'certificate_engine',
     'x509_pki',
     'api',
-    'webapp',
 ]
 
 

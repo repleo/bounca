@@ -7,7 +7,6 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import TemplateView
 
 from api.urls import urlpatterns as urlpatterns_api
-from webapp.urls import urlpatterns as urlpatterns_webapp
 
 
 urlpatterns = [
@@ -16,7 +15,6 @@ urlpatterns = [
     url('^', include('django.contrib.auth.urls')),
     url('^account/account_email_verification_sent', TemplateView.as_view(), name='account_email_verification_sent'),
     url(r'^grappelli/', include('grappelli.urls')),  # grappelli URLS
-    url(r'^', include(urlpatterns_webapp)),
 ]
 
 if settings.DEBUG:

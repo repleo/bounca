@@ -90,29 +90,6 @@ class CertificateInstanceView(RetrieveDestroyAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-
-# class CertificateRevokeView(generics.UpdateAPIView):
-#     model = Certificate
-#     serializer_class = CertificateRevokeSerializer
-#
-#     permission_classes = [
-#         permissions.IsAuthenticated,
-#         IsCertificateOwner
-#     ]
-
-
-
-
-class CertificateCRLView(UpdateAPIView):
-    model = Certificate
-    serializer_class = CertificateCRLSerializer
-    queryset = Certificate.objects.all()
-    permission_classes = [
-        permissions.IsAuthenticated,
-        IsCertificateOwner
-    ]
-
-
 class CertificateInfoView(APIView):
     permission_classes = [
         permissions.IsAuthenticated
@@ -168,33 +145,6 @@ class FileView(APIView):
             root_cert_path = settings.CERTIFICATE_REPO_PATH + "/" + \
                 str(certificate.shortname) + "/certs/" + str(certificate.shortname) + ".cert.pem"
             return root_cert_path
-
-
-class CertificateCRLFileView(FileView):
-
-    def get(self, request, pk, *args, **kwargs):
-        cert = None
-        user = None
-        try:
-            user = self.request.user
-            cert = Certificate.objects.get(pk=pk, owner=user)
-        except Exception:
-            return HttpResponseNotFound("File not found")
-
-        key_path = settings.CERTIFICATE_REPO_PATH + self.generate_path(cert)
-        if cert.type is CertificateTypes.INTERMEDIATE:
-            orig_file = key_path + "/crl/" + cert.shortname + ".crl.pem"
-            try:
-                file_content = self.read_file(orig_file)
-                filename = "%s.crl" % (cert.shortname)
-                response = HttpResponse(
-                    file_content, content_type='application/octet-stream')
-                response[
-                    'Content-Disposition'] = ('attachment; filename=%s' % (filename))
-                return response
-            except FileNotFoundError:
-                return HttpResponseNotFound("File not found")
-        return HttpResponseNotFound("File not found")
 
 
 class CertificateFilesView(FileView):
@@ -280,13 +230,44 @@ class CertificateFilesView(FileView):
                 response['Access-Control-Expose-Headers'] = "Content-Disposition"
                 return response
             except FileNotFoundError:
-                return HttpResponseNotFound("File not found")
+                return Http404("File not found")
 
-        # if cert.type is CertificateTypes.CLIENT_CERT:
-        #     try:
-        #         response = self.make_certificate_zip_response(
-        #             key_path, cert, "usr_cert")
-        #         return response
-        #     except FileNotFoundError:
-        #         return HttpResponseNotFound("File not found")
-        return HttpResponseNotFound("File not found")
+        return Http404("File not found")
+
+
+class CertificateCRLFilesView(FileView):
+
+    def get(self, request, pk, *args, **kwargs):
+        return NotImplementedError()
+
+# class CertificateCRLFileView(FileView):
+#
+#     def get(self, request, pk, *args, **kwargs):
+#         cert = None
+#         user = None
+#         try:
+#             user = self.request.user
+#             cert = Certificate.objects.get(pk=pk, owner=user)
+#         except Exception:
+#             return HttpResponseNotFound("File not found")
+#
+#         key_path = settings.CERTIFICATE_REPO_PATH + self.generate_path(cert)
+#         if cert.type is CertificateTypes.INTERMEDIATE:
+#             orig_file = key_path + "/crl/" + cert.shortname + ".crl.pem"
+#             try:
+#                 file_content = self.read_file(orig_file)
+#                 filename = "%s.crl" % (cert.shortname)
+#                 response = HttpResponse(
+#                     file_content, content_type='application/octet-stream')
+#                 response[
+#                     'Content-Disposition'] = ('attachment; filename=%s' % (filename))
+#                 return response
+#             except FileNotFoundError:
+#                 return HttpResponseNotFound("File not found")
+#         return HttpResponseNotFound("File not found")
+
+
+class CertificateOSCPFilesView(FileView):
+
+    def get(self, request, pk, *args, **kwargs):
+        return NotImplementedError()

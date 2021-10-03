@@ -44,7 +44,7 @@ class PasswordConfirmValidator:
         self.field = field
 
 
-class CertificateForm(forms.ModelForm, VuetifyFormMixin):
+class CertificateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.dn = DistinguishedNameForm(**kwargs)
@@ -212,8 +212,9 @@ class VueField(Field):
         self.attrs.update({k.replace("_", "-"): v for k, v in kwargs.items()})
 
 
-class AddRootCAForm(CertificateForm):
+class AddRootCAForm(CertificateForm, VuetifyFormMixin):
     scope_prefix = 'cert_data'
+    vue_file = 'front/src/components/forms/RootCert.vue'
     form_title = 'Root Certificate'
     form_component_name = 'RootCert'
     form_object = 'rootcert'
@@ -313,8 +314,9 @@ onCancel(){
         ]
 
 
-class AddIntermediateCAForm(CertificateForm):
+class AddIntermediateCAForm(CertificateForm, VuetifyFormMixin):
     scope_prefix = 'cert_data'
+    vue_file = 'front/src/components/forms/IntermediateCert.vue'
     form_title = 'Intermediate Certificate'
     form_component_name = 'IntermediateCert'
     form_object = 'intermediatecert'
@@ -441,8 +443,9 @@ onCancel(){
         ]
 
 
-class AddCertificateForm(CertificateForm):
+class AddCertificateForm(CertificateForm, VuetifyFormMixin):
     scope_prefix = 'cert_data'
+    vue_file = 'front/src/components/forms/Certificate.vue'
     form_title = '{{ {"S": "Server", "C": "Client", "O": "OCSP"}[this.certtype] }} certificate '
     form_component_name = 'Certificate'
     form_object = 'certificate'

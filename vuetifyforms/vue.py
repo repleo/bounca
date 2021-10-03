@@ -6,6 +6,12 @@ class VuetifyFormMixin(object):
     field_error_css_classes = 'djng-form-control-feedback djng-field-errors'
     label_css_classes = 'control-label'
 
+    @classmethod
+    def get_subclasses(cls):
+        for subclass in cls.__subclasses__():
+            yield from subclass.get_subclasses()
+            yield subclass
+
     def as_vuetify(self):
         """
         Returns this form rendered as HTML with <div class="form-group">s for each form field.

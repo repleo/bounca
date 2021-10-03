@@ -19,8 +19,8 @@ export default {
     const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };
     return axios.get(url, { headers: headers }).then(response => response.data);
   },
-  download(id, callback, callbackError) {
-    const url = `${API_URL}/api/v1/certificates/${id}/download`;
+  download(path, callback, callbackError) {
+    const url = `${API_URL}/api/v1/${path}`;
     const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };
     axios.get(url, { headers: headers, responseType: 'blob' }).then((response) => {
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));

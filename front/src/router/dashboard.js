@@ -49,15 +49,6 @@ export default [
         },
         component: () => import('@/components/dashboard/user/UserProfile'),
       },
-      {
-        path: 'user/settings',
-        name: 'user_settings',
-        meta: {
-          requiresAuth: true,
-          displayName: 'Settings',
-        },
-        component: () => import('@/components/dashboard/user/UserSettings'),
-      },
     ],
   },
 ];
