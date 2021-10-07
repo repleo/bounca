@@ -11,6 +11,7 @@ from api.urls import urlpatterns as urlpatterns_api
 
 urlpatterns = [
     url(r'^api/', include(urlpatterns_api)),
+    url(r'^auth/', include('rest_framework.urls')),
     # TODO fix these URIs, they are dummy for django registration framework.
     url('^', include('django.contrib.auth.urls')),
     url('^account/account_email_verification_sent', TemplateView.as_view(), name='account_email_verification_sent'),

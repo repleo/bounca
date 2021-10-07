@@ -5,6 +5,7 @@ import uuid
 import django_countries
 from django.contrib.auth import password_validation
 from django_countries.serializers import CountryFieldMixin
+from rest_auth.serializers import UserDetailsSerializer
 from rest_framework import serializers
 
 from certificate_engine.types import CertificateTypes
@@ -181,3 +182,10 @@ class CertificateCRLSerializer(serializers.ModelSerializer):
         instance.passphrase_issuer = validated_data['passphrase_issuer']
         instance.generate_crl()
         return instance
+
+
+class UserSerializer(UserDetailsSerializer):
+
+    class Meta(UserDetailsSerializer.Meta):
+        fields = ('username', 'email', 'first_name', 'last_name')
+        read_only_fields = ('username', )

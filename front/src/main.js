@@ -11,9 +11,6 @@ import store from './store';
 // Components
 import './components/index';
 
-// import 'bootstrap/dist/css/bootstrap.min.css';
-// import '@/assets/css/main.css';
-// import '@/assets/css/bounca.css';
 import vuetify from './plugins/vuetify';
 
 // const VueCookie = require('vue-cookie');

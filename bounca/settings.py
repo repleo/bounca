@@ -137,6 +137,9 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'vuetifyforms.views.vue_exception_handler'
 }
 
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'api.serializers.UserSerializer'
+}
 
 ACCOUNT_EMAIL_VERIFICATION = ["mandatory", "optional", "none"][2]
 ACCOUNT_EMAIL_REQUIRED = ACCOUNT_EMAIL_VERIFICATION in ["mandatory", "optional"]
@@ -151,7 +154,7 @@ AUTHENTICATION_BACKENDS = [
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['api/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

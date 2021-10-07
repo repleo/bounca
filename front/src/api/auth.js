@@ -1,41 +1,50 @@
+import axios from 'axios';
+import store from '@/store';
 import session from './session';
 
 
 // TODO use config param for URI
+const API_URL = 'http://localhost:8000';
 
 export default {
-  // done
+  //
   login(data) {
-    return session.post('http://localhost:8000/api/v1/auth/login/', data);
+    return session.post(`${API_URL}/api/v1/auth/login/`, data);
   },
   logout() {
-    return session.post('http://localhost:8000/api/v1/auth/logout/', {});
+    return session.post(`${API_URL}/api/v1/auth/logout/`, {});
   },
-  // done
+  //
   createAccount(data) {
-    return session.post('http://localhost:8000/api/v1/auth/registration/', data);
+    return session.post(`${API_URL}/api/v1/auth/registration/`, data);
   },
-  // done
+  //
   sendAccountPasswordResetEmail(data) {
-    return session.post('http://localhost:8000/api/v1/auth/password/reset/', data);
+    return session.post(`${API_URL}/api/v1/auth/password/reset/`, data);
   },
-  // done
+  //
   resetAccountPassword(data) {
-    return session.post('http://localhost:8000/api/v1/auth/password/reset/confirm/', data);
+    return session.post(`${API_URL}/api/v1/auth/password/reset/confirm/`, data);
   },
-  // done
+  //
   verifyAccountEmail(data) {
-    return session.post('http://localhost:8000/api/v1/auth/registration/verify-email/', data);
+    return session.post(`${API_URL}/api/v1/auth/registration/verify-email/`, data);
   },
   // for profile menu
   changeAccountPassword(data) {
-    return session.post('http://localhost:8000/api/v1/auth/password/change/', data);
+    const url = `${API_URL}/api/v1/auth/password/change/`;
+    const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };
+    return axios.post(url, data, { headers: headers });
   },
   getAccountDetails() {
-    return session.get('http://localhost:8000/api/v1/auth/user/');
+    const url = `${API_URL}/api/v1/auth/user/`;
+    const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };
+    return axios.get(url, { headers: headers });
   },
   updateAccountDetails(data) {
-    return session.patch('http://localhost:8000/api/v1/auth/user/', data);
+    const url = `${API_URL}/api/v1/auth/user/`;
+    const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };
+    return axios.patch(url, data, { headers: headers });
   },
 
 };

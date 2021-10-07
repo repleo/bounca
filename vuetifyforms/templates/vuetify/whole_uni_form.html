@@ -1,7 +1,7 @@
 <template>
 <!-- eslint-disable -->
 <!-- Generated with django-vuetifyforms -->
-<v-card class="elevation-10">
+<v-card {% if form.vue_card_classes %}class="{{ form.vue_card_classes|safe }}"{%  endif %}>
   <v-toolbar dark flat color="primary" class="mb-6">
     <v-toolbar-title>{{ form.form_title }}</v-toolbar-title>
   </v-toolbar>

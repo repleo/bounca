@@ -5,6 +5,7 @@ from crispy_forms.layout import Layout, Column, Row, Fieldset, ButtonHolder, Fie
     BaseInput, LayoutObject
 from crispy_forms.utils import TEMPLATE_PACK
 from django import forms
+from django.contrib.auth.forms import SetPasswordForm, UserChangeForm
 from django.template.loader import render_to_string
 from django.utils.deconstruct import deconstructible
 
@@ -218,6 +219,7 @@ class AddRootCAForm(CertificateForm, VuetifyFormMixin):
     form_title = 'Root Certificate'
     form_component_name = 'RootCert'
     form_object = 'rootcert'
+    vue_card_classes = 'elevation-10'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -320,6 +322,7 @@ class AddIntermediateCAForm(CertificateForm, VuetifyFormMixin):
     form_title = 'Intermediate Certificate'
     form_component_name = 'IntermediateCert'
     form_object = 'intermediatecert'
+    vue_card_classes = 'elevation-10'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -449,6 +452,7 @@ class AddCertificateForm(CertificateForm, VuetifyFormMixin):
     form_title = '{{ {"S": "Server", "C": "Client", "O": "OCSP"}[this.certtype] }} certificate '
     form_component_name = 'Certificate'
     form_object = 'certificate'
+    vue_card_classes = 'elevation-10'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -550,6 +554,136 @@ onCreateCertificate() {
 onCancel(){
   this.resetForm();
   this.$emit('close-dialog');
+}
+                """
+        ]
+
+
+class ChangePasswordForm(SetPasswordForm, VuetifyFormMixin):
+    scope_prefix = 'user_data'
+    vue_file = 'front/src/components/forms/user/ChangePassword.vue'
+    form_title = 'Change Password'
+    form_component_name = 'changePassword'
+    form_object = 'password'
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(user=None, *args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column('new_password1'),
+                Column('new_password2')
+            ),
+            ButtonHolder(
+                Spacer(),
+                Button('cancel', 'Cancel',  **{'@click': 'onCancel'}),
+                Submit('submit', 'Update', **{'@click': 'updatePassword', 'css_class': 'px-6'}),
+                css_class="mt-4",
+                outlined=True,
+            )
+        )
+        self.vue_imports = [
+                ('auth', '../../../api/auth')
+            ]
+        self.vue_props = []
+        self.vue_watchers = []
+        self.vue_methods = [
+                """
+updatePassword() {
+  this.$refs.form.validate().then((isValid) => {
+    if (isValid) {
+      this.new_password1_visible = false;
+      this.new_password1_visible = false;
+      auth.changeAccountPassword(this.password).then((response) => {
+          this.$emit('success', 'Password has been updated.');
+          this.resetForm();
+      }).catch((r) => {
+        this.$refs.form.setErrors(r.response.data);
+      });
+    }
+  });
+}               """,
+                """
+onCancel(){
+  this.resetForm();
+}
+                """
+        ]
+
+class ChangeProfileForm(UserChangeForm, VuetifyFormMixin):
+    scope_prefix = 'profile_data'
+    vue_file = 'front/src/components/forms/user/ChangeProfile.vue'
+    form_title = 'Change Profile'
+    form_component_name = 'changeProfile'
+    form_object = 'profile'
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column(VueField('username', disabled=True)),
+            ),
+            Row(
+                Column('first_name'),
+                Column('last_name'),
+
+            ),
+            Row(
+                Column('email'),
+            ),
+            ButtonHolder(
+                Spacer(),
+                Button('cancel', 'Cancel',  **{'@click': 'onCancel'}),
+                Submit('submit', 'Update', **{'@click': 'updateProfile', 'css_class': 'px-6'}),
+                css_class="mt-4",
+                outlined=True,
+            )
+        )
+        self.vue_imports = [
+                ('auth', '../../../api/auth')
+            ]
+        self.vue_props = []
+        self.vue_watchers = []
+        self.vue_mounted = \
+            """
+    this.resetForm();
+    this.setupUserForm();
+            """
+        self.vue_methods = [
+                """
+setupUserForm() {
+  auth.getAccountDetails()
+    .then((response) => {
+      this.profile = response.data;
+      console.log(this.profile);
+    }).catch((e) => {
+      console.log(e);
+    });
+},
+updateProfile() {
+  this.$refs.form.validate().then((isValid) => {
+    if (isValid) {
+      const data = {...this.profile};
+      delete this.profile['username'];
+      auth.updateAccountDetails(this.profile).then((response) => {
+          console.log('updated password')
+          this.resetForm();
+          this.setupUserForm();
+      }).catch((r) => {
+        this.$refs.form.setErrors(r.response.data);
+      });
+    }
+  });
+}               """,
+                """
+onCancel(){
+  this.resetForm();
+  this.setupUserForm();
 }
                 """
         ]

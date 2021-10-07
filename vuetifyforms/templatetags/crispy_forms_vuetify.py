@@ -3,8 +3,10 @@ import re
 import sys
 
 from django import template
+from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.postgres.forms import SimpleArrayField
-from django.forms import DateInput, CharField, URLField, DateField, PasswordInput
+from django.forms import DateInput, CharField, URLField, DateField, PasswordInput, DateTimeField, \
+    BooleanField, ModelMultipleChoiceField
 from django.utils.encoding import force_str
 from django.utils.functional import keep_lazy
 from django_countries.fields import LazyTypedChoiceField
@@ -116,8 +118,16 @@ def _get_empty_value(field):
         return None
     elif isinstance(field, DateField):
         return None
+    elif isinstance(field, DateTimeField):
+        return None
+    elif isinstance(field, BooleanField):
+        return None
+    elif isinstance(field, ModelMultipleChoiceField):
+        return None
     elif isinstance(field, SimpleArrayField):
         return []
+    elif isinstance(field, ReadOnlyPasswordHashField):
+        return None
     else:
         raise NotImplementedError(f"Implement empty value for field class '{type(field).__name__}'")
 
