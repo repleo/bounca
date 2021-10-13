@@ -32,7 +32,7 @@ urlpatterns_apiv1 = [
 
 
     url(r'^auth/', include(urlpatterns_rest_auth)),
-    url(r'^auth/registration/$', include(urlpatterns_registration))
+    url(r'^auth/registration/', include(urlpatterns_registration))
 ]
 
 schema_view = get_swagger_view(title='BounCA API')
