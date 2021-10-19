@@ -10,7 +10,7 @@
       tile
     >
       <v-card-title class="teal">
-        <strong class="subheading">More info and get connected!</strong>
+        <strong class="subheading">More info and get connected:</strong>
         <v-spacer></v-spacer>
         <v-btn
           v-for="link in links"

@@ -308,7 +308,10 @@ export default {
         if (pagination.sortDesc[0]) {
           params.ordering = `-${params.ordering}`;
         }
+      } else {
+        params.ordering = '-id';
       }
+
 
       if (filter) {
         params.search = filter;

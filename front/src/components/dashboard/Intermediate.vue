@@ -78,6 +78,7 @@
               </v-icon>
               <v-btn class=""
                 text
+                :disabled="!item.crl_distribution_url"
                 @click="downloadCRL(item.id)">
                 CRL
               </v-btn>
@@ -303,7 +304,10 @@ export default {
         if (pagination.sortDesc[0]) {
           params.ordering = `-${params.ordering}`;
         }
+      } else {
+        params.ordering = '-id';
       }
+
 
       if (filter) {
         params.search = filter;
@@ -353,6 +357,7 @@ export default {
         expiresAt: certificate.expires_at,
         revoked: certificate.revoked,
         expired: certificate.expired,
+        crl_distribution_url: certificate.crl_distribution_url,
       };
     },
 

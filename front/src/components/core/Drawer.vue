@@ -54,14 +54,14 @@ export default {
         active: true,
       },
       {
-        to: '/dashboard/intermediate/55',
+        to: '',
         icon: 'mdi-application',
         text: 'Intermediate Certificates',
         subtext: '',
         active: false,
       },
       {
-        to: '/dashboard/certificate/56',
+        to: '',
         icon: 'mdi-certificate',
         text: 'Certificates',
         subtext: '',
@@ -76,12 +76,12 @@ export default {
     setRoot() {
       this.links[2].active = this.navigation.root.active;
       this.links[1].subtext = this.navigation.root.name;
-      this.links[2].link = `/dashboard/intermediate/${this.navigation.root.id}`;
+      this.links[2].to = `/dashboard/intermediate/${this.navigation.root.id}`;
     },
     setIntermediate() {
       this.links[3].active = this.navigation.intermediate.active;
       this.links[2].subtext = this.navigation.intermediate.name;
-      this.links[3].link = `/dashboard/certificate/${this.navigation.intermediate.id}`;
+      this.links[3].to = `/dashboard/certificate/${this.navigation.intermediate.id}`;
     },
   },
   watch: {

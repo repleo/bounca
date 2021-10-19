@@ -1,19 +1,22 @@
 """Models for storing subject and certificate information"""
-
+import re
 import uuid
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django_countries.fields import CountryField
 
+from certificate_engine.ssl.crl import revocation_list_builder, serialize
 from certificate_engine.ssl.info import get_certificate_info
 from certificate_engine.types import CertificateTypes
+from certificate_engine.ssl.certificate import Certificate as CertificateGenerator
+from certificate_engine.ssl.key import Key as KeyGenerator
 
 
 class DistinguishedName(models.Model):
@@ -130,7 +133,7 @@ class DistinguishedName(models.Model):
 
 def validate_in_future(value):
     if value <= timezone.now().date():
-        raise ValidationError('%s is not in the future!' % value)
+        raise ValidationError(f"{value} is not in the future!")
 
 
 class CertificateQuerySet(models.QuerySet):
@@ -145,6 +148,10 @@ class Certificate(models.Model):
     alphanumeric = RegexValidator(
         r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ ]*$',
         'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
+
+    crl_url_validator = RegexValidator(
+        r"[^\/]\.crl\.pem$",
+        "CRL url shoud end with <filename>.crl.pem")
 
     TYPES = (
         (CertificateTypes.ROOT, 'Root CA Certificate'),
@@ -171,6 +178,7 @@ class Certificate(models.Model):
 
     crl_distribution_url = models.URLField(
         "CRL distribution url",
+        validators=[crl_url_validator],
         blank=True,
         null=True,
         help_text="Base URL for certificate revocation list (CRL)")
@@ -185,7 +193,7 @@ class Certificate(models.Model):
         validators=[validate_in_future],
         help_text="Select the date that the certificate will expire: for root typically 20 years, "
                   "for intermediate 10 years for other types 1 year.")
-    revoked_at = models.DateField(
+    revoked_at = models.DateTimeField(
         editable=False, default=None, blank=True, null=True)
     # when not revoked, uuid is 0. The revoked_uuid is used in the unique constraint
     # to ensure only one signed certificate has been issued
@@ -253,33 +261,10 @@ class Certificate(models.Model):
         if self.revoked_at:
             return
 
-        if self.type is CertificateTypes.ROOT:
-            self.revoked_at = timezone.now()
-            self.revoked_uuid = uuid.uuid4()
-            # TODO implement cascade revocation
-            kwargs['update_fields'] = ['revoked_at', 'revoked_uuid']
-            super().save(*args, **kwargs)
-            return
-        elif self.type is CertificateTypes.SERVER_CERT or\
-           self.type is CertificateTypes.CLIENT_CERT:
-            self.revoked_at = timezone.now()
-            self.revoked_uuid = uuid.uuid4()
-            # TODO implement revocation
-            # if self.type == CertificateTypes.SERVER_CERT:
-            #     revoke_server_cert(self)
-            # if self.type == CertificateTypes.CLIENT_CERT:
-            #     revoke_client_cert(self)
-            kwargs['update_fields'] = ['revoked_at', 'revoked_uuid']
-            super().save(*args, **kwargs)
-            return
-
-    def generate_crl(self, *args, **kwargs):
-        if self.type is CertificateTypes.INTERMEDIATE:
-            # TODO implement generate_crl_file
-            # §generate_crl_file(self)
-            return
-        raise ValidationError(
-            'CRL File can only be generated for Intermediate Certificates')
+        self.revoked_at = timezone.now()
+        self.revoked_uuid = uuid.uuid4()
+        kwargs['update_fields'] = ['revoked_at', 'revoked_uuid']
+        super().save(*args, **kwargs)
 
     def __init__(self, *args, **kwargs):
         if 'passphrase_issuer' in kwargs:
@@ -385,13 +370,30 @@ class KeyStore(models.Model):
 
     # Create only model
     def save(self, full_clean=True, *args, **kwargs):
+        # TODO fix that crl update is allowed
         if self.id is None:
             if full_clean:
                 self.full_clean()
             super().save(*args, **kwargs)
         else:
-            raise ValidationError(
+            raise RuntimeError(
                 'Not allowed to update a KeyStore record')
+
+
+class CrlStore(models.Model):
+    crl = models.TextField(
+        "Serialized CRL certificate",
+        blank=True,
+        null=True)
+    last_update = models.DateTimeField(auto_now=True,
+                                       editable=False,
+                                       help_text="Date at which last crl "
+                                                 "has been generated")
+
+    certificate = models.OneToOneField(
+        Certificate,
+        on_delete=models.CASCADE,
+    )
 
 
 # TODO, to different file? cyclic dependency?
@@ -412,12 +414,44 @@ def generate_certificate(sender, instance, created, **kwargs):
     if created:
         # TODO support elliptic keys
         # TODO make settings of key strength
-        from certificate_engine.ssl.certificate import Certificate as CertificateGenerator
-        from certificate_engine.ssl.key import Key as KeyGenerator
+
         keystore = KeyStore(certificate=instance)
-        key_size = 4096 if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE] else 2048
+        key_size = 4096 if instance.type in \
+                           [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE] else 2048
         keystore.key = KeyGenerator().create_key(key_size).serialize(instance.passphrase_out)
         certhandler = CertificateGenerator()
-        certhandler.create_certificate(instance, keystore.key, instance.passphrase_out, instance.passphrase_issuer)
+        certhandler.create_certificate(instance, keystore.key, instance.passphrase_out,
+                                       instance.passphrase_issuer)
         keystore.crt = certhandler.serialize()
         keystore.save()
+
+        if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
+            crl = revocation_list_builder([], instance.keystore.crt,
+                                          instance.keystore.key,
+                                          instance.passphrase_out)
+            crlstore = CrlStore(certificate=instance)
+            crlstore.crl = serialize(crl)
+            crlstore.save()
+
+
+@receiver(post_save, sender=Certificate)
+def generate_certificate_revocation_list(sender, instance, created, **kwargs):
+    update_fields = kwargs['update_fields']
+    if not created and 'revoked_uuid' in update_fields:
+        if instance.type is CertificateTypes.ROOT:
+            return
+
+        if not instance.parent:
+            RuntimeError(f"Cannot build revoke list of certificate {instance} without parent")
+
+        revoked_certs = Certificate.objects.filter(parent=instance.parent,
+                                                   revoked_uuid__isnull=False)
+        crl_list = [(rc.keystore.crt, rc.revoked_at) for rc in revoked_certs]
+        crl = revocation_list_builder(crl_list,
+                                      instance.parent.keystore.crt,
+                                      instance.parent.keystore.key,
+                                      instance.passphrase_issuer,
+                                      instance.parent.crlstore.last_update)
+        instance.parent.crlstore.crl = serialize(crl)
+        instance.parent.crlstore.save()
+

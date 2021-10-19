@@ -15,8 +15,6 @@ from functools import reduce
 from certificate_engine.ssl.key import Key
 from certificate_engine.types import (
     CertificateIntermediatePolicy, CertificatePolicy, CertificateRootPolicy, CertificateTypes)
-from x509_pki.models import Certificate as Certificate_model
-from x509_pki.models import DistinguishedName
 
 
 class PassPhraseError(RuntimeError):
@@ -44,13 +42,13 @@ class Certificate(object):
         return self._certificate
 
     @staticmethod
-    def _get_certificate_policy(cert: Certificate_model) -> CertificatePolicy:
+    def _get_certificate_policy(cert: 'x509_pki.models.Certificate') -> CertificatePolicy:
         return CertificateRootPolicy() if cert.type == CertificateTypes.ROOT else \
             CertificateIntermediatePolicy() if cert.type == CertificateTypes.INTERMEDIATE else \
             CertificatePolicy()
 
     @staticmethod
-    def _build_subject_names(cert: Certificate_model) -> x509.Name:
+    def _build_subject_names(cert: 'x509_pki.models.Certificate') -> x509.Name:
         dn = cert.dn
         policy = Certificate._get_certificate_policy(cert).policy
         attributes = []
@@ -63,7 +61,7 @@ class Certificate(object):
         return x509.Name(attributes)
 
     @staticmethod
-    def _check_common_name(cert: Certificate_model, common_name: str):
+    def _check_common_name(cert: 'x509_pki.models.Certificate', common_name: str):
         if not cert.parent:
             return
         parent_crt = Certificate().load(cert.parent.keystore.crt).certificate
@@ -72,29 +70,27 @@ class Certificate(object):
         Certificate._check_common_name(cert.parent, common_name)
 
     @staticmethod
-    def _check_policies_optional(dn: DistinguishedName, subject: dict, policy: CertificatePolicy):
+    def _check_policies_optional(dn: 'x509_pki.models.DistinguishedName', policy: CertificatePolicy):
         # noinspection PyUnresolvedReferences
-        for attr in policy['optional']:
-            if getattr(dn, attr[0]) is not None:
-                subject[attr[0]] = getattr(dn, attr[0])
+        # TODO test this logic
+        attributes = [attr[0] for attr in policy['optional'] + policy['supplied'] + policy['match']]
+        for key in list(dn.__dict__):
+            if key not in attributes:
+                setattr(dn, key, None)
 
     @staticmethod
-    def _check_policies_supplied(dn: DistinguishedName, subject: dict, policy: CertificatePolicy):
+    def _check_policies_supplied(dn: 'x509_pki.models.DistinguishedName', policy: CertificatePolicy):
         # noinspection PyUnresolvedReferences
         for attr in policy['supplied']:
             if not getattr(dn, attr[0]):
                 raise PolicyError({f"dn__{attr[0]}": f"Attribute '{attr[0]}' is required"})
-            subject[attr[0]] = getattr(dn, attr[0])
 
     @staticmethod
-    def _check_policies(cert: Certificate_model):
+    def _check_policies(cert: 'x509_pki.models.Certificate'):
         dn = cert.dn
-        subject = {}
-        if cert.dn.subjectAltNames:
-            subject['subjectAltNames'] = cert.dn.subjectAltNames
         policy = Certificate._get_certificate_policy(cert).policy
-        Certificate._check_policies_optional(dn, subject, policy)
-        Certificate._check_policies_supplied(dn, subject, policy)
+        Certificate._check_policies_optional(dn, policy)
+        Certificate._check_policies_supplied(dn, policy)
         if policy['match']:
             if not cert.parent:
                 raise RuntimeError("Parent certificate is required")
@@ -109,25 +105,23 @@ class Certificate(object):
                                       "(issuer certificate: {}, certificate: {})"
                                       .format(attr[0], parent_crt.subject.get_attributes_for_oid(attr[1])[0].value,
                                               getattr(dn, attr[0])))
-                subject[attr[0]] = getattr(dn, attr[0])
         Certificate._check_common_name(cert, getattr(dn, 'commonName'))
-        cert.dn = DistinguishedName(**subject)
 
     @staticmethod
-    def _check_issuer_provided(cert: Certificate_model):
+    def _check_issuer_provided(cert: 'x509_pki.models.Certificate'):
         if not cert.parent:
             raise CertificateError("A parent certificate is expected")
         if cert.parent.type not in {CertificateTypes.INTERMEDIATE, CertificateTypes.ROOT}:
             raise CertificateError("A root or intermediate parent is expected")
 
-    def _set_issuer_name(self, cert: Certificate_model) -> None:
+    def _set_issuer_name(self, cert: 'x509_pki.models.Certificate') -> None:
         issuer_cert = cert.parent if cert.parent else cert
         self._builder = self._builder.issuer_name(Certificate._build_subject_names(issuer_cert))
 
-    def _set_subject_name(self, cert: Certificate_model) -> None:
+    def _set_subject_name(self, cert: 'x509_pki.models.Certificate') -> None:
         self._builder = self._builder.subject_name(Certificate._build_subject_names(cert))
 
-    def _set_public_key(self, cert: Certificate_model, private_key: Key, issuer_key: Key = None) -> None:
+    def _set_public_key(self, cert: 'x509_pki.models.Certificate', private_key: Key, issuer_key: Key = None) -> None:
         self._builder = self._builder.public_key(private_key.key.public_key())
         issuer_cert_subject = issuer_cert_serial_number = None
         if cert.type != CertificateTypes.ROOT:
@@ -145,7 +139,7 @@ class Certificate(object):
             critical=True,
         )
 
-    def _set_crl_distribution_url(self, cert: Certificate_model) -> None:
+    def _set_crl_distribution_url(self, cert: 'x509_pki.models.Certificate') -> None:
         if cert.type in {CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT}:
             cert = cert.parent
         if cert.crl_distribution_url:
@@ -153,9 +147,7 @@ class Certificate(object):
                 x509.CRLDistributionPoints([
                     x509.DistributionPoint(
                         full_name=[x509.UniformResourceIdentifier(
-                            'URI:{}{}{}.crl'.format(cert.crl_distribution_url,
-                                                    "/" if not cert.crl_distribution_url.endswith("/") else "",
-                                                    cert.slug_name)
+                            cert.crl_distribution_url
                         )],
                         relative_name=None,
                         reasons=frozenset([
@@ -173,7 +165,7 @@ class Certificate(object):
                 critical=True
             )
 
-    def _set_ocsp_distribution_url(self, cert: Certificate_model) -> None:
+    def _set_ocsp_distribution_url(self, cert: 'x509_pki.models.Certificate') -> None:
         if cert.type in {CertificateTypes.SERVER_CERT, cert.type == CertificateTypes.CLIENT_CERT}:
             cert = cert.parent
         if cert.ocsp_distribution_host:
@@ -186,7 +178,7 @@ class Certificate(object):
                 critical=True
             )
 
-    def _set_basic_constraints(self, cert: Certificate_model) -> None:
+    def _set_basic_constraints(self, cert: 'x509_pki.models.Certificate') -> None:
         path_length = None
         if cert.type == CertificateTypes.INTERMEDIATE:
             path_length = 0  # TODO check with multiple intermediates
@@ -211,7 +203,7 @@ class Certificate(object):
             critical=True,
         )
 
-    def _set_dates(self, cert: Certificate_model) -> None:
+    def _set_dates(self, cert: 'x509_pki.models.Certificate') -> None:
         self._builder = self._builder.not_valid_before(
             datetime.datetime(
                 year=cert.created_at.year,
@@ -227,7 +219,7 @@ class Certificate(object):
             )
         )
 
-    def _set_basic(self, cert: Certificate_model, private_key: Key,
+    def _set_basic(self, cert: 'x509_pki.models.Certificate', private_key: Key,
                    issuer_key: Key) -> None:
         self._builder = self._builder.serial_number(int(cert.serial))
         self._set_issuer_name(cert)
@@ -244,7 +236,7 @@ class Certificate(object):
             backend=default_backend()
         )
 
-    def _create_root_certificate(self, cert: Certificate_model, private_key: Key) -> x509.Certificate:
+    def _create_root_certificate(self, cert: 'x509_pki.models.Certificate', private_key: Key) -> x509.Certificate:
         Certificate._check_policies(cert)
 
         self._builder = x509.CertificateBuilder()
@@ -252,7 +244,7 @@ class Certificate(object):
         self._set_key_usage()
         return self._sign_certificate(private_key)
 
-    def _create_intermediate_certificate(self, cert: Certificate_model, private_key: Key,
+    def _create_intermediate_certificate(self, cert: 'x509_pki.models.Certificate', private_key: Key,
                                          issuer_key: Key) -> x509.Certificate:
 
         if cert.parent and cert.parent.type != CertificateTypes.ROOT:
@@ -269,7 +261,7 @@ class Certificate(object):
         self._set_key_usage()
         return self._sign_certificate(issuer_key)
 
-    def _create_server_certificate(self, cert: Certificate_model, private_key: Key,
+    def _create_server_certificate(self, cert: 'x509_pki.models.Certificate', private_key: Key,
                                    issuer_key: Key) -> x509.Certificate:
 
         Certificate._check_issuer_provided(cert)
@@ -321,7 +313,7 @@ class Certificate(object):
 
         return self._sign_certificate(issuer_key)
 
-    def _create_client_certificate(self, cert: Certificate_model, private_key: Key,
+    def _create_client_certificate(self, cert: 'x509_pki.models.Certificate', private_key: Key,
                                    issuer_key: Key) -> x509.Certificate:
 
         Certificate._check_issuer_provided(cert)
@@ -367,7 +359,7 @@ class Certificate(object):
 
         return self._sign_certificate(issuer_key)
 
-    def _create_ocsp_certificate(self, cert: Certificate_model, private_key: Key,
+    def _create_ocsp_certificate(self, cert: 'x509_pki.models.Certificate', private_key: Key,
                                    issuer_key: Key) -> x509.Certificate:
 
         Certificate._check_issuer_provided(cert)
@@ -414,11 +406,11 @@ class Certificate(object):
 
         return self._sign_certificate(issuer_key)
 
-    def check_policies(self, cert_request: Certificate_model) \
+    def check_policies(self, cert_request: 'x509_pki.models.Certificate') \
             -> bool:
         return self._check_policies(copy.deepcopy(cert_request))
 
-    def create_certificate(self, cert_request: Certificate_model, key: str, passphrase: str = None,
+    def create_certificate(self, cert_request: 'x509_pki.models.Certificate', key: str, passphrase: str = None,
                            passphrase_issuer: str = None) \
             -> 'Certificate':
         """

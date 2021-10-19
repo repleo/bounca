@@ -155,11 +155,6 @@ class CertificateRevokeSerializer(serializers.ModelSerializer):
             return passphrase_issuer
         return None
 
-    def update(self, instance, validated_data):
-        instance.passphrase_issuer = validated_data['passphrase_issuer']
-        instance.delete()
-        return instance
-
 
 class CertificateCRLSerializer(serializers.ModelSerializer):
     passphrase_issuer = serializers.CharField(max_length=200, required=True)

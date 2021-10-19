@@ -3,20 +3,21 @@
 import io
 
 import logging
+import re
 import zipfile
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseNotFound, Http404
+from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseBadRequest
 from django.views.generic import View, FormView
 from rest_framework import generics, permissions, status
-from rest_framework.generics import ListCreateAPIView, UpdateAPIView, RetrieveDestroyAPIView
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from api.forms import AddRootCAForm
 from api.mixins import TrapDjangoValidationErrorCreateMixin
-from api.serializers import CertificateCRLSerializer, CertificateSerializer, \
-    CertificateRevokeSerializer
+from api.serializers import CertificateSerializer, CertificateRevokeSerializer
 from x509_pki.models import Certificate, CertificateTypes, KeyStore
 
 logger = logging.getLogger(__name__)
@@ -85,7 +86,7 @@ class CertificateInstanceView(RetrieveDestroyAPIView):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
-
+        instance.passphrase_issuer = serializer.validated_data['passphrase_issuer']
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -123,6 +124,16 @@ class FileView(APIView):
                 "Certificate has no cert/key, "
                 "something went wrong during generation")
         return {'crt': cert.keystore.crt, 'key': cert.keystore.key}
+
+    @staticmethod
+    def get_crlstore(cert):
+        if not hasattr(cert, 'crlstore') or \
+                not cert.crlstore.crl:
+            raise KeyStore.DoesNotExist(
+                "Certificate has no crl, "
+                "something went wrong during generation")
+        return {'crl': cert.crlstore.crl}
+
 
     @staticmethod
     def read_file(filename):
@@ -238,7 +249,39 @@ class CertificateFilesView(FileView):
 class CertificateCRLFilesView(FileView):
 
     def get(self, request, pk, *args, **kwargs):
-        return NotImplementedError()
+        try:
+            user = self.request.user
+            cert = Certificate.objects.get(pk=pk, owner=user)
+        except Certificate.DoesNotExist:
+            raise Http404("File not found")
+
+        if cert.type in [CertificateTypes.ROOT,
+                         CertificateTypes.INTERMEDIATE]:
+
+            if not cert.crl_distribution_url:
+                raise Http404("CRL Distribution is not enabled, "
+                              "no crl distribution url")
+
+            try:
+                cert_crlstore = self.get_crlstore(cert)
+            except KeyStore.DoesNotExist:
+                raise Http404("Certificate has no keystore, "
+                              "generation of certificate object went wrong")
+
+            matches = re.findall(r"[^\/]+\.crl\.pem$", cert.crl_distribution_url)
+            if not matches:
+                raise RuntimeError(f"Unexpected wrong format crl distribution url: "
+                                   f"{cert.crl_distribution_url} should end with "
+                                   f"<filename>.crl.pem")
+            filename = matches[0]
+            response = HttpResponse(
+                cert_crlstore['crl'], content_type='application/octet-stream')
+            response[
+                'Content-Disposition'] = f"attachment; filename={filename}"
+            response['Access-Control-Expose-Headers'] = "Content-Disposition"
+            return response
+        else:
+            raise ValidationError("CRL can only be generated for Root or Intermediate certificates")
 
 # class CertificateCRLFileView(FileView):
 #
