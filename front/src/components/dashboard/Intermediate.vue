@@ -82,11 +82,6 @@
                 @click="downloadCRL(item.id)">
                 CRL
               </v-btn>
-              <v-btn class=""
-                text
-                @click="downloadOCSP(item.id)">
-                OCSP
-              </v-btn>
             </span>
           </template>
         </v-data-table>
@@ -396,12 +391,6 @@ export default {
     downloadCRL(item) {
       this.dialogDownloading = true;
       certificates.download(`certificates/${item}/crl`,
-        this.downloadCertificateFinished, this.downloadCertificateError);
-    },
-
-    downloadOCSP(item) {
-      this.dialogDownloading = true;
-      certificates.download(`certificates/${item}/ocsp`,
         this.downloadCertificateFinished, this.downloadCertificateError);
     },
 

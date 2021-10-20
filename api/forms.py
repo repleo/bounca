@@ -1,16 +1,46 @@
-from pprint import pprint
-
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Column, Row, Fieldset, ButtonHolder, Field, Div, \
-    BaseInput, LayoutObject
-from crispy_forms.utils import TEMPLATE_PACK
+from crispy_forms.layout import Layout, Column, Row, Fieldset, ButtonHolder, HTML, BaseInput
 from django import forms
 from django.contrib.auth.forms import SetPasswordForm, UserChangeForm
-from django.template.loader import render_to_string
 from django.utils.deconstruct import deconstructible
 
+from vuetifyforms.components import VueSpacer, VueField
 from vuetifyforms.vue import VuetifyFormMixin
 from x509_pki.models import DistinguishedName, Certificate
+
+
+class Submit(BaseInput):
+    """
+    Used to create a Submit button descriptor for the {% crispy %} template tag::
+
+        submit = Submit('Search the Site', 'search this site')
+
+    .. note:: The first argument is also slugified and turned into the id for the submit button.
+    """
+
+    input_type = "submit"
+
+    def __init__(self, *args, **kwargs):
+        kwargs.update({'dark': True, 'color': "secondary"})
+        self.field_classes = ""
+        super().__init__(*args, **kwargs)
+
+
+class Button(BaseInput):
+    """
+    Used to create a Submit input descriptor for the {% crispy %} template tag::
+
+        button = Button('Button 1', 'Press Me!')
+
+    .. note:: The first argument is also slugified and turned into the id for the button.
+    """
+
+    input_type = "button"
+
+    def __init__(self, *args, **kwargs):
+        kwargs.update({'text': True, 'plain': True, 'color': "primary"})
+        self.field_classes = ""
+        super().__init__(*args, **kwargs)
 
 
 class DistinguishedNameForm(forms.ModelForm):
@@ -38,6 +68,7 @@ class AddDistinguishedNameRootCAForm(DistinguishedNameForm):
         self.fields['commonName'].help_text = \
             'The common name of your certification authority.' + \
             'This field is used to identify your CA in the chain'
+
 
 @deconstructible
 class PasswordConfirmValidator:
@@ -92,127 +123,6 @@ class CertificateForm(forms.ModelForm):
         ]
 
 
-class Flex(Div):
-    """
-    Layout object. It wraps fields in a div so the wrapper can be used as a flex. Example::
-        Flex('form_field_1', 'form_field_2')
-    Flex components will automatically fill the available space in a row or column. They will also shrink relative to the rest of the flex items in the flex container when a specific size is not designated.. Example::
-        Flex('form_field_1', xs12=True, md6=True)
-    """
-
-    template = "%s/layout/flex.html"
-
-
-class Spacer(Div):
-    """
-    Layout object. Spacer for button fields
-    """
-
-    template = "%s/layout/spacer.html"
-
-
-class VueScriptElem(LayoutObject):
-    """
-    Layout object.
-
-    Abstract class for vue elems
-    """
-
-    template = None
-
-    def __init__(self, elems, **kwargs):
-        self.elems = elems
-        self.template = kwargs.pop("template", self.template)
-
-    def render(self, form, form_style, context, template_pack=TEMPLATE_PACK, **kwargs):
-        template = self.get_template_name(template_pack)
-        return render_to_string(template, {"script": self})
-
-
-class VueImports(VueScriptElem):
-    """
-    Layout object. Spacer for button fields
-    """
-
-    template = "%s/script/imports.js"
-
-
-class VueMethods(VueScriptElem):
-    """
-    Layout object. Spacer for button fields
-    """
-
-    template = "%s/script/methods.js"
-
-
-class Submit(BaseInput):
-    """
-    Used to create a Submit button descriptor for the {% crispy %} template tag::
-
-        submit = Submit('Search the Site', 'search this site')
-
-    .. note:: The first argument is also slugified and turned into the id for the submit button.
-    """
-
-    input_type = "submit"
-
-    def __init__(self, *args, **kwargs):
-        kwargs.update({'dark': True, 'color': "secondary"})
-        self.field_classes = ""
-        super().__init__(*args, **kwargs)
-
-
-class Button(BaseInput):
-    """
-    Used to create a Submit input descriptor for the {% crispy %} template tag::
-
-        button = Button('Button 1', 'Press Me!')
-
-    .. note:: The first argument is also slugified and turned into the id for the button.
-    """
-
-    input_type = "button"
-
-    def __init__(self, *args, **kwargs):
-        kwargs.update({'text': True, 'plain': True, 'color': "primary"})
-        self.field_classes = ""
-        super().__init__(*args, **kwargs)
-
-
-class VueField(Field):
-    """
-    Layout object, It contains one field name, and you can add attributes to it easily.
-    For setting class attributes, you need to use `css_class`, as `class` is a Python keyword.
-
-    Example::
-
-        Field('field_name', style="color: #333;", css_class="whatever", id="field_name")
-    """
-
-    template = "%s/field.html"
-
-    def __init__(self, *args, **kwargs):
-        self.fields = list(args)
-
-        if not hasattr(self, "attrs"):
-            self.attrs = {}
-        else:
-            # Make sure shared state is not edited.
-            self.attrs = self.attrs.copy()
-
-        if "css_class" in kwargs:
-            if "class" in self.attrs:
-                self.attrs["class"] += " %s" % kwargs.pop("css_class")
-            else:
-                self.attrs["class"] = kwargs.pop("css_class")
-
-        self.wrapper_class = kwargs.pop("wrapper_class", None)
-        self.template = kwargs.pop("template", self.template)
-
-        # We use kwargs as HTML attributes, turning data_id='test' into data-id='test'
-        self.attrs.update({k.replace("_", "-"): v for k, v in kwargs.items()})
-
-
 class AddRootCAForm(CertificateForm, VuetifyFormMixin):
     scope_prefix = 'cert_data'
     vue_file = 'front/src/components/forms/RootCert.vue'
@@ -260,6 +170,7 @@ class AddRootCAForm(CertificateForm, VuetifyFormMixin):
             Row(
                 Column(
                     Fieldset('Revocation Services',
+                             HTML('<h5>Note: Provide only available services</h5>'),
                              'crl_distribution_url',
                              'ocsp_distribution_host',
                              outlined=True,
@@ -279,7 +190,7 @@ class AddRootCAForm(CertificateForm, VuetifyFormMixin):
                 )
             ),
             ButtonHolder(
-                Spacer(),
+                VueSpacer(),
                 Button('cancel', 'Cancel',  **{'@click': 'onCancel'}),
                 Submit('submit', 'Create', **{'@click': 'onCreateCertificate', 'css_class': 'px-6'}),
                 css_class="mt-4",
@@ -362,6 +273,7 @@ class AddIntermediateCAForm(CertificateForm, VuetifyFormMixin):
             Row(
                 Column(
                     Fieldset('Revocation Services',
+                             HTML('<h5>Note: Provide only available services</h5>'),
                              'crl_distribution_url',
                              'ocsp_distribution_host',
                              outlined=True,
@@ -389,7 +301,7 @@ class AddIntermediateCAForm(CertificateForm, VuetifyFormMixin):
                 )
             ),
             ButtonHolder(
-                Spacer(),
+                VueSpacer(),
                 Button('cancel', 'Cancel',  **{'@click': 'onCancel'}),
                 Submit('submit', 'Create', **{'@click': 'onCreateCertificate', 'css_class': 'px-6'}),
                 css_class="mt-4",
@@ -516,7 +428,7 @@ class AddCertificateForm(CertificateForm, VuetifyFormMixin):
                 )
             ),
             ButtonHolder(
-                Spacer(),
+                VueSpacer(),
                 Button('cancel', 'Cancel',  **{'@click': 'onCancel'}),
                 Submit('submit', 'Create', **{'@click': 'onCreateCertificate', 'css_class': 'px-6'}),
                 css_class="mt-4",
@@ -577,7 +489,7 @@ class ChangePasswordForm(SetPasswordForm, VuetifyFormMixin):
                 Column('new_password2')
             ),
             ButtonHolder(
-                Spacer(),
+                VueSpacer(),
                 Button('cancel', 'Cancel',  **{'@click': 'onCancel'}),
                 Submit('submit', 'Update', **{'@click': 'updatePassword', 'css_class': 'px-6'}),
                 css_class="mt-4",
@@ -637,7 +549,7 @@ class ChangeProfileForm(UserChangeForm, VuetifyFormMixin):
                 Column('email'),
             ),
             ButtonHolder(
-                Spacer(),
+                VueSpacer(),
                 Button('cancel', 'Cancel',  **{'@click': 'onCancel'}),
                 Submit('submit', 'Update', **{'@click': 'updateProfile', 'css_class': 'px-6'}),
                 css_class="mt-4",

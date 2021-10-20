@@ -388,7 +388,7 @@
         <v-col class="" >
         <v-card class=" "  outlined>
 <v-card-title class="headline">Revocation Services</v-card-title>
-    <v-card-text>
+    <v-card-text><h5>Note: Provide only available services</h5>
 
 
 
