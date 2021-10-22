@@ -18,4 +18,3 @@ def get_certificate_info(crt: str) -> str:
                                         "-in", path])
     os.unlink(path)
     return cert_txt
-

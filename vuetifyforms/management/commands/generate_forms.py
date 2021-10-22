@@ -1,13 +1,13 @@
 import os
-
 from crispy_forms.utils import render_crispy_form
 from django.conf import settings
 from django.core.management.base import BaseCommand
+
 from vuetifyforms.vue import VuetifyFormMixin
 
 
 class Command(BaseCommand):
-    help = f"Generate vuetify forms "
+    help = "Generate vuetify forms "
 
     def generate_form(self, form):
         self.stdout.write(f"Generating form {form.__name__}, writing to file {form.vue_file}")

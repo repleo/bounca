@@ -1,23 +1,14 @@
 # coding: utf-8
-from datetime import datetime, timedelta
-
 import arrow
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
-from cryptography.x509 import ExtensionOID
-# noinspection PyUnresolvedReferences
-from cryptography.x509.extensions import ExtensionNotFound, Extensions
-# noinspection PyUnresolvedReferences
-from cryptography.x509.general_name import DNSName, IPAddress
-# noinspection PyUnresolvedReferences
-from cryptography.x509.oid import ExtendedKeyUsageOID
+from datetime import datetime, timedelta
 from django.db.models import signals
 from django.utils import timezone
 from factory.django import mute_signals
-from ipaddress import IPv4Address
 
-from certificate_engine.ssl.certificate import Certificate, CertificateError, PolicyError
+from certificate_engine.ssl.certificate import Certificate
 from certificate_engine.ssl.crl import revocation_builder, revocation_list_builder, serialize
 from certificate_engine.ssl.key import Key
 from certificate_engine.tests.helpers import CertificateTestCase
@@ -71,7 +62,6 @@ class CRL(CertificateTestCase):
 
         cls.key = Key().create_key(4096)
 
-
     def make_server_certificate(self):
         server_subject = DistinguishedNameFactory(subjectAltNames=["www.repleo.nl",
                                                                    "*.bounca.org",
@@ -108,7 +98,9 @@ class CRL(CertificateTestCase):
     def test_revocation_list_builder_one_cert(self):
         cert, pem = self.make_server_certificate()
         revoke_date = datetime.today().replace(microsecond=0) - timedelta(3, 0, 0)
-        crl = revocation_list_builder([(pem, revoke_date)], self.int_certificate.keystore.crt, self.int_certificate.keystore.key)
+        crl = revocation_list_builder([(pem, revoke_date)],
+                                      self.int_certificate.keystore.crt,
+                                      self.int_certificate.keystore.key)
         self.assertEqual(crl.issuer.rdns[0]._attributes[0].value, "BounCA test Int CA")
         self.assertListEqual(crl.get_revoked_certificate_by_serial_number(cert.serial_number), revoke_date)
 
@@ -117,10 +109,11 @@ class CRL(CertificateTestCase):
                                            stateOrProvinceName=self.root_certificate.dn.stateOrProvinceName,
                                            organizationName=self.root_certificate.dn.organizationName,
                                            commonName="BounCA test Int passphrase CA")
-        int_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+5).date(),
-                                                 name="test_server_intermediate_certificate_pass",
-                                                 type=CertificateTypes.INTERMEDIATE,
-                                                 parent=self.root_certificate, dn=subject)
+        int_certificate = CertificateFactory(
+            expires_at=arrow.get(timezone.now()).shift(days=+5).date(),
+            name="test_server_intermediate_certificate_pass",
+            type=CertificateTypes.INTERMEDIATE,
+            parent=self.root_certificate, dn=subject)
 
         with mute_signals(signals.post_save):
             int_certificate.save()

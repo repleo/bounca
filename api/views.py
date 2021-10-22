@@ -6,19 +6,18 @@ import logging
 import re
 import zipfile
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseBadRequest
-from django.views.generic import View, FormView
-from rest_framework import generics, permissions, status
+from django.http import Http404, HttpResponse
+from rest_framework import permissions, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from api.forms import AddRootCAForm
 from api.mixins import TrapDjangoValidationErrorCreateMixin
-from api.serializers import CertificateSerializer, CertificateRevokeSerializer
+from api.serializers import CertificateRevokeSerializer, CertificateSerializer
 from x509_pki.models import Certificate, CertificateTypes, KeyStore
+
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +133,6 @@ class FileView(APIView):
                 "something went wrong during generation")
         return {'crl': cert.crlstore.crl}
 
-
     @staticmethod
     def read_file(filename):
         with open(filename, 'rb') as f:
@@ -162,16 +160,18 @@ class CertificateFilesView(FileView):
 
     @classmethod
     def _get_cert_chain(cls, cert):
-        return  cls._get_cert_chain(cert.parent) + [cert] if cert.parent else [cert]
+        return cls._get_cert_chain(cert.parent) + [cert] if cert.parent else [cert]
 
     @classmethod
     def make_certificate_zip(cls, cert):
         cert_chain = cls._get_cert_chain(cert)
-        try:
-            cert_chain_cert_keys = [cls.get_cert_key(cert) for cert in cert_chain]
-        except KeyStore.DoesNotExist:
-            raise Http404("Certificate has no keystore, "
-                          "generation of certificate object went wrong")
+        cert_chain_cert_keys = []
+        for cert in cert_chain:
+            try:
+                cert_chain_cert_keys.append(cls.get_cert_key(cert))
+            except KeyStore.DoesNotExist:
+                raise RuntimeError(f"Certificate ({cert}) has no keystore, "
+                                   f"generation of certificate object went wrong")
 
         root_cert_file_content = cert_chain_cert_keys[0]['crt']
         cert_chain_file_content = "".join([cert_key['crt'] for cert_key in cert_chain_cert_keys])
@@ -184,10 +184,44 @@ class CertificateFilesView(FileView):
             f.writestr(f"{cert.name}.pem", cert_file_content)
             f.writestr(f"{cert.name}-chain.pem", cert_chain_file_content)
             f.writestr(f"{cert.name}.key", key_file_content)
-            # f.writestr(f"{cert.name}.p12", p12_file_content) #TODO required?
 
         zipped_file.seek(0)
         return zipped_file
+
+    @staticmethod
+    def _make_file_response(content, filename):
+        response = HttpResponse(content,
+                                content_type='application/octet-stream')
+        response[
+            'Content-Disposition'] = f"attachment; filename={filename}"
+        response['Access-Control-Expose-Headers'] = "Content-Disposition"
+        return response
+
+    def _make_certificate_content(self, cert):
+        if cert.type is CertificateTypes.ROOT:
+            try:
+                cert_key = self.get_cert_key(cert)
+            except KeyStore.DoesNotExist:
+                raise RuntimeError("Certificate has no keystore, "
+                                   "generation of certificate object went wrong")
+            return cert_key['crt']
+
+        if cert.type is CertificateTypes.INTERMEDIATE:
+            try:
+                cert_key = self.get_cert_key(cert)
+                parent_cert_key = self.get_cert_key(cert.parent)
+            except KeyStore.DoesNotExist:
+                raise RuntimeError("Certificate has no keystore, "
+                                   "generation of certificate object went wrong")
+            return parent_cert_key['crt'] + cert_key['crt']
+
+        if cert.type in [CertificateTypes.SERVER_CERT,
+                         CertificateTypes.CLIENT_CERT,
+                         CertificateTypes.OCSP]:
+            return self.make_certificate_zip(cert)
+
+        raise NotImplementedError(f"File generation for cert type {cert.type} "
+                                  f"not implemented")
 
     def get(self, request, pk, *args, **kwargs):
         try:
@@ -195,55 +229,16 @@ class CertificateFilesView(FileView):
             cert = Certificate.objects.get(pk=pk, owner=user)
         except Certificate.DoesNotExist:
             raise Http404("File not found")
-
-        if cert.type is CertificateTypes.ROOT:
-            try:
-                cert_key = self.get_cert_key(cert)
-            except KeyStore.DoesNotExist:
-                raise Http404("Certificate has no keystore, "
-                              "generation of certificate object went wrong")
-            filename = f"{cert.name}.pem"
-            response = HttpResponse(
-                cert_key['crt'], content_type='application/octet-stream')
-            response[
-                'Content-Disposition'] = f"attachment; filename={filename}"
-            response['Access-Control-Expose-Headers'] = "Content-Disposition"
-            return response
-
-        if cert.type is CertificateTypes.INTERMEDIATE:
-            try:
-                cert_key = self.get_cert_key(cert)
-                parent_cert_key = self.get_cert_key(cert.parent)
-            except KeyStore.DoesNotExist:
-                raise Http404("Certificate has no keystore, "
-                              "generation of certificate object went wrong")
-            filename = f"{cert.name}-chain.pem"
-            response = HttpResponse(
-                parent_cert_key['crt'] + cert_key['crt'],
-                content_type='application/octet-stream')
-            response[
-                'Content-Disposition'] = f"attachment; filename={filename}"
-            response['Access-Control-Expose-Headers'] = "Content-Disposition"
-            return response
-
-        if cert.type in [CertificateTypes.SERVER_CERT,
-                         CertificateTypes.CLIENT_CERT,
-                         CertificateTypes.OCSP]:
-            try:
-                zipped_file = self.make_certificate_zip(cert)
-                name = {CertificateTypes.SERVER_CERT: 'server_cert',
-                        CertificateTypes.CLIENT_CERT: 'client_cert',
-                        CertificateTypes.OCSP: 'ocsp_cert'}[cert.type]
-                filename = f"{cert.name}.{name}.zip"
-                response = HttpResponse(zipped_file,
-                                        content_type='application/octet-stream')
-                response['Content-Disposition'] = (f"attachment; filename={filename}")
-                response['Access-Control-Expose-Headers'] = "Content-Disposition"
-                return response
-            except FileNotFoundError:
-                return Http404("File not found")
-
-        return Http404("File not found")
+        label = {
+            CertificateTypes.ROOT: 'root',
+            CertificateTypes.INTERMEDIATE: 'intermediate-chain',
+            CertificateTypes.SERVER_CERT: 'server_cert',
+            CertificateTypes.CLIENT_CERT: 'client_cert',
+            CertificateTypes.OCSP: 'ocsp_cert'
+        }[cert.type]
+        filename = f"{cert.name}.{label}.pem"
+        content = self._make_certificate_content(cert)
+        return self._make_file_response(content, filename)
 
 
 class CertificateCRLFilesView(FileView):
@@ -282,35 +277,3 @@ class CertificateCRLFilesView(FileView):
             return response
         else:
             raise ValidationError("CRL can only be generated for Root or Intermediate certificates")
-
-# class CertificateCRLFileView(FileView):
-#
-#     def get(self, request, pk, *args, **kwargs):
-#         cert = None
-#         user = None
-#         try:
-#             user = self.request.user
-#             cert = Certificate.objects.get(pk=pk, owner=user)
-#         except Exception:
-#             return HttpResponseNotFound("File not found")
-#
-#         key_path = settings.CERTIFICATE_REPO_PATH + self.generate_path(cert)
-#         if cert.type is CertificateTypes.INTERMEDIATE:
-#             orig_file = key_path + "/crl/" + cert.shortname + ".crl.pem"
-#             try:
-#                 file_content = self.read_file(orig_file)
-#                 filename = "%s.crl" % (cert.shortname)
-#                 response = HttpResponse(
-#                     file_content, content_type='application/octet-stream')
-#                 response[
-#                     'Content-Disposition'] = ('attachment; filename=%s' % (filename))
-#                 return response
-#             except FileNotFoundError:
-#                 return HttpResponseNotFound("File not found")
-#         return HttpResponseNotFound("File not found")
-
-
-class CertificateOSCPFilesView(FileView):
-
-    def get(self, request, pk, *args, **kwargs):
-        return NotImplementedError()

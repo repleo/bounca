@@ -1,22 +1,21 @@
 """Models for storing subject and certificate information"""
-import re
 import uuid
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models.signals import post_save, pre_save, post_delete
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django_countries.fields import CountryField
 
+from certificate_engine.ssl.certificate import Certificate as CertificateGenerator
 from certificate_engine.ssl.crl import revocation_list_builder, serialize
 from certificate_engine.ssl.info import get_certificate_info
-from certificate_engine.types import CertificateTypes
-from certificate_engine.ssl.certificate import Certificate as CertificateGenerator
 from certificate_engine.ssl.key import Key as KeyGenerator
+from certificate_engine.types import CertificateTypes
 
 
 class DistinguishedName(models.Model):
@@ -417,7 +416,7 @@ def generate_certificate(sender, instance, created, **kwargs):
 
         keystore = KeyStore(certificate=instance)
         key_size = 4096 if instance.type in \
-                           [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE] else 2048
+            [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE] else 2048
         keystore.key = KeyGenerator().create_key(key_size).serialize(instance.passphrase_out)
         certhandler = CertificateGenerator()
         certhandler.create_certificate(instance, keystore.key, instance.passphrase_out,
@@ -454,4 +453,3 @@ def generate_certificate_revocation_list(sender, instance, created, **kwargs):
                                       instance.parent.crlstore.last_update)
         instance.parent.crlstore.crl = serialize(crl)
         instance.parent.crlstore.save()
-

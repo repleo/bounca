@@ -1,14 +1,12 @@
 """API v1 end-points"""
 
-from django.conf.urls import include, url
 from dj_rest_auth.registration.urls import urlpatterns as urlpatterns_registration
 from dj_rest_auth.urls import urlpatterns as urlpatterns_rest_auth
+from django.conf.urls import include, url
 from rest_framework_swagger.views import get_swagger_view
 
 from .views import (
-    CertificateCRLFilesView, CertificateFilesView, CertificateInfoView,
-    CertificateInstanceView,
-    CertificateListView, CertificateOSCPFilesView)
+    CertificateCRLFilesView, CertificateFilesView, CertificateInfoView, CertificateInstanceView, CertificateListView)
 
 
 class CertificateCrlFileView:
@@ -22,8 +20,6 @@ urlpatterns_apiv1 = [
         name='certificate-download'),
     url(r'^certificates/(?P<pk>[\d]+)/crl$', CertificateCRLFilesView.as_view(),
         name='certificate-crl'),
-    url(r'^certificates/(?P<pk>[\d]+)/ocsp$', CertificateOSCPFilesView.as_view(),
-        name='certificate-ocsp'),
 
     url(r'^certificates/(?P<pk>[\d]+)/info$', CertificateInfoView.as_view(),
         name='certificate-info'),

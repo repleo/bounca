@@ -1,7 +1,5 @@
 """Serializers for Certificate API"""
 
-import uuid
-
 import django_countries
 from django.contrib.auth import password_validation
 from django_countries.serializers import CountryFieldMixin
@@ -10,6 +8,7 @@ from rest_framework import serializers
 
 from certificate_engine.types import CertificateTypes
 from x509_pki.models import Certificate, DistinguishedName, KeyStore
+
 
 countries = django_countries.Countries()
 

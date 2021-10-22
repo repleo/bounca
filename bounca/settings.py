@@ -175,7 +175,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 WSGI_APPLICATION = 'bounca.wsgi.application'
 
-#TODO still grappelli?
+# TODO still grappelli?
 
 GRAPPELLI_ADMIN_TITLE = 'BounCA Admin'
 
@@ -197,9 +197,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
@@ -210,61 +207,7 @@ STATICFILES_DIRS = (
     BASE_DIR + '/bounca/static',
 )
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': True,
-#     'formatters': {
-#         'verbose': {
-#             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-#         },
-#         'simple': {
-#             'format': '%(levelname)s %(message)s'
-#         },
-#     },
-#     'filters': {
-#         'require_debug_false': {
-#             '()': 'django.utils.log.RequireDebugFalse',
-#         },
-#         'require_debug_true': {
-#             '()': 'django.utils.log.RequireDebugTrue',
-#         },
-#     },
-#     'handlers': {
-#         'mail_admins': {
-#             'level': 'ERROR',
-#             'class': 'django.utils.log.AdminEmailHandler',
-#             'filters': ['require_debug_false']
-#         },
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#             'formatter': 'simple',
-#             'filters': ['require_debug_true']
-#
-#         },
-#         'null': {
-#             'level': 'DEBUG',
-#             'class': 'logging.NullHandler',
-#         }
-#     },
-#     'loggers': {
-#         'django': {
-#             'level': 'DEBUG',
-#             'handlers': ['console'],
-#             'propagate': True,
-#         },
-#         'django.request': {
-#             'handlers': ['mail_admins'],
-#             'level': 'ERROR',
-#             'propagate': True,
-#         },
-#         # Useless messages mostly about spiders
-#         'django.security.DisallowedHost': {
-#             'handlers': ['null'],
-#             'propagate': False,
-#         },
-#     }
-# }
+# TODO LOGGING SETTINGS
 
 # Directory where all certificates are stores
 CERTIFICATE_REPO_PATH = os.path.join(BASE_DIR, 'pki/')

@@ -66,6 +66,7 @@ class X509_pki_CertificateAdmin(admin.ModelAdmin):
         else:
             return []
 
+
 admin.site.register(Certificate, X509_pki_CertificateAdmin)
 
 

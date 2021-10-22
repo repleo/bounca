@@ -1,6 +1,6 @@
-from typing import List, Tuple
 from django.db import models
 from rest_framework import filters
+from typing import List, Tuple
 
 
 # Code fragment from https://github.com/encode/django-rest-framework/issues/1005
@@ -42,8 +42,8 @@ class RelatedOrderingFilter(filters.OrderingFilter):
                 ))
         return valid_fields
 
-    def get_valid_fields(self, queryset: models.QuerySet, view, context: dict = None) -> List[
-        tuple]:
+    def get_valid_fields(self, queryset: models.QuerySet, view, context: dict = None) \
+            -> List[tuple]:
         valid_fields = getattr(view, 'ordering_fields', self.ordering_fields)
         if not valid_fields == '__all_related__':
             if not context:

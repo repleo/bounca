@@ -1,12 +1,10 @@
-from typing import List, Tuple
-
+import datetime
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509 import CertificateRevocationList, RevokedCertificate
 from cryptography.x509.oid import NameOID
-import datetime
+from typing import List, Tuple
 
 from certificate_engine.ssl.certificate import PassPhraseError
 from certificate_engine.ssl.key import Key
@@ -26,7 +24,7 @@ def revocation_list_builder(certificates: List[Tuple[str, datetime.datetime]],
                             ca: str, key: str, passphrase: str = None,
                             last_update: datetime.datetime = None,
                             next_update: datetime.datetime = None) \
-    -> CertificateRevocationList:
+        -> CertificateRevocationList:
     """
     Create certificate revocation list
 

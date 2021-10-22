@@ -1,5 +1,4 @@
-from crispy_forms.layout import Field, Div, \
-    LayoutObject
+from crispy_forms.layout import Div, Field, LayoutObject
 from crispy_forms.utils import TEMPLATE_PACK
 from django.template.loader import render_to_string
 

@@ -1,12 +1,12 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Column, Row, Fieldset, ButtonHolder, HTML, BaseInput
+from crispy_forms.layout import HTML, BaseInput, ButtonHolder, Column, Fieldset, Layout, Row
 from django import forms
 from django.contrib.auth.forms import SetPasswordForm, UserChangeForm
 from django.utils.deconstruct import deconstructible
 
-from vuetifyforms.components import VueSpacer, VueField
+from vuetifyforms.components import VueField, VueSpacer
 from vuetifyforms.vue import VuetifyFormMixin
-from x509_pki.models import DistinguishedName, Certificate
+from x509_pki.models import Certificate, DistinguishedName
 
 
 class Submit(BaseInput):
@@ -146,12 +146,13 @@ class AddRootCAForm(CertificateForm, VuetifyFormMixin):
                 Column(
                     Fieldset('Distinguished Name',
                              Row(
-                                Column('dn.commonName', md="8"),
-                                Column('expires_at')
+                                 Column('dn.commonName', md="8"),
+                                 Column('expires_at')
                              ),
                              Row(Column(VueField('dn.subjectAltNames',
-                                              multiple=True, chips=True,
-                                              deletable_chips=True, append_icon=""),
+                                                 multiple=True, chips=True,
+                                                 deletable_chips=True,
+                                                 append_icon=""),
                                         xs12=True, md12=True)),
                              Row(
                                  Column('dn.organizationName'),
@@ -191,17 +192,17 @@ class AddRootCAForm(CertificateForm, VuetifyFormMixin):
             ),
             ButtonHolder(
                 VueSpacer(),
-                Button('cancel', 'Cancel',  **{'@click': 'onCancel'}),
+                Button('cancel', 'Cancel', **{'@click': 'onCancel'}),
                 Submit('submit', 'Create', **{'@click': 'onCreateCertificate', 'css_class': 'px-6'}),
                 css_class="mt-4",
                 outlined=True,
             )
         )
         self.vue_imports = [
-                ('certificates', '../../api/certificates')
-            ]
+            ('certificates', '../../api/certificates')
+        ]
         self.vue_methods = [
-                """
+            """
 onCreateCertificate() {
   this.$refs.form.validate().then((isValid) => {
     if (isValid) {
@@ -217,13 +218,14 @@ onCreateCertificate() {
       });
     }
   });
-}               """,
-                """
+}
+            """,
+            """
 onCancel(){
   this.resetForm();
   this.$emit('close-dialog');
 }
-                """
+            """
         ]
 
 
@@ -249,12 +251,13 @@ class AddIntermediateCAForm(CertificateForm, VuetifyFormMixin):
                 Column(
                     Fieldset('Distinguished Name',
                              Row(
-                                Column('dn.commonName', md="8"),
-                                Column('expires_at')
+                                 Column('dn.commonName', md="8"),
+                                 Column('expires_at')
                              ),
                              Row(Column(VueField('dn.subjectAltNames',
-                                              multiple=True, chips=True,
-                                              deletable_chips=True, append_icon=""),
+                                                 multiple=True, chips=True,
+                                                 deletable_chips=True,
+                                                 append_icon=""),
                                         xs12=True, md12=True)),
                              Row(
                                  Column(VueField('dn.organizationName', disabled=True)),
@@ -302,15 +305,15 @@ class AddIntermediateCAForm(CertificateForm, VuetifyFormMixin):
             ),
             ButtonHolder(
                 VueSpacer(),
-                Button('cancel', 'Cancel',  **{'@click': 'onCancel'}),
+                Button('cancel', 'Cancel', **{'@click': 'onCancel'}),
                 Submit('submit', 'Create', **{'@click': 'onCreateCertificate', 'css_class': 'px-6'}),
                 css_class="mt-4",
                 outlined=True,
             )
         )
         self.vue_imports = [
-                ('certificates', '../../api/certificates')
-            ]
+            ('certificates', '../../api/certificates')
+        ]
         self.vue_props = ['parent']
         self.vue_extra_init_rules = \
             """
@@ -323,14 +326,14 @@ this.setParentData();
 this.setParentData();
             """
         self.vue_methods = [
-                """
+            """
 setParentData() {
     this.intermediatecert.dn.organizationName = this.parent.dn.organizationName;
     this.intermediatecert.dn.stateOrProvinceName = this.parent.dn.stateOrProvinceName;
     this.intermediatecert.dn.countryName = this.parent.dn.countryName;
 }
-                """,
-                """
+            """,
+            """
 onCreateCertificate() {
   this.$refs.form.validate().then((isValid) => {
     if (isValid) {
@@ -348,13 +351,14 @@ onCreateCertificate() {
       });
     }
   });
-}               """,
-                """
+}
+            """,
+            """
 onCancel(){
   this.resetForm();
   this.$emit('close-dialog');
 }
-                """
+            """
         ]
 
 
@@ -386,12 +390,13 @@ class AddCertificateForm(CertificateForm, VuetifyFormMixin):
                 Column(
                     Fieldset('Distinguished Name',
                              Row(
-                                Column('dn.commonName', md="8"),
-                                Column('expires_at')
+                                 Column('dn.commonName', md="8"),
+                                 Column('expires_at')
                              ),
                              Row(Column(VueField('dn.subjectAltNames',
-                                              multiple=True, chips=True,
-                                              deletable_chips=True, append_icon=""),
+                                                 multiple=True, chips=True,
+                                                 deletable_chips=True,
+                                                 append_icon=""),
                                         xs12=True, md12=True)),
                              Row(
                                  Column('dn.organizationName'),
@@ -429,21 +434,20 @@ class AddCertificateForm(CertificateForm, VuetifyFormMixin):
             ),
             ButtonHolder(
                 VueSpacer(),
-                Button('cancel', 'Cancel',  **{'@click': 'onCancel'}),
+                Button('cancel', 'Cancel', **{'@click': 'onCancel'}),
                 Submit('submit', 'Create', **{'@click': 'onCreateCertificate', 'css_class': 'px-6'}),
                 css_class="mt-4",
                 outlined=True,
             )
         )
         self.vue_imports = [
-                ('certificates', '../../api/certificates')
-            ]
+            ('certificates', '../../api/certificates')
+        ]
         self.vue_props = ['parent', 'certtype']
         self.vue_watchers = [
         ]
         self.vue_methods = [
-
-                """
+            """
 onCreateCertificate() {
   this.$refs.form.validate().then((isValid) => {
     if (isValid) {
@@ -461,13 +465,14 @@ onCreateCertificate() {
       });
     }
   });
-}               """,
-                """
+}
+            """,
+            """
 onCancel(){
   this.resetForm();
   this.$emit('close-dialog');
 }
-                """
+            """
         ]
 
 
@@ -477,7 +482,6 @@ class ChangePasswordForm(SetPasswordForm, VuetifyFormMixin):
     form_title = 'Change Password'
     form_component_name = 'changePassword'
     form_object = 'password'
-
 
     def __init__(self, *args, **kwargs):
         super().__init__(user=None, *args, **kwargs)
@@ -490,19 +494,19 @@ class ChangePasswordForm(SetPasswordForm, VuetifyFormMixin):
             ),
             ButtonHolder(
                 VueSpacer(),
-                Button('cancel', 'Cancel',  **{'@click': 'onCancel'}),
+                Button('cancel', 'Cancel', **{'@click': 'onCancel'}),
                 Submit('submit', 'Update', **{'@click': 'updatePassword', 'css_class': 'px-6'}),
                 css_class="mt-4",
                 outlined=True,
             )
         )
         self.vue_imports = [
-                ('auth', '../../../api/auth')
-            ]
+            ('auth', '../../../api/auth')
+        ]
         self.vue_props = []
         self.vue_watchers = []
         self.vue_methods = [
-                """
+            """
 updatePassword() {
   this.$refs.form.validate().then((isValid) => {
     if (isValid) {
@@ -516,13 +520,15 @@ updatePassword() {
       });
     }
   });
-}               """,
-                """
+}
+            """,
+            """
 onCancel(){
   this.resetForm();
 }
-                """
+            """
         ]
+
 
 class ChangeProfileForm(UserChangeForm, VuetifyFormMixin):
     scope_prefix = 'profile_data'
@@ -530,7 +536,6 @@ class ChangeProfileForm(UserChangeForm, VuetifyFormMixin):
     form_title = 'Change Profile'
     form_component_name = 'changeProfile'
     form_object = 'profile'
-
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -550,15 +555,15 @@ class ChangeProfileForm(UserChangeForm, VuetifyFormMixin):
             ),
             ButtonHolder(
                 VueSpacer(),
-                Button('cancel', 'Cancel',  **{'@click': 'onCancel'}),
+                Button('cancel', 'Cancel', **{'@click': 'onCancel'}),
                 Submit('submit', 'Update', **{'@click': 'updateProfile', 'css_class': 'px-6'}),
                 css_class="mt-4",
                 outlined=True,
             )
         )
         self.vue_imports = [
-                ('auth', '../../../api/auth')
-            ]
+            ('auth', '../../../api/auth')
+        ]
         self.vue_props = []
         self.vue_watchers = []
         self.vue_mounted = \
@@ -567,7 +572,7 @@ class ChangeProfileForm(UserChangeForm, VuetifyFormMixin):
     this.setupUserForm();
             """
         self.vue_methods = [
-                """
+            """
 setupUserForm() {
   auth.getAccountDetails()
     .then((response) => {
@@ -591,11 +596,12 @@ updateProfile() {
       });
     }
   });
-}               """,
-                """
+}
+            """,
+            """
 onCancel(){
   this.resetForm();
   this.setupUserForm();
 }
-                """
+            """
         ]

@@ -109,6 +109,79 @@ class CertificateForm(forms.ModelForm):
             passphrase_out_confirmation, self.instance)
         return passphrase_out_confirmation
 
+    @staticmethod
+    def _check_if_root_has_no_parent(cert_type, parent):
+        if cert_type == CertificateTypes.ROOT and parent:
+            raise forms.ValidationError(
+                'Not allowed to have a parent certificate for a ROOT CA certificate')
+
+    @staticmethod
+    def _check_if_non_root_has_parent(cert_type, parent):
+        if cert_type is not CertificateTypes.ROOT and not parent:
+            raise forms.ValidationError(
+                'Non ROOT certificate should have a parent certificate')
+
+    @staticmethod
+    def _check_parent_type(cert_type, parent, CertType, label):
+        if cert_type is CertType and not (
+                parent.type is CertificateTypes.INTERMEDIATE):
+            raise forms.ValidationError(
+                f'{label} certificate can only be generated for intermediate CA parent')
+
+    @staticmethod
+    def _check_duplicate_certificate(cert_type, parent, dn):
+        if cert_type is CertificateTypes.SERVER_CERT or cert_type is CertificateTypes.CLIENT_CERT:
+            if Certificate.objects.filter(
+                    dn=dn,
+                    parent=parent,
+                    type=CertificateTypes.INTERMEDIATE).count() > 0:
+                raise forms.ValidationError(
+                    "DN ({}) for {}-Certificate already "
+                    "used as intermediate CA.".format(dn, dict(Certificate.TYPES)[cert_type]))
+
+    @staticmethod
+    def _check_intermediate_policies(cert_type, parent, dn):
+        if cert_type is CertificateTypes.INTERMEDIATE and parent.type is CertificateTypes.ROOT:
+            if dn.countryName != parent.dn.countryName:
+                raise forms.ValidationError(
+                    'Country name of Intermediate CA and Root CA should match (policy strict)')
+            if dn.stateOrProvinceName != parent.dn.stateOrProvinceName:
+                raise forms.ValidationError(
+                    'State Or Province Name of Intermediate CA '
+                    'and Root CA should match (policy strict)')
+            if dn.organizationName != parent.dn.organizationName:
+                raise forms.ValidationError(
+                    'Organization Name of Intermediate CA and Root CA should match (policy strict)')
+
+    @staticmethod
+    def _check_duplicate_cert_name(cert_type, name):
+        if Certificate.objects.filter(
+                name=name,
+                type=cert_type,
+                revoked_uuid=0).count() > 0:
+            raise forms.ValidationError(
+                "name ({}) for {} already exists.".format(name, dict(Certificate.TYPES)[cert_type]))
+
+    @staticmethod
+    def _check_duplicate_cert_dn(cert_type, dn):
+        if Certificate.objects.filter(
+                dn=dn,
+                type=cert_type,
+                revoked_uuid=0).count() > 0:
+            raise forms.ValidationError(
+                "DN ({}) for {} already exists.".format(dn, dict(Certificate.TYPES)[cert_type]))
+
+    @staticmethod
+    def _check_expiration(parent, cleaned_data):
+        if cleaned_data.get('expires_at'):
+            now = timezone.now().date()
+            expires_at = cleaned_data.get("expires_at")
+
+            days_valid = int((expires_at - now).days)
+            if parent and days_valid > parent.days_valid:
+                raise forms.ValidationError(
+                    'Child Certificate expiration data should be before parent expiration date')
+
     def clean(self):
         cleaned_data = self.cleaned_data
 
@@ -120,75 +193,18 @@ class CertificateForm(forms.ModelForm):
         name = cleaned_data.get("name")
         cert_type = cleaned_data.get("type")
         dn = cleaned_data.get("dn")
-        if Certificate.objects.filter(
-                name=name,
-                type=cert_type,
-                revoked_uuid=0).count() > 0:
-            raise forms.ValidationError(
-                "name ({}) for {} already exists.".format(name, dict(Certificate.TYPES)[cert_type]))
-
-        if Certificate.objects.filter(
-                dn=dn,
-                type=cert_type,
-                revoked_uuid=0).count() > 0:
-            raise forms.ValidationError(
-                "DN ({}) for {} already exists.".format(dn, dict(Certificate.TYPES)[cert_type]))
+        self._check_duplicate_cert_name(cert_type, name)
+        self._check_duplicate_cert_dn(cert_type, dn)
 
         parent = cleaned_data.get("parent")
-        if cert_type == CertificateTypes.ROOT and parent:  # check_if_root_has_no_parent
-            raise forms.ValidationError(
-                'Not allowed to have a parent certificate for a ROOT CA certificate')
-
-        if cert_type is not CertificateTypes.ROOT and not parent:  # check_if_root_has_no_parent
-            raise forms.ValidationError(
-                'Non ROOT certificate should have a parent certificate')
-
-        if cert_type is CertificateTypes.SERVER_CERT and not (
-                parent.type is CertificateTypes.INTERMEDIATE):  # check_if_non_root_certificate_has_parent
-            raise forms.ValidationError(
-                'Server certificate can only be generated for intermediate CA parent')
-
-        if cert_type is CertificateTypes.CLIENT_CERT and not (
-                parent.type is CertificateTypes.INTERMEDIATE):  # check_if_non_root_certificate_has_parent
-            raise forms.ValidationError(
-                'Client certificate can only be generated for intermediate CA parent')
-
-        if cert_type is CertificateTypes.SERVER_CERT or cert_type is CertificateTypes.CLIENT_CERT:
-            if Certificate.objects.filter(
-                    dn=dn,
-                    parent=parent,
-                    type=CertificateTypes.INTERMEDIATE).count() > 0:
-                raise forms.ValidationError(
-                    "DN ({}) for {}-Certificate already "
-                    "used as intermediate CA.".format(dn, dict(Certificate.TYPES)[cert_type]))
-
-        if cert_type is CertificateTypes.INTERMEDIATE and parent.type is CertificateTypes.ROOT:
-            if dn.countryName != parent.dn.countryName:
-                raise forms.ValidationError(
-                    'Country name of Intermediate CA and Root CA should match (policy strict)')
-            if dn.stateOrProvinceName != parent.dn.stateOrProvinceName:
-                raise forms.ValidationError(
-                    'State Or Province Name of Intermediate CA and Root CA should match (policy strict)')
-            if dn.organizationName != parent.dn.organizationName:
-                raise forms.ValidationError(
-                    'Organization Name of Intermediate CA and Root CA should match (policy strict)')
-
-        if cleaned_data.get('expires_at'):
-            now = timezone.now().date()
-            expires_at = cleaned_data.get("expires_at")
-
-            days_valid = int((expires_at - now).days)
-            if parent and days_valid > parent.days_valid:
-                raise forms.ValidationError(
-                    'Child Certificate expiration data should be before parent expiration date')
-
-        #TODO is this expected behavior? Check with standards
-        if cert_type is CertificateTypes.INTERMEDIATE and parent.crl_distribution_url:
-            cleaned_data['crl_distribution_url'] = parent.crl_distribution_url
-
-        if cert_type is CertificateTypes.INTERMEDIATE and parent.ocsp_distribution_host:
-            cleaned_data['ocsp_distribution_host'] = parent.ocsp_distribution_host
-
+        self._check_if_root_has_no_parent(cert_type, parent)
+        self._check_if_non_root_has_parent(cert_type, parent)
+        self._check_parent_type(cert_type, parent, CertificateTypes.SERVER_CERT, "Server")
+        self._check_parent_type(cert_type, parent, CertificateTypes.CLIENT_CERT, "Client")
+        self._check_parent_type(cert_type, parent, CertificateTypes.OCSP, "OCSP")
+        self._check_duplicate_certificate(cert_type, parent, dn)
+        self._check_intermediate_policies(cert_type, parent, dn)
+        self._check_expiration(parent, cleaned_data)
         return cleaned_data
 
     class Meta:

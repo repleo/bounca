@@ -1,4 +1,4 @@
-PYTHON_FOLDERS ="bounca/"
+PYTHON_FOLDERS = api bounca certificate_engine vuetifyforms x509_pki
 LOCAL_SERVER_PORT ?= 8000
 
 default:
@@ -37,7 +37,7 @@ flake8:
 
 autopep8:
 	autopep8 --in-place --aggressive --aggressive -r $(PYTHON_FOLDERS)
-	
+
 npmlint:
 	npm run -s lint
 

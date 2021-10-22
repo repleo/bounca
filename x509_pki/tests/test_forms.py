@@ -87,13 +87,13 @@ class CertificateFormTest(TestCase):
             'dn': dn.pk
         })
         self.assertDictEqual(
-            form.errors, {
-                          'dn': ['This field is required.'],
-                          'expires_at': ['This field is required.'],
-                          'passphrase_out': ['This field is required.'],
-                          'passphrase_out_confirmation': ['This field is required.'],
-
-                          }
+            form.errors,
+            {
+                'dn': ['This field is required.'],
+                'expires_at': ['This field is required.'],
+                'passphrase_out': ['This field is required.'],
+                'passphrase_out_confirmation': ['This field is required.'],
+            }
         )
 
     @skip("WIP")
@@ -187,8 +187,9 @@ class CertificateFormTest(TestCase):
             'passphrase_out_confirmation': 'test_password'
         })
         self.assertDictEqual(
-            form.errors, {'passphrase_issuer':
-                              ['You should provide a parent certificate if you provide a passphrase in']}
+            form.errors,
+            {'passphrase_issuer':
+                ['You should provide a parent certificate if you provide a passphrase in']}
         )
 
     @skip("FIXME")
@@ -204,9 +205,10 @@ class CertificateFormTest(TestCase):
             'passphrase_out_confirmation': 'test_password'
         })
         self.assertDictEqual(
-            form.errors, {'passphrase_issuer': ['You should provide a parent certificate if you provide a passphrase in']}
+            form.errors,
+            {'passphrase_issuer':
+                ['You should provide a parent certificate if you provide a passphrase in']}
         )
-
 
     def test_minimal_root_form_passphrase_issuer_not_allowed(self):
         dn = DistinguishedNameFactory()
@@ -220,11 +222,14 @@ class CertificateFormTest(TestCase):
             'passphrase_out_confirmation': 'test_password'
         })
         self.assertDictEqual(
-            form.errors, {'passphrase_issuer': ['You should provide a parent certificate if you provide a passphrase in']}
+            form.errors,
+            {'passphrase_issuer':
+                ['You should provide a parent certificate if you provide a passphrase in']}
         )
 
     @skip("WIP")
     def test_minimal_intermediate_form_passphrase_issuer_not_valid(self):
+        # TODO WIP
         # dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
         #                               localityName='Amsterdam', organizationName='Repleo',
         #                               organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
@@ -264,7 +269,6 @@ class CertificateFormTest(TestCase):
             form.errors, {}
         )
 
-
     def test_root_form_with_parent(self):
         crt_root = CertificateFactory.create(owner=self.user, type=CertificateTypes.ROOT)
         dn = DistinguishedNameFactory()
@@ -278,7 +282,8 @@ class CertificateFormTest(TestCase):
             'parent': crt_root.pk
         }, user=self.user)
         self.assertDictEqual(
-            form.errors, {'__all__': ['Not allowed to have a parent certificate for a ROOT CA certificate']}
+            form.errors,
+            {'__all__': ['Not allowed to have a parent certificate for a ROOT CA certificate']}
         )
 
     def test_non_root_form_without_parent(self):
@@ -365,8 +370,8 @@ class CertificateFormTest(TestCase):
         )
 
     def test_client_duplicate_dn(self):
-       self.assert_duplicate_leaf_certicates(CertificateTypes.CLIENT_CERT,
-                                             'DN ({}) for Client Certificate already exists.')
+        self.assert_duplicate_leaf_certicates(CertificateTypes.CLIENT_CERT,
+                                              'DN ({}) for Client Certificate already exists.')
 
     def test_server_duplicate_dn(self):
         self.assert_duplicate_leaf_certicates(CertificateTypes.SERVER_CERT,
@@ -374,7 +379,8 @@ class CertificateFormTest(TestCase):
 
     def assert_dn_field_not_equal(self, dn_root, dn_intermediate, message):
         crt_date = arrow.get(timezone.now()).shift(years=+10).date()
-        crt_root = CertificateFactory.create(owner=self.user, dn=dn_root, expires_at=crt_date, type=CertificateTypes.ROOT)
+        crt_root = CertificateFactory.create(owner=self.user, dn=dn_root,
+                                             expires_at=crt_date, type=CertificateTypes.ROOT)
         form = CertificateForm(data={
             'type': CertificateTypes.INTERMEDIATE,
             'dn': dn_intermediate.pk,
@@ -480,30 +486,6 @@ class CertificateFormTest(TestCase):
         o = Certificate.objects.get(pk=o.pk)
         self.assertEqual(o.crl_distribution_url, crt_root.crl_distribution_url)
         self.assertEqual(o.ocsp_distribution_host, crt_root.ocsp_distribution_host)
-
-    def test_minimal_root_form(self):
-        dn = DistinguishedNameFactory()
-        crt_date = arrow.get(timezone.now()).shift(years=+10).date()
-        form = CertificateForm(data={
-            'type': CertificateTypes.ROOT,
-            'dn': dn.pk,
-            'expires_at': crt_date,
-            'passphrase_out': 'test_password',
-            'passphrase_out_confirmation': 'test_password'
-        }, user=self.user)
-        self.assertDictEqual(
-            form.errors, {}
-        )
-        o = form.save()
-        o = Certificate.objects.get(pk=o.pk)
-        self.assertEqual(o.type, CertificateTypes.ROOT)
-        self.assertEqual(o.expires_at, crt_date)
-        self.assertEqual(o.dn.pk, dn.pk)
-        self.assertEqual(o.passphrase_out, '')
-        self.assertEqual(o.passphrase_out_confirmation, '')
-        self.assertEqual(o.crl_distribution_url, None)
-        self.assertEqual(o.ocsp_distribution_host, None)
-        self.assertEqual(o.name, dn.commonName)
 
     def test_minimal_root_form(self):
         dn = DistinguishedNameFactory()
@@ -639,10 +621,3 @@ class CertificateFormTest(TestCase):
         self.assertEqual(o.ocsp_distribution_host, 'https://crt.bounca.org/ocsp/')
         self.assertEqual(o.name, dn_client.commonName)
         self.assertEqual(o.parent, crt_int)
-
-    def test_client_generate_client(self):
-        self.assert_generate_leaf_certificates(CertificateTypes.CLIENT_CERT)
-
-    def test_client_generate_client(self):
-        self.assert_generate_leaf_certificates(CertificateTypes.SERVER_CERT)
-

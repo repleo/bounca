@@ -25,7 +25,7 @@ def vue_exception_handler(exc, context):
     Other error are processed by the default rest_framework.views.exception_handler
         """
     if isinstance(exc, exceptions.APIException) and \
-        isinstance(exc.detail, (list, dict)):
-            exc.detail = _flatten_vue_validation(exc.detail)
+            isinstance(exc.detail, (list, dict)):
+        exc.detail = _flatten_vue_validation(exc.detail)
 
     return drf_exception_handler(exc, context)

@@ -1,10 +1,8 @@
 # coding: utf-8
 import arrow
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
-from django.utils.dateparse import parse_date
 from unittest import skip
 from uuid import UUID
 
@@ -83,9 +81,11 @@ class ModelCertificateTest(TestCase):
         cls.ca.refresh_from_db()
         cls.ca = Certificate.objects.get(pk=cls.ca.pk)
         cls.int_dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                               localityName='Amsterdam', organizationName='Repleo',
-                                               organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                               commonName="int.bounca.org", subjectAltNames=["demo.bounca.org"])
+                                              localityName='Amsterdam', organizationName='Repleo',
+                                              organizationalUnitName='IT Department',
+                                              emailAddress='info@repleo.nl',
+                                              commonName="int.bounca.org",
+                                              subjectAltNames=["demo.bounca.org"])
         cls.int = Certificate(parent=cls.ca)
         cls.int.type = CertificateTypes.INTERMEDIATE
         cls.int.name = "repleo int ca"
@@ -102,8 +102,10 @@ class ModelCertificateTest(TestCase):
     def test_generate_root_certificate(self):
         dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
                                       localityName='Amsterdam', organizationName='Repleo',
-                                      organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                      commonName="test bounca org", subjectAltNames=["demo.bounca.org"])
+                                      organizationalUnitName='IT Department',
+                                      emailAddress='info@repleo.nl',
+                                      commonName="test bounca org",
+                                      subjectAltNames=["demo.bounca.org"])
         cert = Certificate()
         cert.type = CertificateTypes.ROOT
         cert.name = "repleo root ca1"
