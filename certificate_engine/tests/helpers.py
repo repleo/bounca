@@ -33,8 +33,7 @@ class CertificateTestCase(TestCase):
         ext = crt.extensions.get_extension_for_oid(ExtensionOID.CRL_DISTRIBUTION_POINTS)
         self.assertTrue(ext.critical)
         crl_dp = ext.value
-        self.assertEqual(crl_dp[0].full_name[0].value,
-                         'URI:{}{}.crl'.format(certificate_request.crl_distribution_url, certificate_request.slug_name))
+        self.assertEqual(crl_dp[0].full_name[0].value, certificate_request.crl_distribution_url)
         self.assertEqual(crl_dp[0].reasons,
                          frozenset([
                              x509.ReasonFlags.key_compromise,
@@ -132,10 +131,11 @@ class CertificateTestCase(TestCase):
         self.assertEqual(ext.value.key_identifier, _key_identifier_from_public_key(key.key.public_key()))
         if issuer_certificate:
             self.assertEqual(ext.value.authority_cert_serial_number, int(issuer_certificate.serial))
+
             self.assertEqual([x.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value for x in
                               ext.value.authority_cert_issuer[0].value.rdns if
                               x.get_attributes_for_oid(NameOID.COMMON_NAME)][0],
-                             str(issuer_certificate.dn))
+                             str(issuer_certificate.dn.commonName))
 
     def assert_extension(self, crt, oid, value):
         ext = crt.extensions.get_extension_for_oid(oid)

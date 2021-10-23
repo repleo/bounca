@@ -22,8 +22,8 @@ class IntermediateCertificateTest(CertificateTestCase):
                                                stateOrProvinceName='Noord Holland',
                                                organizationName='Repleo')
 
-            cls.root_certificate = CertificateFactory(dn=subject,
-                                                      expires_at=arrow.get(timezone.now()).shift(days=+3).date())
+            cls.root_certificate = CertificateFactory(
+                dn=subject, expires_at=arrow.get(timezone.now()).shift(days=+3).date())
             cls.root_certificate.save()
             certificate = Certificate()
             key = cls.root_key.serialize()

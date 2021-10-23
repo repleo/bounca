@@ -23,7 +23,8 @@ class RootCertificateTest(CertificateTestCase):
             certhandler = Certificate()
             certhandler.create_certificate(certificate_request, self.key.serialize())
 
-        self.assertEqual("Attribute '{}' is required".format(attribute_name), str(context.exception))
+        self.assertEqual({f'dn__{attribute_name}': f"Attribute '{attribute_name}' is required"},
+                         context.exception.args[0])
 
     def test_generate_root_ca_missing_countryName(self):
         dn = DistinguishedNameFactory(countryName=None,

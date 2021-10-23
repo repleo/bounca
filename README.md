@@ -40,3 +40,7 @@ Create Python 3.7 virtualenv, activate, and install requirements.txt
 Extra requirements:
 
 openssl
+
+# Notes:
+Protect your data, Protect your communication,
+Protect your Business, get it BounCA!

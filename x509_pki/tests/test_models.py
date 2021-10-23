@@ -1,6 +1,6 @@
 # coding: utf-8
 import arrow
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.test import TestCase
 from django.utils import timezone
 from unittest import skip
@@ -70,7 +70,7 @@ class ModelCertificateTest(TestCase):
         cls.ca.type = CertificateTypes.ROOT
         cls.ca.name = "repleo root ca"
         cls.ca.dn = cls.root_dn
-        cls.ca.crl_distribution_url = "https://ca.demo.repleo.nl/crl/"
+        cls.ca.crl_distribution_url = "https://ca.demo.repleo.nl/crl/test.crl.pem"
         cls.ca.ocsp_distribution_host = "https://ca.demo.repleo.nl/ocsp"
         cls.ca.expires_at = arrow.get(timezone.now()).shift(years=+10).date()
 
@@ -90,7 +90,7 @@ class ModelCertificateTest(TestCase):
         cls.int.type = CertificateTypes.INTERMEDIATE
         cls.int.name = "repleo int ca"
         cls.int.dn = cls.int_dn
-        cls.int.crl_distribution_url = "https://ca.demo.repleo.nl/crl/"
+        cls.int.crl_distribution_url = "https://ca.demo.repleo.nl/crl/test.crl.pem"
         cls.int.ocsp_distribution_host = "https://ca.demo.repleo.nl/ocsp"
         cls.int.expires_at = arrow.get(timezone.now()).shift(years=+5).date()
 
@@ -110,7 +110,7 @@ class ModelCertificateTest(TestCase):
         cert.type = CertificateTypes.ROOT
         cert.name = "repleo root ca1"
         cert.dn = dn
-        cert.crl_distribution_url = "https://ca.demo.repleo.nl/crl/"
+        cert.crl_distribution_url = "https://ca.demo.repleo.nl/crl/test.crl.pem"
         cert.ocsp_distribution_host = "https://ca.demo.repleo.nl/ocsp"
         cert.expires_at = arrow.get(timezone.now()).shift(years=+10).date()
 
@@ -123,7 +123,7 @@ class ModelCertificateTest(TestCase):
                                      "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL")
         self.assertEqual(cert.type, CertificateTypes.ROOT)
         self.assertEqual(cert.name, "repleo root ca1")
-        self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/")
+        self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/test.crl.pem")
         self.assertEqual(cert.ocsp_distribution_host, "https://ca.demo.repleo.nl/ocsp")
         self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(years=-10).date())
         self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(years=+10).date())
@@ -136,15 +136,7 @@ class ModelCertificateTest(TestCase):
         self.assertFalse(cert.expired)
         self.assertEqual(cert.slug_name, "repleo-root-ca1")
 
-        with self.assertRaises(ValidationError) as c:
-            cert.generate_crl()
-        self.assertEqual(c.exception.message,
-                         'CRL File can only be generated for Intermediate Certificates')
-
-        with self.assertRaises(ValidationError) as c:
-            cert.delete()
-        self.assertEqual(c.exception.message,
-                         'Delete of certificate not allowed')
+        self.assertIsNotNone(cert.crlstore.crl)
 
     def test_generate_intermediate_certificate(self):
         dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
@@ -155,7 +147,7 @@ class ModelCertificateTest(TestCase):
         cert.type = CertificateTypes.INTERMEDIATE
         cert.name = "repleo int ca1"
         cert.dn = dn
-        cert.crl_distribution_url = "https://ca.demo.repleo.nl/crl/"
+        cert.crl_distribution_url = "https://ca.demo.repleo.nl/crl/test.crl.pem"
         cert.ocsp_distribution_host = "https://ca.demo.repleo.nl/ocsp"
         cert.expires_at = arrow.get(timezone.now()).shift(years=+5).date()
 
@@ -168,7 +160,7 @@ class ModelCertificateTest(TestCase):
                                      "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL")
         self.assertEqual(cert.type, CertificateTypes.INTERMEDIATE)
         self.assertEqual(cert.name, "repleo int ca1")
-        self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/")
+        self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/test.crl.pem")
         self.assertEqual(cert.ocsp_distribution_host, "https://ca.demo.repleo.nl/ocsp")
         self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(years=-5).date())
         self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(years=+5).date())
@@ -180,13 +172,7 @@ class ModelCertificateTest(TestCase):
         self.assertFalse(cert.revoked)
         self.assertFalse(cert.expired)
 
-        # crl = cert.generate_crl()
-        # TODO assert CRL
-
-        with self.assertRaises(ValidationError) as c:
-            cert.delete()
-        self.assertEqual(c.exception.message,
-                         'Delete of certificate not allowed')
+        self.assertIsNotNone(cert.crlstore.crl)
 
     def test_generate_server_certificate(self):
         dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
@@ -198,7 +184,7 @@ class ModelCertificateTest(TestCase):
         cert.type = CertificateTypes.SERVER_CERT
         cert.name = "www.repleo.nl"
         cert.dn = dn
-        cert.crl_distribution_url = "https://ca.demo.repleo.nl/crl/"
+        cert.crl_distribution_url = "https://ca.demo.repleo.nl/crl/test.crl.pem"
         cert.ocsp_distribution_host = "https://ca.demo.repleo.nl/ocsp"
         cert.expires_at = arrow.get(timezone.now()).shift(years=+1).date()
 
@@ -211,7 +197,7 @@ class ModelCertificateTest(TestCase):
                                      "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL")
         self.assertEqual(cert.type, CertificateTypes.SERVER_CERT)
         self.assertEqual(cert.name, "www.repleo.nl")
-        self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/")
+        self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/test.crl.pem")
         self.assertEqual(cert.ocsp_distribution_host, "https://ca.demo.repleo.nl/ocsp")
         self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(years=-1).date())
         self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(years=+1).date())
@@ -223,10 +209,10 @@ class ModelCertificateTest(TestCase):
         self.assertFalse(cert.revoked)
         self.assertFalse(cert.expired)
 
-        with self.assertRaises(ValidationError) as c:
-            cert.generate_crl()
-        self.assertEqual(c.exception.message,
-                         'CRL File can only be generated for Intermediate Certificates')
+        with self.assertRaises(ObjectDoesNotExist) as c:
+            cert.crlstore
+        self.assertEqual(str(c.exception),
+                         'Certificate has no crlstore.')
 
         cert.delete()
         cert.refresh_from_db()
@@ -244,7 +230,7 @@ class ModelCertificateTest(TestCase):
         cert.type = CertificateTypes.CLIENT_CERT
         cert.name = "info@bounca.org"
         cert.dn = dn
-        cert.crl_distribution_url = "https://ca.demo.repleo.nl/crl/"
+        cert.crl_distribution_url = "https://ca.demo.repleo.nl/crl/test.crl.pem"
         cert.ocsp_distribution_host = "https://ca.demo.repleo.nl/ocsp"
         cert.expires_at = arrow.get(timezone.now()).shift(years=+1).date()
 
@@ -257,7 +243,7 @@ class ModelCertificateTest(TestCase):
                                      "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL")
         self.assertEqual(cert.type, CertificateTypes.CLIENT_CERT)
         self.assertEqual(cert.name, "info@bounca.org")
-        self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/")
+        self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/test.crl.pem")
         self.assertEqual(cert.ocsp_distribution_host, "https://ca.demo.repleo.nl/ocsp")
         self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(years=-1).date())
         self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(years=+1).date())
@@ -269,10 +255,10 @@ class ModelCertificateTest(TestCase):
         self.assertFalse(cert.revoked)
         self.assertFalse(cert.expired)
 
-        with self.assertRaises(ValidationError) as c:
-            cert.generate_crl()
-        self.assertEqual(c.exception.message,
-                         'CRL File can only be generated for Intermediate Certificates')
+        with self.assertRaises(ObjectDoesNotExist) as c:
+            cert.crlstore
+        self.assertEqual(str(c.exception),
+                         'Certificate has no crlstore.')
 
         cert.delete()
         cert.refresh_from_db()

@@ -67,7 +67,7 @@ class CertificateFactory(DjangoModelFactory):
     name = fake.sentence(nb_words=6, variable_nb_words=True)
     dn = factory.LazyFunction(DistinguishedNameFactory)
     parent = None
-    crl_distribution_url = 'https://example.com/crl/'
+    crl_distribution_url = 'https://example.com/crl/cert.crl.pem'
     ocsp_distribution_host = 'https://example.com/ocsp/'
     owner = factory.LazyFunction(UserFactory.default)
 

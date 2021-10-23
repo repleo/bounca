@@ -21,6 +21,9 @@ from certificate_engine.types import (
 if TYPE_CHECKING:
     from x509_pki.models import Certificate as CertificateType
     from x509_pki.models import DistinguishedName as DistinguishedNameType
+else:
+    CertificateType = object
+    DistinguishedNameType = object
 
 
 class PassPhraseError(RuntimeError):
@@ -62,7 +65,7 @@ class Certificate(object):
             value = getattr(dn, attr[0])
             if attr[0] == 'countryName' and value is not None:
                 value = getattr(value, 'code')
-            if value is not None:
+            if value is not None and attr[1] is not None:
                 attributes.append(x509.NameAttribute(attr[1], value))
         return x509.Name(attributes)
 
@@ -77,11 +80,9 @@ class Certificate(object):
 
     @staticmethod
     def _check_policies_optional(dn: DistinguishedNameType, policy: CertificatePolicy):
-        # noinspection PyUnresolvedReferences
-        # TODO test this logic
         attributes = [attr[0] for attr in policy['optional'] + policy['supplied'] + policy['match']]
         for key in list(dn.__dict__):
-            if key not in attributes:
+            if not key.startswith('_') and key not in attributes:
                 setattr(dn, key, None)
 
     @staticmethod
@@ -372,7 +373,7 @@ class Certificate(object):
         Certificate._check_policies(cert)
         self._builder = x509.CertificateBuilder()
         self._set_basic(cert, private_key, issuer_key)
-
+        # TODO implement
         raise NotImplementedError()
         self._builder = self._builder.add_extension(
             x509.KeyUsage(
@@ -446,7 +447,7 @@ class Certificate(object):
         Returns:   The certificate object
         """
 
-        private_key = self.get_key(key, passphrase)
+        private_key = self._get_key(key, passphrase)
         issuer_key = self._get_issuer_key(cert_request, passphrase_issuer)
 
         if cert_request.type == CertificateTypes.ROOT:

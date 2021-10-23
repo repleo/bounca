@@ -107,7 +107,8 @@ class EmailCertificateTest(CertificateTestCase):
                                                   organizationName=None,
                                                   organizationalUnitName=None,
                                                   emailAddress=None,
-                                                  subjectAltNames=None)
+                                                  subjectAltNames=None,
+                                                  commonName='client cert')
         certificate = CertificateFactory(type=CertificateTypes.CLIENT_CERT,
                                          name="test_generate_client_certificate_minimal",
                                          parent=self.int_certificate, dn=client_subject)

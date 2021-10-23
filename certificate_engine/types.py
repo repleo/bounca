@@ -24,6 +24,7 @@ class CertificatePolicy(object):
             ('organizationName', NameOID.ORGANIZATION_NAME),
             ('organizationalUnitName', NameOID.ORGANIZATIONAL_UNIT_NAME),
             ('emailAddress', NameOID.EMAIL_ADDRESS),
+            ('subjectAltNames', None),
         ]
     }
 

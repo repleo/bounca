@@ -102,7 +102,9 @@ class CRL(CertificateTestCase):
                                       self.int_certificate.keystore.crt,
                                       self.int_certificate.keystore.key)
         self.assertEqual(crl.issuer.rdns[0]._attributes[0].value, "BounCA test Int CA")
-        self.assertListEqual(crl.get_revoked_certificate_by_serial_number(cert.serial_number), revoke_date)
+        self.assertEqual(
+            crl.get_revoked_certificate_by_serial_number(cert.serial_number).revocation_date,
+            revoke_date)
 
     def test_revocation_list_builder_one_cert_passphrase(self):
         subject = DistinguishedNameFactory(countryName=self.root_certificate.dn.countryName,
