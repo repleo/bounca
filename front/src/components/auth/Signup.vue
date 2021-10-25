@@ -111,14 +111,13 @@
 </template>
 
 <script>
-import auth from '../../api/auth';
+import store from '@/store';
 
 export default {
   name: 'Signup',
   data() {
     return {
-      // TODO get authentication information
-      authenticated: false,
+      authenticated: store.getters['auth/isLoggedIn'],
       subscription: {
         username: '',
         password1: '',
@@ -134,19 +133,14 @@ export default {
     register() {
       this.$refs.form.validate().then((isValid) => {
         if (isValid) {
-          // ensure password vaults dont recognize password fields as user
           this.password1_visible = false;
           this.password2_visible = false;
-          auth.createAccount(this.subscription).then((response) => {
-            if ('detail' in response.data) {
-              this.detail = response.data.detail;
-            } else {
-              // this.$store.dispatch('login', response.data.key);
-              // this.$router.push('/');
-            }
-          }).catch((r) => {
-            this.$refs.form.setErrors(r.response.data);
-          });
+          this.$store.dispatch('auth/register', this.subscription)
+            .then(() => this.$router.push('/dashboard'))
+            .catch((r) => {
+              const errors = r.response.data;
+              this.$refs.form.setErrors(errors);
+            });
         }
       });
     },

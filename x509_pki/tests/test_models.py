@@ -307,8 +307,6 @@ class ModelCertificateTest(TestCase):
         self.assertEqual(c.exception.message,
                          'CRL File can only be generated for Intermediate Certificates')
 
-        # TODO test revocation/delete
-
     def test_days_valid(self):
         dn_ca = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
                                          localityName='Amsterdam', organizationName='Repleo',

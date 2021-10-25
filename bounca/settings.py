@@ -98,11 +98,6 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     'dj_rest_auth.registration',
 
-    # TODO only load when management commando is called
-    # development,
-    'crispy_forms',
-    'vuetifyforms',
-
     # BounCA
     'certificate_engine',
     'x509_pki',
@@ -175,8 +170,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 WSGI_APPLICATION = 'bounca.wsgi.application'
 
-# TODO still grappelli?
-
 GRAPPELLI_ADMIN_TITLE = 'BounCA Admin'
 
 # Password validation
@@ -228,3 +221,7 @@ IS_GENERATE_FRONTEND = 'generate_forms' in sys.argv or \
 
 if IS_GENERATE_FRONTEND:
     CRISPY_TEMPLATE_PACK = "vuetify"
+    INSTALLED_APPS += [
+        'crispy_forms',
+        'vuetifyforms'
+    ]

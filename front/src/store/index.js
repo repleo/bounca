@@ -16,9 +16,6 @@ export default new Vuex.Store({
   modules: {
     auth: auth,
     dashboard: dashboard,
-    // TODO can it be removed? not used?
-    // password,
-    // signup,
   },
   strict: debug,
   plugins: debug ? [createLogger()] : [],

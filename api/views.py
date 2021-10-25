@@ -29,11 +29,6 @@ class IsCertificateOwner(permissions.BasePermission):
             return True
         return False
 
-# TODO: BJA throw away?
-# class TestFormView(FormView):
-#     form_class = AddRootCAForm
-#     template_name = "testform.html"
-
 
 class APIPageNumberPagination(PageNumberPagination):
     page_size = 10

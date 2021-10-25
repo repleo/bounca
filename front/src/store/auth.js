@@ -40,15 +40,14 @@ const actions = {
       });
     });
   },
-  register({ commit }, user) {
+  register({ commit }, subscription) {
     return new Promise((resolve, reject) => {
       commit('auth_request');
-      auth.createAccount(user).then((resp) => {
+      auth.createAccount(subscription).then((resp) => {
         const key = resp.data.key;
         localStorage.setItem('key', key);
-        // Add the following line:
-        commit('auth_success', key);
         axios.defaults.headers.common.Authorization = key;
+        commit('auth_success', key);
         resolve(resp);
       }).catch((err) => {
         commit('auth_error');

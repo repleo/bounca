@@ -212,9 +212,6 @@ class Certificate(models.Model):
         else:
             return int((self.expires_at - timezone.now().date()).days)
 
-    # TODO check if this makes sense
-    days_valid.fget.short_description = 'Days valid'
-
     @property
     def slug_revoked_at(self):
         if self.revoked_at:
@@ -369,7 +366,6 @@ class KeyStore(models.Model):
 
     # Create only model
     def save(self, full_clean=True, *args, **kwargs):
-        # TODO fix that crl update is allowed
         if self.id is None:
             if full_clean:
                 self.full_clean()
@@ -395,16 +391,15 @@ class CrlStore(models.Model):
     )
 
 
-# TODO, to different file? cyclic dependency?
 def check_passphrase_issuer(key, passphrase):
-    from certificate_engine.ssl.key import Key as KeyGenerator
-    return KeyGenerator().check_passphrase(key, passphrase)
+    from certificate_engine.ssl.key import Key as KeyObjGenerator
+    return KeyObjGenerator().check_passphrase(key, passphrase)
 
 
 @receiver(pre_save, sender=Certificate)
 def check_policies_certificate(sender, instance, **kwargs):
-    from certificate_engine.ssl.certificate import Certificate as CertificateGenerator
-    certhandler = CertificateGenerator()
+    from certificate_engine.ssl.certificate import Certificate as CertificateObjGenerator
+    certhandler = CertificateObjGenerator()
     certhandler.check_policies(instance)
 
 

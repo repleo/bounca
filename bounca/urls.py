@@ -12,14 +12,15 @@ from api.urls import urlpatterns as urlpatterns_api
 urlpatterns = [
     url(r'^api/', include(urlpatterns_api)),
     url(r'^auth/', include('rest_framework.urls')),
-    # TODO fix these URIs, they are dummy for django registration framework.
-    url('^', include('django.contrib.auth.urls')),
     url('^account/account_email_verification_sent', TemplateView.as_view(), name='account_email_verification_sent'),
-    url(r'^grappelli/', include('grappelli.urls')),  # grappelli URLS
 ]
 
 if settings.DEBUG:
     # admin site is only available if running debug mode
-    urlpatterns += url(r'^admin/', admin.site.urls),
+    urlpatterns += [
+        url(r'^admin/', admin.site.urls),
+        url(r'^grappelli/', include('grappelli.urls')),  # grappelli URLS
+    ]
+
 
 urlpatterns += staticfiles_urlpatterns()
