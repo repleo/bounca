@@ -23,7 +23,7 @@ from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactor
 class ServerCertificateTest(CertificateTestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.root_key = Key().create_key(4096)
+        cls.root_key = Key().create_key('ed25519', None)
         subject = DistinguishedNameFactory(countryName='NL',
                                            stateOrProvinceName='Noord Holland',
                                            organizationName='Repleo')
@@ -41,7 +41,7 @@ class ServerCertificateTest(CertificateTestCase):
         keystore.key = cls.root_key.serialize()
         keystore.save()
 
-        cls.int_key = Key().create_key(4096)
+        cls.int_key = Key().create_key('rsa', 4096)
         subject = DistinguishedNameFactory(countryName=cls.root_certificate.dn.countryName,
                                            stateOrProvinceName=cls.root_certificate.dn.stateOrProvinceName,
                                            organizationName=cls.root_certificate.dn.organizationName)
@@ -61,7 +61,7 @@ class ServerCertificateTest(CertificateTestCase):
         keystore.key = cls.int_key.serialize()
         keystore.save()
 
-        cls.key = Key().create_key(4096)
+        cls.key = Key().create_key('rsa', 4096)
 
     def test_generate_server_certificate(self):
         server_subject = DistinguishedNameFactory(subjectAltNames=["www.repleo.nl",

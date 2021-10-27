@@ -1,7 +1,7 @@
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 
 
@@ -13,18 +13,24 @@ class Key(object):
     def key(self) -> RSAPrivateKey:
         return self._key
 
-    def create_key(self, key_size: int) -> 'Key':
+    def create_key(self, key_algorithm: str, key_size: int) -> 'Key':
         """
         Create a public/private key pair.
 
-        Arguments: key_size - Number of bits to use in the key
+        Arguments: key_size - Number of bits to use in the key (only RSA)
+                   key_algorithm = the used key algorithm, currently rsa, ed25519 supported
         Returns:   The private key
         """
-        self._key = rsa.generate_private_key(
-            public_exponent=65537,
-            key_size=key_size,
-            backend=default_backend()
-        )
+        if key_algorithm == 'ed25519':
+            self._key = ed25519.Ed25519PrivateKey.generate()
+        elif key_algorithm == 'rsa':
+            self._key = rsa.generate_private_key(
+                public_exponent=65537,
+                key_size=key_size,
+                backend=default_backend()
+            )
+        else:
+            raise NotImplementedError(f"Key algorithm {key_algorithm} not implemented")
         return self
 
     def serialize(self, passphrase: str = None,
@@ -45,7 +51,7 @@ class Key(object):
             if passphrase else serialization.NoEncryption()
         return self._key.private_bytes(
             encoding=encoding,
-            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            format=serialization.PrivateFormat.PKCS8,
             encryption_algorithm=encryption,
         ).decode('utf-8')
 

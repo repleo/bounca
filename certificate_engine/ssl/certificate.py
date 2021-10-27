@@ -5,6 +5,7 @@ import ipaddress
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ed448, ed25519
 from cryptography.x509 import DirectoryName
 # noinspection PyProtectedMember,PyUnresolvedReferences
 from cryptography.x509.extensions import _key_identifier_from_public_key
@@ -188,7 +189,7 @@ class Certificate(object):
     def _set_basic_constraints(self, cert: CertificateType) -> None:
         path_length = None
         if cert.type == CertificateTypes.INTERMEDIATE:
-            path_length = 0  # TODO check with multiple intermediates
+            path_length = 0
         ca = cert.type == CertificateTypes.ROOT or cert.type == CertificateTypes.INTERMEDIATE
         self._builder = self._builder.add_extension(
             x509.BasicConstraints(ca=ca, path_length=path_length),
@@ -238,8 +239,12 @@ class Certificate(object):
         self._set_basic_constraints(cert)
 
     def _sign_certificate(self, private_key: Key) -> x509.Certificate:
+        algorithm = None if isinstance(
+            private_key.key, (ed25519.Ed25519PrivateKey, ed448.Ed448PrivateKey)
+        ) else hashes.SHA256()
+
         return self._builder.sign(
-            private_key=private_key.key, algorithm=hashes.SHA256(),
+            private_key=private_key.key, algorithm=algorithm,
             backend=default_backend()
         )
 
@@ -373,13 +378,11 @@ class Certificate(object):
         Certificate._check_policies(cert)
         self._builder = x509.CertificateBuilder()
         self._set_basic(cert, private_key, issuer_key)
-        # TODO implement
-        raise NotImplementedError()
         self._builder = self._builder.add_extension(
             x509.KeyUsage(
                 digital_signature=True,
-                content_commitment=True,
-                key_encipherment=True,
+                content_commitment=False,
+                key_encipherment=False,
                 data_encipherment=False,
                 key_agreement=False,
                 key_cert_sign=False,
@@ -391,24 +394,9 @@ class Certificate(object):
         )
 
         self._builder = self._builder.add_extension(
-            x509.ExtendedKeyUsage([ExtendedKeyUsageOID.CLIENT_AUTH, ExtendedKeyUsageOID.EMAIL_PROTECTION]),
-            critical=False,
+            x509.ExtendedKeyUsage([ExtendedKeyUsageOID.OCSP_SIGNING]),
+            critical=True,
         )
-
-        if cert.dn.subjectAltNames:
-            alts = []
-            for altname in cert.dn.subjectAltNames:
-                try:
-                    alt = x509.RFC822Name(altname)
-                    alts.append(alt)
-                    continue
-                except ValueError:
-                    pass
-
-            self._builder = self._builder.add_extension(
-                x509.SubjectAlternativeName(alts),
-                critical=False,
-            )
 
         return self._sign_certificate(issuer_key)
 

@@ -11,6 +11,7 @@ from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django_countries.fields import CountryField
 
+from bounca import settings
 from certificate_engine.ssl.certificate import Certificate as CertificateGenerator
 from certificate_engine.ssl.crl import revocation_list_builder, serialize
 from certificate_engine.ssl.info import get_certificate_info
@@ -406,13 +407,13 @@ def check_policies_certificate(sender, instance, **kwargs):
 @receiver(post_save, sender=Certificate)
 def generate_certificate(sender, instance, created, **kwargs):
     if created:
-        # TODO support elliptic keys
-        # TODO make settings of key strength
-
         keystore = KeyStore(certificate=instance)
-        key_size = 4096 if instance.type in \
-            [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE] else 2048
-        keystore.key = KeyGenerator().create_key(key_size).serialize(instance.passphrase_out)
+        key_size = None
+        if settings.KEY_ALGORITHM == 'rsa':
+            key_size = 4096 if instance.type in \
+                [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE] else 2048
+        keystore.key = KeyGenerator().create_key(settings.KEY_ALGORITHM, key_size)\
+            .serialize(instance.passphrase_out)
         certhandler = CertificateGenerator()
         certhandler.create_certificate(instance, keystore.key, instance.passphrase_out,
                                        instance.passphrase_issuer)

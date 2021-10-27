@@ -15,7 +15,7 @@ from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactor
 class RootCertificateTest(CertificateTestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.key = Key().create_key(8192)
+        cls.key = Key().create_key('rsa', 8192)
 
     def root_ca_missing_attribute(self, dn, attribute_name):
         with self.assertRaises(PolicyError) as context:

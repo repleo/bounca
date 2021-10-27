@@ -2,6 +2,7 @@ import datetime
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ed448, ed25519
 from cryptography.x509 import CertificateRevocationList, RevokedCertificate
 from cryptography.x509.oid import NameOID
 from typing import List, Tuple
@@ -59,8 +60,12 @@ def revocation_list_builder(certificates: List[Tuple[str, datetime.datetime]],
     for pem, timestamp in certificates:
         revoked_cert = revocation_builder(pem, timestamp)
         builder = builder.add_revoked_certificate(revoked_cert)
+
+    algorithm = None if isinstance(
+        ca_key.key, (ed25519.Ed25519PrivateKey, ed448.Ed448PrivateKey)
+    ) else hashes.SHA256()
     crl = builder.sign(
-        private_key=ca_key.key, algorithm=hashes.SHA256(),
+        private_key=ca_key.key, algorithm=algorithm,
     )
     return crl
 
@@ -80,55 +85,3 @@ def serialize(crl: CertificateRevocationList,
         raise ValueError("{} is not a valid encoding")
 
     return crl.public_bytes(encoding=encoding).decode('utf8')
-
-    #
-    # def create_certificate(self, cert_request: Certificate_model, key: str, passphrase: str = None,
-    #                        passphrase_issuer: str = None) \
-    #         -> 'Certificate':
-    #     """
-    #     Create a certificate.
-    #
-    #     Arguments: cert_request - The certificate request, containing all the information
-    #                passphrase - The passphrase of the key of the certificate
-    #                passphrase_issuer - The passphrase of the key of the signing certificate
-    #     Returns:   The certificate object
-    #     """
-    #
-    #     try:
-    #         private_key = Key().load(key, passphrase)
-    #     except ValueError:
-    #         raise PassPhraseError("Bad passphrase, could not decode private key")
-    #
-    #     issuer_key = None
-    #     try:
-    #         if cert_request.parent:
-    #             issuer_key = Key().load(cert_request.parent.keystore.key, passphrase_issuer)
-    #     except ValueError:
-    #         raise PassPhraseError("Bad passphrase, could not decode issuer key")
-    #
-    #     if cert_request.type == CertificateTypes.ROOT:
-    #         self._certificate = self._create_root_certificate(cert_request, private_key)
-    #     elif cert_request.type == CertificateTypes.INTERMEDIATE:
-    #         self._certificate = self._create_intermediate_certificate(cert_request, private_key, issuer_key)
-    #     elif cert_request.type == CertificateTypes.SERVER_CERT:
-    #         self._certificate = self._create_server_certificate(cert_request, private_key, issuer_key)
-    #     elif cert_request.type == CertificateTypes.CLIENT_CERT:
-    #         self._certificate = self._create_client_certificate(cert_request, private_key, issuer_key)
-    #     elif cert_request.type == CertificateTypes.OCSP:
-    #         self._certificate = self._create_ocsp_certificate(cert_request, private_key, issuer_key)
-    #     return self
-    #
-    # def serialize(self, encoding: serialization.Encoding = serialization.Encoding.PEM) -> str:
-    #     """
-    #     Serialize certificate
-    #
-    #     Arguments: encoding - optional different encoding
-    #     Returns:   bytes
-    #     """
-    #     if not self._certificate:
-    #         raise RuntimeError("No certificate object")
-    #
-    #     if encoding not in serialization.Encoding:
-    #         raise ValueError("{} is not a valid encoding")
-    #
-    #     return self._certificate.public_bytes(encoding=encoding).decode('utf8')

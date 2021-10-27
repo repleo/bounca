@@ -17,7 +17,7 @@ class IntermediateCertificateTest(CertificateTestCase):
     @classmethod
     def setUpTestData(cls):
         with mute_signals(signals.post_save):
-            cls.root_key = Key().create_key(4096)
+            cls.root_key = Key().create_key('rsa', 4096)
             subject = DistinguishedNameFactory(countryName='NL',
                                                stateOrProvinceName='Noord Holland',
                                                organizationName='Repleo')
@@ -32,7 +32,7 @@ class IntermediateCertificateTest(CertificateTestCase):
             keystore.crt = certificate.serialize()
             keystore.key = key
             keystore.save()
-            cls.key = Key().create_key(4096)
+            cls.key = Key().create_key('rsa', 4096)
 
     def test_parent_not_set(self):
         subject = DistinguishedNameFactory(countryName=self.root_certificate.dn.countryName,
@@ -66,7 +66,7 @@ class IntermediateCertificateTest(CertificateTestCase):
         keystore.key = self.root_key.serialize()
         keystore.save(full_clean=False)
 
-        key = Key().create_key(2048)
+        key = Key().create_key('ed25519', None)
         subject_int = DistinguishedNameFactory(countryName=self.root_certificate.dn.countryName,
                                                stateOrProvinceName=self.root_certificate.dn.stateOrProvinceName,
                                                organizationName=self.root_certificate.dn.organizationName,
@@ -167,7 +167,7 @@ class IntermediateCertificateTest(CertificateTestCase):
         self.assert_hash(crt)
 
     def test_generate_intermediate_certificate_minimal(self):
-        key = Key().create_key(4096)
+        key = Key().create_key('rsa', 4096)
 
         subject = DistinguishedNameFactory(organizationalUnitName=None,
                                            emailAddress=None,
@@ -194,7 +194,7 @@ class IntermediateCertificateTest(CertificateTestCase):
         self.assertListEqual([], crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME))
 
     def test_generate_intermediate_certificate_passphrase(self):
-        root_key = Key().create_key(2048)
+        root_key = Key().create_key('ed25519', None)
         root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+3).date(),
                                               name="root_test_generate_intermediate_certificate_passphrase")
         with mute_signals(signals.post_save):
@@ -229,7 +229,7 @@ class IntermediateCertificateTest(CertificateTestCase):
         self.assertListEqual([], crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME))
 
     def test_generate_intermediate_certificate_passphrase_wrong_cert_passphrase(self):
-        root_key = Key().create_key(2048)
+        root_key = Key().create_key('ed25519', None)
         root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+3).date(),
                                               name="root_test_certificate_passphrase_wrong_cert_passphrase")
         with mute_signals(signals.post_save):
@@ -258,7 +258,7 @@ class IntermediateCertificateTest(CertificateTestCase):
                                            passphrase_issuer='SecretRootPP')
 
     def test_generate_intermediate_certificate_passphrase_wrong_issuer_passphrase(self):
-        root_key = Key().create_key(2048)
+        root_key = Key().create_key('ed25519', None)
         root_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+3).date(),
                                               name="root_test_certificate_passphrase_wrong_issuer_passphrase")
         with mute_signals(signals.post_save):

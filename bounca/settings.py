@@ -30,6 +30,10 @@ SECRET_KEY = SERVICES['django']['secret_key']
 DEBUG = SERVICES['django']['debug']
 
 
+KEY_ALGORITHM = SERVICES['certificate-engine']['key_algorithm'].lower()
+if KEY_ALGORITHM not in ['ed25519', 'rsa']:
+    raise ValueError(f"Key algorithm {KEY_ALGORITHM} not supported")
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

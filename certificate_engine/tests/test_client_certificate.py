@@ -1,4 +1,5 @@
 import arrow
+from cryptography.hazmat.primitives import serialization
 from cryptography.x509 import ExtensionOID, RFC822Name
 # noinspection PyUnresolvedReferences
 from cryptography.x509.extensions import ExtensionNotFound
@@ -19,7 +20,7 @@ from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactor
 class EmailCertificateTest(CertificateTestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.root_key = Key().create_key(4096)
+        cls.root_key = Key().create_key('ed25519', None)
         subject = DistinguishedNameFactory(countryName='NL',
                                            stateOrProvinceName='Noord Holland',
                                            organizationName='Repleo')
@@ -37,7 +38,7 @@ class EmailCertificateTest(CertificateTestCase):
         keystore.key = cls.root_key.serialize()
         keystore.save()
 
-        cls.int_key = Key().create_key(4096)
+        cls.int_key = Key().create_key('ed25519', None)
         subject = DistinguishedNameFactory(countryName=cls.root_certificate.dn.countryName,
                                            stateOrProvinceName=cls.root_certificate.dn.stateOrProvinceName,
                                            organizationName=cls.root_certificate.dn.organizationName)
@@ -57,7 +58,7 @@ class EmailCertificateTest(CertificateTestCase):
         keystore.key = cls.int_key.serialize()
         keystore.save()
 
-        cls.key = Key().create_key(4096)
+        cls.key = Key().create_key('ed25519', None)
 
     def test_generate_client_certificate(self):
         client_subject = DistinguishedNameFactory(subjectAltNames=["jeroen",
@@ -154,7 +155,11 @@ class EmailCertificateTest(CertificateTestCase):
         crt = certhandler.certificate
 
         self.assertEqual(crt.serial_number, int(certificate.serial))
-        self.assertEqual(crt.public_key().public_numbers(), self.key.key.public_key().public_numbers())
+        self.assertEqual(crt.public_key().public_bytes(encoding=serialization.Encoding.Raw,
+                                                       format=serialization.PublicFormat.Raw),
+                         self.key.key.public_key().public_bytes(
+                             encoding=serialization.Encoding.Raw,
+                             format=serialization.PublicFormat.Raw))
 
         with self.assertRaises(ExtensionNotFound):
             crt.extensions.get_extension_for_oid(ExtensionOID.SUBJECT_ALTERNATIVE_NAME)
@@ -170,7 +175,11 @@ class EmailCertificateTest(CertificateTestCase):
         crt = certhandler.certificate
 
         self.assertEqual(crt.serial_number, int(certificate.serial))
-        self.assertEqual(crt.public_key().public_numbers(), self.key.key.public_key().public_numbers())
+        self.assertEqual(crt.public_key().public_bytes(encoding=serialization.Encoding.Raw,
+                                                       format=serialization.PublicFormat.Raw),
+                         self.key.key.public_key().public_bytes(
+                             encoding=serialization.Encoding.Raw,
+                             format=serialization.PublicFormat.Raw))
 
         # extendedKeyUsage = serverAuth
         self.assert_extension(crt, ExtensionOID.EXTENDED_KEY_USAGE,
@@ -190,7 +199,7 @@ class EmailCertificateTest(CertificateTestCase):
 
     def test_generate_client_certificate_parent_client_cert(self):
         client_subject = DistinguishedNameFactory(subjectAltNames=None)
-        certificate = CertificateFactory(type=CertificateTypes.SERVER_CERT,
+        certificate = CertificateFactory(type=CertificateTypes.CLIENT_CERT,
                                          name="test_generate_client_certificate_parent_client_cert_1",
                                          parent=self.int_certificate, dn=client_subject)
         certificate.save()
@@ -199,7 +208,7 @@ class EmailCertificateTest(CertificateTestCase):
 
         client_subject = DistinguishedNameFactory()
         with self.assertRaises(CertificateError) as context:
-            certificate_request = CertificateFactory(type=CertificateTypes.SERVER_CERT,
+            certificate_request = CertificateFactory(type=CertificateTypes.CLIENT_CERT,
                                                      name="test_generate_client_certificate_parent_client_cert_2",
                                                      parent=certificate, dn=client_subject)
             certhandler = Certificate()

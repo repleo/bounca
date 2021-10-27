@@ -19,6 +19,7 @@ arrow==1.2.0
 
 # SSL
 cryptography==35.0.0
+bcrypt==3.2.0
 
 # Parsers
 yamlreader==3.0.4
