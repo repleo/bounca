@@ -13,10 +13,6 @@ import './components/index';
 
 import vuetify from './plugins/vuetify';
 
-// const VueCookie = require('vue-cookie');
-//
-// Vue.use(VueCookie);
-
 /* vee-validate config */
 setInteractionMode('eager');
 Vue.component('extend', extend);
@@ -42,12 +38,7 @@ extend('url', {
 localize('en', en);
 /* vee-validate config */
 
-// Vue.config.productionTip = false; // TODO what is this
-
-// var instance = axios.create({
-//     xsrfCookieName: 'csrftoken',
-//     xsrfHeaderName: "X-CSRFTOKEN",
-// });
+Vue.config.productionTip = process.env.NODE_ENV === 'production';
 
 Vue.prototype.$http = Axios;
 const key = localStorage.getItem('user-key');

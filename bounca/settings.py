@@ -194,20 +194,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.9/howto/static-files/
-
 STATIC_ROOT = os.path.join(BASE_DIR, 'media/static/')
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    BASE_DIR + '/bounca/static',
-)
-
-# TODO LOGGING SETTINGS
-
-# Directory where all certificates are stores
-CERTIFICATE_REPO_PATH = os.path.join(BASE_DIR, 'pki/')
+# STATICFILES_DIRS = (
+#     BASE_DIR + '/bounca/static',
+# )
 
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -229,3 +221,9 @@ if IS_GENERATE_FRONTEND:
         'crispy_forms',
         'vuetifyforms'
     ]
+
+# TODO LOGGING SETTINGS
+# TODO FIX ESLINT / REMOVE WEBPACK
+# TODO FIX EMAIL HOST SETTINGS
+# TODO REMOVE CONSOLE.LOG
+# TODO bumpversion

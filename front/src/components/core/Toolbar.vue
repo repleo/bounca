@@ -12,8 +12,13 @@
           </v-list-item-avatar>
           </router-link>
 
-          <v-list-item-title class="title">
+          <v-list-item-title>
+            <div class="title">
             BounCA - Key Management
+            </div>
+            <div class="font-weight-thin">
+              V{{ appVersion }}
+            </div>
           </v-list-item-title>
       </v-list-item>
       <v-spacer/>
@@ -48,6 +53,11 @@ export default {
   },
   mounted() {
     this.loggedIn = store.getters['auth/isLoggedIn'];
+  },
+  computed: {
+    appVersion() {
+      return store.getters['version/appVersion'];
+    },
   },
 };
 </script>

@@ -1,3 +1,7 @@
+<style lang="sass">
+    @import '../node_modules/typeface-roboto/index.css'
+</style>
+
 <template>
   <transition mode="out-in">
     <router-view />
@@ -11,7 +15,6 @@ export default {
     isLoggedIn: function () {
       return this.$store.getters.isLoggedIn;
     },
-    // drawer: false,
   },
   // TODO checks to see if token is valid or has expired, if it gets back 401 error log out
   //   created: function () {
