@@ -1,5 +1,6 @@
 import axios from 'axios';
-import store from '@/store';
+import store from '../store';
+import router from '../router';
 import session from './session';
 
 
@@ -45,3 +46,12 @@ export default {
   },
 
 };
+
+axios.interceptors.response.use(
+  response => response,
+  (error) => {
+    if (error.response.status === 403) {
+      store.dispatch('auth/logout').then(() => router.push('/'));
+    }
+    return error;
+  });

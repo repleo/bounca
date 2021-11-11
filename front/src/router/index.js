@@ -40,17 +40,6 @@ router.beforeEach((to, from, next) => {
   }
 });
 
-// router.beforeResolve((to, from, next) => {
-//   if (to.path) {
-//     NProgress.start();
-//   }
-//   next();
-// });
-//
-// router.afterEach(() => {
-//   NProgress.done();
-// });
-
 Vue.use(Meta);
 
 export default router;

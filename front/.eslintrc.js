@@ -15,14 +15,7 @@ module.exports = {
   plugins: [
     'vue'
   ],
-  // check if imports actually resolve
-  settings: {
-    'import/resolver': {
-      webpack: {
-        config: 'build/webpack.base.conf.js'
-      }
-    }
-  },
+
   // add your custom rules here
   rules: {
     // In an arrow function, this does not refer to the owner of the function.
@@ -48,8 +41,6 @@ module.exports = {
     //   optionalDependencies: ['test/unit/index.js']
     // }],
     // allow debugger during development
-    //'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
-    'no-debugger': 'error'
-
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
   }
 }

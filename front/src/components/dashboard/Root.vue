@@ -328,7 +328,6 @@ export default {
         .catch((e) => {
           this.dialogErrorText = e;
           this.dialogError = true;
-          console.log(e);
         });
     },
 
@@ -355,9 +354,8 @@ export default {
           this.dialogInfoText = response.text;
         })
         .catch((e) => {
-          console.log(e);
           this.dialogInfoLoading = false;
-          this.dialogInfoText = 'No data, please check your certificate';
+          this.dialogInfoText = `No data, please check your certificate. Error: ${e}`;
         });
     },
 

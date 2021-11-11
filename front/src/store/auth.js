@@ -64,7 +64,6 @@ const actions = {
         delete axios.defaults.headers.common.Authorization;
         resolve(resp);
       }).catch((err) => {
-        console.log(err);
         reject(err);
       });
     });

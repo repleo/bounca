@@ -67,6 +67,7 @@ export default {
           }
         } else {
           console.log(response);
+          // TODO implement this?
           // this.$cookie.set('token', response.data.key);
           // this.$emit('authenticated', true);
           // this.$router.replace({ name: 'secure' });
@@ -81,7 +82,6 @@ export default {
             }
           }
         }
-        console.log(r.response.data);
         this.$refs.form.setErrors(r.response.data);
       });
     },

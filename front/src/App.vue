@@ -11,13 +11,8 @@
 <script>
 export default {
   name: 'BounCA',
-  computed: {
-    isLoggedIn: function () {
-      return this.$store.getters.isLoggedIn;
-    },
-  },
-  // TODO checks to see if token is valid or has expired, if it gets back 401 error log out
-  //   created: function () {
+
+  // created: function () {
   //   this.$http.interceptors.response.use(
   //     (response) => {
   //       return response;
