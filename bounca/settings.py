@@ -197,12 +197,49 @@ AUTH_PASSWORD_VALIDATORS = [
 STATIC_ROOT = os.path.join(BASE_DIR, 'media/static/')
 
 STATIC_URL = '/static/'
-# STATICFILES_DIRS = (
-#     BASE_DIR + '/bounca/static',
-# )
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s [%(asctime)s] %(name)s %(message)s',
+        },
+        'simple': {
+            'format': '[%(asctime)s] %(message)s'
+        },
+    },
+    'handlers': {
+        'null': {
+            'class': 'logging.NullHandler',
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file': {
+            'filename': '/var/log/bounca/bounca.log',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'when': 'D',
+            'backupCount': 7,
+            'formatter': 'verbose',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+    },
+    'root': {
+        'level': 'ERROR',
+        'handlers': ['file'],
+    },
+    'loggers': {},
+}
 
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    LOGGING['handlers']['file']['filename'] = './logs/bounca.log'
+    LOGGING['root']['level'] = 'INFO'
     CORS_ORIGIN_ALLOW_ALL = True
 else:
     EMAIL_HOST = "localhost"
@@ -222,8 +259,6 @@ if IS_GENERATE_FRONTEND:
         'vuetifyforms'
     ]
 
-# TODO LOGGING SETTINGS
-# TODO FIX ESLINT / REMOVE WEBPACK
-# TODO FIX EMAIL HOST SETTINGS
-# TODO REMOVE CONSOLE.LOG
 # TODO bumpversion
+# TODO FIX EMAIL HOST SETTINGS
+# TODO FIX EMAIL REGISTRATION FRONTEND / CONSOLE>LOG
