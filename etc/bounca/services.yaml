@@ -14,6 +14,10 @@ django:
 
 mail:
   host: localhost
+  # port: 587 optionally, only for tls and ssl
+  # username: <user>
+  # password: <password>
+  # connection: none # allowed values: none, tls, ssl
   admin: jeroen@bounca.org
   from: no-reply@bounca.org
 

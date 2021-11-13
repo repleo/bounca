@@ -7,11 +7,13 @@ import re
 import zipfile
 from django.conf import settings
 from django.http import Http404, HttpResponse
+from django.urls import NoReverseMatch, URLResolver
 from rest_framework import permissions, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 from api.mixins import TrapDjangoValidationErrorCreateMixin
@@ -102,6 +104,37 @@ class CertificateInfoView(APIView):
             raise Http404("Certificate has no keystore, "
                           "generation of certificate object went wrong")
         return Response({'text': info})
+
+
+class ApiRoot(APIView):
+    @classmethod
+    def as_view(cls, urlpatterns=[], **initkwargs):
+        cls.urlpatterns = urlpatterns
+        return super().as_view(**initkwargs)
+
+    def get_api_structure(self, patterns, request, *args, **kwargs):
+        ret = {}
+        for urlpattern in patterns:
+            try:
+                if isinstance(urlpattern, URLResolver):
+                    ret[str(urlpattern.pattern)] = \
+                        self.get_api_structure(urlpattern.url_patterns, request, *args, **kwargs)
+                else:
+                    ret[urlpattern.name] = reverse(
+                        urlpattern.name,
+                        args=args,
+                        kwargs=kwargs,
+                        request=request,
+                        format=kwargs.get('format', None)
+                    )
+            except NoReverseMatch:
+                # Don't bail out if eg. no list routes exist, only detail routes.
+                continue
+        return ret
+
+    def get(self, request, *args, **kwargs):
+        ret = self.get_api_structure(self.urlpatterns, request, *args, **kwargs)
+        return Response(ret)
 
 
 class FileView(APIView):

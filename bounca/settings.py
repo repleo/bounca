@@ -63,6 +63,18 @@ ADMINS = (
 MANAGERS = ADMINS
 SITE_ID = 1
 EMAIL_HOST = SERVICES['mail']['host']
+if 'username' in SERVICES['mail'] and SERVICES['mail']['username']:
+    EMAIL_HOST_USER = SERVICES['mail']['username']
+if 'password' in SERVICES['mail'] and SERVICES['mail']['password']:
+    EMAIL_HOST_PASSWORD = SERVICES['mail']['password']
+if 'connection' in SERVICES['mail']:
+    if SERVICES['mail']['connection'].lower() == 'tls':
+        EMAIL_USE_TLS = True
+        EMAIL_PORT = 587 if 'port' not in SERVICES['mail'] else SERVICES['mail']['port']
+    elif SERVICES['mail']['connection'].lower() == 'ssl':
+        EMAIL_USE_SSL = True
+        EMAIL_PORT = 465 if 'port' not in SERVICES['mail'] else SERVICES['mail']['port']
+
 DEFAULT_FROM_EMAIL = SERVICES['mail']['from']
 SERVER_EMAIL = SERVICES['mail']['from']
 
@@ -241,9 +253,6 @@ if DEBUG:
     LOGGING['handlers']['file']['filename'] = './logs/bounca.log'
     LOGGING['root']['level'] = 'INFO'
     CORS_ORIGIN_ALLOW_ALL = True
-else:
-    EMAIL_HOST = "localhost"
-
 
 if IS_UNITTEST:
     EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
@@ -259,6 +268,6 @@ if IS_GENERATE_FRONTEND:
         'vuetifyforms'
     ]
 
-# TODO bumpversion
-# TODO FIX EMAIL HOST SETTINGS
+
 # TODO FIX EMAIL REGISTRATION FRONTEND / CONSOLE>LOG
+# TODO bumpversion
