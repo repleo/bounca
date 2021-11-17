@@ -1,8 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Meta from 'vue-meta';
-// import NProgress from "nprogress";
-import store from '@/store';
+import store from '../store';
 
 // Routes
 import home from './home';

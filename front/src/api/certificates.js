@@ -1,9 +1,9 @@
 import axios from 'axios';
-import store from '@/store';
+import store from '../store';
 
 export default {
   getAll(params) {
-    const url = `${process.env.VUE_APP_ROOT_API}/api/v1/certificates/`;
+    const url = `${process.env.VUE_APP_ROOT_API}/api/v1/certificates`;
     const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };
     return axios.get(url, { params, headers: headers }).then(response => response.data);
   },
@@ -44,7 +44,7 @@ export default {
     return axios.delete(url, { data: data, headers: headers }).then(response => response.data);
   },
   create(data) {
-    const url = `${process.env.VUE_APP_ROOT_API}/api/v1/certificates/`;
+    const url = `${process.env.VUE_APP_ROOT_API}/api/v1/certificates`;
     const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };
     return axios.post(url, data, { headers: headers });
   },

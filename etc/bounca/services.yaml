@@ -23,3 +23,6 @@ mail:
 
 certificate-engine:
   key_algorithm: ed25519 # allowed values: ed25519, rsa
+
+registration:
+  email_verification: mandatory # allowed values: mandatory, optional, off

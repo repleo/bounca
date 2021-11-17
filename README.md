@@ -37,6 +37,13 @@ Optionally, set a password for the `bounca` user.
 Create Python 3.7 virtualenv, activate, and install requirements.txt
 `virtualenv env -p python3.7 && . env/bin/activate && pip install -r requirements.txt`
 
+Configure frontend base URI
+
+python3 manage.py site http://localhost:8080
+python3 manage.py collectstatic
+python3 manage.py createsuperuser
+
+
 Extra requirements:
 
 openssl

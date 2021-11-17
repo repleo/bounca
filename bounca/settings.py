@@ -61,7 +61,10 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+
 SITE_ID = 1
+SITE_NAME = "BounCA PKI"
+
 EMAIL_HOST = SERVICES['mail']['host']
 if 'username' in SERVICES['mail'] and SERVICES['mail']['username']:
     EMAIL_HOST_USER = SERVICES['mail']['username']
@@ -78,11 +81,9 @@ if 'connection' in SERVICES['mail']:
 DEFAULT_FROM_EMAIL = SERVICES['mail']['from']
 SERVER_EMAIL = SERVICES['mail']['from']
 
-SITE_NAME = "bounca"
 
 TIME_ZONE = 'Europe/Amsterdam'
 LANGUAGE_CODE = 'en-us'
-SITE_ID = 1
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
@@ -118,8 +119,8 @@ INSTALLED_APPS = [
     'certificate_engine',
     'x509_pki',
     'api',
+    'bounca'
 ]
-
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -149,10 +150,15 @@ REST_FRAMEWORK = {
 }
 
 REST_AUTH_SERIALIZERS = {
-    'USER_DETAILS_SERIALIZER': 'api.serializers.UserSerializer'
+    'USER_DETAILS_SERIALIZER': 'api.serializers.UserSerializer',
+    'PASSWORD_RESET_SERIALIZER': 'api.auth.serializers.PasswordResetSerializerFrontendHost'
 }
 
-ACCOUNT_EMAIL_VERIFICATION = ["mandatory", "optional", "none"][2]
+ACCOUNT_ADAPTER = "api.auth.adapter.DefaultAccountAdapterFrontendHost"
+
+if 'email_verification' in SERVICES['registration'] and\
+   SERVICES['registration']['email_verification'] in ["mandatory", "optional"]:
+    ACCOUNT_EMAIL_VERIFICATION = SERVICES['registration']['email_verification']
 ACCOUNT_EMAIL_REQUIRED = ACCOUNT_EMAIL_VERIFICATION in ["mandatory", "optional"]
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 AUTHENTICATION_BACKENDS = [
@@ -270,4 +276,5 @@ if IS_GENERATE_FRONTEND:
 
 
 # TODO FIX EMAIL REGISTRATION FRONTEND / CONSOLE>LOG
+# TODO PASSWORD RESET
 # TODO bumpversion

@@ -1,5 +1,5 @@
 
-import store from '@/store';
+import store from '../store';
 
 export default [
   {
@@ -19,7 +19,7 @@ export default [
       requiresAuth: false,
     },
     component: () =>
-      import(/* webpackChunkName: 'routes' */ '@/views/Public.vue'),
+      import('../views/Public.vue'),
     // redirect if already signed in
     beforeEnter: (to, from, next) => {
       if (store.getters['auth/isLoggedIn']) {
@@ -36,12 +36,12 @@ export default [
       {
         path: 'docs',
         name: 'home',
-        component: () => import('@/components/public/Docs.vue'),
+        component: () => import('../components/public/Docs.vue'),
       },
       {
         path: 'about',
         name: 'about',
-        component: () => import('@/components/public/About.vue'),
+        component: () => import('../components/public/About.vue'),
       },
     ],
   },

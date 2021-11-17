@@ -66,11 +66,7 @@ export default {
             this.detail = response.data.detail;
           }
         } else {
-          console.log(response);
-          // TODO implement this?
-          // this.$cookie.set('token', response.data.key);
-          // this.$emit('authenticated', true);
-          // this.$router.replace({ name: 'secure' });
+          this.error = 'Bad response';
         }
       }).catch((r) => {
         if ('detail' in r.response.data) {

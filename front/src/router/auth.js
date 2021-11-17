@@ -1,4 +1,4 @@
-import store from '@/store';
+import store from '../store';
 
 
 const redirectLogout = (to, from, next) => {
@@ -22,10 +22,10 @@ export default [
       requiresAuth: false,
     },
     component: () =>
-      import(/* webpackChunkName: 'routes' */ '@/views/Public.vue'),
+      import(/* webpackChunkName: 'routes' */ '../views/Public.vue'),
     children: [{
       path: '',
-      component: () => import('@/views/Auth.vue'),
+      component: () => import('../views/Auth.vue'),
       children: [
         {
           path: '',
@@ -35,7 +35,7 @@ export default [
         {
           path: 'signup',
           name: 'auth_signup',
-          component: () => import('@/components/auth/Signup.vue'),
+          component: () => import('../components/auth/Signup.vue'),
           beforeEnter: redirectLoggedIn,
         },
         {
@@ -46,25 +46,24 @@ export default [
         {
           path: 'login',
           name: 'auth_login',
-          component: () => import('@/components/auth/Login.vue'),
+          component: () => import('../components/auth/Login.vue'),
           beforeEnter: redirectLoggedIn,
         },
         {
           path: 'account-confirm-email/:key',
           name: 'auth_email_verify',
-          component: () => import('@/components/auth/EmailVerify.vue'),
-          beforeEnter: redirectLoggedIn,
+          component: () => import('../components/auth/EmailVerify.vue'),
         },
         {
           path: 'password-forgot',
           name: 'auth_password_forgot',
-          component: () => import('@/components/auth/PasswordForgot.vue'),
+          component: () => import('../components/auth/PasswordForgot.vue'),
           beforeEnter: redirectLoggedIn,
         },
         {
-          path: 'password-reset/:uid/:token',
+          path: 'password-reset/confirm/:uid/:token',
           name: 'auth_password_reset',
-          component: () => import('@/components/auth/PasswordReset.vue'),
+          component: () => import('../components/auth/PasswordReset.vue'),
           beforeEnter: redirectLoggedIn,
         },
       ],

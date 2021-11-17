@@ -1,25 +1,32 @@
 """Main URL config"""
-
+from dj_rest_auth.registration.views import VerifyEmailView
 from django.conf import settings
-from django.conf.urls import include, url
+from django.conf.urls import include
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.urls import path
 from django.views.generic import TemplateView
 
 from api.urls import urlpatterns as urlpatterns_api
 
 
 urlpatterns = [
-    url(r'^api/', include(urlpatterns_api)),
-    url(r'^auth/', include('rest_framework.urls')),
-    url('^account/account_email_verification_sent', TemplateView.as_view(), name='account_email_verification_sent'),
+    # these urls are used to generate email content
+    path('auth/password-reset/confirm/<uidb64>/<token>', TemplateView.as_view(),
+         name='password_reset_confirm'),
+    path('auth/login/', VerifyEmailView.as_view(),
+         name='account_email_verification_sent'),
+    path('api/', include(urlpatterns_api)),
+    path('auth/', include('rest_framework.urls')),
+    path('auth/account-confirm-email/<key>', TemplateView.as_view(),
+         name='account_confirm_email'),
 ]
 
 if settings.DEBUG:
     # admin site is only available if running debug mode
     urlpatterns += [
-        url(r'^admin/', admin.site.urls),
-        url(r'^grappelli/', include('grappelli.urls')),  # grappelli URLS
+        path('admin/', admin.site.urls),
+        path('grappelli/', include('grappelli.urls')),  # grappelli URLS
     ]
 
 
