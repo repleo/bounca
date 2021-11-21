@@ -1,5 +1,5 @@
 import axios from 'axios';
-import auth from '@/api/auth';
+import auth from '../api/auth';
 
 
 const initialState = {

@@ -19,22 +19,3 @@ npm run build
 ```
 npm run lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
-
-
-//  "eslintConfig": {
-//    "root": true,
-//    "env": {
-//      "node": true
-//    },
-//    "extends": [
-//      "plugin:vue/essential",
-//      "eslint:recommended"
-//    ],
-//    "parserOptions": {
-//      "parser": "babel-eslint"
-//    },
-//    "rules": {}
-//  },

@@ -35,24 +35,3 @@ isort_fix:
 flake8:
 	flake8 $(PYTHON_FOLDERS)
 
-autopep8:
-	autopep8 --in-place --aggressive --aggressive -r $(PYTHON_FOLDERS)
-
-npmlint:
-	npm run -s lint
-
-eslint:
-	npm run -s eslint
-
-sass-lint:
-	npm run -s sass-lint
-
-gitclean:
-	git clean \
-		--exclude=*.sublime-* \
-			--exclude=.idea \
-		--exclude=etc/conf/services.yaml \
-		--exclude=*/settings_local.py \
-		--interactive \
-		-dx
-		# --dry-run \

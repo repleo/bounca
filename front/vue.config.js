@@ -1,6 +1,6 @@
 module.exports = {
   transpileDependencies: [
-    'vuetify'
+    'vuetify',
   ],
   pages: {
     index: {
@@ -8,5 +8,5 @@ module.exports = {
       entry: 'src/main.js',
       title: 'BounCA PKI',
     },
-  }
-}
+  },
+};

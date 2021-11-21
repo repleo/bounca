@@ -1,6 +1,12 @@
 # Change Log
 The BounCA change history
 
+## [0.2.0] - Release 2021-11-17
+* Rebuild of BounCA, old db not compatible
+* Python based certificate factory
+* Vuetify based frontend
+* Updated all dependencies
+
 ## [0.1.1] - Release 2016-06-12
 
 * Bug fix in generation of intermediate CA

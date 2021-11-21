@@ -4,7 +4,7 @@ import { ValidationObserver, ValidationProvider, localize, extend, setInteractio
 import en from 'vee-validate/dist/locale/en.json';
 import * as rules from 'vee-validate/dist/rules';
 
-import App from './App';
+import App from './App.vue';
 import router from './router';
 import store from './store';
 

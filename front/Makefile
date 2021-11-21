@@ -3,3 +3,6 @@ runserver:
 
 build:
 	npm run build
+
+production:
+	npm run build --production

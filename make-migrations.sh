@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 WORKDIR=`dirname "$0"`
-PYTHON=`which python3.4`
+PYTHON=`which python3`
 
 virtualenv -p "$PYTHON" env
 . env/bin/activate

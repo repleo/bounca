@@ -48,7 +48,7 @@ cmdclass = {
 
 setup(
     name='bounca',
-    version='1.0',
+    version='0.2.0',
     cmdclass=cmdclass,
     entry_points={
         'console_scripts': [

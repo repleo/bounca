@@ -21,6 +21,7 @@ pnpm-debug.log*
 *.so
 
 # Distribution / packaging
+out/
 .Python
 env/
 build/

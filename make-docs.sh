@@ -1,7 +1,7 @@
 #!/usr/bin/env bash -e
 
 WORKDIR=`dirname "$0"`
-PYTHON=`which python3.4`
+PYTHON=`which python3`
 
 virtualenv -p "$PYTHON" env
 . env/bin/activate
@@ -13,4 +13,4 @@ cd docs
 make html
 cd ..
 rm -rf ./bounca/static/docs/* || true
-cp -r ./docs/build/html/ ./bounca/static/docs/ 
+cp -r ./docs/build/html/ ./bounca/static/docs/

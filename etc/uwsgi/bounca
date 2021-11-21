@@ -1,0 +1,17 @@
+[uwsgi]
+thread=4
+master=1
+processes=80
+vacuum=true
+uid = www-data
+gid = www-data
+chmod-socket = 700
+chown-socket = www-data
+socket = /run/uwsgi/app/bounca/socket
+logto = /var/log/uwsgi/bounca.log
+chdir = /srv/www/bounca
+home  = /srv/www/bounca/env
+module = bounca.wsgi:application
+plugins = python3
+
+env = DJANGO_SETTINGS_MODULE=bounca.settings

@@ -1,0 +1,29 @@
+listen 80;
+listen [::]:80;
+
+
+server_name bounca;
+
+  location /static {
+      root /srv/www/bounca/media;
+      include mime.types;
+  }
+  location /api {
+      include uwsgi_params;
+      uwsgi_read_timeout 9600;
+      uwsgi_send_timeout 9600;
+      uwsgi_pass unix://run/uwsgi/app/bounca/socket;
+  }
+  location /admin {
+      include uwsgi_params;
+      uwsgi_read_timeout 9600;
+      uwsgi_send_timeout 9600;
+      uwsgi_pass unix://run/uwsgi/app/bounca/socket;
+  }
+  location / {
+      root /srv/www/bounca/front/dist;
+      include mime.types;
+      try_files $uri $uri/ /index.html;
+  }
+
+}
