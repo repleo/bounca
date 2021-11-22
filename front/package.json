@@ -1,6 +1,6 @@
 {
   "name": "front",
-  "version": "dev",
+  "version": "0.0.0-dev",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
