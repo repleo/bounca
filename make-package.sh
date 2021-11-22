@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -ex
+#!/usr/bin/env bash -e
 
 
 BASEDIR=$(dirname "$0")
@@ -10,8 +10,8 @@ if [ "$VERSION" == "master" ]; then
 fi
 
 cd $BASEDIR
-#./run-checks.sh
-#./run-tests.sh
+./run-checks.sh
+./run-tests.sh
 
 
 echo "Archive will be created ./out"

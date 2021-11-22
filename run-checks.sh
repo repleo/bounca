@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 PYTHON_FOLDERS='api bounca certificate_engine vuetifyforms x509_pki'
-BASEDIR=`dirname "$0"`/
+BASEDIR=`dirname "$0"`
 cd $BASEDIR
 
 BLUE='\033[1;34m'
