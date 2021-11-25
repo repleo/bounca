@@ -1,8 +1,10 @@
 # coding: utf-8
 from cryptography import x509
 from cryptography.x509 import ExtensionOID
+
 # noinspection PyUnresolvedReferences
 from cryptography.x509.extensions import ExtensionNotFound
+
 # noinspection PyUnresolvedReferences
 from cryptography.x509.oid import NameOID
 
@@ -15,7 +17,7 @@ from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactor
 class RootCertificateTest(CertificateTestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.key = Key().create_key('rsa', 8192)
+        cls.key = Key().create_key("rsa", 8192)
 
     def root_ca_missing_attribute(self, dn, attribute_name):
         with self.assertRaises(PolicyError) as context:
@@ -23,55 +25,40 @@ class RootCertificateTest(CertificateTestCase):
             certhandler = Certificate()
             certhandler.create_certificate(certificate_request, self.key.serialize())
 
-        self.assertEqual({f'dn__{attribute_name}': f"Attribute '{attribute_name}' is required"},
-                         context.exception.args[0])
+        self.assertEqual(
+            {f"dn__{attribute_name}": f"Attribute '{attribute_name}' is required"}, context.exception.args[0]
+        )
 
     def test_generate_root_ca_missing_countryName(self):
-        dn = DistinguishedNameFactory(countryName=None,
-                                      organizationalUnitName=None,
-                                      emailAddress=None)
-        self.root_ca_missing_attribute(dn, 'countryName')
+        dn = DistinguishedNameFactory(countryName=None, organizationalUnitName=None, emailAddress=None)
+        self.root_ca_missing_attribute(dn, "countryName")
 
     def test_generate_root_ca_missing_countryName_space(self):
-        dn = DistinguishedNameFactory(countryName='',
-                                      organizationalUnitName=None,
-                                      emailAddress=None)
-        self.root_ca_missing_attribute(dn, 'countryName')
+        dn = DistinguishedNameFactory(countryName="", organizationalUnitName=None, emailAddress=None)
+        self.root_ca_missing_attribute(dn, "countryName")
 
     def test_generate_root_ca_missing_stateOrProvinceName(self):
-        dn = DistinguishedNameFactory(stateOrProvinceName=None,
-                                      organizationalUnitName=None,
-                                      emailAddress=None)
-        self.root_ca_missing_attribute(dn, 'stateOrProvinceName')
+        dn = DistinguishedNameFactory(stateOrProvinceName=None, organizationalUnitName=None, emailAddress=None)
+        self.root_ca_missing_attribute(dn, "stateOrProvinceName")
 
     def test_generate_root_ca_missing_stateOrProvinceName_space(self):
-        dn = DistinguishedNameFactory.build(stateOrProvinceName='',
-                                            organizationalUnitName=None,
-                                            emailAddress=None)
-        self.root_ca_missing_attribute(dn, 'stateOrProvinceName')
+        dn = DistinguishedNameFactory.build(stateOrProvinceName="", organizationalUnitName=None, emailAddress=None)
+        self.root_ca_missing_attribute(dn, "stateOrProvinceName")
 
     def test_generate_root_ca_missing_organizationName(self):
-        dn = DistinguishedNameFactory.build(organizationName=None,
-                                            organizationalUnitName=None,
-                                            emailAddress=None)
-        self.root_ca_missing_attribute(dn, 'organizationName')
+        dn = DistinguishedNameFactory.build(organizationName=None, organizationalUnitName=None, emailAddress=None)
+        self.root_ca_missing_attribute(dn, "organizationName")
 
     def test_generate_root_ca_missing_organizationName_space(self):
-        dn = DistinguishedNameFactory.build(organizationName='',
-                                            organizationalUnitName=None,
-                                            emailAddress=None)
-        self.root_ca_missing_attribute(dn, 'organizationName')
+        dn = DistinguishedNameFactory.build(organizationName="", organizationalUnitName=None, emailAddress=None)
+        self.root_ca_missing_attribute(dn, "organizationName")
 
     def test_generate_root_ca_missing_commonName(self):
-        dn = DistinguishedNameFactory.build(commonName='',
-                                            organizationalUnitName=None,
-                                            emailAddress=None)
-        self.root_ca_missing_attribute(dn, 'commonName')
+        dn = DistinguishedNameFactory.build(commonName="", organizationalUnitName=None, emailAddress=None)
+        self.root_ca_missing_attribute(dn, "commonName")
 
     def test_generate_minimal_root_ca(self):
-        dn = DistinguishedNameFactory(organizationalUnitName=None,
-                                      emailAddress=None,
-                                      localityName=None)
+        dn = DistinguishedNameFactory(organizationalUnitName=None, emailAddress=None, localityName=None)
         certificate_request = CertificateFactory(dn=dn)
         certhandler = Certificate()
         certhandler.create_certificate(certificate_request, self.key.serialize())
@@ -143,8 +130,9 @@ class RootCertificateTest(CertificateTestCase):
         self.assertEqual(crt.public_key().public_numbers(), self.key.key.public_key().public_numbers())
 
         # crlDistributionspoints
-        with self.assertRaisesMessage(ExtensionNotFound, "No <ObjectIdentifier(oid=2.5.29.31, name=c"
-                                                         "RLDistributionPoints)> extension was found"):
+        with self.assertRaisesMessage(
+            ExtensionNotFound, "No <ObjectIdentifier(oid=2.5.29.31, name=c" "RLDistributionPoints)> extension was found"
+        ):
             crt.extensions.get_extension_for_oid(ExtensionOID.CRL_DISTRIBUTION_POINTS)
 
     def test_generate_root_ca_no_ocsp(self):
@@ -166,15 +154,18 @@ class RootCertificateTest(CertificateTestCase):
 
         # OCSP
         # authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
-        with self.assertRaisesMessage(ExtensionNotFound, "No <ObjectIdentifier(oid=1.3.6.1.5.5.7.1.1"
-                                                         ", name=authorityInfoAccess)> extension was found"):
+        with self.assertRaisesMessage(
+            ExtensionNotFound,
+            "No <ObjectIdentifier(oid=1.3.6.1.5.5.7.1.1" ", name=authorityInfoAccess)> extension was found",
+        ):
             crt.extensions.get_extension_for_oid(ExtensionOID.AUTHORITY_INFORMATION_ACCESS)
 
     def test_generate_root_ca_passphrase(self):
         certificate_request = CertificateFactory()
         certhandler = Certificate()
-        certhandler.create_certificate(certificate_request, self.key.serialize(passphrase="superSecret"),
-                                       passphrase="superSecret")
+        certhandler.create_certificate(
+            certificate_request, self.key.serialize(passphrase="superSecret"), passphrase="superSecret"
+        )
 
         crt = certhandler.certificate
         # subject
@@ -191,8 +182,9 @@ class RootCertificateTest(CertificateTestCase):
         certificate = CertificateFactory()
         certhandler = Certificate()
         with self.assertRaisesMessage(PassPhraseError, "Bad passphrase, could not decode private key"):
-            certhandler.create_certificate(certificate, self.key.serialize(passphrase="superSecret"),
-                                           passphrase="superSecret_wrong")
+            certhandler.create_certificate(
+                certificate, self.key.serialize(passphrase="superSecret"), passphrase="superSecret_wrong"
+            )
 
     def test_serialize_root_certificate(self):
         certificate_request = CertificateFactory()

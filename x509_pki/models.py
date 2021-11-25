@@ -1,5 +1,6 @@
 """Models for storing subject and certificate information"""
 import uuid
+
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
@@ -21,32 +22,32 @@ from certificate_engine.types import CertificateTypes
 
 class DistinguishedName(models.Model):
     alphanumeric_validator = RegexValidator(
-        r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ \*]*$',
-        'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
+        r"^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ \*]*$", "Only alphanumeric characters and [@#$%^&+=_,-.] are allowed."
+    )
     country_validator = RegexValidator(
-        r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ \*]*$',
-        'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
+        r"^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ \*]*$", "Only alphanumeric characters and [@#$%^&+=_,-.] are allowed."
+    )
 
     countryName = CountryField(
-        "Country",
-        help_text="The two-character country name in ISO 3166 format.",
-        blank=True,
-        null=True)
+        "Country", help_text="The two-character country name in ISO 3166 format.", blank=True, null=True
+    )
     stateOrProvinceName = models.CharField(
         "State or Province Name",
         max_length=128,
         validators=[alphanumeric_validator],
         help_text="The state/region where your organization is located. "
-                  "This shouldn't be abbreviated. (1–128 characters)",
+        "This shouldn't be abbreviated. (1–128 characters)",
         blank=True,
-        null=True)
+        null=True,
+    )
     localityName = models.CharField(
         "Locality Name",
         max_length=128,
         validators=[alphanumeric_validator],
         help_text="The city where your organization is located. (1–128 characters)",
         blank=True,
-        null=True)
+        null=True,
+    )
     organizationName = models.CharField(
         "Organization Name",
         max_length=64,
@@ -54,38 +55,41 @@ class DistinguishedName(models.Model):
         help_text="The legal name of your organization. This should not be abbreviated and should include "
         "suffixes such as Inc, Corp, or LLC.",
         blank=True,
-        null=True)
+        null=True,
+    )
     organizationalUnitName = models.CharField(
         "Organization Unit Name",
         max_length=64,
         validators=[alphanumeric_validator],
         help_text="The division of your organization handling the certificate.",
         blank=True,
-        null=True)
+        null=True,
+    )
     emailAddress = models.EmailField(
         "Email Address",
         max_length=64,
         validators=[alphanumeric_validator],
         help_text="The email address to contact your organization.",
         blank=True,
-        null=True)
+        null=True,
+    )
     commonName = models.CharField(
         "Common Name",
         max_length=64,
         validators=[alphanumeric_validator],
         help_text="The fully qualified domain name (FQDN) of your server. This must match "
-                  "exactly what you type in your web browser or you will receive a name mi"
-                  "smatch error.")
+        "exactly what you type in your web browser or you will receive a name mi"
+        "smatch error.",
+    )
     subjectAltNames = ArrayField(
-        models.CharField(
-            max_length=64,
-            validators=[alphanumeric_validator]),
+        models.CharField(max_length=64, validators=[alphanumeric_validator]),
         help_text="subjectAltName list, i.e. dns names for server certs and email adresses "
-                  "for client certs. (separate by comma)",
+        "for client certs. (separate by comma)",
         blank=True,
-        null=True)
+        null=True,
+    )
 
-    def _to_dn(self, email_label='EMAIL'):
+    def _to_dn(self, email_label="EMAIL"):
         dn = []
         if self.commonName is not None:
             dn.append("CN={}".format(self.commonName))
@@ -105,11 +109,11 @@ class DistinguishedName(models.Model):
 
     @property
     def dn(self):
-        return ', '.join(self._to_dn(email_label='EMAIL'))
+        return ", ".join(self._to_dn(email_label="EMAIL"))
 
     @property
     def subj(self):
-        return '/'.join([''] + self._to_dn(email_label='emailAddress'))
+        return "/".join([""] + self._to_dn(email_label="emailAddress"))
 
     # Create only model
     def save(self, *args, **kwargs):
@@ -117,8 +121,7 @@ class DistinguishedName(models.Model):
             self.full_clean()
             super().save(*args, **kwargs)
         else:
-            raise ValidationError(
-                'Not allowed to update a DistinguishedName record')
+            raise ValidationError("Not allowed to update a DistinguishedName record")
 
     @property
     def slug_commonName(self):
@@ -137,7 +140,6 @@ def validate_in_future(value):
 
 
 class CertificateQuerySet(models.QuerySet):
-
     def delete(self, *args, **kwargs):
         for obj in self:
             obj.delete()
@@ -146,26 +148,25 @@ class CertificateQuerySet(models.QuerySet):
 class Certificate(models.Model):
     objects = CertificateQuerySet.as_manager()
     alphanumeric = RegexValidator(
-        r'^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ ]*$',
-        'Only alphanumeric characters and [@#$%^&+=_,-.] are allowed.')
+        r"^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ ]*$", "Only alphanumeric characters and [@#$%^&+=_,-.] are allowed."
+    )
 
-    crl_url_validator = RegexValidator(
-        r"[^\/]\.crl\.pem$",
-        "CRL url shoud end with <filename>.crl.pem")
+    crl_url_validator = RegexValidator(r"[^\/]\.crl\.pem$", "CRL url shoud end with <filename>.crl.pem")
 
     TYPES = (
-        (CertificateTypes.ROOT, 'Root CA Certificate'),
-        (CertificateTypes.INTERMEDIATE, 'Intermediate CA Certificate'),
-        (CertificateTypes.SERVER_CERT, 'Server Certificate'),
-        (CertificateTypes.CLIENT_CERT, 'Client Certificate'),
-        (CertificateTypes.OCSP, 'OCSP Signing Certificate'),
+        (CertificateTypes.ROOT, "Root CA Certificate"),
+        (CertificateTypes.INTERMEDIATE, "Intermediate CA Certificate"),
+        (CertificateTypes.SERVER_CERT, "Server Certificate"),
+        (CertificateTypes.CLIENT_CERT, "Client Certificate"),
+        (CertificateTypes.OCSP, "OCSP Signing Certificate"),
     )
     type = models.CharField(max_length=1, choices=TYPES)
     name = models.CharField(
         max_length=128,
         validators=[alphanumeric],
         blank=True,
-        help_text="Name of your key, if not set will be equal to your CommonName.")
+        help_text="Name of your key, if not set will be equal to your CommonName.",
+    )
 
     dn = models.ForeignKey(DistinguishedName, on_delete=models.PROTECT)
 
@@ -174,27 +175,30 @@ class Certificate(models.Model):
         blank=True,
         null=True,
         help_text="The signing authority (None for root certificate)",
-        on_delete=models.PROTECT)
+        on_delete=models.PROTECT,
+    )
 
     crl_distribution_url = models.URLField(
         "CRL distribution url",
         validators=[crl_url_validator],
         blank=True,
         null=True,
-        help_text="Base URL for certificate revocation list (CRL)")
+        help_text="Base URL for certificate revocation list (CRL)",
+    )
     ocsp_distribution_host = models.URLField(
         "OCSP distribution host",
         blank=True,
         null=True,
-        help_text="Host URL for Online Certificate Status Protocol (OCSP)")
+        help_text="Host URL for Online Certificate Status Protocol (OCSP)",
+    )
 
     created_at = models.DateField(auto_now_add=True)
     expires_at = models.DateField(
         validators=[validate_in_future],
         help_text="Select the date that the certificate will expire: for root typically 20 years, "
-                  "for intermediate 10 years for other types 1 year.")
-    revoked_at = models.DateTimeField(
-        editable=False, default=None, blank=True, null=True)
+        "for intermediate 10 years for other types 1 year.",
+    )
+    revoked_at = models.DateTimeField(editable=False, default=None, blank=True, null=True)
     # when not revoked, uuid is 0. The revoked_uuid is used in the unique constraint
     # to ensure only one signed certificate has been issued
     revoked_uuid = models.UUIDField(default=0)
@@ -231,9 +235,8 @@ class Certificate(models.Model):
         return self.expires_at <= timezone.now().date()
 
     def is_passphrase_valid(self, passphrase):
-        if not hasattr(self, 'keystore'):
-            raise KeyStore.DoesNotExist("Certificate has no cert, "
-                                        "something went wrong during generation")
+        if not hasattr(self, "keystore"):
+            raise KeyStore.DoesNotExist("Certificate has no cert, " "something went wrong during generation")
         valid = check_passphrase_issuer(self.keystore.key, passphrase)
         if valid:
             return True
@@ -241,9 +244,8 @@ class Certificate(models.Model):
             return False
 
     def get_certificate_info(self):
-        if not hasattr(self, 'keystore'):
-            raise KeyStore.DoesNotExist("Certificate has no cert, "
-                                        "something went wrong during generation")
+        if not hasattr(self, "keystore"):
+            raise KeyStore.DoesNotExist("Certificate has no cert, " "something went wrong during generation")
         crt = self.keystore.crt
         info = get_certificate_info(crt)
         return info
@@ -260,22 +262,23 @@ class Certificate(models.Model):
 
         self.revoked_at = timezone.now()
         self.revoked_uuid = uuid.uuid4()
-        kwargs['update_fields'] = ['revoked_at', 'revoked_uuid']
+        kwargs["update_fields"] = ["revoked_at", "revoked_uuid"]
         super().save(*args, **kwargs)
 
     def __init__(self, *args, **kwargs):
-        if 'passphrase_issuer' in kwargs:
-            self.passphrase_issuer = kwargs.pop('passphrase_issuer')
-        if 'passphrase_out' in kwargs:
-            self.passphrase_out = kwargs.pop('passphrase_out')
-        if 'passphrase_out_confirmation' in kwargs:
-            self.passphrase_out_confirmation = kwargs.pop(
-                'passphrase_out_confirmation')
+        if "passphrase_issuer" in kwargs:
+            self.passphrase_issuer = kwargs.pop("passphrase_issuer")
+        if "passphrase_out" in kwargs:
+            self.passphrase_out = kwargs.pop("passphrase_out")
+        if "passphrase_out_confirmation" in kwargs:
+            self.passphrase_out_confirmation = kwargs.pop("passphrase_out_confirmation")
         super().__init__(*args, **kwargs)
 
     class Meta:
-        unique_together = (('name', 'type', 'revoked_uuid'),
-                           ('dn', 'type', 'revoked_uuid'),)
+        unique_together = (
+            ("name", "type", "revoked_uuid"),
+            ("dn", "type", "revoked_uuid"),
+        )
 
     def __unicode__(self):
         return str(self.name)
@@ -292,59 +295,65 @@ def set_fields_certificate(sender, instance, *args, **kwargs):
 
 def check_if_not_update_certificate(instance, *args, **kwargs):
     if instance.id:  # check_if_not_update_certificate
-        if kwargs and 'update_fields' in kwargs \
-            and set(kwargs['update_fields']) == set(['revoked_at', 'revoked_uuid']) and (
+        if (
+            kwargs
+            and "update_fields" in kwargs
+            and set(kwargs["update_fields"]) == set(["revoked_at", "revoked_uuid"])
+            and (
                 instance.type in {CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT},
-                CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE):
+                CertificateTypes.ROOT,
+                CertificateTypes.INTERMEDIATE,
+            )
+        ):
             return
-        raise ValidationError('Not allowed to update a Certificate record')
+        raise ValidationError("Not allowed to update a Certificate record")
 
 
 def check_if_passphrases_are_matching(instance, *args, **kwargs):
-    if instance.passphrase_out and instance.passphrase_out_confirmation and \
-       instance.passphrase_out != instance.passphrase_out_confirmation:
+    if (
+        instance.passphrase_out
+        and instance.passphrase_out_confirmation
+        and instance.passphrase_out != instance.passphrase_out_confirmation
+    ):
         raise ValidationError("The two passphrase fields didn't match.")
 
 
 def check_if_root_has_no_parent(instance, *args, **kwargs):
     if instance.type == CertificateTypes.ROOT and instance.parent:
-        raise ValidationError(
-            'Not allowed to have a parent certificate for a Root CA certificate')
+        raise ValidationError("Not allowed to have a parent certificate for a Root CA certificate")
 
 
 def check_if_non_root_certificate_has_parent(instance, *args, **kwargs):
     if instance.type is not CertificateTypes.ROOT:
         if not instance.parent:
-            raise ValidationError('Non Root certificate should have a parent')
-        cert_types = {CertificateTypes.CLIENT_CERT: 'Client',
-                      CertificateTypes.SERVER_CERT: 'Server',
-                      CertificateTypes.OCSP: 'OCSP'}
-        if instance.parent.type is not CertificateTypes.INTERMEDIATE and \
-           instance.type in cert_types:
+            raise ValidationError("Non Root certificate should have a parent")
+        cert_types = {
+            CertificateTypes.CLIENT_CERT: "Client",
+            CertificateTypes.SERVER_CERT: "Server",
+            CertificateTypes.OCSP: "OCSP",
+        }
+        if instance.parent.type is not CertificateTypes.INTERMEDIATE and instance.type in cert_types:
             raise ValidationError(
-                '{} certificate can only be generated for '
-                'intermediate CA parent'.format(cert_types[instance.type]))
+                "{} certificate can only be generated for " "intermediate CA parent".format(cert_types[instance.type])
+            )
 
 
 def check_intermediate_policies(instance, *args, **kwargs):
     if instance.type is CertificateTypes.INTERMEDIATE and instance.parent.type is CertificateTypes.ROOT:
         if instance.dn.countryName != instance.parent.dn.countryName:
-            raise ValidationError(
-                'Country name of Intermediate CA and Root CA should match (policy strict)')
+            raise ValidationError("Country name of Intermediate CA and Root CA should match (policy strict)")
         if instance.dn.stateOrProvinceName != instance.parent.dn.stateOrProvinceName:
-            raise ValidationError(
-                'State Or Province Name of Intermediate CA and Root CA should match (policy strict)')
+            raise ValidationError("State Or Province Name of Intermediate CA and Root CA should match (policy strict)")
         if instance.dn.organizationName != instance.parent.dn.organizationName:
-            raise ValidationError(
-                'Organization Name of Intermediate CA and Root CA should match (policy strict)')
+            raise ValidationError("Organization Name of Intermediate CA and Root CA should match (policy strict)")
 
 
 def check_if_child_not_expires_after_parent(instance, *args, **kwargs):
     if instance.parent and instance.days_valid > instance.parent.days_valid:
         raise ValidationError(
-            'Child Certificate (expire date: {}) should not '
-            'expire later than parent CA (expire date: {})'
-            .format(instance.expires_at, instance.parent.expires_at))
+            "Child Certificate (expire date: {}) should not "
+            "expire later than parent CA (expire date: {})".format(instance.expires_at, instance.parent.expires_at)
+        )
 
 
 @receiver(pre_save, sender=Certificate)
@@ -372,19 +381,14 @@ class KeyStore(models.Model):
                 self.full_clean()
             super().save(*args, **kwargs)
         else:
-            raise RuntimeError(
-                'Not allowed to update a KeyStore record')
+            raise RuntimeError("Not allowed to update a KeyStore record")
 
 
 class CrlStore(models.Model):
-    crl = models.TextField(
-        "Serialized CRL certificate",
-        blank=True,
-        null=True)
-    last_update = models.DateTimeField(auto_now=True,
-                                       editable=False,
-                                       help_text="Date at which last crl "
-                                                 "has been generated")
+    crl = models.TextField("Serialized CRL certificate", blank=True, null=True)
+    last_update = models.DateTimeField(
+        auto_now=True, editable=False, help_text="Date at which last crl " "has been generated"
+    )
 
     certificate = models.OneToOneField(
         Certificate,
@@ -394,12 +398,14 @@ class CrlStore(models.Model):
 
 def check_passphrase_issuer(key, passphrase):
     from certificate_engine.ssl.key import Key as KeyObjGenerator
+
     return KeyObjGenerator().check_passphrase(key, passphrase)
 
 
 @receiver(pre_save, sender=Certificate)
 def check_policies_certificate(sender, instance, **kwargs):
     from certificate_engine.ssl.certificate import Certificate as CertificateObjGenerator
+
     certhandler = CertificateObjGenerator()
     certhandler.check_policies(instance)
 
@@ -409,21 +415,16 @@ def generate_certificate(sender, instance, created, **kwargs):
     if created:
         keystore = KeyStore(certificate=instance)
         key_size = None
-        if settings.KEY_ALGORITHM == 'rsa':
-            key_size = 4096 if instance.type in \
-                [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE] else 2048
-        keystore.key = KeyGenerator().create_key(settings.KEY_ALGORITHM, key_size)\
-            .serialize(instance.passphrase_out)
+        if settings.KEY_ALGORITHM == "rsa":
+            key_size = 4096 if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE] else 2048
+        keystore.key = KeyGenerator().create_key(settings.KEY_ALGORITHM, key_size).serialize(instance.passphrase_out)
         certhandler = CertificateGenerator()
-        certhandler.create_certificate(instance, keystore.key, instance.passphrase_out,
-                                       instance.passphrase_issuer)
+        certhandler.create_certificate(instance, keystore.key, instance.passphrase_out, instance.passphrase_issuer)
         keystore.crt = certhandler.serialize()
         keystore.save()
 
         if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
-            crl = revocation_list_builder([], instance.keystore.crt,
-                                          instance.keystore.key,
-                                          instance.passphrase_out)
+            crl = revocation_list_builder([], instance.keystore.crt, instance.keystore.key, instance.passphrase_out)
             crlstore = CrlStore(certificate=instance)
             crlstore.crl = serialize(crl)
             crlstore.save()
@@ -431,21 +432,22 @@ def generate_certificate(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Certificate)
 def generate_certificate_revocation_list(sender, instance, created, **kwargs):
-    update_fields = kwargs['update_fields']
-    if not created and 'revoked_uuid' in update_fields:
+    update_fields = kwargs["update_fields"]
+    if not created and "revoked_uuid" in update_fields:
         if instance.type is CertificateTypes.ROOT:
             return
 
         if not instance.parent:
             RuntimeError(f"Cannot build revoke list of certificate {instance} without parent")
 
-        revoked_certs = Certificate.objects.filter(parent=instance.parent,
-                                                   revoked_uuid__isnull=False)
+        revoked_certs = Certificate.objects.filter(parent=instance.parent, revoked_uuid__isnull=False)
         crl_list = [(rc.keystore.crt, rc.revoked_at) for rc in revoked_certs]
-        crl = revocation_list_builder(crl_list,
-                                      instance.parent.keystore.crt,
-                                      instance.parent.keystore.key,
-                                      instance.passphrase_issuer,
-                                      instance.parent.crlstore.last_update)
+        crl = revocation_list_builder(
+            crl_list,
+            instance.parent.keystore.crt,
+            instance.parent.keystore.key,
+            instance.passphrase_issuer,
+            instance.parent.crlstore.last_update,
+        )
         instance.parent.crlstore.crl = serialize(crl)
         instance.parent.crlstore.save()

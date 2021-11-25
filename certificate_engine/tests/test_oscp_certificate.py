@@ -1,5 +1,6 @@
 import arrow
 from cryptography.x509 import ExtensionOID
+
 # noinspection PyUnresolvedReferences
 from cryptography.x509.oid import ExtendedKeyUsageOID
 from django.db.models import signals
@@ -17,14 +18,14 @@ from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactor
 class OcspCertificateTest(CertificateTestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.root_key = Key().create_key('ed25519', None)
-        subject = DistinguishedNameFactory(countryName='NL',
-                                           stateOrProvinceName='Noord Holland',
-                                           organizationName='Repleo')
+        cls.root_key = Key().create_key("ed25519", None)
+        subject = DistinguishedNameFactory(
+            countryName="NL", stateOrProvinceName="Noord Holland", organizationName="Repleo"
+        )
 
-        cls.root_certificate = CertificateFactory(dn=subject,
-                                                  name="test client root certificate",
-                                                  expires_at=arrow.get(timezone.now()).shift(days=+30).date())
+        cls.root_certificate = CertificateFactory(
+            dn=subject, name="test client root certificate", expires_at=arrow.get(timezone.now()).shift(days=+30).date()
+        )
 
         with mute_signals(signals.post_save):
             cls.root_certificate.save()
@@ -35,14 +36,19 @@ class OcspCertificateTest(CertificateTestCase):
         keystore.key = cls.root_key.serialize()
         keystore.save()
 
-        cls.int_key = Key().create_key('ed25519', None)
-        subject = DistinguishedNameFactory(countryName=cls.root_certificate.dn.countryName,
-                                           stateOrProvinceName=cls.root_certificate.dn.stateOrProvinceName,
-                                           organizationName=cls.root_certificate.dn.organizationName)
-        cls.int_certificate = CertificateFactory(expires_at=arrow.get(timezone.now()).shift(days=+5).date(),
-                                                 name="test ocsp intermediate certificate",
-                                                 type=CertificateTypes.INTERMEDIATE,
-                                                 parent=cls.root_certificate, dn=subject)
+        cls.int_key = Key().create_key("ed25519", None)
+        subject = DistinguishedNameFactory(
+            countryName=cls.root_certificate.dn.countryName,
+            stateOrProvinceName=cls.root_certificate.dn.stateOrProvinceName,
+            organizationName=cls.root_certificate.dn.organizationName,
+        )
+        cls.int_certificate = CertificateFactory(
+            expires_at=arrow.get(timezone.now()).shift(days=+5).date(),
+            name="test ocsp intermediate certificate",
+            type=CertificateTypes.INTERMEDIATE,
+            parent=cls.root_certificate,
+            dn=subject,
+        )
 
         with mute_signals(signals.post_save):
             cls.int_certificate.save()
@@ -55,12 +61,11 @@ class OcspCertificateTest(CertificateTestCase):
         keystore.key = cls.int_key.serialize()
         keystore.save()
 
-        cls.key = Key().create_key('ed25519', None)
+        cls.key = Key().create_key("ed25519", None)
 
     def test_generate_ocsp_certificate(self):
         ocsp_subject = DistinguishedNameFactory(commonName="ocsp.example.com")
-        certificate = CertificateFactory(type=CertificateTypes.OCSP,
-                                         parent=self.int_certificate, dn=ocsp_subject)
+        certificate = CertificateFactory(type=CertificateTypes.OCSP, parent=self.int_certificate, dn=ocsp_subject)
         certhandler = Certificate()
         certhandler.create_certificate(certificate, self.key.serialize())
 
@@ -77,9 +82,7 @@ class OcspCertificateTest(CertificateTestCase):
         self.assert_hash(crt)
 
         # extendedKeyUsage = critical, OCSPSigning
-        self.assert_extension(crt, ExtensionOID.EXTENDED_KEY_USAGE,
-                              [ExtendedKeyUsageOID.OCSP_SIGNING],
-                              critical=True)
+        self.assert_extension(crt, ExtensionOID.EXTENDED_KEY_USAGE, [ExtendedKeyUsageOID.OCSP_SIGNING], critical=True)
 
         # crlDistributionPoints
         self.assert_crl_distribution(crt, self.int_certificate)
@@ -94,17 +97,22 @@ class OcspCertificateTest(CertificateTestCase):
         self.assert_subject(crt.issuer, self.int_certificate)
 
     def test_generate_ocsp_certificate_minimal(self):
-        ocsp_subject = DistinguishedNameFactory(countryName=None,
-                                                stateOrProvinceName=None,
-                                                localityName=None,
-                                                organizationName=None,
-                                                organizationalUnitName=None,
-                                                emailAddress=None,
-                                                subjectAltNames=None,
-                                                commonName="ocsp.example.com")
-        certificate = CertificateFactory(type=CertificateTypes.OCSP,
-                                         name="test_generate_ocsp_certificate_minimal",
-                                         parent=self.int_certificate, dn=ocsp_subject)
+        ocsp_subject = DistinguishedNameFactory(
+            countryName=None,
+            stateOrProvinceName=None,
+            localityName=None,
+            organizationName=None,
+            organizationalUnitName=None,
+            emailAddress=None,
+            subjectAltNames=None,
+            commonName="ocsp.example.com",
+        )
+        certificate = CertificateFactory(
+            type=CertificateTypes.OCSP,
+            name="test_generate_ocsp_certificate_minimal",
+            parent=self.int_certificate,
+            dn=ocsp_subject,
+        )
         certificate.save()
         certhandler = Certificate()
         certhandler.create_certificate(certificate, self.key.serialize())
@@ -122,9 +130,7 @@ class OcspCertificateTest(CertificateTestCase):
         self.assert_hash(crt)
 
         # extendedKeyUsage = critical, OCSPSigning
-        self.assert_extension(crt, ExtensionOID.EXTENDED_KEY_USAGE,
-                              [ExtendedKeyUsageOID.OCSP_SIGNING],
-                              critical=True)
+        self.assert_extension(crt, ExtensionOID.EXTENDED_KEY_USAGE, [ExtendedKeyUsageOID.OCSP_SIGNING], critical=True)
 
         # crlDistributionPoints
         self.assert_crl_distribution(crt, self.int_certificate)
@@ -140,18 +146,24 @@ class OcspCertificateTest(CertificateTestCase):
 
     def test_generate_ocsp_certificate_parent_client_cert(self):
         ocsp_subject = DistinguishedNameFactory(subjectAltNames=None)
-        certificate = CertificateFactory(type=CertificateTypes.OCSP,
-                                         name="test_generate_client_certificate_parent_ocsp_cert_1",
-                                         parent=self.int_certificate, dn=ocsp_subject)
+        certificate = CertificateFactory(
+            type=CertificateTypes.OCSP,
+            name="test_generate_client_certificate_parent_ocsp_cert_1",
+            parent=self.int_certificate,
+            dn=ocsp_subject,
+        )
         certificate.save()
         certhandler = Certificate()
         certhandler.create_certificate(certificate, self.key.serialize())
 
         client_subject = DistinguishedNameFactory()
         with self.assertRaises(CertificateError) as context:
-            certificate_request = CertificateFactory(type=CertificateTypes.OCSP,
-                                                     name="test_generate_client_certificate_parent_ocsp_cert_2",
-                                                     parent=certificate, dn=client_subject)
+            certificate_request = CertificateFactory(
+                type=CertificateTypes.OCSP,
+                name="test_generate_client_certificate_parent_ocsp_cert_2",
+                parent=certificate,
+                dn=client_subject,
+            )
             certhandler = Certificate()
             certhandler.create_certificate(certificate_request, self.key.serialize())
 

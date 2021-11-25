@@ -1,10 +1,11 @@
 # coding: utf-8
+from unittest import skip
+from uuid import UUID
+
 import arrow
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.test import TestCase
 from django.utils import timezone
-from unittest import skip
-from uuid import UUID
 
 from certificate_engine.types import CertificateTypes
 from x509_pki.models import Certificate, DistinguishedName
@@ -13,14 +14,26 @@ from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactor
 
 class ModelDistinguishedNameTest(TestCase):
     def test_distinguished_name_to_dn(self):
-        dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                      localityName='Amsterdam', organizationName='Repleo',
-                                      organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                      commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
-        self.assertEqual(dn.dn, "CN=test.bounca.org, O=Repleo, OU=IT Department, L=Amsterdam, ST=Noord-Holland, "
-                                "EMAIL=info@repleo.nl, C=NL")
-        self.assertEqual(dn.subj, "/CN=test.bounca.org/O=Repleo/OU=IT Department/L=Amsterdam/ST=Noord-Holland"
-                                  "/emailAddress=info@repleo.nl/C=NL")
+        dn = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
+        self.assertEqual(
+            dn.dn,
+            "CN=test.bounca.org, O=Repleo, OU=IT Department, L=Amsterdam, ST=Noord-Holland, "
+            "EMAIL=info@repleo.nl, C=NL",
+        )
+        self.assertEqual(
+            dn.subj,
+            "/CN=test.bounca.org/O=Repleo/OU=IT Department/L=Amsterdam/ST=Noord-Holland"
+            "/emailAddress=info@repleo.nl/C=NL",
+        )
         self.assertEqual(dn.countryName, "NL")
         self.assertEqual(dn.stateOrProvinceName, "Noord-Holland")
         self.assertEqual(dn.localityName, "Amsterdam")
@@ -32,38 +45,53 @@ class ModelDistinguishedNameTest(TestCase):
         self.assertEqual(dn.slug_commonName, "testbouncaorg")
 
     def test_distinguished_name_update_not_allowed(self):
-        dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                      localityName='Amsterdam', organizationName='Repleo',
-                                      organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                      commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
+        dn = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
         dn = DistinguishedName.objects.get(id=dn.id)
         dn.commonName = "www.bounca.org"
         with self.assertRaises(ValidationError) as c:
             dn.save()
-        self.assertEqual(c.exception.message,
-                         'Not allowed to update a DistinguishedName record')
+        self.assertEqual(c.exception.message, "Not allowed to update a DistinguishedName record")
 
     def test_distinguished_name_validation_in_future_not_allowed(self):
-        dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                      localityName='Amsterdam', organizationName='Repleo',
-                                      organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                      commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
+        dn = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
         dn = DistinguishedName.objects.get(id=dn.id)
         dn.commonName = "www.bounca.org"
         with self.assertRaises(ValidationError) as c:
             dn.save()
-        self.assertEqual(c.exception.message,
-                         'Not allowed to update a DistinguishedName record')
+        self.assertEqual(c.exception.message, "Not allowed to update a DistinguishedName record")
 
 
 class ModelCertificateTest(TestCase):
-
     @classmethod
     def setUpTestData(cls):
-        cls.root_dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                               localityName='Amsterdam', organizationName='Repleo',
-                                               organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                               commonName="ca.bounca.org", subjectAltNames=["demo.bounca.org"])
+        cls.root_dn = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="ca.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
         cls.user = UserFactory()
 
         cls.ca = Certificate()
@@ -80,12 +108,16 @@ class ModelCertificateTest(TestCase):
 
         cls.ca.refresh_from_db()
         cls.ca = Certificate.objects.get(pk=cls.ca.pk)
-        cls.int_dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                              localityName='Amsterdam', organizationName='Repleo',
-                                              organizationalUnitName='IT Department',
-                                              emailAddress='info@repleo.nl',
-                                              commonName="int.bounca.org",
-                                              subjectAltNames=["demo.bounca.org"])
+        cls.int_dn = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="int.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
         cls.int = Certificate(parent=cls.ca)
         cls.int.type = CertificateTypes.INTERMEDIATE
         cls.int.name = "repleo int ca"
@@ -100,12 +132,16 @@ class ModelCertificateTest(TestCase):
         cls.int.refresh_from_db()
 
     def test_generate_root_certificate(self):
-        dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                      localityName='Amsterdam', organizationName='Repleo',
-                                      organizationalUnitName='IT Department',
-                                      emailAddress='info@repleo.nl',
-                                      commonName="test bounca org",
-                                      subjectAltNames=["demo.bounca.org"])
+        dn = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test bounca org",
+            subjectAltNames=["demo.bounca.org"],
+        )
         cert = Certificate()
         cert.type = CertificateTypes.ROOT
         cert.name = "repleo root ca1"
@@ -119,8 +155,11 @@ class ModelCertificateTest(TestCase):
         cert.save()
         cert.refresh_from_db()
 
-        self.assertEqual(cert.dn.dn, "CN=test bounca org, O=Repleo, OU=IT Department, "
-                                     "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL")
+        self.assertEqual(
+            cert.dn.dn,
+            "CN=test bounca org, O=Repleo, OU=IT Department, "
+            "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL",
+        )
         self.assertEqual(cert.type, CertificateTypes.ROOT)
         self.assertEqual(cert.name, "repleo root ca1")
         self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/test.crl.pem")
@@ -139,10 +178,16 @@ class ModelCertificateTest(TestCase):
         self.assertIsNotNone(cert.crlstore.crl)
 
     def test_generate_intermediate_certificate(self):
-        dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                      localityName='Amsterdam', organizationName='Repleo',
-                                      organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                      commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
+        dn = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
         cert = Certificate(parent=self.ca)
         cert.type = CertificateTypes.INTERMEDIATE
         cert.name = "repleo int ca1"
@@ -156,8 +201,11 @@ class ModelCertificateTest(TestCase):
         cert.save()
         cert.refresh_from_db()
 
-        self.assertEqual(cert.dn.dn, "CN=test.bounca.org, O=Repleo, OU=IT Department, "
-                                     "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL")
+        self.assertEqual(
+            cert.dn.dn,
+            "CN=test.bounca.org, O=Repleo, OU=IT Department, "
+            "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL",
+        )
         self.assertEqual(cert.type, CertificateTypes.INTERMEDIATE)
         self.assertEqual(cert.name, "repleo int ca1")
         self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/test.crl.pem")
@@ -175,10 +223,16 @@ class ModelCertificateTest(TestCase):
         self.assertIsNotNone(cert.crlstore.crl)
 
     def test_generate_server_certificate(self):
-        dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                      localityName='Amsterdam', organizationName='Repleo',
-                                      organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                      commonName="www.repleo.nl", subjectAltNames=["repleo.nl"])
+        dn = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="www.repleo.nl",
+            subjectAltNames=["repleo.nl"],
+        )
 
         cert = Certificate(parent=self.int, dn=dn)
         cert.type = CertificateTypes.SERVER_CERT
@@ -193,8 +247,11 @@ class ModelCertificateTest(TestCase):
         cert.save()
         cert.refresh_from_db()
 
-        self.assertEqual(cert.dn.dn, "CN=www.repleo.nl, O=Repleo, OU=IT Department, "
-                                     "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL")
+        self.assertEqual(
+            cert.dn.dn,
+            "CN=www.repleo.nl, O=Repleo, OU=IT Department, "
+            "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL",
+        )
         self.assertEqual(cert.type, CertificateTypes.SERVER_CERT)
         self.assertEqual(cert.name, "www.repleo.nl")
         self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/test.crl.pem")
@@ -211,8 +268,7 @@ class ModelCertificateTest(TestCase):
 
         with self.assertRaises(ObjectDoesNotExist) as c:
             cert.crlstore
-        self.assertEqual(str(c.exception),
-                         'Certificate has no crlstore.')
+        self.assertEqual(str(c.exception), "Certificate has no crlstore.")
 
         cert.delete()
         cert.refresh_from_db()
@@ -221,10 +277,15 @@ class ModelCertificateTest(TestCase):
         self.assertNotEqual(cert.revoked_uuid, UUID(int=0))
 
     def test_generate_client_certificate(self):
-        dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                      localityName='Amsterdam', organizationName='Repleo',
-                                      organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                      commonName="info@bounca.org")
+        dn = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="info@bounca.org",
+        )
 
         cert = Certificate(parent=self.int, dn=dn)
         cert.type = CertificateTypes.CLIENT_CERT
@@ -239,8 +300,11 @@ class ModelCertificateTest(TestCase):
         cert.save()
         cert.refresh_from_db()
 
-        self.assertEqual(cert.dn.dn, "CN=info@bounca.org, O=Repleo, OU=IT Department, "
-                                     "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL")
+        self.assertEqual(
+            cert.dn.dn,
+            "CN=info@bounca.org, O=Repleo, OU=IT Department, "
+            "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL",
+        )
         self.assertEqual(cert.type, CertificateTypes.CLIENT_CERT)
         self.assertEqual(cert.name, "info@bounca.org")
         self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/test.crl.pem")
@@ -257,8 +321,7 @@ class ModelCertificateTest(TestCase):
 
         with self.assertRaises(ObjectDoesNotExist) as c:
             cert.crlstore
-        self.assertEqual(str(c.exception),
-                         'Certificate has no crlstore.')
+        self.assertEqual(str(c.exception), "Certificate has no crlstore.")
 
         cert.delete()
         cert.refresh_from_db()
@@ -268,10 +331,15 @@ class ModelCertificateTest(TestCase):
 
     @skip("TODO check if values are valid")
     def test_generate_ocsp_certificate(self):
-        dn = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                      localityName='Amsterdam', organizationName='Repleo',
-                                      organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                      commonName="ca.demo.repleo.nl")
+        dn = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="ca.demo.repleo.nl",
+        )
 
         cert = Certificate(parent=self.int, dn=dn)
         cert.type = CertificateTypes.OCSP
@@ -286,8 +354,11 @@ class ModelCertificateTest(TestCase):
         cert.save()
         cert.refresh_from_db()
 
-        self.assertEqual(cert.dn.dn, "CN=https://ca.demo.repleo.nl/ocsp, O=Repleo, OU=IT Department, "
-                                     "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL")
+        self.assertEqual(
+            cert.dn.dn,
+            "CN=https://ca.demo.repleo.nl/ocsp, O=Repleo, OU=IT Department, "
+            "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL",
+        )
         self.assertEqual(cert.type, CertificateTypes.OCSP)
         self.assertEqual(cert.name, "https://ca.demo.repleo.nl/ocsp")
         self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/")
@@ -304,14 +375,19 @@ class ModelCertificateTest(TestCase):
 
         with self.assertRaises(ValidationError) as c:
             cert.generate_crl()
-        self.assertEqual(c.exception.message,
-                         'CRL File can only be generated for Intermediate Certificates')
+        self.assertEqual(c.exception.message, "CRL File can only be generated for Intermediate Certificates")
 
     def test_days_valid(self):
-        dn_ca = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                         localityName='Amsterdam', organizationName='Repleo',
-                                         organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                         commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
+        dn_ca = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
         cert = CertificateFactory(dn=dn_ca, type=CertificateTypes.ROOT)
         cert.expires_at = arrow.get(timezone.now()).shift(years=+10).date()
         self.assertEqual(cert.days_valid, 3652)
@@ -320,10 +396,16 @@ class ModelCertificateTest(TestCase):
         self.assertEqual(cert.days_valid, 3652)
 
     def test_set_name_to_common_name(self):
-        dn_ca = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                         localityName='Amsterdam', organizationName='Repleo',
-                                         organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                         commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
+        dn_ca = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
         cert = CertificateFactory(name="", dn=dn_ca, type=CertificateTypes.ROOT)
         cert.save()
         cert.refresh_from_db()
@@ -342,10 +424,16 @@ class ModelCertificateTest(TestCase):
             cert.save()
 
     def test_generate_root_certificate_unique_violate_dn(self):
-        dn_ca = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                         localityName='Amsterdam', organizationName='Repleo',
-                                         organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                         commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
+        dn_ca = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
         cert = CertificateFactory()
         cert.dn = dn_ca
         cert.type = CertificateTypes.ROOT
@@ -366,13 +454,13 @@ class ModelCertificateTest(TestCase):
         cert.name = "repleo root ca 1"
         with self.assertRaises(ValidationError) as c:
             cert.save()
-        self.assertEqual(c.exception.message, 'Not allowed to have a parent certificate for a Root CA certificate')
+        self.assertEqual(c.exception.message, "Not allowed to have a parent certificate for a Root CA certificate")
 
     def test_parent_intermediate_has_no_root_parent(self):
         cert = CertificateFactory(type=CertificateTypes.INTERMEDIATE)
         with self.assertRaises(ValidationError) as c:
             cert.save()
-        self.assertEqual(c.exception.message, 'Non Root certificate should have a parent')
+        self.assertEqual(c.exception.message, "Non Root certificate should have a parent")
 
     def test_client_cert_parent_no_intermediate_parent(self):
         ca = CertificateFactory(type=CertificateTypes.ROOT)
@@ -380,7 +468,7 @@ class ModelCertificateTest(TestCase):
         cert = CertificateFactory(type=CertificateTypes.CLIENT_CERT, parent=ca)
         with self.assertRaises(ValidationError) as c:
             cert.save()
-        self.assertEqual(c.exception.message, 'Client certificate can only be generated for intermediate CA parent')
+        self.assertEqual(c.exception.message, "Client certificate can only be generated for intermediate CA parent")
 
     def test_server_cert_parent_no_intermediate_parent(self):
         ca = CertificateFactory(type=CertificateTypes.ROOT)
@@ -388,7 +476,7 @@ class ModelCertificateTest(TestCase):
         cert = CertificateFactory(type=CertificateTypes.SERVER_CERT, parent=ca)
         with self.assertRaises(ValidationError) as c:
             cert.save()
-        self.assertEqual(c.exception.message, 'Server certificate can only be generated for intermediate CA parent')
+        self.assertEqual(c.exception.message, "Server certificate can only be generated for intermediate CA parent")
 
     def test_ocsp_cert_parent_no_intermediate_parent(self):
         ca = CertificateFactory(type=CertificateTypes.ROOT)
@@ -396,7 +484,7 @@ class ModelCertificateTest(TestCase):
         cert = CertificateFactory(type=CertificateTypes.OCSP, parent=ca)
         with self.assertRaises(ValidationError) as c:
             cert.save()
-        self.assertEqual(c.exception.message, 'OCSP certificate can only be generated for intermediate CA parent')
+        self.assertEqual(c.exception.message, "OCSP certificate can only be generated for intermediate CA parent")
 
     def test_ocsp_cert_parent_is_not_intermediate_parent(self):
         ca = CertificateFactory(type=CertificateTypes.ROOT)
@@ -404,68 +492,119 @@ class ModelCertificateTest(TestCase):
         cert = CertificateFactory(type=CertificateTypes.OCSP, parent=ca)
         with self.assertRaises(ValidationError) as c:
             cert.save()
-        self.assertEqual(c.exception.message, 'OCSP certificate can only be generated for intermediate CA parent')
+        self.assertEqual(c.exception.message, "OCSP certificate can only be generated for intermediate CA parent")
 
     def test_intermediate_dn_country_difference(self):
-        dn_ca = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                         localityName='Amsterdam', organizationName='Repleo',
-                                         organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                         commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
-        dn_im = DistinguishedNameFactory(countryName='IT', stateOrProvinceName='Noord-Holland',
-                                         localityName='Amsterdam', organizationName='Repleo',
-                                         organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                         commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
+        dn_ca = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
+        dn_im = DistinguishedNameFactory(
+            countryName="IT",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
         ca = CertificateFactory(type=CertificateTypes.ROOT, dn=dn_ca)
         ca.save()
         cert = CertificateFactory(type=CertificateTypes.INTERMEDIATE, parent=ca, dn=dn_im)
         with self.assertRaises(ValidationError) as c:
             cert.save()
-        self.assertEqual(c.exception.message,
-                         'Country name of Intermediate CA and Root CA should match (policy strict)')
+        self.assertEqual(
+            c.exception.message, "Country name of Intermediate CA and Root CA should match (policy strict)"
+        )
 
     def test_intermediate_dn_state_difference(self):
-        dn_ca = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                         localityName='Amsterdam', organizationName='Repleo',
-                                         organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                         commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
-        dn_im = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Zuid-Holland',
-                                         localityName='Amsterdam', organizationName='Repleo',
-                                         organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                         commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
+        dn_ca = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
+        dn_im = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Zuid-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
         ca = CertificateFactory(type=CertificateTypes.ROOT, dn=dn_ca)
         ca.save()
         cert = CertificateFactory(type=CertificateTypes.INTERMEDIATE, parent=ca, dn=dn_im)
         with self.assertRaises(ValidationError) as c:
             cert.save()
-        self.assertEqual(c.exception.message,
-                         'State Or Province Name of Intermediate CA and Root CA should match (policy strict)')
+        self.assertEqual(
+            c.exception.message, "State Or Province Name of Intermediate CA and Root CA should match (policy strict)"
+        )
 
     def test_intermediate_dn_organization_difference(self):
-        dn_ca = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                         localityName='Amsterdam', organizationName='Repleo',
-                                         organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                         commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
-        dn_im = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                         localityName='Amsterdam', organizationName='BJA Electronics',
-                                         organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                         commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
+        dn_ca = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
+        dn_im = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="BJA Electronics",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
         ca = CertificateFactory(type=CertificateTypes.ROOT, dn=dn_ca)
         ca.save()
         cert = CertificateFactory(type=CertificateTypes.INTERMEDIATE, parent=ca, dn=dn_im)
         with self.assertRaises(ValidationError) as c:
             cert.save()
-        self.assertEqual(c.exception.message,
-                         'Organization Name of Intermediate CA and Root CA should match (policy strict)')
+        self.assertEqual(
+            c.exception.message, "Organization Name of Intermediate CA and Root CA should match (policy strict)"
+        )
 
     def test_child_expire_date_exceeds_parent_expire_date(self):
-        dn_ca = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                         localityName='Amsterdam', organizationName='Repleo',
-                                         organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                         commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
-        dn_im = DistinguishedNameFactory(countryName='NL', stateOrProvinceName='Noord-Holland',
-                                         localityName='Amsterdam', organizationName='Repleo',
-                                         organizationalUnitName='IT Department', emailAddress='info@repleo.nl',
-                                         commonName="test.bounca.org", subjectAltNames=["demo.bounca.org"])
+        dn_ca = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
+        dn_im = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="test.bounca.org",
+            subjectAltNames=["demo.bounca.org"],
+        )
         ca = CertificateFactory(type=CertificateTypes.ROOT, dn=dn_ca)
         ca.expires_at = arrow.get(timezone.now()).shift(years=+10).date()
         ca.save()
@@ -473,9 +612,11 @@ class ModelCertificateTest(TestCase):
         cert.expires_at = arrow.get(timezone.now()).shift(years=+20).date()
         with self.assertRaises(ValidationError) as c:
             cert.save()
-        self.assertEqual(c.exception.message,
-                         'Child Certificate (expire date: {}) should not '
-                         'expire later than parent CA (expire date: {})'.format(cert.expires_at, ca.expires_at))
+        self.assertEqual(
+            c.exception.message,
+            "Child Certificate (expire date: {}) should not "
+            "expire later than parent CA (expire date: {})".format(cert.expires_at, ca.expires_at),
+        )
 
     def test_passphrase_out_not_matching(self):
         cert = CertificateFactory(type=CertificateTypes.ROOT)

@@ -8,6 +8,7 @@ class FactoriesTest(TestCase):
     """
     Very simple tests to ensure the factories work as expected.
     """
+
     def test_user_factory(self):
         user = UserFactory()
         self.assertIsNotNone(user.username)

@@ -21,7 +21,7 @@ class Submit(BaseInput):
     input_type = "submit"
 
     def __init__(self, *args, **kwargs):
-        kwargs.update({'dark': True, 'color': "secondary"})
+        kwargs.update({"dark": True, "color": "secondary"})
         self.field_classes = ""
         super().__init__(*args, **kwargs)
 
@@ -38,7 +38,7 @@ class Button(BaseInput):
     input_type = "button"
 
     def __init__(self, *args, **kwargs):
-        kwargs.update({'text': True, 'plain': True, 'color': "primary"})
+        kwargs.update({"text": True, "plain": True, "color": "primary"})
         self.field_classes = ""
         super().__init__(*args, **kwargs)
 
@@ -47,27 +47,27 @@ class DistinguishedNameForm(forms.ModelForm):
     class Meta:
         model = DistinguishedName
         fields = [
-            'commonName',
-            'subjectAltNames',
-            'organizationName',
-            'organizationalUnitName',
-            'emailAddress',
-            'countryName',
-            'stateOrProvinceName',
-            'localityName',
+            "commonName",
+            "subjectAltNames",
+            "organizationName",
+            "organizationalUnitName",
+            "emailAddress",
+            "countryName",
+            "stateOrProvinceName",
+            "localityName",
         ]
 
 
 class AddDistinguishedNameRootCAForm(DistinguishedNameForm):
-    scope_prefix = 'cert_data.dn'
-    form_name = 'cert_form'
+    scope_prefix = "cert_data.dn"
+    form_name = "cert_form"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['subjectAltNames'].widget = forms.HiddenInput()
-        self.fields['commonName'].help_text = \
-            'The common name of your certification authority.' + \
-            'This field is used to identify your CA in the chain'
+        self.fields["subjectAltNames"].widget = forms.HiddenInput()
+        self.fields["commonName"].help_text = (
+            "The common name of your certification authority." + "This field is used to identify your CA in the chain"
+        )
 
 
 @deconstructible
@@ -81,9 +81,7 @@ class CertificateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.dn = DistinguishedNameForm(**kwargs)
 
-    error_messages = {
-        'password_mismatch': "The two passphrase fields didn't match."
-    }
+    error_messages = {"password_mismatch": "The two passphrase fields didn't match."}
 
     passphrase_issuer = forms.CharField(
         label="Passphrase issuer",
@@ -107,100 +105,91 @@ class CertificateForm(forms.ModelForm):
         strip=False,
         widget=forms.PasswordInput,
         help_text="Enter the same passphrase as before, for verification.",
-        validators=[PasswordConfirmValidator("passphrase_out")]
+        validators=[PasswordConfirmValidator("passphrase_out")],
     )
 
     class Meta:
         model = Certificate
-        fields = [
-            'name',
-            'parent',
-            'dn',
-            'type',
-            'expires_at',
-            'crl_distribution_url',
-            'ocsp_distribution_host'
-        ]
+        fields = ["name", "parent", "dn", "type", "expires_at", "crl_distribution_url", "ocsp_distribution_host"]
 
 
 class AddRootCAForm(CertificateForm, VuetifyFormMixin):
-    scope_prefix = 'cert_data'
-    vue_file = 'front/src/components/forms/RootCert.vue'
-    form_title = 'Root Certificate'
-    form_component_name = 'RootCert'
-    form_object = 'rootcert'
-    vue_card_classes = 'elevation-10'
+    scope_prefix = "cert_data"
+    vue_file = "front/src/components/forms/RootCert.vue"
+    form_title = "Root Certificate"
+    form_component_name = "RootCert"
+    form_object = "rootcert"
+    vue_card_classes = "elevation-10"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        dn_fields = {f"dn.{f}": DistinguishedNameForm().fields[f]
-                     for f in DistinguishedNameForm().fields}
+        dn_fields = {f"dn.{f}": DistinguishedNameForm().fields[f] for f in DistinguishedNameForm().fields}
         self.fields.update(dn_fields)
-        self.fields.pop('dn')
-        self.fields.pop('parent')
-        self.fields.pop('type')
-        self.fields.pop('passphrase_issuer')
+        self.fields.pop("dn")
+        self.fields.pop("parent")
+        self.fields.pop("type")
+        self.fields.pop("passphrase_issuer")
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
                 Column(
-                    Fieldset('Distinguished Name',
-                             Row(
-                                 Column('dn.commonName', md="8"),
-                                 Column('expires_at')
-                             ),
-                             Row(Column(VueField('dn.subjectAltNames',
-                                                 multiple=True, chips=True,
-                                                 deletable_chips=True,
-                                                 append_icon=""),
-                                        xs12=True, md12=True)),
-                             Row(
-                                 Column('dn.organizationName'),
-                                 Column('dn.organizationalUnitName', xs12=True, md6=True)
-                             ),
-                             Row(Column('dn.emailAddress', xs12=True, md12=True)),
-                             Row(
-                                 Column('dn.stateOrProvinceName', md="5"),
-                                 Column('dn.localityName', md="5"),
-                                 Column('dn.countryName')
-                             ),
-                             outlined=True,
-                             )
+                    Fieldset(
+                        "Distinguished Name",
+                        Row(Column("dn.commonName", md="8"), Column("expires_at")),
+                        Row(
+                            Column(
+                                VueField(
+                                    "dn.subjectAltNames",
+                                    multiple=True,
+                                    chips=True,
+                                    deletable_chips=True,
+                                    append_icon="",
+                                ),
+                                xs12=True,
+                                md12=True,
+                            )
+                        ),
+                        Row(Column("dn.organizationName"), Column("dn.organizationalUnitName", xs12=True, md6=True)),
+                        Row(Column("dn.emailAddress", xs12=True, md12=True)),
+                        Row(
+                            Column("dn.stateOrProvinceName", md="5"),
+                            Column("dn.localityName", md="5"),
+                            Column("dn.countryName"),
+                        ),
+                        outlined=True,
+                    )
                 )
             ),
             Row(
                 Column(
-                    Fieldset('Revocation Services',
-                             HTML('<h5>Note: Provide only available services</h5>'),
-                             'crl_distribution_url',
-                             'ocsp_distribution_host',
-                             outlined=True,
-                             )
+                    Fieldset(
+                        "Revocation Services",
+                        HTML("<h5>Note: Provide only available services</h5>"),
+                        "crl_distribution_url",
+                        "ocsp_distribution_host",
+                        outlined=True,
+                    )
                 )
             ),
             Row(
                 Column(
-                    Fieldset('Certificate',
-                             'name',
-                             Row(
-                                 Column('passphrase_out'),
-                                 Column('passphrase_out_confirmation')
-                             ),
-                             outlined=True,
-                             )
+                    Fieldset(
+                        "Certificate",
+                        "name",
+                        Row(Column("passphrase_out"), Column("passphrase_out_confirmation")),
+                        outlined=True,
+                    )
                 )
             ),
             ButtonHolder(
                 VueSpacer(),
-                Button('cancel', 'Cancel', **{'@click': 'onCancel'}),
-                Submit('submit', 'Create', **{'@click': 'onCreateCertificate', 'css_class': 'px-6'}),
+                Button("cancel", "Cancel", **{"@click": "onCancel"}),
+                Submit("submit", "Create", **{"@click": "onCreateCertificate", "css_class": "px-6"}),
                 css_class="mt-4",
                 outlined=True,
-            )
+            ),
         )
-        self.vue_imports = [
-            ('certificates', '../../api/certificates')
-        ]
+        self.vue_imports = [("certificates", "../../api/certificates")]
         self.vue_methods = [
             """
 onCreateCertificate() {
@@ -225,104 +214,104 @@ onCancel(){
   this.resetForm();
   this.$emit('close-dialog');
 }
-            """
+            """,
         ]
 
 
 class AddIntermediateCAForm(CertificateForm, VuetifyFormMixin):
-    scope_prefix = 'cert_data'
-    vue_file = 'front/src/components/forms/IntermediateCert.vue'
-    form_title = 'Intermediate Certificate'
-    form_component_name = 'IntermediateCert'
-    form_object = 'intermediatecert'
-    vue_card_classes = 'elevation-10'
+    scope_prefix = "cert_data"
+    vue_file = "front/src/components/forms/IntermediateCert.vue"
+    form_title = "Intermediate Certificate"
+    form_component_name = "IntermediateCert"
+    form_object = "intermediatecert"
+    vue_card_classes = "elevation-10"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        dn_fields = {f"dn.{f}": DistinguishedNameForm().fields[f]
-                     for f in DistinguishedNameForm().fields}
+        dn_fields = {f"dn.{f}": DistinguishedNameForm().fields[f] for f in DistinguishedNameForm().fields}
         self.fields.update(dn_fields)
-        self.fields.pop('dn')
-        self.fields.pop('parent')
-        self.fields.pop('type')
+        self.fields.pop("dn")
+        self.fields.pop("parent")
+        self.fields.pop("type")
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
                 Column(
-                    Fieldset('Distinguished Name',
-                             Row(
-                                 Column('dn.commonName', md="8"),
-                                 Column('expires_at')
-                             ),
-                             Row(Column(VueField('dn.subjectAltNames',
-                                                 multiple=True, chips=True,
-                                                 deletable_chips=True,
-                                                 append_icon=""),
-                                        xs12=True, md12=True)),
-                             Row(
-                                 Column(VueField('dn.organizationName', disabled=True)),
-                                 Column('dn.organizationalUnitName', xs12=True, md6=True)
-                             ),
-                             Row(Column('dn.emailAddress', xs12=True, md12=True)),
-                             Row(
-                                 Column(VueField('dn.stateOrProvinceName', disabled=True), md="5"),
-                                 Column('dn.localityName', md="5"),
-                                 Column(VueField('dn.countryName', disabled=True))
-                             ),
-                             outlined=True,
-                             )
+                    Fieldset(
+                        "Distinguished Name",
+                        Row(Column("dn.commonName", md="8"), Column("expires_at")),
+                        Row(
+                            Column(
+                                VueField(
+                                    "dn.subjectAltNames",
+                                    multiple=True,
+                                    chips=True,
+                                    deletable_chips=True,
+                                    append_icon="",
+                                ),
+                                xs12=True,
+                                md12=True,
+                            )
+                        ),
+                        Row(
+                            Column(VueField("dn.organizationName", disabled=True)),
+                            Column("dn.organizationalUnitName", xs12=True, md6=True),
+                        ),
+                        Row(Column("dn.emailAddress", xs12=True, md12=True)),
+                        Row(
+                            Column(VueField("dn.stateOrProvinceName", disabled=True), md="5"),
+                            Column("dn.localityName", md="5"),
+                            Column(VueField("dn.countryName", disabled=True)),
+                        ),
+                        outlined=True,
+                    )
                 )
             ),
             Row(
                 Column(
-                    Fieldset('Revocation Services',
-                             HTML('<h5>Note: Provide only available services</h5>'),
-                             'crl_distribution_url',
-                             'ocsp_distribution_host',
-                             outlined=True,
-                             )
+                    Fieldset(
+                        "Revocation Services",
+                        HTML("<h5>Note: Provide only available services</h5>"),
+                        "crl_distribution_url",
+                        "ocsp_distribution_host",
+                        outlined=True,
+                    )
                 )
             ),
             Row(
                 Column(
-                    Fieldset('Certificate',
-                             'name',
-                             Row(
-                                 Column('passphrase_out'),
-                                 Column('passphrase_out_confirmation')
-                             ),
-                             outlined=True,
-                             )
+                    Fieldset(
+                        "Certificate",
+                        "name",
+                        Row(Column("passphrase_out"), Column("passphrase_out_confirmation")),
+                        outlined=True,
+                    )
                 )
             ),
             Row(
                 Column(
-                    Fieldset('Signing credentials',
-                             'passphrase_issuer',
-                             outlined=True,
-                             )
+                    Fieldset(
+                        "Signing credentials",
+                        "passphrase_issuer",
+                        outlined=True,
+                    )
                 )
             ),
             ButtonHolder(
                 VueSpacer(),
-                Button('cancel', 'Cancel', **{'@click': 'onCancel'}),
-                Submit('submit', 'Create', **{'@click': 'onCreateCertificate', 'css_class': 'px-6'}),
+                Button("cancel", "Cancel", **{"@click": "onCancel"}),
+                Submit("submit", "Create", **{"@click": "onCreateCertificate", "css_class": "px-6"}),
                 css_class="mt-4",
                 outlined=True,
-            )
+            ),
         )
-        self.vue_imports = [
-            ('certificates', '../../api/certificates')
-        ]
-        self.vue_props = ['parent']
-        self.vue_extra_init_rules = \
-            """
+        self.vue_imports = [("certificates", "../../api/certificates")]
+        self.vue_props = ["parent"]
+        self.vue_extra_init_rules = """
 this.setParentData();
             """
-        self.vue_watchers = [
-        ]
-        self.vue_mounted = \
-            """
+        self.vue_watchers = []
+        self.vue_mounted = """
 this.setParentData();
             """
         self.vue_methods = [
@@ -358,94 +347,92 @@ onCancel(){
   this.resetForm();
   this.$emit('close-dialog');
 }
-            """
+            """,
         ]
 
 
 class AddCertificateForm(CertificateForm, VuetifyFormMixin):
-    scope_prefix = 'cert_data'
-    vue_file = 'front/src/components/forms/Certificate.vue'
+    scope_prefix = "cert_data"
+    vue_file = "front/src/components/forms/Certificate.vue"
     form_title = '{{ {"S": "Server", "C": "Client", "O": "OCSP"}[this.certtype] }} certificate '
-    form_component_name = 'Certificate'
-    form_object = 'certificate'
-    vue_card_classes = 'elevation-10'
+    form_component_name = "Certificate"
+    form_object = "certificate"
+    vue_card_classes = "elevation-10"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        dn_fields = {f"dn.{f}": DistinguishedNameForm().fields[f]
-                     for f in DistinguishedNameForm().fields}
+        dn_fields = {f"dn.{f}": DistinguishedNameForm().fields[f] for f in DistinguishedNameForm().fields}
         self.fields.update(dn_fields)
-        self.fields['passphrase_out'].required = False
-        self.fields['passphrase_out_confirmation'].required = False
+        self.fields["passphrase_out"].required = False
+        self.fields["passphrase_out_confirmation"].required = False
 
-        self.fields.pop('dn')
-        self.fields.pop('parent')
-        self.fields.pop('crl_distribution_url')
-        self.fields.pop('ocsp_distribution_host')
+        self.fields.pop("dn")
+        self.fields.pop("parent")
+        self.fields.pop("crl_distribution_url")
+        self.fields.pop("ocsp_distribution_host")
 
-        self.fields.pop('type')
+        self.fields.pop("type")
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
                 Column(
-                    Fieldset('Distinguished Name',
-                             Row(
-                                 Column('dn.commonName', md="8"),
-                                 Column('expires_at')
-                             ),
-                             Row(Column(VueField('dn.subjectAltNames',
-                                                 multiple=True, chips=True,
-                                                 deletable_chips=True,
-                                                 append_icon=""),
-                                        xs12=True, md12=True)),
-                             Row(
-                                 Column('dn.organizationName'),
-                                 Column('dn.organizationalUnitName', xs12=True, md6=True)
-                             ),
-                             Row(Column('dn.emailAddress', xs12=True, md12=True)),
-                             Row(
-                                 Column('dn.stateOrProvinceName', md="5"),
-                                 Column('dn.localityName', md="5"),
-                                 Column('dn.countryName')
-                             ),
-                             outlined=True,
-                             )
+                    Fieldset(
+                        "Distinguished Name",
+                        Row(Column("dn.commonName", md="8"), Column("expires_at")),
+                        Row(
+                            Column(
+                                VueField(
+                                    "dn.subjectAltNames",
+                                    multiple=True,
+                                    chips=True,
+                                    deletable_chips=True,
+                                    append_icon="",
+                                ),
+                                xs12=True,
+                                md12=True,
+                            )
+                        ),
+                        Row(Column("dn.organizationName"), Column("dn.organizationalUnitName", xs12=True, md6=True)),
+                        Row(Column("dn.emailAddress", xs12=True, md12=True)),
+                        Row(
+                            Column("dn.stateOrProvinceName", md="5"),
+                            Column("dn.localityName", md="5"),
+                            Column("dn.countryName"),
+                        ),
+                        outlined=True,
+                    )
                 )
             ),
             Row(
                 Column(
-                    Fieldset('Certificate',
-                             'name',
-                             Row(
-                                 Column('passphrase_out'),
-                                 Column('passphrase_out_confirmation')
-                             ),
-                             outlined=True,
-                             )
+                    Fieldset(
+                        "Certificate",
+                        "name",
+                        Row(Column("passphrase_out"), Column("passphrase_out_confirmation")),
+                        outlined=True,
+                    )
                 )
             ),
             Row(
                 Column(
-                    Fieldset('Signing credentials',
-                             'passphrase_issuer',
-                             outlined=True,
-                             )
+                    Fieldset(
+                        "Signing credentials",
+                        "passphrase_issuer",
+                        outlined=True,
+                    )
                 )
             ),
             ButtonHolder(
                 VueSpacer(),
-                Button('cancel', 'Cancel', **{'@click': 'onCancel'}),
-                Submit('submit', 'Create', **{'@click': 'onCreateCertificate', 'css_class': 'px-6'}),
+                Button("cancel", "Cancel", **{"@click": "onCancel"}),
+                Submit("submit", "Create", **{"@click": "onCreateCertificate", "css_class": "px-6"}),
                 css_class="mt-4",
                 outlined=True,
-            )
+            ),
         )
-        self.vue_imports = [
-            ('certificates', '../../api/certificates')
-        ]
-        self.vue_props = ['parent', 'certtype']
-        self.vue_watchers = [
-        ]
+        self.vue_imports = [("certificates", "../../api/certificates")]
+        self.vue_props = ["parent", "certtype"]
+        self.vue_watchers = []
         self.vue_methods = [
             """
 onCreateCertificate() {
@@ -472,37 +459,32 @@ onCancel(){
   this.resetForm();
   this.$emit('close-dialog');
 }
-            """
+            """,
         ]
 
 
 class ChangePasswordForm(SetPasswordForm, VuetifyFormMixin):
-    scope_prefix = 'user_data'
-    vue_file = 'front/src/components/forms/user/ChangePassword.vue'
-    form_title = 'Change Password'
-    form_component_name = 'changePassword'
-    form_object = 'password'
+    scope_prefix = "user_data"
+    vue_file = "front/src/components/forms/user/ChangePassword.vue"
+    form_title = "Change Password"
+    form_component_name = "changePassword"
+    form_object = "password"
 
     def __init__(self, *args, **kwargs):
         super().__init__(user=None, *args, **kwargs)
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Row(
-                Column('new_password1'),
-                Column('new_password2')
-            ),
+            Row(Column("new_password1"), Column("new_password2")),
             ButtonHolder(
                 VueSpacer(),
-                Button('cancel', 'Cancel', **{'@click': 'onCancel'}),
-                Submit('submit', 'Update', **{'@click': 'updatePassword', 'css_class': 'px-6'}),
+                Button("cancel", "Cancel", **{"@click": "onCancel"}),
+                Submit("submit", "Update", **{"@click": "updatePassword", "css_class": "px-6"}),
                 css_class="mt-4",
                 outlined=True,
-            )
+            ),
         )
-        self.vue_imports = [
-            ('auth', '../../../api/auth')
-        ]
+        self.vue_imports = [("auth", "../../../api/auth")]
         self.vue_props = []
         self.vue_watchers = []
         self.vue_methods = [
@@ -526,16 +508,16 @@ updatePassword() {
 onCancel(){
   this.resetForm();
 }
-            """
+            """,
         ]
 
 
 class ChangeProfileForm(UserChangeForm, VuetifyFormMixin):
-    scope_prefix = 'profile_data'
-    vue_file = 'front/src/components/forms/user/ChangeProfile.vue'
-    form_title = 'Change Profile'
-    form_component_name = 'changeProfile'
-    form_object = 'profile'
+    scope_prefix = "profile_data"
+    vue_file = "front/src/components/forms/user/ChangeProfile.vue"
+    form_title = "Change Profile"
+    form_component_name = "changeProfile"
+    form_object = "profile"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -543,31 +525,27 @@ class ChangeProfileForm(UserChangeForm, VuetifyFormMixin):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
-                Column(VueField('username', disabled=True)),
+                Column(VueField("username", disabled=True)),
             ),
             Row(
-                Column('first_name'),
-                Column('last_name'),
-
+                Column("first_name"),
+                Column("last_name"),
             ),
             Row(
-                Column('email'),
+                Column("email"),
             ),
             ButtonHolder(
                 VueSpacer(),
-                Button('cancel', 'Cancel', **{'@click': 'onCancel'}),
-                Submit('submit', 'Update', **{'@click': 'updateProfile', 'css_class': 'px-6'}),
+                Button("cancel", "Cancel", **{"@click": "onCancel"}),
+                Submit("submit", "Update", **{"@click": "updateProfile", "css_class": "px-6"}),
                 css_class="mt-4",
                 outlined=True,
-            )
+            ),
         )
-        self.vue_imports = [
-            ('auth', '../../../api/auth')
-        ]
+        self.vue_imports = [("auth", "../../../api/auth")]
         self.vue_props = []
         self.vue_watchers = []
-        self.vue_mounted = \
-            """
+        self.vue_mounted = """
     this.resetForm();
     this.setupUserForm();
             """
@@ -603,5 +581,5 @@ onCancel(){
   this.resetForm();
   this.setupUserForm();
 }
-            """
+            """,
         ]

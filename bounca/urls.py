@@ -9,24 +9,19 @@ from django.views.generic import TemplateView
 
 from api.urls import urlpatterns as urlpatterns_api
 
-
 urlpatterns = [
     # these urls are used to generate email content
-    path('auth/password-reset/confirm/<uidb64>/<token>', TemplateView.as_view(),
-         name='password_reset_confirm'),
-    path('auth/login/', VerifyEmailView.as_view(),
-         name='account_email_verification_sent'),
-    path('api/', include(urlpatterns_api)),
-    path('auth/', include('rest_framework.urls')),
-    path('auth/account-confirm-email/<key>', TemplateView.as_view(),
-         name='account_confirm_email'),
+    path("auth/password-reset/confirm/<uidb64>/<token>", TemplateView.as_view(), name="password_reset_confirm"),
+    path("auth/login/", VerifyEmailView.as_view(), name="account_email_verification_sent"),
+    path("api/", include(urlpatterns_api)),
+    path("auth/", include("rest_framework.urls")),
+    path("auth/account-confirm-email/<key>", TemplateView.as_view(), name="account_confirm_email"),
 ]
 
-if settings.DEBUG:
-    # admin site is only available if running debug mode
+if settings.ADMIN:
     urlpatterns += [
-        path('admin/', admin.site.urls),
-        path('grappelli/', include('grappelli.urls')),  # grappelli URLS
+        path("admin/", admin.site.urls),
+        path("grappelli/", include("grappelli.urls")),  # grappelli URLS
     ]
 
 

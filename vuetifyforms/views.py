@@ -2,7 +2,7 @@ from rest_framework import exceptions
 from rest_framework.views import exception_handler as drf_exception_handler
 
 
-def _flatten_vue_validation(val, key_prefix=''):
+def _flatten_vue_validation(val, key_prefix=""):
     if isinstance(val, list):
         return [_flatten_vue_validation(x) for x in val]
     elif isinstance(val, dict):
@@ -23,9 +23,8 @@ def vue_exception_handler(exc, context):
     Flattens the 400 validation responses so it can be handled by vue.
 
     Other error are processed by the default rest_framework.views.exception_handler
-        """
-    if isinstance(exc, exceptions.APIException) and \
-            isinstance(exc.detail, (list, dict)):
+    """
+    if isinstance(exc, exceptions.APIException) and isinstance(exc.detail, (list, dict)):
         exc.detail = _flatten_vue_validation(exc.detail)
 
     return drf_exception_handler(exc, context)

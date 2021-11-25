@@ -14,57 +14,142 @@ Setting up a provisioning service for your Internet of Things devices was never 
 
 # Installation
 
-## Server prerequisite
+BounCA is a python3 based application, with a javascript vuetify frontend, and
+can be hosted on every platform capable of running python3 applications.
+This tutorial describes how to deploy BounCA on a Debian 11 server.
+Some commands need to be executed as `root`, prefix them with `sudo` if necessary.
 
-BounCA is a python3 based application, with an javascript vuetify frontend.
-It can be hosted on every platform capable of running python3 applications.
+## Server prerequisites
 
-## Dependencies
-Extra requirements:
+On a fresh Debian 11 machine, first update your repositories:
+`sudo apt update`
 
-openssl
-### Database
-Install Postgres version 12 and postgresql-server-dev-12:
-`sudo apt-get install postgresql-12 postgresql-server-dev-12`
+install the following packages via apt:
+
+  - gettext
+  - nginx
+  - python3
+  - python3-dev
+  - python3-setuptools
+  - python-setuptools
+  - python-is-python3
+  - uwsgi
+  - uwsgi-plugin-python3
+  - virtualenv
+  - python3-virtualenv
+  - python3-pip
+  - postgresql
+  - postgresql-contrib
+  - psycopg2-binary
+
+```
+sudo apt install \
+    gettext \
+    nginx \
+    python3 \
+    python3-dev \
+    python3-setuptools \
+    python-setuptools \
+    python-is-python3 \
+    uwsgi \
+    uwsgi-plugin-python3 \
+    virtualenv \
+    python3-virtualenv \
+    python3-pip \
+    postgresql \
+    postgresql-contrib \
+    psycopg2-binary
+```
+# Create database
 
 Create user and database for Postgres
 ```
 sudo su - postgres
 createuser bounca
 createdb --owner=bounca bounca --encoding=UTF8 --template=template0
-psql -c 'alter user bounca with createdb' postgres  # this is needed for automated tests
+psql -c "ALTER USER bounca WITH createdb" postgres
 ```
 
 Optionally, set a password for the `bounca` user.
-
-## Install instructions
-
-Create Python3 virtualenv, activate, and install `requirements.txt`.
-
-```bash
-virtualenv env -p python3.6
-. env/bin/activate
-pip install -r requirements.txt
-pip install -r requirements.docs.txt  # for local debugging
+```
+psql -c "ALTER USER bounca PASSWORD '<your password>'"
 ```
 
-## Installation
+Don't forget to go back to your normal user.
 
-Create Python 3.7 virtualenv, activate, and install requirements.txt
-`virtualenv env -p python3.7 && . env/bin/activate && pip install -r requirements.txt`
+## Create directories
 
-Configure frontend base URI
+Create directory for logging:
+```
+mkdir /var/log/bounca
+chown www-data:www-data /var/log/bounca
+mkdir -p /srv/www/
+```
 
-python3 manage.py site http://localhost:8080
+## Download BounCA
+
+Get the newest BounCA release from [the packages repo][https://gitlab.com/bounca/bounca/-/packages].
+Unpack it to a location where your web app will be stored, like `/srv/www/`.
+Make sure the directory is owned by the nginx user:
+```
+
+cd /srv/www/
+tar -xvzf bounca-<version>.tar.gz
+chown www-data:www-data -R /srv/www/bounca
+```
+
+## Configuration
+
+To run BounCA you need to configure nginx, uwsgi and BounCA.
+First copy the files:
+
+```
+cp /srv/www/bounca/etc/nginx/bounca /etc/nginx/sites-available/bounca
+ln -s /etc/nginx/sites-available/bounca /etc/nginx/sites-enabled/bounca
+
+cp /srv/www/bounca/etc/uwsgi/bounca /etc/uwsgi/apps-available/bounca
+ln -s /etc/uwsgi/apps-available/bounca /etc/uwsgi/apps-enabled/bounca
+
+mkdir /etc/bounca
+cp /srv/www/bounca/etc/bounca/services.yaml.example /etc/bounca/services.yaml
+```
+
+You need to change the files `/etc/bounca/services.yaml` and `/etc/nginx/sites-available/bounca` for your situation
+
+## Install virtualenv and python packages
+
+Create the virtualenv and install python dependencies:
+
+```
+cd /srv/www/bounca
+virtualenv env -p python3
+source . env/bin/activate
+pip install -r requirements.txt
+```
+
+## Setup BounCA app en initialize database
+
+The following commands will initialize the database, setup the folder with
+static files. Also the fully qualified hostname must be configured, without protocol prefix.
+Optionally, create a super user for the admin interface.
+
+```
+cd /srv/www/bounca
+source . env/bin/activate
+python3 manage.py migrate
 python3 manage.py collectstatic
+python3 manage.py site <fully qualified hostname>
 python3 manage.py createsuperuser
+```
 
-## Local
+## Fire the manage up
 
-Python setup, for mac and linux no additional actions
+Finally restart uwsgi and nginx.
+```
+service uwsgi restart
+service nging restart
+```
 
-
-
-
-
-
+Browse to the hostname of your BounCA machine.
+BounCA should be up and running after it.
+Enjoy generating keys.

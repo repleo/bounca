@@ -1,12 +1,19 @@
 import json
 import sys
+
 from django import template
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.postgres.forms import SimpleArrayField
 from django.forms import (
-    BooleanField, CharField, DateField, DateTimeField, ModelMultipleChoiceField, PasswordInput, URLField)
+    BooleanField,
+    CharField,
+    DateField,
+    DateTimeField,
+    ModelMultipleChoiceField,
+    PasswordInput,
+    URLField,
+)
 from django_countries.fields import LazyTypedChoiceField
-
 
 register = template.Library()
 
@@ -39,13 +46,12 @@ class VeeValidateNode(template.Node):
         try:
             field = self.field.resolve(context)
 
-            rules = [getattr(sys.modules[__name__], f"rule_{type(v).__name__}")(v)
-                     for v in field.field.validators]
+            rules = [getattr(sys.modules[__name__], f"rule_{type(v).__name__}")(v) for v in field.field.validators]
             if field.field.required:
-                rules.append('required')
+                rules.append("required")
             return "|".join(filter(None, rules))
         except template.VariableDoesNotExist:
-            return ''
+            return ""
         except AttributeError as e:
             raise NotImplementedError(f"Implement rule for: {e}")
 
@@ -58,9 +64,7 @@ def vee_validate_rules(parser, token):
     try:
         tag_name, field = token.split_contents()
     except ValueError:
-        raise template.TemplateSyntaxError(
-            "%r tag requires a single argument" % token.contents.split()[0]
-        )
+        raise template.TemplateSyntaxError("%r tag requires a single argument" % token.contents.split()[0])
 
     return VeeValidateNode(field)
 
@@ -72,7 +76,7 @@ def is_array(field):
 
 @register.filter
 def dottounderscore(val):
-    return val.replace('.', '_')
+    return val.replace(".", "_")
 
 
 @register.filter
@@ -82,9 +86,9 @@ def error_field(val):
 
 @register.filter
 def error_slot_suffix(val):
-    suffix = val.split('.')
+    suffix = val.split(".")
     suffix.pop()
-    return "".join([f'_{v}' for v in suffix])
+    return "".join([f"_{v}" for v in suffix])
 
 
 def _set_sub_field(obj, keys, value):
@@ -99,8 +103,9 @@ def _set_sub_field(obj, keys, value):
 
 def _set_field_data(obj, form_object_name, field_name, field):
     if isinstance(field, LazyTypedChoiceField):
-        obj[f'formdata_{form_object_name}_{field_name.replace(".","_")}_values'] = \
-            [{'text': v[1], 'value': v[0]} for v in field.widget.choices if v[0]]
+        obj[f'formdata_{form_object_name}_{field_name.replace(".","_")}_values'] = [
+            {"text": v[1], "value": v[0]} for v in field.widget.choices if v[0]
+        ]
 
 
 def _set_password_visible_vars(obj, field_name, field):
@@ -110,7 +115,7 @@ def _set_password_visible_vars(obj, field_name, field):
 
 def _get_empty_value(field):
     if isinstance(field, CharField) or isinstance(field, URLField):
-        return ''
+        return ""
     elif isinstance(field, LazyTypedChoiceField):
         return None
     elif isinstance(field, DateField):
@@ -140,7 +145,7 @@ class DataObjectNode(template.Node):
             data = {
                 "dialog": False,
             }
-            if not hasattr(form, 'form_object'):
+            if not hasattr(form, "form_object"):
                 raise RuntimeError("'form_object' not set for form")
             fields = {}
             for k in form.fields:
@@ -163,8 +168,6 @@ def make_data_object(parser, token):
     try:
         tag_name, form = token.split_contents()
     except ValueError:
-        raise template.TemplateSyntaxError(
-            "%r tag requires a single argument" % token.contents.split()[0]
-        )
+        raise template.TemplateSyntaxError("%r tag requires a single argument" % token.contents.split()[0])
 
     return DataObjectNode(form)

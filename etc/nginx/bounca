@@ -1,8 +1,29 @@
-listen 80;
-listen [::]:80;
+# enable in case of SSL
+#server {
+#  listen 80;
+#  listen [::]:80;
+#  server_name bounca;
+#  return 301 https://$http_host$request_uri;
+#  access_log  /var/log/nginx/bounca-access.log;
+#  error_log   /var/log/nginx/bounca-error.log;
+#}
 
+server {
 
-server_name bounca;
+  access_log /var/log/nginx/bounca-access.log;
+  error_log /var/log/nginx/bounca-error.log;
+
+  # configuration for local hosting non-ssl
+  listen 80;
+  listen [::]:80;
+
+  # ssl enabled
+  # listen 443 ssl;
+  # listen [::]:443 ssl;
+  # ssl_certificate /etc/nginx/ssl/fullchain.pem;
+  # ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+
+  server_name bounca;
 
   location /static {
       root /srv/www/bounca/media;

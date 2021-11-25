@@ -29,8 +29,7 @@ function task() {
     fi
 }
 
-
-# mypy .
+mypy .
 
 PY_MESSAGE="${INFO} Running unit tests${RESET}"
 task "coverage run --include bounca/\* --omit */env/*,*/venv/*,*/migrations/*,*/tests/* manage.py test" "$PY_MESSAGE"

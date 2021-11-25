@@ -1,7 +1,7 @@
 psql:
   dbname: bounca
   username: bounca
-  password: fsRWF2k2k
+  password: changeit
   host: postgres
   port: 5432
 
@@ -18,8 +18,8 @@ mail:
   # username: <user>
   # password: <password>
   # connection: none # allowed values: none, tls, ssl
-  admin: jeroen@bounca.org
-  from: no-reply@bounca.org
+  admin: admin@example.com
+  from: no-reply@example.com
 
 certificate-engine:
   key_algorithm: ed25519 # allowed values: ed25519, rsa

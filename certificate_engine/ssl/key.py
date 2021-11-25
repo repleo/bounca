@@ -1,4 +1,3 @@
-
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
@@ -13,7 +12,7 @@ class Key(object):
     def key(self) -> RSAPrivateKey:
         return self._key
 
-    def create_key(self, key_algorithm: str, key_size: int) -> 'Key':
+    def create_key(self, key_algorithm: str, key_size: int) -> "Key":
         """
         Create a public/private key pair.
 
@@ -21,20 +20,15 @@ class Key(object):
                    key_algorithm = the used key algorithm, currently rsa, ed25519 supported
         Returns:   The private key
         """
-        if key_algorithm == 'ed25519':
+        if key_algorithm == "ed25519":
             self._key = ed25519.Ed25519PrivateKey.generate()
-        elif key_algorithm == 'rsa':
-            self._key = rsa.generate_private_key(
-                public_exponent=65537,
-                key_size=key_size,
-                backend=default_backend()
-            )
+        elif key_algorithm == "rsa":
+            self._key = rsa.generate_private_key(public_exponent=65537, key_size=key_size, backend=default_backend())
         else:
             raise NotImplementedError(f"Key algorithm {key_algorithm} not implemented")
         return self
 
-    def serialize(self, passphrase: str = None,
-                  encoding: serialization.Encoding = serialization.Encoding.PEM) -> str:
+    def serialize(self, passphrase: str = None, encoding: serialization.Encoding = serialization.Encoding.PEM) -> str:
         """
         Serialize key
 
@@ -47,15 +41,18 @@ class Key(object):
         if not self._key:
             raise RuntimeError("No key object")
 
-        encryption = serialization.BestAvailableEncryption(passphrase.encode('utf-8')) \
-            if passphrase else serialization.NoEncryption()
+        encryption = (
+            serialization.BestAvailableEncryption(passphrase.encode("utf-8"))
+            if passphrase
+            else serialization.NoEncryption()
+        )
         return self._key.private_bytes(
             encoding=encoding,
             format=serialization.PrivateFormat.PKCS8,
             encryption_algorithm=encryption,
-        ).decode('utf-8')
+        ).decode("utf-8")
 
-    def load(self, pem: str, passphrase: str = None) -> 'Key':
+    def load(self, pem: str, passphrase: str = None) -> "Key":
         """
         Read key from pem
 
@@ -63,9 +60,9 @@ class Key(object):
                    passphrase - optional passphrase (must be string)
         Returns:   Self
         """
-        self._key = serialization.load_pem_private_key(pem.encode('utf-8'),
-                                                       passphrase.encode('utf-8') if passphrase else None,
-                                                       backend=default_backend())
+        self._key = serialization.load_pem_private_key(
+            pem.encode("utf-8"), passphrase.encode("utf-8") if passphrase else None, backend=default_backend()
+        )
         return self
 
     @staticmethod
@@ -78,11 +75,11 @@ class Key(object):
         Returns:   true if passphrase is ok
         """
         try:
-            serialization.load_pem_private_key(pem.encode('utf-8'),
-                                               passphrase.encode('utf-8') if passphrase else None,
-                                               backend=default_backend())
+            serialization.load_pem_private_key(
+                pem.encode("utf-8"), passphrase.encode("utf-8") if passphrase else None, backend=default_backend()
+            )
             return True
         except ValueError as e:
-            if str(e) == 'Bad decrypt. Incorrect password?':
+            if str(e) == "Bad decrypt. Incorrect password?":
                 return False
             raise e

@@ -32,6 +32,8 @@ PY_MESSAGE="${INFO} Check import order on python files ${DARK_GRAY}[*.py]${RESET
 task "isort --check-only" "$PY_MESSAGE" "$py_files"
 PY_MESSAGE="${INFO} Linting python files ${DARK_GRAY}[*.py]${RESET}"
 task flake8 "$PY_MESSAGE" .
+PY_MESSAGE="${INFO} Black python files ${DARK_GRAY}[*.py]${RESET}"
+task "black --check" "$PY_MESSAGE" .
 PY_MESSAGE="${INFO} Linting javascript files ${DARK_GRAY}[*.js]${RESET}"
 cd front
 task "npm run lint" "$PY_MESSAGE" .

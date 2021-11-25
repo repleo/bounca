@@ -88,8 +88,9 @@ target/
 
 # Other
 tmp/
-ci/jenkins.sh
 pki/
+etc/bounca/services.yaml
+TODO
 
 # Static
 media/static
