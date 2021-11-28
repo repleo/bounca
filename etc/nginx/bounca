@@ -2,7 +2,7 @@
 #server {
 #  listen 80;
 #  listen [::]:80;
-#  server_name bounca;
+#  server_name bounca; # Replace with your domain
 #  return 301 https://$http_host$request_uri;
 #  access_log  /var/log/nginx/bounca-access.log;
 #  error_log   /var/log/nginx/bounca-error.log;
@@ -23,7 +23,7 @@ server {
   # ssl_certificate /etc/nginx/ssl/fullchain.pem;
   # ssl_certificate_key /etc/nginx/ssl/privkey.pem;
 
-  server_name bounca;
+  server_name bounca; # Replace with your domain
 
   location /static {
       root /srv/www/bounca/media;

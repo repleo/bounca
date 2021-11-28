@@ -14,7 +14,7 @@ IS_COLLECT_STATIC = "collectstatic" in sys.argv
 
 def get_services_config(path, filename="services.yaml"):
     environment_specific = os.path.join(os.path.abspath(path), filename)
-    config_files = []
+    config_files = ["/etc/bounca/services.yaml"]
     if os.path.exists(environment_specific):
         config_files.append(environment_specific)
     if not config_files:

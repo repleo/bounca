@@ -1,6 +1,6 @@
 # Framework
 Django==3.2.9
-#psycopg2==2.9.2
+psycopg2-binary==2.9.2
 pytz==2021.3
 requests==2.26.0
 djangorestframework==3.12.4

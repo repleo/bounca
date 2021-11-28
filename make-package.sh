@@ -31,7 +31,7 @@ rm .babelrc .env .env.production .eslintignore .eslintrc.js .postcssrc.js
 rm Makefile README.md babel.config.js package-lock.json package.json vue.config.js
 
 cd "../.."
-tar -czvf "bounca-$VERSION.tar.gz" bounca/
+tar -czvf "bounca-$VERSION.tar.gz" --owner=0 --group=0 bounca/
 rm -rf $WORKDIR | true
 
 
