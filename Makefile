@@ -35,3 +35,8 @@ isort_fix:
 flake8:
 	flake8 $(PYTHON_FOLDERS)
 
+black_fix:
+	black .
+
+black_check:
+	black --check .

@@ -1,4 +1,4 @@
-from typing import List, Tuple
+import typing
 
 from django.db import models
 from rest_framework import filters
@@ -11,12 +11,12 @@ class RelatedOrderingFilter(filters.OrderingFilter):
 
     @staticmethod
     def _get_verbose_name(field: models.Field, non_verbose_name: str) -> str:
-        return field.verbose_name if hasattr(field, "verbose_name") else non_verbose_name.replace("_", " ")
+        return str(field.verbose_name) if hasattr(field, "verbose_name") else non_verbose_name.replace("_", " ")
 
     def _retrieve_all_related_fields(
-        self, fields: Tuple[models.Field], model: models.Model, depth: int = 0
-    ) -> List[tuple]:
-        valid_fields = []
+        self, fields: typing.Tuple[models.Field], model: models.Model, depth: int = 0
+    ) -> typing.List[typing.Tuple[str, str]]:
+        valid_fields: typing.List[typing.Tuple[str, str]] = []
         if depth > self._max_related_depth:
             return valid_fields
         for field in fields:
@@ -35,9 +35,12 @@ class RelatedOrderingFilter(filters.OrderingFilter):
                 )
         return valid_fields
 
-    def get_valid_fields(self, queryset: models.QuerySet, view, context: dict = None) -> List[tuple]:
-        valid_fields = getattr(view, "ordering_fields", self.ordering_fields)
-        if not valid_fields == "__all_related__":
+    def get_valid_fields(
+        self, queryset: models.QuerySet, view, context: dict = None
+    ) -> typing.List[typing.Tuple[str, str]]:
+        ordering_fields = getattr(view, "ordering_fields", self.ordering_fields)
+        valid_fields: typing.List[typing.Tuple[str, str]]
+        if not ordering_fields == "__all_related__":
             if not context:
                 context = {}
             valid_fields = super().get_valid_fields(queryset, view, context)

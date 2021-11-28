@@ -1,7 +1,9 @@
-# import os
+from __future__ import annotations
+
 import copy
 import datetime
 import ipaddress
+import typing
 from functools import reduce
 from typing import TYPE_CHECKING
 
@@ -9,7 +11,7 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ed448, ed25519
-from cryptography.x509 import DirectoryName
+from cryptography.x509 import DirectoryName, GeneralName
 
 # noinspection PyProtectedMember,PyUnresolvedReferences
 from cryptography.x509.extensions import _key_identifier_from_public_key
@@ -27,6 +29,7 @@ from certificate_engine.types import (
 
 if TYPE_CHECKING:
     from x509_pki.models import Certificate as CertificateType
+    from x509_pki.models import DistinguishedName
     from x509_pki.models import DistinguishedName as DistinguishedNameType
 else:
     CertificateType = object
@@ -51,10 +54,9 @@ class CertificateError(ValueError):
     pass
 
 
-# noinspection PyTypeChecker
 class Certificate(object):
-    _certificate: x509.Certificate = None
-    _builder: x509.CertificateBuilder = None
+    _certificate: x509.Certificate
+    _builder: x509.CertificateBuilder
 
     @property
     def certificate(self):
@@ -93,32 +95,32 @@ class Certificate(object):
         Certificate._check_common_name(cert.parent, common_name)
 
     @staticmethod
-    def _check_policies_optional(dn: DistinguishedNameType, policy: CertificatePolicy):
-        attributes = [attr[0] for attr in policy["optional"] + policy["supplied"] + policy["match"]]
+    def _check_policies_optional(dn: DistinguishedName, cp: CertificatePolicy):
+        attributes = [attr[0] for attr in cp.policy["optional"] + cp.policy["supplied"] + cp.policy["match"]]
         for key in list(dn.__dict__):
             if not key.startswith("_") and key not in attributes:
                 setattr(dn, key, None)
 
     @staticmethod
-    def _check_policies_supplied(dn: DistinguishedNameType, policy: CertificatePolicy):
+    def _check_policies_supplied(dn: DistinguishedName, cp: CertificatePolicy):
         # noinspection PyUnresolvedReferences
-        for attr in policy["supplied"]:
+        for attr in cp.policy["supplied"]:
             if not getattr(dn, attr[0]):
                 raise PolicyError({f"dn__{attr[0]}": f"Attribute '{attr[0]}' is required"})
 
     @staticmethod
     def _check_policies(cert: CertificateType):
         dn = cert.dn
-        policy = Certificate._get_certificate_policy(cert).policy
-        Certificate._check_policies_optional(dn, policy)
-        Certificate._check_policies_supplied(dn, policy)
-        if policy["match"]:
+        cp = Certificate._get_certificate_policy(cert)
+        Certificate._check_policies_optional(dn, cp)
+        Certificate._check_policies_supplied(dn, cp)
+        if cp.policy["match"]:
             if not cert.parent:
                 raise RuntimeError("Parent certificate is required")
             if not cert.parent.keystore.crt:
                 raise RuntimeError("Parent certificate object has not been set")
             parent_crt = Certificate().load(cert.parent.keystore.crt).certificate
-            for attr in policy["match"]:
+            for attr in cp.policy["match"]:
                 if not parent_crt.subject.get_attributes_for_oid(attr[1]):
                     raise PolicyError("Attribute '{}' is not provided by parent".format(attr[0]))
                 if parent_crt.subject.get_attributes_for_oid(attr[1])[0].value != getattr(dn, attr[0]):
@@ -144,7 +146,7 @@ class Certificate(object):
     def _set_subject_name(self, cert: CertificateType) -> None:
         self._builder = self._builder.subject_name(Certificate._build_subject_names(cert))
 
-    def _set_public_key(self, cert: CertificateType, private_key: Key, issuer_key: Key = None) -> None:
+    def _set_public_key(self, cert: CertificateType, private_key: Key, issuer_key: Key) -> None:
         self._builder = self._builder.public_key(private_key.key.public_key())
         issuer_cert_subject = issuer_cert_serial_number = None
         if cert.type != CertificateTypes.ROOT:
@@ -319,17 +321,17 @@ class Certificate(object):
         )
 
         if cert.dn.subjectAltNames:
-            alts = []
+            alts: typing.List[GeneralName] = []
             for altname in cert.dn.subjectAltNames:
                 try:
-                    alt = x509.IPAddress(ipaddress.ip_address(altname))
-                    alts.append(alt)
+                    alt_ip = x509.IPAddress(ipaddress.ip_address(altname))
+                    alts.append(alt_ip)
                     continue
                 except ValueError:
                     pass
                 try:
-                    alt = x509.DNSName(altname)
-                    alts.append(alt)
+                    alt_dns = x509.DNSName(altname)
+                    alts.append(alt_dns)
                     continue
                 except ValueError:
                     pass
@@ -414,8 +416,8 @@ class Certificate(object):
 
         return self._sign_certificate(issuer_key)
 
-    def check_policies(self, cert_request: CertificateType) -> bool:
-        return self._check_policies(copy.deepcopy(cert_request))
+    def check_policies(self, cert_request: CertificateType):
+        self._check_policies(copy.deepcopy(cert_request))
 
     @staticmethod
     def _get_issuer_key(cert_request, passphrase_issuer):
@@ -436,7 +438,7 @@ class Certificate(object):
 
     def create_certificate(
         self, cert_request: CertificateType, key: str, passphrase: str = None, passphrase_issuer: str = None
-    ) -> CertificateType:
+    ) -> Certificate:
         """
         Create a certificate.
 
@@ -476,7 +478,7 @@ class Certificate(object):
 
         return self._certificate.public_bytes(encoding=encoding).decode("utf8")
 
-    def load(self, pem: str) -> CertificateType:
+    def load(self, pem: str) -> Certificate:
         """
         Read certificate from pem
 

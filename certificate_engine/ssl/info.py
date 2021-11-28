@@ -7,7 +7,7 @@ def get_certificate_info(crt: str) -> str:
     """
     Get Info of certificates
 
-    Arguments: pem - Bytes with certificate
+    Arguments: pem - string with certificate
     Returns:   string
     """
     f = tempfile.NamedTemporaryFile(delete=False)
@@ -16,4 +16,4 @@ def get_certificate_info(crt: str) -> str:
     f.close()
     cert_txt = subprocess.check_output(["openssl", "x509", "-text", "-noout", "-in", path])
     os.unlink(path)
-    return cert_txt
+    return str(cert_txt)

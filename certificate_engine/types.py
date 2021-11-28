@@ -11,7 +11,7 @@ class CertificateTypes(object):
 
 
 class CertificatePolicy(object):
-    policy = {
+    policy: dict = {
         "supplied": [
             ("commonName", NameOID.COMMON_NAME),
         ],
@@ -30,7 +30,7 @@ class CertificatePolicy(object):
 
 class CertificateRootPolicy(CertificatePolicy):
     # The root CA should have all fields which are required to sign intermediate certificates.
-    policy = {
+    policy: dict = {
         "supplied": [
             ("countryName", NameOID.COUNTRY_NAME),
             ("stateOrProvinceName", NameOID.STATE_OR_PROVINCE_NAME),
@@ -47,7 +47,7 @@ class CertificateRootPolicy(CertificatePolicy):
 
 class CertificateIntermediatePolicy(CertificatePolicy):
     # The root CA should only sign intermediate certificates that match.
-    policy = {
+    policy: dict = {
         "supplied": [
             ("commonName", NameOID.COMMON_NAME),
         ],

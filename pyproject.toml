@@ -22,12 +22,12 @@ line_length = 120
 
 [tool.mypy]
 python_version = "3.7"
-exclude = "(env|venv|out|migrations)"
+exclude = "(env|venv|out|migrations|tests|docs)"
 
-disallow_untyped_calls = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-disallow_untyped_decorators = true
+disallow_untyped_calls = false
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_decorators = false
 
 warn_redundant_casts = true
 warn_unused_ignores = true

@@ -213,7 +213,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "media/static/")
 
 STATIC_URL = "/static/"
 
-LOGGING = {
+LOGGING: dict = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
@@ -245,6 +245,7 @@ LOGGING = {
     },
     "loggers": {},
 }
+
 
 if DEBUG:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

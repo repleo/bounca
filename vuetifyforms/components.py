@@ -31,7 +31,7 @@ class VueScriptElem(LayoutObject):
     Abstract class for vue elems
     """
 
-    template = None
+    template: str
 
     def __init__(self, elems, **kwargs):
         self.elems = elems
@@ -47,7 +47,7 @@ class VueImports(VueScriptElem):
     Layout object. Spacer for button fields
     """
 
-    template = "%s/script/imports.js"
+    template: str = "%s/script/imports.js"
 
 
 class VueMethods(VueScriptElem):
@@ -55,7 +55,7 @@ class VueMethods(VueScriptElem):
     Layout object. Spacer for button fields
     """
 
-    template = "%s/script/methods.js"
+    template: str = "%s/script/methods.js"
 
 
 class VueField(Field):
@@ -68,7 +68,7 @@ class VueField(Field):
         Field('field_name', style="color: #333;", css_class="whatever", id="field_name")
     """
 
-    template = "%s/field.html"
+    template: str = "%s/field.html"
 
     def __init__(self, *args, **kwargs):
         self.fields = list(args)
