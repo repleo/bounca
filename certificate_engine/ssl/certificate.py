@@ -55,11 +55,13 @@ class CertificateError(ValueError):
 
 
 class Certificate(object):
-    _certificate: x509.Certificate
+    _certificate: typing.Optional[x509.Certificate] = None
     _builder: x509.CertificateBuilder
 
     @property
     def certificate(self):
+        if self._certificate is None:
+            raise RuntimeError("No certificate object")
         return self._certificate
 
     @staticmethod
