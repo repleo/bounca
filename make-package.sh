@@ -32,5 +32,6 @@ rm Makefile README.md babel.config.js package-lock.json package.json vue.config.
 
 cd "../.."
 tar -czvf "bounca-$VERSION.tar.gz" bounca/
+rm -rf $WORKDIR | true
 
 

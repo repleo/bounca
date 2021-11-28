@@ -1,3 +1,5 @@
+from typing import Optional
+
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
@@ -6,10 +8,12 @@ from cryptography.hazmat.primitives.asymmetric.types import PRIVATE_KEY_TYPES
 
 # noinspection PyUnresolvedReferences
 class Key(object):
-    _key: PRIVATE_KEY_TYPES
+    _key: Optional[PRIVATE_KEY_TYPES] = None
 
     @property
     def key(self) -> PRIVATE_KEY_TYPES:
+        if self._key is None:
+            raise RuntimeError("No key object")
         return self._key
 
     def create_key(self, key_algorithm: str, key_size: int) -> "Key":
