@@ -253,6 +253,8 @@ if DEBUG:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
     LOGGING["handlers"]["file"]["filename"] = "./logs/bounca.log"
     LOGGING["root"]["level"] = "INFO"
+    # https://stackoverflow.com/questions/65425681/django-get-request-error-500-strict-origin-when-cross-origin
+    CORS_ORIGIN_ALLOW_ALL = True
 
 if IS_UNITTEST:
     EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
