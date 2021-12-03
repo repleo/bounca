@@ -1,0 +1,146 @@
+{# Import the theme's layout. #}
+{% extends "!layout.html" %}
+
+
+{%- set header_title = '' %}
+{%- set header_title_key = 'header_title' %}
+{%- set header_subtitle = '' %}
+{%- set header_subtitle_key = 'header_subtitle' %}
+{%- set launchpage = '' %}
+{%- set launchpage_key = 'launchpage' %}
+{%- if meta is defined %}
+    {%- if header_title_key in meta.keys() %}
+        {%- set header_title = meta.get(header_title_key) %}
+    {%- endif %}
+    {%- if header_subtitle_key in meta.keys() %}
+        {%- set header_subtitle = meta.get(header_subtitle_key) %}
+    {%- endif %}
+    {%- if launchpage_key in meta.keys() %}
+        {%- set launchpage = 'ENABLE' %}
+    {%- endif %}
+{%- endif %}
+
+
+
+{# Custom CSS overrides #}
+{% set bootswatch_css_custom = ['_static/bounca.css'] %}
+
+
+{%- block extrahead %}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="BounCA is a tool to setup your personal Certificate Authority to generate OpenSSL keys and self-signed certificates in an easy to use web interface.">
+    <meta name=keywords content="OpenSSL, PKI, X509, SSL, PKCS12, PEM, Certificate, Key, Root Authority, Certificate Authority, Security, Encryption, Authorisation, Authentications">
+    <meta name="author" content="Repleo, Jeroen Arnoldus <jeroen@repleo.nl>">
+
+    <meta itemprop="name" content="BounCA.org - Self-signed SSL Key Generation and Management Made Easy">
+    <meta itemprop="description" content="BounCA is a tool to setup your personal Certificate Authority to generate OpenSSL keys and self-signed certificates in an easy to use web interface.">
+    <meta itemprop="image" content="https://www.bounca.org/_images/BounCA-logo.png">
+    <!-- Twitter Card data -->
+    <meta name="twitter:card" value="summary">
+    <meta name="twitter:site" content="@gobounca">
+    <meta name="twitter:creator" content="@repleo_sw">
+    <meta name="twitter:image" content="https://www.bounca.org/_images/BounCA-logo.png">
+    <meta name="twitter:title" content="BounCA.org - Self-signed SSL Key Generation and Management Made Easy">
+    <meta name="twitter:description" content="BounCA is a tool to setup your personal Certificate Authority to generate OpenSSL keys and self-signed certificates in an easy to use web interface.">
+
+    <!-- Open Graph data -->
+    <meta property="og:title" content="BounCA.org - Self-signed SSL Key Generation and Management Made Easy" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://www.bounca.org" />
+    <meta property="og:image" content="https://www.bounca.org/_images/BounCA-logo.png" />
+    <meta property="og:description" content="BounCA is a tool to setup your personal Certificate Authority to generate OpenSSL keys and self-signed certificates in an easy to use web interface." />
+    <meta property="og:site_name" content="BounCA" />
+
+    <!--[if lt IE 9]>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <link rel="apple-touch-icon" sizes="57x57" href="_images/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="_images/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="_images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="_images/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="_images/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="_images/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="_images/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="_images/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="_images/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="_images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="_images/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="_images/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="_images/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="_images/manifest.json">
+    <link rel="mask-icon" href="_images/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="_images/favicon.ico">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-TileImage" content="_images/mstile-144x144.png">
+    <meta name="msapplication-config" content="_images/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+{{ super () }}
+{% endblock %}
+
+{%- block header %}
+      <script type="text/javascript">
+          var _paq = _paq || [];
+          _paq.push(['trackPageView']);
+          _paq.push(['enableLinkTracking']);
+          (function() {
+           var u="//piwik.repleo.nl/";
+           _paq.push(['setTrackerUrl', u+'piwik.php']);
+           _paq.push(['setSiteId', 12]);
+           var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+           g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+           })();
+          </script>
+      <noscript><p><img src="//piwik.repleo.nl/piwik.php?idsite=12" style="border:0;" alt="" /></p></noscript>
+{{ super() }}
+{% endblock %}
+
+
+{% block content %}
+{%- if header_title %}
+<main class="bs-docs-header" id="content" role="main" tabindex="-1">
+    <div class="container">
+        <h1>{{ header_title }}</h1>
+        <p>{{ header_subtitle }}</p>
+    </div>
+</main>
+{%  endif %}
+{%- if launchpage %}
+    {% include "launchpage.html" %}
+{%  endif %}
+{{ super() }}
+{% endblock %}
+
+
+{% block footer %}
+<footer class="bs-docs-footer" role="contentinfo">
+    <div class="container">
+        <p class="pull-right">
+              <a href="#">Back to top</a>
+              {% if theme_source_link_position == "footer" %}
+                <br/>
+                {% include "sourcelink.html" %}
+              {% endif %}
+        </p>
+        <ul class="bs-docs-footer-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="https://gitlab.com/bounca/bounca/" target="_blank">GitLab</a></li>
+            <li><a href="https://twitter.com/gobounca" target="_blank">Twitter</a></li>
+            <li><a href="https:/www.bounca.org/index.html">Docs</a></li>
+            <li><a href="mailto:jeroen@bounca.org">Contribute?</a></li>
+        </ul>
+        <ul class="bs-docs-footer-links">
+            <li>Share on:</li>
+            <li><a href="https://twitter.com/share" class="twitter-share-button" data-via="gobounca">Tweet</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></li>
+        </ul>
+        <p>Designed and built by <a href="https://twitter.com/repleo_sw" target="_blank">@repleo</a>.</p>
+        <p>Code licensed <a rel="license" href="https://gitlab.com/bounca/bounca/-/blob/master/LICENSE" target="_blank">Apache 2.0</a>, docs <a rel="license" href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.</p>
+		<p>
+		    {%- if last_updated %}
+		      {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}<br/>
+		    {%- endif %}
+		</p>
+    </div>
+</footer>
+{% endblock %}

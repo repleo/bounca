@@ -4,27 +4,13 @@ LOCAL_SERVER_PORT ?= 8000
 default:
 	@echo "No default target!"
 
-install: backend frontend
-
-backend:
-	@# Install Python dependencies
-	pip install -q --requirement requirements.txt
-
-frontend: frontend_dependencies frontend_collect
-
-frontend_dependencies:
-	@hash npm 2>/dev/null || (echo 'Command "npm" not found. Please make sure NodeJS is installed.' && exit 1)
-
-	@# Install Node dependencies specified in package.json
-	npm install
-
 frontend_collect:
 	python manage.py collectstatic --link --noinput
 
 runserver:
 	python manage.py runserver 0.0.0.0:$(LOCAL_SERVER_PORT)
 
-quality: flake8 npmlint isort_check
+quality: flake8 black_check isort_check
 
 isort_check:
 	find $(PYTHON_FOLDERS) -path '**/migrations' -prune -o -name '*.py' -print | xargs isort -c
@@ -40,3 +26,9 @@ black_fix:
 
 black_check:
 	black --check .
+
+website:
+	$(MAKE) -C ./docs html
+
+runwebsiteserver:
+	python3 -m http.server -d ./docs/build/html  8090

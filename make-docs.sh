@@ -7,7 +7,7 @@ virtualenv -p "$PYTHON" env
 . env/bin/activate
 cd "$WORKDIR"
 
-pip3.4 install -r requirements.docs.txt
+pip install -r requirements.docs.txt
 
 cd docs
 make html

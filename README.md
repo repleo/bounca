@@ -1,10 +1,12 @@
-BounCA PKI - Key Management
-===========================
+# BounCA PKI - Key Management
 
 Protect your Data, Protect your Communication,
 Protect your Business, BounCA!
 
-# Introduction
+Source: [https://gitlab.com/bounca/bounca](https://gitlab.com/bounca/bounca)
+Packages: [https://gitlab.com/bounca/bounca/-/packages](https://gitlab.com/bounca/bounca/-/packages)
+
+## Introduction
 
 BounCA let you setup a trusted encrypted communication network with your peers in a couple of minutes.
 Create a PKI, sign and revoke server and client X.509 v3 SSL certificates.
@@ -12,14 +14,14 @@ With BounCA you can secure your web applications and OpenVPN connections without
 and secure access to your private cloud services with your own HTTPS scheme.
 Setting up a provisioning service for your Internet of Things devices was never so easy.
 
-# Installation
+## Installation
 
 BounCA is a python3 based application, with a javascript vuetify frontend, and
 can be hosted on every platform capable of running python3 applications.
 This tutorial describes how to deploy BounCA on a Debian 11 server.
 Some commands needs the `root` permission level, prefix them with `sudo` if necessary.
 
-## Server prerequisites
+### Server prerequisites
 
 On a fresh Debian 11 machine, first update your repositories:
 `sudo apt update`
@@ -58,7 +60,8 @@ sudo apt install \
     postgresql \
     postgresql-contrib
 ```
-# Create database
+
+### Create database
 
 Create user and database for Postgres
 ```
@@ -75,7 +78,7 @@ psql -c "ALTER USER bounca PASSWORD '<your password>'"
 
 Don't forget to go back to your normal user, for example by using the command `exit`.
 
-## Create directories
+### Create directories
 
 Create directory for logging:
 ```
@@ -84,7 +87,7 @@ chown -R www-data:www-data /var/log/bounca
 mkdir -p /srv/www/
 ```
 
-## Download BounCA
+### Download BounCA
 
 Get the newest BounCA release from [the packages repo](https://gitlab.com/bounca/bounca/-/packages).
 Unpack it to a location where your web app will be stored, like `/srv/www/`.
@@ -96,7 +99,7 @@ tar -xvzf bounca-<version>.tar.gz
 chown www-data:www-data -R /srv/www/bounca
 ```
 
-## Configuration
+### Configuration
 
 To run BounCA you need to configure nginx, uwsgi and BounCA.
 First copy the files:
@@ -114,7 +117,7 @@ cp /srv/www/bounca/etc/bounca/services.yaml.example /etc/bounca/services.yaml
 
 You need to change the files `/etc/bounca/services.yaml` and `/etc/nginx/sites-available/bounca` for your situation.
 
-## Install virtualenv and python packages
+### Install virtualenv and python packages
 
 Create the virtualenv and install python dependencies:
 
@@ -125,7 +128,7 @@ source env/bin/activate
 pip install -r requirements.txt
 ```
 
-## Setup BounCA app en initialize database
+### Setup BounCA app and initialize database
 
 The following commands will initialize the database, setup the folder with
 static files. Also the fully qualified hostname must be configured, without protocol prefix.
@@ -146,7 +149,7 @@ In case the commands give you a db connection error, make sure you start the dat
 service postgresql start
 ```
 
-## Fire the manage up
+### Starting the application
 
 Finally restart uwsgi and nginx.
 ```
@@ -160,3 +163,12 @@ Enjoy generating keys.
 The admin interface can be found at:
 [http://<example.com>/admin](http://example.com/admin).
 
+## License
+
+Apache License v2 - (c) 2016-2021, Repleo, Amsterdam
+
+## Author Information
+
+Jeroen Arnoldus (jeroen@repleo.nl)
+
+Repleo, Amsterdam, Holland -- [www.repleo.nl](www.repleo.nl)

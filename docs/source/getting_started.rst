@@ -1,200 +1,201 @@
-Getting Started
+:header_title: Get started
+:header_subtitle: An overview of BounCA, how to download and use, basic examples, and more.
+
+Install BounCA
 ===============
 
-This document will show you how to get up and running with BounCA.
-You can start creating your root authorities and singing your certificates in 10 minutes, depending on the configuration you use.
+This guide shows how you can install BounCA in house on your platform.
+Hosting BounCA yourself is the safest option for keeping your keys secret. Even
+better to not connect you BounCA installation to the Internet.
+If you just want to generate some certificates, but don't consider a high level
+of safety, you can use our `Bounca Cloud`_.
 
+---------------
 
 Prepare your Environment
 ------------------------
 
-BounCA is a `Django`_ application running on a `Python3`_ environment. 
+BounCA is a `Django`_ application running on a `Python3`_ environment.
 While it is highly portable setup, we suggest you deploy a (virtual) machine with the following configuration:
-* Debian Jessie Linux
-* Key authentication for the Root user
+* Debian Bullseye 11 Linux
+* SSH access via key authentication, and ``sudo`` for the Root user
 
-We offer three ways to install BounCA. 
-
-* :ref:`deploy-ansible`
-* :ref:`deploy-docker`
-* :ref:`deploy-bare-hand`
-
-.. _deploy-ansible:
-
-Ansible Deployment
-~~~~~~~~~~~~~~~~~~
+.. _deploy-manual:
 
 
-`Ansible`_ offers the easiest way of creating a BounCA deployment for hosting your Certificate Authority.
-
-You need to have (root) access to a fresh installed Debian Jessie (virtual) machine. On your local machine you need to have a recent 2+ Ansible installation.
-Create your playbook ``install-bounca.yml``:
-
-.. code-block:: yaml
-
-   - hosts: all
-     remote_user: root
-     roles:
-       - { role: repleo.bounca,
-            bounca_timezone: /usr/share/zoneinfo/Europe/Amsterdam,
-            bounca_db_user: bounca,
-            bounca_db_password: <YOUR DB PASSWORD>,
-            bounca_db_host: localhost,
-            bounca_db_name: bouncadb,
-   
-            bounca_secret_key: <DJANGO SECRET>,
-            bounca_email_host: localhost,
-            bounca_admin_mail: bounca-admin@<YOURDOMAIN>,
-            bounca_from_mail: no-reply@<YOURDOMAIN>
-       }
-       
-
-Ansible will install the database, webserver and so on. The parameters you provide in the playbook are used to instantiate the services.
-After you created the playbook, you can install BounCA by executing the following commands:
-
-.. code-block:: shell
-
-   # ansible-galaxy install repleo.bounca -p ./roles
-   # ansible-playbook install-bounca.yml -i <HOSTNAME_OR_IP>,
-
-The first collects the ansible roles from Ansible's galaxy.
-The second command installs the actual BounCA system.
-
-.. note:: Don't forget the trailing comma in the -i argument list.
-
-
-.. _deploy-docker:
-
-Docker Deployment
-~~~~~~~~~~~~~~~~~
-
-If you want to try BounCA or you want to create a couple of self-signed certificates without having a persistent CA, the `Docker`_ deployment is the fastest way of getting BounCA.
-Docker offers the ability to run BounCA as an application on your local machine by running a single command.
-
-Make sure you have installed `Docker`_ including ``docker-compose`` and ``docker-machine``.
-Clone the BounCA docker release script from the github repo: https://github.com/repleo/docker-compose-bounca.
-The only prerequisite is a working Docker installation.
-
-Run the bash script ``launch-bounca.sh``
-
-.. code-block:: shell
-
-   # git clone git@github.com:repleo/docker-compose-bounca.git
-   # cd docker-compose-bounca
-   # ./launch-bounca.sh
-   
-.. warning:: The Docker installation is not suited for a persistent certificate authority. Use this installer for trying BounCA or to generate a couple of self-signed certificates.
-
-.. _deploy-bare-hand:
-
-Manual Install
+Server prerequisites
 ~~~~~~~~~~~~~~
 
-In case you want to customize the installation of BounCA, you can install it manually.
-BounCA requires the following installed and configured packages:
 
-- nginx
-- uwsgi
-- postgresql-9.4
-- python-3.4
-- virtualenv-3.4
+On a fresh Debian 11 machine, first update your repositories:
+``sudo apt update``
 
-Download BounCA from `github`_ and unpack it in your web application directory, for example ``/srv/www/``.
+install the following packages via apt:
 
-Go to the root of your installation and create a virtual environment and install the python packages ``pip3.4 -r requirements.txt``.
+  - gettext
+  - nginx
+  - python3
+  - python3-dev
+  - python3-setuptools
+  - python-setuptools
+  - python-is-python3
+  - uwsgi
+  - uwsgi-plugin-python3
+  - virtualenv
+  - python3-virtualenv
+  - python3-pip
+  - postgresql
+  - postgresql-contrib
 
-Create a database and database user in postgresql.
+.. code-block:: none
 
-Create the BounCA configuration file ``/etc/bounca/main.ini`` for the machine specific configuration.
-It should contain the following parameters:
-
-
-.. code-block:: cfg
-
-   [database]
-   DATABASE_USER: <value>
-   DATABASE_PASSWORD: <value>
-   DATABASE_HOST: <value>
-   DATABASE_NAME: <value>
-   
-   [secrets]
-   SECRET_KEY: <value-django-secret-just-a-random-salt-string>
-   
-   [email]
-   EMAIL_HOST: <value>
-   ADMIN_MAIL: <value>
-   FROM_MAIL: <value>
-
-
-Replace the ``<value>`` placeholder with the right values for your installation
-
-Next step is to collect the static files: ``python3 manage.py collectstatic --noinput``
-and create the database: ``python3 manage.py migrate --noinput``
-
-The last step is to configure uWSGI and NGINX.
-The uWSGI config might look like the following example:
+    sudo apt install \
+        gettext \
+        nginx \
+        python3 \
+        python3-dev \
+        python3-setuptools \
+        python-setuptools \
+        python-is-python3 \
+        uwsgi \
+        uwsgi-plugin-python3 \
+        virtualenv \
+        python3-virtualenv \
+        python3-pip \
+        postgresql \
+        postgresql-contrib
 
 
-.. code-block:: cfg
+Create database
+~~~~~~~~~~~~~~
 
-   [uwsgi]
-   thread=4
-   master=1
-   processes=80
-   vacuum=true
-   uid = www-data
-   gid = www-data
-   chmod-socket = 700
-   chown-socket = www-data
-   socket = /run/uwsgi/app/bounca/socket
-   logto = /var/log/uwsgi/bounca/log
-   chdir = /srv/www/bounca
-   home  = /srv/www/bounca/env
-   module = bounca.wsgi
+Create user and database for Postgres
+
+.. code-block:: none
+
+    sudo su - postgres
+    createuser bounca
+    createdb --owner=bounca bounca --encoding=UTF8 --template=template0
+    psql -c "ALTER USER bounca WITH createdb" postgres
 
 
-The NGINX config should contain a proxypass on the root and a location for the static files. For example the following server block
+Optionally, set a password for the ``bounca`` user.
 
-.. code-block:: nginx
-   
-   server {
-   
-       listen 80;
-       server_name example.org;
-       charset utf-8;
-   
-       location /static {
-           root /srv/www/bounca/media;
-           include mime.types;
-       }
-   
-       location / {
-           include uwsgi_params;
-           uwsgi_read_timeout 9600;
-           uwsgi_send_timeout 9600;
-           uwsgi_pass unix://run/uwsgi/app/bounca/socket;
-       }
-   
-   }
+.. code-block:: none
 
-You should restart uWSGI and NGINX to load the changes. 
-BounCA should be up and running.
+    psql -c "ALTER USER bounca PASSWORD '<your password>'"
+
+
+Don't forget to go back to your normal user, for example by using the command ``exit``.
+
+Create directories
+~~~~~~~~~~~~~~
+
+Create directory for logging:
+
+.. code-block:: none
+
+    mkdir /var/log/bounca
+    chown -R www-data:www-data /var/log/bounca
+    mkdir -p /srv/www/
+
+
+Download BounCA
+~~~~~~~~~~~~~~
+
+Get the newest BounCA release from `gitlab`_.
+Unpack it to a location where your web app will be stored, like ``/srv/www/``.
+Make sure the directory is owned by the nginx user:
+
+.. code-block:: none
+
+    cd /srv/www/
+    tar -xvzf bounca-<version>.tar.gz
+    chown www-data:www-data -R /srv/www/bounca
+
+Configuration
+~~~~~~~~~~~~~~
+
+To run BounCA you need to configure nginx, uwsgi and BounCA.
+First copy the files:
+
+.. code-block:: none
+
+    cp /srv/www/bounca/etc/nginx/bounca /etc/nginx/sites-available/bounca
+    ln -s /etc/nginx/sites-available/bounca /etc/nginx/sites-enabled/bounca
+
+    cp /srv/www/bounca/etc/uwsgi/bounca.ini /etc/uwsgi/apps-available/bounca.ini
+    ln -s /etc/uwsgi/apps-available/bounca.ini /etc/uwsgi/apps-enabled/bounca.ini
+
+    mkdir /etc/bounca
+    cp /srv/www/bounca/etc/bounca/services.yaml.example /etc/bounca/services.yaml
+
+
+You need to change the files ``/etc/bounca/services.yaml`` and ``/etc/nginx/sites-available/bounca`` for your situation.
+
+Install virtualenv and python packages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Create the virtualenv and install python dependencies:
+
+.. code-block:: none
+
+    cd /srv/www/bounca
+    virtualenv env -p python3
+    source env/bin/activate
+    pip install -r requirements.txt
+
+Setup BounCA app and initialize database
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following commands will initialize the database, setup the folder with
+static files. Also the fully qualified hostname must be configured, without protocol prefix.
+Optionally, create a super user for the admin interface.
+
+.. code-block:: none
+
+    cd /srv/www/bounca
+    source env/bin/activate
+    python3 manage.py migrate
+    python3 manage.py collectstatic
+    python3 manage.py site <fully qualified hostname>
+
+
+In case the commands give you a db connection error, make sure you start the database:
+
+.. code-block:: none
+
+    service postgresql start
+
+Starting the application
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Finally restart uwsgi and nginx.
+
+.. code-block:: none
+
+    service uwsgi restart
+    service nging restart
 
 
 Post Installation
 -----------------
 
-When the installation is finished, you can reach your BounCA installation by browsing to your BounCA machine.
+BounCA should be up and running, you can reach your BounCA installation by browsing to your BounCA machine.
 You will see a login screen, please create an account an login.
 You are ready to create your Certificate Authorities!
 
-.. note:: While BounCA has a login feature for internal use, your keys are protected by passphrases.
-          Passphrases are not stored in BounCA, so please remember them well as they cannot be recovered from your keys.
-          
-.. _https://github.com/repleo/docker-compose-bounca: https://github.com/repleo/docker-compose-bounca
-.. _github: https://www.github.com/repleo/bounca
+
+The admin interface can be found at ``http://<your bounca url>/admin``.
+
+
+.. note:: While BounCA has a login feature, your keys are protected by passphrases.
+          Passphrases are not stored in BounCA, so please remember them as they cannot be recovered from your keys.
+
+.. _Bounca Cloud: https://app.bounca.org
+.. _gitlab: https://www.gitlab.com/bounca/bounca
 .. _Python3: https://www.python.org/
 .. _Debian: https://www.debian.org/
 .. _Django: https://www.djangoproject.com
-.. _Ansible: http://www.ansible.com/
-.. _Docker: http://www.docker.com/
+.. _BounCA source: https://gitlab.com/bounca/bounca/-/packages
+

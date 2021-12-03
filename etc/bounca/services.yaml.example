@@ -7,7 +7,7 @@ psql:
 
 django:
   debug: False
-  secret_key: 'pleasechangemeimsecret'
+  secret_key: '<value-django-secret-just-a-random-salt-string>'
   hosts:
     # add your hosts here
     - localhost
@@ -23,7 +23,9 @@ mail:
   from: no-reply@example.com
 
 certificate-engine:
-  key_algorithm: ed25519 # allowed values: ed25519, rsa
+  # allowed values: ed25519, rsa
+  key_algorithm: ed25519
 
 registration:
-  email_verification: mandatory # allowed values: mandatory, optional, off
+  # allowed values: mandatory, optional, off
+  email_verification: off
