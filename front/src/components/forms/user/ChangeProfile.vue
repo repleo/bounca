@@ -21,11 +21,11 @@
         </v-alert>
       </ValidationProvider>
 
-
-
+      
+    
     <v-row class="" >
         <v-col class="" >
-
+        
 
 
 
@@ -40,15 +40,15 @@
   label="Username*"
   v-model="profile.username"
   :error-messages="errors"
-
+  
   type="text"
-
+  
   required
    disabled
-
+  
   v-bind="attrs"
   v-on="on"
-
+  
 ></v-text-field>
 
 
@@ -67,7 +67,7 @@
 </v-row>
 <v-row class="" >
         <v-col class="" >
-
+        
 
 
 
@@ -79,12 +79,12 @@
   label="First name"
   v-model="profile.first_name"
   :error-messages="errors"
-
+  
   type="text"
-
-
-
-
+  
+  
+  
+  
 ></v-text-field>
 
 
@@ -96,7 +96,7 @@
 
 </v-col>
 <v-col class="" >
-
+        
 
 
 
@@ -108,12 +108,12 @@
   label="Last name"
   v-model="profile.last_name"
   :error-messages="errors"
-
+  
   type="text"
-
-
-
-
+  
+  
+  
+  
 ></v-text-field>
 
 
@@ -128,7 +128,7 @@
 </v-row>
 <v-row class="" >
         <v-col class="" >
-
+        
 
 
 
@@ -140,12 +140,12 @@
   label="Email address"
   v-model="profile.email"
   :error-messages="errors"
-
+  
   type="email"
-
-
-
-
+  
+  
+  
+  
 ></v-text-field>
 
 
@@ -161,7 +161,7 @@
 <v-card-actions class="mt-4" >
        <v-spacer></v-spacer>
 <v-btn
-       @click="onCancel" color="primary" plain text
+       @click="onCancel" color="primary" plain text 
 >
     Cancel
 </v-btn>
@@ -203,25 +203,25 @@ export default {
         return initialState();
     },
     watch: {
-
+      
     },
     mounted() {
-
+       
     this.resetForm();
     this.setupUserForm();
-
+            
     },
     methods: {
     resetForm: function (){
         Object.assign(this.$data, initialState());
         this.$refs.form.reset();
-
+        
     },
 
-
+    
 setupUserForm() {
   auth.getAccountDetails()
-    .then((response) => {
+    .then( response  => {
       this.profile = response.data;
     }).catch((e) => {
       console.log(e);
@@ -232,22 +232,23 @@ updateProfile() {
     if (isValid) {
       const data = {...this.profile};
       delete this.profile['username'];
-      auth.updateAccountDetails(this.profile).then((response) => {
+      auth.updateAccountDetails(this.profile).then( response  => {
           this.resetForm();
           this.setupUserForm();
-      }).catch((r) => {
+      }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
       });
     }
   });
-}               ,
+}
+            ,
 
-
+    
 onCancel(){
   this.resetForm();
   this.setupUserForm();
 }
-                ,
+            ,
 
 },
 

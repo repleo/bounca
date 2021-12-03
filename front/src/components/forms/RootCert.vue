@@ -661,23 +661,24 @@ onCreateCertificate() {
       this.passphrase_out_visible = false;
       this.passphrase_out_confirmation_visible = false;
       this.rootcert.type = 'R';
-      certificates.create(this.rootcert).then((response) => {
+      certificates.create(this.rootcert).then( response  => {
           this.$emit('update-dasboard');
           this.resetForm();
           this.$emit('close-dialog');
-      }).catch((r) => {
+      }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
       });
     }
   });
-}               ,
+}
+            ,
 
     
 onCancel(){
   this.resetForm();
   this.$emit('close-dialog');
 }
-                ,
+            ,
 
 },
 

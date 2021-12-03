@@ -712,7 +712,7 @@ setParentData() {
     this.intermediatecert.dn.stateOrProvinceName = this.parent.dn.stateOrProvinceName;
     this.intermediatecert.dn.countryName = this.parent.dn.countryName;
 }
-                ,
+            ,
 
     
 onCreateCertificate() {
@@ -723,23 +723,24 @@ onCreateCertificate() {
       this.passphrase_in_visible = false;
       this.intermediatecert.type = 'I';
       this.intermediatecert.parent = this.parent.id;
-      certificates.create(this.intermediatecert).then((response) => {
+      certificates.create(this.intermediatecert).then( response  => {
           this.$emit('update-dasboard');
           this.resetForm();
           this.$emit('close-dialog');
-      }).catch((r) => {
+      }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
       });
     }
   });
-}               ,
+}
+            ,
 
     
 onCancel(){
   this.resetForm();
   this.$emit('close-dialog');
 }
-                ,
+            ,
 
 },
 

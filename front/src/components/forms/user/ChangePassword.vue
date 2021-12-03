@@ -161,21 +161,22 @@ updatePassword() {
     if (isValid) {
       this.new_password1_visible = false;
       this.new_password1_visible = false;
-      auth.changeAccountPassword(this.password).then((response) => {
+      auth.changeAccountPassword(this.password).then( response  => {
           this.$emit('success', 'Password has been updated.');
           this.resetForm();
-      }).catch((r) => {
+      }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
       });
     }
   });
-}               ,
+}
+            ,
 
     
 onCancel(){
   this.resetForm();
 }
-                ,
+            ,
 
 },
 

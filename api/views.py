@@ -5,6 +5,7 @@ import logging
 import re
 import zipfile
 
+from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.urls import NoReverseMatch, URLResolver
 from rest_framework import permissions, status
@@ -18,6 +19,12 @@ from rest_framework.views import APIView
 from api.mixins import TrapDjangoValidationErrorCreateMixin
 from api.serializers import CertificateRevokeSerializer, CertificateSerializer
 from x509_pki.models import Certificate, CertificateTypes, KeyStore
+
+if settings.IS_GENERATE_FRONTEND:
+    from api import forms  # make sure vuetifyforms can find the classes
+
+    # ignore F401 https://stackoverflow.com/questions/59167405/flake8-ignore-only-f401-rule-in-entire-file
+    __all__ = ("forms",)
 
 logger = logging.getLogger(__name__)
 

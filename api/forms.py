@@ -198,11 +198,11 @@ onCreateCertificate() {
       this.passphrase_out_visible = false;
       this.passphrase_out_confirmation_visible = false;
       this.rootcert.type = 'R';
-      certificates.create(this.rootcert).then((response) => {
+      certificates.create(this.rootcert).then( response  => {
           this.$emit('update-dasboard');
           this.resetForm();
           this.$emit('close-dialog');
-      }).catch((r) => {
+      }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
       });
     }
@@ -331,11 +331,11 @@ onCreateCertificate() {
       this.passphrase_in_visible = false;
       this.intermediatecert.type = 'I';
       this.intermediatecert.parent = this.parent.id;
-      certificates.create(this.intermediatecert).then((response) => {
+      certificates.create(this.intermediatecert).then( response  => {
           this.$emit('update-dasboard');
           this.resetForm();
           this.$emit('close-dialog');
-      }).catch((r) => {
+      }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
       });
     }
@@ -443,11 +443,11 @@ onCreateCertificate() {
       this.passphrase_in_visible = false;
       this.certificate.type = this.certtype;
       this.certificate.parent = this.parent.id;
-      certificates.create(this.certificate).then((response) => {
+      certificates.create(this.certificate).then( response  => {
           this.$emit('update-dasboard');
           this.resetForm();
           this.$emit('close-dialog');
-      }).catch((r) => {
+      }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
       });
     }
@@ -494,10 +494,10 @@ updatePassword() {
     if (isValid) {
       this.new_password1_visible = false;
       this.new_password1_visible = false;
-      auth.changeAccountPassword(this.password).then((response) => {
+      auth.changeAccountPassword(this.password).then( response  => {
           this.$emit('success', 'Password has been updated.');
           this.resetForm();
-      }).catch((r) => {
+      }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
       });
     }
@@ -553,9 +553,8 @@ class ChangeProfileForm(UserChangeForm, VuetifyFormMixin):
             """
 setupUserForm() {
   auth.getAccountDetails()
-    .then((response) => {
+    .then( response  => {
       this.profile = response.data;
-      console.log(this.profile);
     }).catch((e) => {
       console.log(e);
     });
@@ -565,11 +564,10 @@ updateProfile() {
     if (isValid) {
       const data = {...this.profile};
       delete this.profile['username'];
-      auth.updateAccountDetails(this.profile).then((response) => {
-          console.log('updated password')
+      auth.updateAccountDetails(this.profile).then( response  => {
           this.resetForm();
           this.setupUserForm();
-      }).catch((r) => {
+      }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
       });
     }

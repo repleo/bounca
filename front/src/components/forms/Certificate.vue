@@ -629,23 +629,24 @@ onCreateCertificate() {
       this.passphrase_in_visible = false;
       this.certificate.type = this.certtype;
       this.certificate.parent = this.parent.id;
-      certificates.create(this.certificate).then((response) => {
+      certificates.create(this.certificate).then( response  => {
           this.$emit('update-dasboard');
           this.resetForm();
           this.$emit('close-dialog');
-      }).catch((r) => {
+      }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
       });
     }
   });
-}               ,
+}
+            ,
 
     
 onCancel(){
   this.resetForm();
   this.$emit('close-dialog');
 }
-                ,
+            ,
 
 },
 

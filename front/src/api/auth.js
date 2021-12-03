@@ -53,5 +53,5 @@ axios.interceptors.response.use(
     if (error.response.status === 403) {
       store.dispatch('auth/logout').then(() => router.push('/'));
     }
-    return error;
+    return Promise.reject(error);
   });

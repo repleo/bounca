@@ -32,3 +32,6 @@ website:
 
 runwebsiteserver:
 	python3 -m http.server -d ./docs/build/html  8090
+
+createvueforms:
+	python3 manage.py generate_forms

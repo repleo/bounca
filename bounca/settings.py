@@ -138,8 +138,8 @@ REST_FRAMEWORK = {
         "rest_framework.filters.SearchFilter",
     ),
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ),
     "EXCEPTION_HANDLER": "vuetifyforms.views.vue_exception_handler",
 }
@@ -253,7 +253,6 @@ if DEBUG:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
     LOGGING["handlers"]["file"]["filename"] = "./logs/bounca.log"
     LOGGING["root"]["level"] = "INFO"
-    CORS_ORIGIN_ALLOW_ALL = True
 
 if IS_UNITTEST:
     EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
@@ -264,6 +263,3 @@ IS_GENERATE_FRONTEND = "generate_forms" in sys.argv or any(["generate_forms" in 
 if IS_GENERATE_FRONTEND:
     CRISPY_TEMPLATE_PACK = "vuetify"
     INSTALLED_APPS += ["crispy_forms", "vuetifyforms"]
-
-
-# TODO bumpversion
