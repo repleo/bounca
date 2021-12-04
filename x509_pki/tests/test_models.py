@@ -98,8 +98,6 @@ class ModelCertificateTest(TestCase):
         cls.ca.type = CertificateTypes.ROOT
         cls.ca.name = "repleo root ca"
         cls.ca.dn = cls.root_dn
-        cls.ca.crl_distribution_url = "https://ca.demo.repleo.nl/crl/test.crl.pem"
-        cls.ca.ocsp_distribution_host = "https://ca.demo.repleo.nl/ocsp"
         cls.ca.expires_at = arrow.get(timezone.now()).shift(years=+10).date()
 
         cls.ca.revoked_at = None
@@ -146,8 +144,6 @@ class ModelCertificateTest(TestCase):
         cert.type = CertificateTypes.ROOT
         cert.name = "repleo root ca1"
         cert.dn = dn
-        cert.crl_distribution_url = "https://ca.demo.repleo.nl/crl/test.crl.pem"
-        cert.ocsp_distribution_host = "https://ca.demo.repleo.nl/ocsp"
         cert.expires_at = arrow.get(timezone.now()).shift(years=+10).date()
 
         cert.revoked_at = None
@@ -162,8 +158,6 @@ class ModelCertificateTest(TestCase):
         )
         self.assertEqual(cert.type, CertificateTypes.ROOT)
         self.assertEqual(cert.name, "repleo root ca1")
-        self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/test.crl.pem")
-        self.assertEqual(cert.ocsp_distribution_host, "https://ca.demo.repleo.nl/ocsp")
         self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(years=-10).date())
         self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(years=+10).date())
         self.assertIsNone(cert.revoked_at)
@@ -174,8 +168,6 @@ class ModelCertificateTest(TestCase):
         self.assertFalse(cert.revoked)
         self.assertFalse(cert.expired)
         self.assertEqual(cert.slug_name, "repleo-root-ca1")
-
-        self.assertIsNotNone(cert.crlstore.crl)
 
     def test_generate_intermediate_certificate(self):
         dn = DistinguishedNameFactory(
@@ -238,8 +230,6 @@ class ModelCertificateTest(TestCase):
         cert.type = CertificateTypes.SERVER_CERT
         cert.name = "www.repleo.nl"
         cert.dn = dn
-        cert.crl_distribution_url = "https://ca.demo.repleo.nl/crl/test.crl.pem"
-        cert.ocsp_distribution_host = "https://ca.demo.repleo.nl/ocsp"
         cert.expires_at = arrow.get(timezone.now()).shift(years=+1).date()
 
         cert.revoked_at = None
@@ -254,8 +244,6 @@ class ModelCertificateTest(TestCase):
         )
         self.assertEqual(cert.type, CertificateTypes.SERVER_CERT)
         self.assertEqual(cert.name, "www.repleo.nl")
-        self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/test.crl.pem")
-        self.assertEqual(cert.ocsp_distribution_host, "https://ca.demo.repleo.nl/ocsp")
         self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(years=-1).date())
         self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(years=+1).date())
         self.assertIsNone(cert.revoked_at)
@@ -291,8 +279,6 @@ class ModelCertificateTest(TestCase):
         cert.type = CertificateTypes.CLIENT_CERT
         cert.name = "info@bounca.org"
         cert.dn = dn
-        cert.crl_distribution_url = "https://ca.demo.repleo.nl/crl/test.crl.pem"
-        cert.ocsp_distribution_host = "https://ca.demo.repleo.nl/ocsp"
         cert.expires_at = arrow.get(timezone.now()).shift(years=+1).date()
 
         cert.revoked_at = None
@@ -307,8 +293,6 @@ class ModelCertificateTest(TestCase):
         )
         self.assertEqual(cert.type, CertificateTypes.CLIENT_CERT)
         self.assertEqual(cert.name, "info@bounca.org")
-        self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/test.crl.pem")
-        self.assertEqual(cert.ocsp_distribution_host, "https://ca.demo.repleo.nl/ocsp")
         self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(years=-1).date())
         self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(years=+1).date())
         self.assertIsNone(cert.revoked_at)
@@ -345,8 +329,6 @@ class ModelCertificateTest(TestCase):
         cert.type = CertificateTypes.OCSP
         cert.name = "ca.demo.repleo.nl"
         cert.dn = dn
-        cert.crl_distribution_url = "https://ca.demo.repleo.nl/crl/"
-        cert.ocsp_distribution_host = "https://ca.demo.repleo.nl/ocsp"
         cert.expires_at = arrow.get(timezone.now()).shift(years=+1).date()
 
         cert.revoked_at = None
@@ -361,8 +343,6 @@ class ModelCertificateTest(TestCase):
         )
         self.assertEqual(cert.type, CertificateTypes.OCSP)
         self.assertEqual(cert.name, "https://ca.demo.repleo.nl/ocsp")
-        self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/")
-        self.assertEqual(cert.ocsp_distribution_host, "https://ca.demo.repleo.nl/ocsp")
         self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(years=-1).date())
         self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(years=+1).date())
         self.assertIsNone(cert.revoked_at)

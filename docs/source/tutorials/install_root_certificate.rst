@@ -1,19 +1,20 @@
 :header_title: Guide to add self-generated root certificate authorities for 8 operating systems and browsers
 :header_subtitle: Easy installation of self-generated root certificates
+.. _install_root_certificates:
 
 
-Install self-generated root certificate authorities
+Install self-generated root certificates
 ===================================================
 
 Most operating systems offer the ability to add additional trust rules for self-generated root certificate authorities.
-When the root certificate is trusted by the operating system, the system will accept all its signed certificates. 
+When the root certificate is trusted by the operating system, the system will accept all its signed certificates.
 
 This guide shows how to add a root certificate to 8 populair operating systems and browsers.
-Installation is most times easy if you set al the flags right. 
+Installation is most times easy if you set al the flags right.
 After having trusted the certificate you will see the green lock for your self-signed certificates.
 
 The prerequisite is that you have downloaded the root certificate file, or made it available via a website.
-The root certificate PEM file is public and you can distribute it to everyone. 
+The root certificate PEM file is public and you can distribute it to everyone.
 While distributing the certificate make sure you use secured connections and provide the fingerprint via a separate channel so the receiver can verify the root certificate is not intercepted.
 
 
@@ -145,12 +146,12 @@ After you have validated that the certificate is indeed the one you want to trus
     :figclass: align-center
 
     IOS trust new certificate
-    
-IOS will show you a warning if you are really sure. 
+
+IOS will show you a warning if you are really sure.
 The reason of the warning is obvious, if you trust a certificate, it will be possible to perform man-in-the-middle attacks using that certificate. So, you want to be really sure it is your root certificate.
 Click on the install and you will see the final screen that the certificate has been trusted.
 
-    
+
 .. figure:: ../images/install_root_certificate/ios_certificate_installed.jpg
     :width: 400px
     :align: center
@@ -164,7 +165,7 @@ Click on the install and you will see the final screen that the certificate has 
 Windows
 ~~~~~~~
 
-Make sure you have the ``Administrator`` role or group membership. 
+Make sure you have the ``Administrator`` role or group membership.
 
 You need to perform the following steps to add certificates to the *Trusted Root Certification Authorities* store for a local computer:
 
@@ -236,7 +237,7 @@ Add the certificate and select the trust levels of it.
     :alt: Chrome add the certificate and select trust rules
     :figclass: align-center
 
-    Chrome add the certificate and select trust rules    
+    Chrome add the certificate and select trust rules
 
 After clicking **OK**, you will notice the root authority has been added to the authorities list. This means that all certificates signed by this root CA or its intermediate authorities are trusted by Chrome.
 
@@ -258,8 +259,8 @@ You may inspect the certificate by pressing the view button, and check if this i
 
     Chrome inspect the certificate by clicking on the view button
 
-The installation is sucessfull. When you visit a website using server certificates signed by the private root authority, you will see it has a green lock and the connection is trusted. 
-   
+The installation is sucessfull. When you visit a website using server certificates signed by the private root authority, you will see it has a green lock and the connection is trusted.
+
 .. figure:: ../images/install_root_certificate/8_chrome_visit_self-signed_website_and_verify_it_is_trusted.png
     :height: 500px
     :align: center
@@ -267,7 +268,7 @@ The installation is sucessfull. When you visit a website using server certificat
     :figclass: align-center
 
     Chrome visit self-signed website and verify it is trusted
-    
+
 
 
 .. _browser_firefox:
@@ -326,7 +327,7 @@ Add the certificate and select the trust levels of it.
     :alt: Firefox select trust rules
     :figclass: align-center
 
-    Firefox select trust rules    
+    Firefox select trust rules
 
 After clicking **OK**, you will notice the root authority has been added to the authorities list. This means that all certificates signed by this root CA or its intermediate authorities are trusted by Chrome.
 
@@ -348,8 +349,8 @@ You may inspect the certificate by pressing the view button, and check if this i
 
     Firefox inspect the certificate by clicking on the view button
 
-The installation is sucessfull. When you visit a website using server certificates signed by the private root authority, you will see it has a green lock and the connection is trusted. 
-   
+The installation is sucessfull. When you visit a website using server certificates signed by the private root authority, you will see it has a green lock and the connection is trusted.
+
 .. figure:: ../images/install_root_certificate/8_firefox_visit_self-signed_website_and_verify_it_is_trusted.png
     :height: 500px
     :align: center
@@ -357,7 +358,7 @@ The installation is sucessfull. When you visit a website using server certificat
     :figclass: align-center
 
     Firefox visit self-signed website and verify it is trusted
-    
+
 
 
 
@@ -378,19 +379,19 @@ After you copied your certificate to the ``/usr/local/share/ca-certificates`` fo
 
 You will notice that the command reports it has installed one (or more) new certificate. The certificate has been added to the Operating System and signed certificates will be trusted.
 
-To remove the certificate, just remove it from ``/usr/local/share/ca-certificates`` and run 
+To remove the certificate, just remove it from ``/usr/local/share/ca-certificates`` and run
 
 .. code-block:: shell
 
    sudo update-ca-certificates --fresh
-   
+
 .. _linux_redhat_centos:
 
 Linux Red Hat / CentOS
 ~~~~~~~~~~~~~~~~~~~~~~
 
 The installation of a root certificate on Red Hat or CentOS depends on the release. We discuss release 6 and 5 in this section
-Red Hat and CentOS 
+Red Hat and CentOS
 
 Red Hat / CentOS 6
 ``````````````````
@@ -400,24 +401,24 @@ To manage certificates in CentOS 6 you need the ``ca-certificates`` package. Ins
 .. code-block:: shell
 
    yum install ca-certificates
-   
+
 
 Enable the dynamic CA configuration feature:
 
 .. code-block:: shell
-   
+
    update-ca-trust force-enable
 
 Make sure the root certificate has the ``.crt`` extension and copy it to ``/etc/pki/ca-trust/source/anchors/``
 
 .. code-block:: shell
-   
+
    cp rootca.crt /etc/pki/ca-trust/source/anchors/
 
 Update the trusted certificate list
 
 .. code-block:: shell
-   
+
    update-ca-trust extract
 
 
@@ -427,7 +428,7 @@ Red Hat / CentOS 5
 The older CentOS releases don't offer a certificate manager. To install a new root certificate, you need to add the certificate to a trusted bundle file.
 
 .. code-block:: shell
-   
+
    cat rootca.crt >> /etc/pki/tls/certs/ca-bundle.crt
 
 
@@ -436,7 +437,7 @@ The older CentOS releases don't offer a certificate manager. To install a new ro
 FreeBSD
 ~~~~~~~
 
-FreeBSD doesn't offer a centralized root certificate manager. 
+FreeBSD doesn't offer a centralized root certificate manager.
 If you want to add a root authority you can add it directly to the certificates managed by OpenSSL.
 This depends on your configuration and is for now out of the scope of this guide.
 

@@ -24,7 +24,10 @@ mail:
 
 certificate-engine:
   # allowed values: ed25519, rsa
-  key_algorithm: ed25519
+  # Ed25519 is a a modern, fast and safe key algorithm, however not supported by all operating systems, like MacOS.
+  # Keep the 'rsa' option if unsure. Root and intermediate keys are 4096 bits, client and server certificates
+  # use 2048 bits keys.
+  key_algorithm: rsa
 
 registration:
   # allowed values: mandatory, optional, off

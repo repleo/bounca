@@ -276,7 +276,7 @@ class Certificate(models.Model):
 
     class Meta:
         unique_together = (
-            ("name", "type", "revoked_uuid"),
+            ("name", "owner", "type", "revoked_uuid"),
             ("dn", "type", "revoked_uuid"),
         )
 
@@ -323,6 +323,14 @@ def check_if_root_has_no_parent(instance, *args, **kwargs):
         raise ValidationError("Not allowed to have a parent certificate for a Root CA certificate")
 
 
+def check_if_only_intermediate_has_crl_or_ocsp(instance, *args, **kwargs):
+    if instance.type is not CertificateTypes.INTERMEDIATE:
+        if instance.crl_distribution_url:
+            raise ValidationError("CRL distribution url only allowed for intermediate certificates")
+        if instance.ocsp_distribution_host:
+            raise ValidationError("OCSP distribution host only allowed for intermediate certificates")
+
+
 def check_if_non_root_certificate_has_parent(instance, *args, **kwargs):
     if instance.type is not CertificateTypes.ROOT:
         if not instance.parent:
@@ -360,6 +368,7 @@ def check_if_child_not_expires_after_parent(instance, *args, **kwargs):
 def validation_rules_certificate(sender, instance, *args, **kwargs):
     check_if_not_update_certificate(instance, *args, **kwargs)
     check_if_root_has_no_parent(instance, *args, **kwargs)
+    check_if_only_intermediate_has_crl_or_ocsp(instance, *args, **kwargs)
     check_if_non_root_certificate_has_parent(instance, *args, **kwargs)
     check_intermediate_policies(instance, *args, **kwargs)
     check_if_child_not_expires_after_parent(instance, *args, **kwargs)
@@ -423,7 +432,7 @@ def generate_certificate(sender, instance, created, **kwargs):
         keystore.crt = certhandler.serialize()
         keystore.save()
 
-        if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
+        if instance.type in [CertificateTypes.INTERMEDIATE]:
             crl = revocation_list_builder([], instance.keystore.crt, instance.keystore.key, instance.passphrase_out)
             crlstore = CrlStore(certificate=instance)
             crlstore.crl = serialize(crl)
@@ -434,7 +443,7 @@ def generate_certificate(sender, instance, created, **kwargs):
 def generate_certificate_revocation_list(sender, instance, created, **kwargs):
     update_fields = kwargs["update_fields"]
     if not created and "revoked_uuid" in update_fields:
-        if instance.type is CertificateTypes.ROOT:
+        if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
             return
 
         if not instance.parent:

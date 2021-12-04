@@ -72,12 +72,7 @@ class RootCertificateTest(CertificateTestCase):
         # issuer
         self.assertIsInstance(crt.issuer, x509.Name)
         self.assert_subject(crt.issuer, certificate_request)
-        self.assert_crl_distribution(crt, certificate_request)
         self.assert_root_authority(crt)
-
-        # OCSP
-        # authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
-        self.assert_oscp(crt, certificate_request)
 
         # authorityKeyIdentifier = keyid:always, issuer
         self.assert_authority_key(crt, self.key)
@@ -100,12 +95,7 @@ class RootCertificateTest(CertificateTestCase):
         self.assert_subject(crt.issuer, certificate_request)
         self.assertListEqual([], crt.issuer.get_attributes_for_oid(NameOID.LOCALITY_NAME))
 
-        self.assert_crl_distribution(crt, certificate_request)
         self.assert_root_authority(crt)
-
-        # OCSP
-        # authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
-        self.assert_oscp(crt, certificate_request)
 
         # authorityKeyIdentifier = keyid:always, issuer
         self.assert_authority_key(crt, self.key)
@@ -114,7 +104,7 @@ class RootCertificateTest(CertificateTestCase):
         self.assert_hash(crt)
 
     def test_generate_root_ca_no_crl_distribution(self):
-        certificate_request = CertificateFactory(crl_distribution_url=None)
+        certificate_request = CertificateFactory()
         certhandler = Certificate()
         certhandler.create_certificate(certificate_request, self.key.serialize())
 
@@ -136,7 +126,7 @@ class RootCertificateTest(CertificateTestCase):
             crt.extensions.get_extension_for_oid(ExtensionOID.CRL_DISTRIBUTION_POINTS)
 
     def test_generate_root_ca_no_ocsp(self):
-        certificate_request = CertificateFactory(ocsp_distribution_host=None)
+        certificate_request = CertificateFactory()
         certhandler = Certificate()
         certhandler.create_certificate(certificate_request, self.key.serialize())
 
@@ -146,7 +136,6 @@ class RootCertificateTest(CertificateTestCase):
         self.assert_subject(crt.subject, certificate_request)
         # issuer
         self.assert_subject(crt.issuer, certificate_request)
-        self.assert_crl_distribution(crt, certificate_request)
         self.assert_root_authority(crt)
 
         self.assertEqual(crt.serial_number, int(certificate_request.serial))
@@ -172,7 +161,6 @@ class RootCertificateTest(CertificateTestCase):
         self.assert_subject(crt.subject, certificate_request)
         # issuer
         self.assert_subject(crt.issuer, certificate_request)
-        self.assert_crl_distribution(crt, certificate_request)
         self.assert_root_authority(crt)
 
         self.assertEqual(crt.serial_number, int(certificate_request.serial))

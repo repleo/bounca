@@ -169,49 +169,49 @@ class Certificate(object):
         )
 
     def _set_crl_distribution_url(self, cert: CertificateType) -> None:
-        if cert.type in {CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT}:
+        if cert.type in [CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT]:
             cert = cert.parent
-        if cert.crl_distribution_url:
-            self._builder = self._builder.add_extension(
-                x509.CRLDistributionPoints(
-                    [
-                        x509.DistributionPoint(
-                            full_name=[x509.UniformResourceIdentifier(cert.crl_distribution_url)],
-                            relative_name=None,
-                            reasons=frozenset(
-                                [
-                                    x509.ReasonFlags.key_compromise,
-                                    x509.ReasonFlags.ca_compromise,
-                                    x509.ReasonFlags.affiliation_changed,
-                                    x509.ReasonFlags.superseded,
-                                    x509.ReasonFlags.privilege_withdrawn,
-                                    x509.ReasonFlags.cessation_of_operation,
-                                    x509.ReasonFlags.aa_compromise,
-                                    x509.ReasonFlags.certificate_hold,
-                                ]
-                            ),
-                            crl_issuer=None,
-                        )
-                    ]
-                ),
-                critical=True,
-            )
+            if cert.crl_distribution_url:
+                self._builder = self._builder.add_extension(
+                    x509.CRLDistributionPoints(
+                        [
+                            x509.DistributionPoint(
+                                full_name=[x509.UniformResourceIdentifier(cert.crl_distribution_url)],
+                                relative_name=None,
+                                reasons=frozenset(
+                                    [
+                                        x509.ReasonFlags.key_compromise,
+                                        x509.ReasonFlags.ca_compromise,
+                                        x509.ReasonFlags.affiliation_changed,
+                                        x509.ReasonFlags.superseded,
+                                        x509.ReasonFlags.privilege_withdrawn,
+                                        x509.ReasonFlags.cessation_of_operation,
+                                        x509.ReasonFlags.aa_compromise,
+                                        x509.ReasonFlags.certificate_hold,
+                                    ]
+                                ),
+                                crl_issuer=None,
+                            )
+                        ]
+                    ),
+                    critical=True,
+                )
 
     def _set_ocsp_distribution_url(self, cert: CertificateType) -> None:
-        if cert.type in {CertificateTypes.SERVER_CERT, cert.type == CertificateTypes.CLIENT_CERT}:
+        if cert.type in [CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT]:
             cert = cert.parent
-        if cert.ocsp_distribution_host:
-            self._builder = self._builder.add_extension(
-                x509.AuthorityInformationAccess(
-                    [
-                        x509.AccessDescription(
-                            AuthorityInformationAccessOID.OCSP,
-                            x509.UniformResourceIdentifier(cert.ocsp_distribution_host),
-                        )
-                    ]
-                ),
-                critical=True,
-            )
+            if cert.ocsp_distribution_host:
+                self._builder = self._builder.add_extension(
+                    x509.AuthorityInformationAccess(
+                        [
+                            x509.AccessDescription(
+                                AuthorityInformationAccessOID.OCSP,
+                                x509.UniformResourceIdentifier(cert.ocsp_distribution_host),
+                            )
+                        ]
+                    ),
+                    critical=True,
+                )
 
     def _set_basic_constraints(self, cert: CertificateType) -> None:
         path_length = None

@@ -171,6 +171,8 @@ class IntermediateCertificateTest(CertificateTestCase):
             name="test_generate_intermediate_certificate",
             parent=self.root_certificate,
             dn=subject,
+            crl_distribution_url="https://example.com/crl/cert.crl.pem",
+            ocsp_distribution_host="https://example.com/ocsp/",
         )
         certificate_request.save()
         certhandler = Certificate()
@@ -187,14 +189,7 @@ class IntermediateCertificateTest(CertificateTestCase):
         self.assert_subject(crt.issuer, self.root_certificate)
         self.assertListEqual([], crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME))
 
-        # crlDistributionspoints
-        self.assert_crl_distribution(crt, certificate_request)
-
         self.assert_intermediate_authority(crt)
-
-        # OCSP
-        # authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
-        self.assert_oscp(crt, certificate_request)
 
         # authorityKeyIdentifier = keyid:always, issuer
         self.assert_authority_key(crt, self.root_key, self.root_certificate)

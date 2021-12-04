@@ -388,7 +388,7 @@
         <v-col class="" >
         <v-card class=" "  outlined>
 <v-card-title class="headline">Revocation Services</v-card-title>
-    <v-card-text><h5>Note: Provide only available services</h5>
+    <v-card-text><h5>These services are set in the extensions of the issued certificates</h5><h5>Note: Provide only available services</h5>
 
 
 

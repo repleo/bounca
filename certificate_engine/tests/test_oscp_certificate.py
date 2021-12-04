@@ -48,6 +48,8 @@ class OcspCertificateTest(CertificateTestCase):
             type=CertificateTypes.INTERMEDIATE,
             parent=cls.root_certificate,
             dn=subject,
+            crl_distribution_url="https://example.com/crl/cert.crl.pem",
+            ocsp_distribution_host="https://example.com/ocsp/",
         )
 
         with mute_signals(signals.post_save):
@@ -83,13 +85,6 @@ class OcspCertificateTest(CertificateTestCase):
 
         # extendedKeyUsage = critical, OCSPSigning
         self.assert_extension(crt, ExtensionOID.EXTENDED_KEY_USAGE, [ExtendedKeyUsageOID.OCSP_SIGNING], critical=True)
-
-        # crlDistributionPoints
-        self.assert_crl_distribution(crt, self.int_certificate)
-
-        # OCSP
-        # authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
-        self.assert_oscp(crt, self.int_certificate)
 
         # subject
         self.assert_subject(crt.subject, certificate)
@@ -131,13 +126,6 @@ class OcspCertificateTest(CertificateTestCase):
 
         # extendedKeyUsage = critical, OCSPSigning
         self.assert_extension(crt, ExtensionOID.EXTENDED_KEY_USAGE, [ExtendedKeyUsageOID.OCSP_SIGNING], critical=True)
-
-        # crlDistributionPoints
-        self.assert_crl_distribution(crt, self.int_certificate)
-
-        # OCSP
-        # authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
-        self.assert_oscp(crt, self.int_certificate)
 
         # subject
         self.assert_subject(crt.subject, certificate)
