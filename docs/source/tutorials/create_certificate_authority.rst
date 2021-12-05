@@ -29,8 +29,8 @@ This allows to keep the root key offline and unused as much as possible, as any 
 When you login to your fresh BounCA, you will enter the overview tab.
 Click on the 'Root Certificate' tab at the left side.
 
-.. figure:: ../images/generate-server-certificate/1-empty-root-dashboard.png
-    :width: 800px
+.. figure:: ../images/generate-ca-certificates/1-empty-root-dashboard.png
+    :width: 1000px
     :align: center
     :alt: Empty root dashboard
     :figclass: align-center
@@ -46,8 +46,8 @@ CRL is supported by BounCA, in case you wants to use OCSP, you need to host an O
 Give the root certificate a long expiry date, for example twenty years.
 Once the root certificate expires, all certificates signed by the CA become invalid.
 
-.. figure:: ../images/generate-server-certificate/2-create-root-certificate.png
-    :width: 800px
+.. figure:: ../images/generate-ca-certificates/2-create-root-certificate.png
+    :width: 1000px
     :align: center
     :alt: Create root certificate
     :figclass: align-center
@@ -61,8 +61,8 @@ Ed25519 is a a modern, fast and safe key algorithm, however not supported by all
 The RSA-algorithm is the default configuration of BounCA. Root and intermediate keys are 4096 bits, client and server certificates
 use 2048 bits keys.
 
-.. figure:: ../images/generate-server-certificate/4-root-certificate-generated.png
-    :width: 800px
+.. figure:: ../images/generate-ca-certificates/4-root-certificate-generated.png
+    :width: 1000px
     :align: center
     :alt: Root certificate generated
     :figclass: align-center
@@ -83,24 +83,23 @@ The ``Issuer`` and ``Subject`` are identical as the certificate is self-signed.
 Note that all root certificates are self-signed.
 
 
-.. figure:: ../images/generate-server-certificate/5-inspect-root-certificate.png
-    :width: 800px
+.. figure:: ../images/generate-ca-certificates/5-inspect-root-certificate.png
+    :width: 1000px
     :align: center
     :alt: Inspect root certificate
     :figclass: align-center
 
     Inspect root certificate
 
-And you can check if the OCSP and/or CRL links are available in the X.509v3 fields of the certificate.
-The output also shows the applied *X509v3 extensions*.
+You can scroll down to inspect the applied *X509v3 extensions*.
 
-.. figure:: ../images/generate-server-certificate/6-inspect-root-certificate-revoke-crl.png
-    :width: 800px
+.. figure:: ../images/generate-ca-certificates/6-inspect-root-certificate-X.509v3-extensions.png
+    :width: 1000px
     :align: center
-    :alt: Inspect revocation services CRL and OCSP links in certificate
+    :alt: The applied X509v3 extensions
     :figclass: align-center
 
-    Inspect revocation services CRL uri in certificate
+    The applied X509v3 extensions
 
 Install your root certificate authority
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,73 +113,54 @@ MacOS
 ````````
 
 Download the root certificate from the BounCA interface and double click on the downloaded PEM.
-The key manager program will start and it will show you the certificate.
-Check the validity of the certificate.
+The key manager program will start and it will show you the certificate. You might need to filter on the certificate common name to
+find it in the list. Check the validity of the certificate.
 
 
-.. figure:: ../images/generate-server-certificate/20-install-root-pem-certificate.png
-    :width: 800px
+.. figure:: ../images/generate-ca-certificates/20-listed-root-pem-certificate.png
+    :width: 500px
     :align: center
     :alt: Install root CA pem file MacOS
     :figclass: align-center
 
     Install root CA pem file on MacOS
 
+Right click on the certificate to inspect it.
 
-
-.. figure:: ../images/generate-server-certificate/21-validate-root-ca-pem.png
-    :height: 500px
+.. figure:: ../images/generate-ca-certificates/21-inspect-root-pem-certificate.png
+    :width: 500px
     :align: center
-    :alt: Validate root CA pem on MacOS
+    :alt: Install root CA pem file MacOS
     :figclass: align-center
 
     Validate root CA PEM on MacOS
 
-In case you trust the certificate you can add it to your operating system. Add it on system level, MacOS will ask for your administrator password.
-When you have added the certificate to your trust chain, MacOS will trust the root CA's signed certificates.
+If everything is correct, you can trust the certificate as root authority.
+In case you add it on system level, MacOS will ask for your administrator password.
+MacOS will trust the root CA's signed certificates after you have added the certificate to your trust chain.
 
 
-.. figure:: ../images/generate-server-certificate/22-add-root-ca-pem.png
-    :height: 350px
+.. figure:: ../images/generate-ca-certificates/22-trust-root-ca-pem.png
+    :height: 500px
     :align: center
     :alt: Add root CA pem to MacOS
     :figclass: align-center
 
-    Add root CA PEM to MacOS
+    Trust your root certificate
 
-Enter your administator password.
+Re-open the key manager, search for your root certificate. You will notice it is now trusted by MacOS.
 
-.. figure:: ../images/generate-server-certificate/23-enter-password.png
-    :height: 350px
-    :align: center
-    :alt: Enter administrator password
-    :figclass: align-center
-
-    Enter your administrator password
-
-Add the root authority pem as trusted root certificate to your system.
-
-.. figure:: ../images/generate-server-certificate/24-trust-self-signed-root-ca-pem.png
+.. figure:: ../images/generate-ca-certificates/24-trusted-self-signed-root-ca-pem.png
     :height: 500px
     :align: center
     :alt: Trust added root authority pem
     :figclass: align-center
 
-    Trust added root authority PEM
+    Trusted root certificate
 
-Enable system-wide trust of your root certificate
+If you inspect the certificate you see it as valid for the account.
 
-.. figure:: ../images/generate-server-certificate/25-trust-rules-enabled.png
-    :height: 500px
-    :align: center
-    :alt: Trust rules enabled
-    :figclass: align-center
-
-    Trust rules enabled
-
-Re-open the root PEM certificate in the key manager. You will notice it is now trusted by MacOS.
-
-.. figure:: ../images/generate-server-certificate/26-root-ca-is-trusted.png
+.. figure:: ../images/generate-ca-certificates/26-root-ca-is-trusted.png
     :height: 500px
     :align: center
     :alt: Verify root CA has been trusted
@@ -202,8 +182,8 @@ If the intermediate key is compromised, the root CA can revoke the intermediate 
 Enter the root CA view in BounCA by clicking on the blue ``edit`` button or by clicking on the shortname of the root certificate.
 You will enter a screen with an empty table.
 
-.. figure:: ../images/generate-server-certificate/7-enter-root-ca.png
-    :width: 800px
+.. figure:: ../images/generate-ca-certificates/7-enter-root-ca.png
+    :width: 1000px
     :align: center
     :alt: Use root certificate as context
     :figclass: align-center
@@ -217,8 +197,8 @@ You will not be able to edit all the fields, as they must be the same as of your
 The intermediate certificate should be valid for a shorter period than the root certificate.
 Ten years would be reasonable.
 
-.. figure:: ../images/generate-server-certificate/8-generate-intermediate-certificate.png
-    :width: 800px
+.. figure:: ../images/generate-ca-certificates/8-generate-intermediate-certificate.png
+    :width: 1000px
     :align: center
     :alt: Generate intermediate certificate authority
     :figclass: align-center
@@ -228,8 +208,8 @@ Ten years would be reasonable.
 Enter the passphrase of the root certificate to be able to sign the intermediate certificate and enter the passphrase of the certificate self.
 Use again a strong passphrase to protect your intermediate certificate.
 
-.. figure:: ../images/generate-server-certificate/9-generate-intermediate-certificate-enter-passphrases.png
-    :width: 800px
+.. figure:: ../images/generate-ca-certificates/9-generate-intermediate-certificate-enter-passphrases.png
+    :width: 1000px
     :align: center
     :alt: Enter passphrases for generating intermediate certificate
     :figclass: align-center
@@ -238,8 +218,8 @@ Use again a strong passphrase to protect your intermediate certificate.
 
 The intermediate certificate will be generated and you can inspect its subject by clicking on the ``info`` button.
 
-.. figure:: ../images/generate-server-certificate/10-inspect-intermediate-certificate.png
-    :width: 800px
+.. figure:: ../images/generate-ca-certificates/10-inspect-intermediate-certificate.png
+    :width: 1000px
     :align: center
     :alt: Inspect intermediate certificate authority
     :figclass: align-center
@@ -248,8 +228,8 @@ The intermediate certificate will be generated and you can inspect its subject b
 
 The CRL and OCSP urls are automatically assigned to the same as the root certificate, and in case of the CRL url, it refers to the name of your intermediate authority.
 
-.. figure:: ../images/generate-server-certificate/11-inspect-intermediate-certificate-crl-ocsp.png
-    :width: 800px
+.. figure:: ../images/generate-ca-certificates/11-inspect-intermediate-certificate-crl-ocsp.png
+    :width: 1000px
     :align: center
     :alt: Inspect CRL and OCSP links of intermediate certificate
     :figclass: align-center

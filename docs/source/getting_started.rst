@@ -187,11 +187,11 @@ You will see a login screen, please create an account an login.
 You are ready to create your Certificate Authorities!
 
 
-The admin interface can be found at ``http://<your bounca url>/admin``.
+The admin interface can be found at ``https://<your bounca url>/admin``.
 
 
-.. note:: While BounCA has a login feature, your keys are protected by passphrases.
-          Passphrases are not stored in BounCA, so please remember them as they cannot be recovered from your keys.
+.. note:: Your keys are protected by passphrases.
+          These passphrases are not stored in BounCA, so please remember them as they cannot be recovered from your keys.
 
 .. _Bounca Cloud: https://app.bounca.org
 .. _gitlab: https://www.gitlab.com/bounca/bounca

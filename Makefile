@@ -35,3 +35,6 @@ runwebsiteserver:
 
 createvueforms:
 	python3 manage.py generate_forms
+
+docserver:
+	python3 -m http.server --directory ./docs/build/html 8090
