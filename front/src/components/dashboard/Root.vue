@@ -74,6 +74,12 @@
                       @click="downloadCertificate(item.id)">
                 mdi-download
               </v-icon>
+              <v-btn class=""
+                text
+                :disabled="!item.crl_distribution_url"
+                @click="downloadCRL(item.id)">
+                CRL
+              </v-btn>
             </span>
           </template>
         </v-data-table>
@@ -334,6 +340,7 @@ export default {
         expiresAt: certificate.expires_at,
         revoked: certificate.revoked,
         expired: certificate.expired,
+        crl_distribution_url: certificate.crl_distribution_url,
       };
     },
 
@@ -365,6 +372,12 @@ export default {
     downloadCertificate(item) {
       this.dialogDownloading = true;
       certificates.download(`certificates/${item}/download`,
+        this.downloadCertificateFinished, this.downloadCertificateError);
+    },
+
+    downloadCRL(item) {
+      this.dialogDownloading = true;
+      certificates.download(`certificates/${item}/crl`,
         this.downloadCertificateFinished, this.downloadCertificateError);
     },
 

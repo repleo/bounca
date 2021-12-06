@@ -387,6 +387,88 @@
 <v-row class="" >
         <v-col class="" >
         <v-card class=" "  outlined>
+<v-card-title class="headline">Revocation Services</v-card-title>
+    <v-card-text><h5>These services are set in the extensions of the issued certificates</h5><h5>Note: Provide only available services</h5>
+
+
+
+
+<v-tooltip bottom>
+<template v-slot:activator="{ on, attrs }">
+
+<ValidationProvider name="CRL distribution url" vid="crl_distribution_url"
+                    rules="url|max:200" v-slot="{ errors }">
+
+<v-text-field
+  label="CRL distribution url"
+  v-model="rootcert.crl_distribution_url"
+  :error-messages="errors"
+  
+  type="url"
+  
+  
+  
+  
+  v-bind="attrs"
+  v-on="on"
+  
+></v-text-field>
+
+
+
+</ValidationProvider>
+
+</template>
+<span>Base URL for certificate revocation list (CRL)</span>
+</v-tooltip>
+
+
+
+
+
+
+
+
+<v-tooltip bottom>
+<template v-slot:activator="{ on, attrs }">
+
+<ValidationProvider name="OCSP distribution host" vid="ocsp_distribution_host"
+                    rules="url|max:200" v-slot="{ errors }">
+
+<v-text-field
+  label="OCSP distribution host"
+  v-model="rootcert.ocsp_distribution_host"
+  :error-messages="errors"
+  
+  type="url"
+  
+  
+  
+  
+  v-bind="attrs"
+  v-on="on"
+  
+></v-text-field>
+
+
+
+</ValidationProvider>
+
+</template>
+<span>Host URL for Online Certificate Status Protocol (OCSP)</span>
+</v-tooltip>
+
+
+
+</v-card-text>
+</v-card>
+
+</v-col>
+
+</v-row>
+<v-row class="" >
+        <v-col class="" >
+        <v-card class=" "  outlined>
 <v-card-title class="headline">Certificate</v-card-title>
     <v-card-text>
 

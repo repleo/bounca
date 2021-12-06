@@ -163,6 +163,18 @@ class AddRootCAForm(CertificateForm, VuetifyFormMixin):
             Row(
                 Column(
                     Fieldset(
+                        "Revocation Services",
+                        HTML("<h5>These services are set in the extensions of the issued certificates</h5>"),
+                        HTML("<h5>Note: Provide only available services</h5>"),
+                        "crl_distribution_url",
+                        "ocsp_distribution_host",
+                        outlined=True,
+                    )
+                )
+            ),
+            Row(
+                Column(
+                    Fieldset(
                         "Certificate",
                         "name",
                         Row(Column("passphrase_out"), Column("passphrase_out_confirmation")),

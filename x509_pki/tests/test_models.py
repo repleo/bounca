@@ -445,7 +445,9 @@ class ModelCertificateTest(TestCase):
     def test_client_cert_parent_no_intermediate_parent(self):
         ca = CertificateFactory(type=CertificateTypes.ROOT)
         ca.save()
-        cert = CertificateFactory(type=CertificateTypes.CLIENT_CERT, parent=ca)
+        cert = CertificateFactory(
+            type=CertificateTypes.CLIENT_CERT, parent=ca, crl_distribution_url=None, ocsp_distribution_host=None
+        )
         with self.assertRaises(ValidationError) as c:
             cert.save()
         self.assertEqual(c.exception.message, "Client certificate can only be generated for intermediate CA parent")
@@ -453,7 +455,9 @@ class ModelCertificateTest(TestCase):
     def test_server_cert_parent_no_intermediate_parent(self):
         ca = CertificateFactory(type=CertificateTypes.ROOT)
         ca.save()
-        cert = CertificateFactory(type=CertificateTypes.SERVER_CERT, parent=ca)
+        cert = CertificateFactory(
+            type=CertificateTypes.SERVER_CERT, parent=ca, crl_distribution_url=None, ocsp_distribution_host=None
+        )
         with self.assertRaises(ValidationError) as c:
             cert.save()
         self.assertEqual(c.exception.message, "Server certificate can only be generated for intermediate CA parent")
@@ -461,7 +465,9 @@ class ModelCertificateTest(TestCase):
     def test_ocsp_cert_parent_no_intermediate_parent(self):
         ca = CertificateFactory(type=CertificateTypes.ROOT)
         ca.save()
-        cert = CertificateFactory(type=CertificateTypes.OCSP, parent=ca)
+        cert = CertificateFactory(
+            type=CertificateTypes.OCSP, parent=ca, crl_distribution_url=None, ocsp_distribution_host=None
+        )
         with self.assertRaises(ValidationError) as c:
             cert.save()
         self.assertEqual(c.exception.message, "OCSP certificate can only be generated for intermediate CA parent")
@@ -469,7 +475,9 @@ class ModelCertificateTest(TestCase):
     def test_ocsp_cert_parent_is_not_intermediate_parent(self):
         ca = CertificateFactory(type=CertificateTypes.ROOT)
         ca.save()
-        cert = CertificateFactory(type=CertificateTypes.OCSP, parent=ca)
+        cert = CertificateFactory(
+            type=CertificateTypes.OCSP, parent=ca, crl_distribution_url=None, ocsp_distribution_host=None
+        )
         with self.assertRaises(ValidationError) as c:
             cert.save()
         self.assertEqual(c.exception.message, "OCSP certificate can only be generated for intermediate CA parent")

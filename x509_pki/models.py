@@ -323,12 +323,12 @@ def check_if_root_has_no_parent(instance, *args, **kwargs):
         raise ValidationError("Not allowed to have a parent certificate for a Root CA certificate")
 
 
-def check_if_only_intermediate_has_crl_or_ocsp(instance, *args, **kwargs):
-    if instance.type is not CertificateTypes.INTERMEDIATE:
+def check_if_only_root_intermediate_has_crl_or_ocsp(instance, *args, **kwargs):
+    if instance.type not in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
         if instance.crl_distribution_url:
-            raise ValidationError("CRL distribution url only allowed for intermediate certificates")
+            raise ValidationError("CRL distribution url only allowed for root and intermediate certificates")
         if instance.ocsp_distribution_host:
-            raise ValidationError("OCSP distribution host only allowed for intermediate certificates")
+            raise ValidationError("OCSP distribution host only allowed for root and intermediate certificates")
 
 
 def check_if_non_root_certificate_has_parent(instance, *args, **kwargs):
@@ -368,7 +368,7 @@ def check_if_child_not_expires_after_parent(instance, *args, **kwargs):
 def validation_rules_certificate(sender, instance, *args, **kwargs):
     check_if_not_update_certificate(instance, *args, **kwargs)
     check_if_root_has_no_parent(instance, *args, **kwargs)
-    check_if_only_intermediate_has_crl_or_ocsp(instance, *args, **kwargs)
+    check_if_only_root_intermediate_has_crl_or_ocsp(instance, *args, **kwargs)
     check_if_non_root_certificate_has_parent(instance, *args, **kwargs)
     check_intermediate_policies(instance, *args, **kwargs)
     check_if_child_not_expires_after_parent(instance, *args, **kwargs)

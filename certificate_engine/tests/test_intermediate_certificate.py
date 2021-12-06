@@ -197,6 +197,13 @@ class IntermediateCertificateTest(CertificateTestCase):
         # subjectKeyIdentifier = hash
         self.assert_hash(crt)
 
+        # crlDistributionspoints
+        self.assert_crl_distribution(crt, self.root_certificate)
+
+        # OCSP
+        # authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
+        self.assert_oscp(crt, self.root_certificate)
+
     def test_generate_intermediate_certificate_minimal(self):
         key = Key().create_key("rsa", 4096)
 

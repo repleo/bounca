@@ -274,6 +274,8 @@ class ServerCertificateTest(CertificateTestCase):
             name="test_generate_server_certificate_parent_server_cert_1",
             parent=self.int_certificate,
             dn=server_subject,
+            crl_distribution_url=None,
+            ocsp_distribution_host=None,
         )
         with mute_signals(signals.post_save):
             certificate.save()

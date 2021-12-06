@@ -169,7 +169,7 @@ class Certificate(object):
         )
 
     def _set_crl_distribution_url(self, cert: CertificateType) -> None:
-        if cert.type in [CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT]:
+        if cert.type is not CertificateTypes.ROOT:
             cert = cert.parent
             if cert.crl_distribution_url:
                 self._builder = self._builder.add_extension(
@@ -198,7 +198,7 @@ class Certificate(object):
                 )
 
     def _set_ocsp_distribution_url(self, cert: CertificateType) -> None:
-        if cert.type in [CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT]:
+        if cert.type is not CertificateTypes.ROOT:
             cert = cert.parent
             if cert.ocsp_distribution_host:
                 self._builder = self._builder.add_extension(

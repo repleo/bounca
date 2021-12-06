@@ -91,6 +91,13 @@ class OcspCertificateTest(CertificateTestCase):
         # issuer
         self.assert_subject(crt.issuer, self.int_certificate)
 
+        # crlDistributionPoints
+        self.assert_crl_distribution(crt, self.int_certificate)
+
+        # OCSP
+        # authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
+        self.assert_oscp(crt, self.int_certificate)
+
     def test_generate_ocsp_certificate_minimal(self):
         ocsp_subject = DistinguishedNameFactory(
             countryName=None,
@@ -107,6 +114,8 @@ class OcspCertificateTest(CertificateTestCase):
             name="test_generate_ocsp_certificate_minimal",
             parent=self.int_certificate,
             dn=ocsp_subject,
+            crl_distribution_url=None,
+            ocsp_distribution_host=None,
         )
         certificate.save()
         certhandler = Certificate()
@@ -127,6 +136,13 @@ class OcspCertificateTest(CertificateTestCase):
         # extendedKeyUsage = critical, OCSPSigning
         self.assert_extension(crt, ExtensionOID.EXTENDED_KEY_USAGE, [ExtendedKeyUsageOID.OCSP_SIGNING], critical=True)
 
+        # crlDistributionPoints
+        self.assert_crl_distribution(crt, self.int_certificate)
+
+        # OCSP
+        # authorityInfoAccess = OCSP;URI:{{cert.ocsp_distribution_host}}
+        self.assert_oscp(crt, self.int_certificate)
+
         # subject
         self.assert_subject(crt.subject, certificate)
         # issuer
@@ -139,6 +155,8 @@ class OcspCertificateTest(CertificateTestCase):
             name="test_generate_client_certificate_parent_ocsp_cert_1",
             parent=self.int_certificate,
             dn=ocsp_subject,
+            crl_distribution_url=None,
+            ocsp_distribution_host=None,
         )
         certificate.save()
         certhandler = Certificate()

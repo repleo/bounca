@@ -129,6 +129,8 @@ class EmailCertificateTest(CertificateTestCase):
             name="test_generate_client_certificate_minimal",
             parent=self.int_certificate,
             dn=client_subject,
+            crl_distribution_url=None,
+            ocsp_distribution_host=None,
         )
         certificate.save()
         certhandler = Certificate()
@@ -231,6 +233,8 @@ class EmailCertificateTest(CertificateTestCase):
             name="test_generate_client_certificate_parent_client_cert_1",
             parent=self.int_certificate,
             dn=client_subject,
+            crl_distribution_url=None,
+            ocsp_distribution_host=None,
         )
         certificate.save()
         certhandler = Certificate()
