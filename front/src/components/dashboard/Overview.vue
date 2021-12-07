@@ -388,7 +388,7 @@ export default {
 
     downloadCertificate(item) {
       this.dialogDownloading = true;
-      certificates.download(item,
+      certificates.downloadCertificate(item,
         this.downloadCertificateFinished, this.downloadCertificateError);
     },
 

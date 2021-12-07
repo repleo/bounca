@@ -52,9 +52,19 @@ Once the root certificate expires, all certificates signed by the CA become inva
     :alt: Create root certificate
     :figclass: align-center
 
-    Create root certificate
+    Create root certificate 1/2
 
-You will see the passphrases when you scroll down. Create a passphrase for accessing your key. Remember your passphrase or store it in a safe.
+.. figure:: ../images/generate-ca-certificates/3-create-root-certificate-crl.png
+    :width: 1000px
+    :align: center
+    :alt: Create root certificate
+    :figclass: align-center
+
+    Create root certificate 2/2
+
+When you scroll down you can enter revocation services, internal name an passphrase. Create a passphrase for accessing your key. Remember your passphrase or store it in a safe.
+The CRL and OSCP uri's are not added to the root certificate, but to all its children. It allows to revoke the intermediate certificates.
+The name is not part of the certificate, but used to name the downloaded files, and for listing the certificate in the user interface.
 
 BounCA offers Ed25519 and RSA based key algorithms.
 Ed25519 is a a modern, fast and safe key algorithm, however not supported by all operating systems, like MacOS.
@@ -172,14 +182,14 @@ If you inspect the certificate you see it as valid for the account.
 Generate the intermediate certificate authority
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-An intermediate certificate authority (CA) is an entity that can sign certificates on behalf of the root CA.
-The root CA signs the intermediate certificate, forming a chain of trust.
+The intermediate certificate authority (CA) signs certificates on behalf of the root CA.
+A root CA can sign multiple intermediate certificate, and each form a chain of trust.
 
 The purpose of using an intermediate CA is primarily for security.
 The root key can be kept offline and used as infrequently as possible.
 If the intermediate key is compromised, the root CA can revoke the intermediate certificate and create a new intermediate cryptographic pair.
 
-Enter the root CA view in BounCA by clicking on the blue ``edit`` button or by clicking on the shortname of the root certificate.
+Enter the root CA view in BounCA by clicking on the name of the root certificate.
 You will enter a screen with an empty table.
 
 .. figure:: ../images/generate-ca-certificates/7-enter-root-ca.png
@@ -190,9 +200,9 @@ You will enter a screen with an empty table.
 
     Use root certificate as context
 
-Click on the yellow add intermediate root certificate button. You will get a form where you can fill in the details of your intermediate CA.
+Click on the ``new certificate`` certificate button. You will get a form where where you can fill in the details of your intermediate CA.
 Give the intermediate CA a common name which distinguish from the root certificate.
-You will not be able to edit all the fields, as they must be the same as of your root authority.
+You will not be able to edit all the fields, as these fields must have the same value as your root authority.
 
 The intermediate certificate should be valid for a shorter period than the root certificate.
 Ten years would be reasonable.
@@ -205,8 +215,11 @@ Ten years would be reasonable.
 
     Generate intermediate certificate authority
 
-Enter the passphrase of the root certificate to be able to sign the intermediate certificate and enter the passphrase of the certificate self.
+You need to provide a passphrase to secure the intermediate certificate, and provide the passphrase of the root certificate.
+The passphrase of the root certificate is used to sign the intermediate certificate.
 Use again a strong passphrase to protect your intermediate certificate.
+
+You can again provide CRL and OCSP urls. These are used for the revocation of the childs of the intermediate.
 
 .. figure:: ../images/generate-ca-certificates/9-generate-intermediate-certificate-enter-passphrases.png
     :width: 1000px
@@ -216,7 +229,15 @@ Use again a strong passphrase to protect your intermediate certificate.
 
     Enter passphrases for generating intermediate certificate
 
-The intermediate certificate will be generated and you can inspect its subject by clicking on the ``info`` button.
+.. figure:: ../images/generate-ca-certificates/9-generated-intermediate-ca.png
+    :width: 1000px
+    :align: center
+    :alt: The generated intermediate certificate
+    :figclass: align-center
+
+    The generated intermediate certificate
+
+The intermediate certificate will be generated and you can inspect its subject by clicking on the ``i`` button.
 
 .. figure:: ../images/generate-ca-certificates/10-inspect-intermediate-certificate.png
     :width: 1000px
@@ -226,7 +247,7 @@ The intermediate certificate will be generated and you can inspect its subject b
 
     Inspect intermediate certificate authority
 
-The CRL and OCSP urls are automatically assigned to the same as the root certificate, and in case of the CRL url, it refers to the name of your intermediate authority.
+The CRL and OCSP urls are automatically assigned to the values provided for generating the root certificate.
 
 .. figure:: ../images/generate-ca-certificates/11-inspect-intermediate-certificate-crl-ocsp.png
     :width: 1000px
@@ -237,6 +258,6 @@ The CRL and OCSP urls are automatically assigned to the same as the root certifi
     Inspect CRL and OCSP links of intermediate certificat
 
 This guide has shown you how to setup a root certificate authority with BounCA and how to generate an intermediate certificate.
-You can now generate server and client certificates to enable encrypted HTTPS connections and client authorisation.
+You can now generate server certificates (:ref:`create_server_certificates`) and client certificates (:ref:`create_client_certificates`) to enable encrypted HTTPS connections and client authorisation.
 
 

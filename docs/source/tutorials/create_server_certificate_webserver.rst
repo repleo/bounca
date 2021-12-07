@@ -1,6 +1,7 @@
 
 :header_title: Self-Signed Server Certificate
 :header_subtitle: Step-by-step guide how to generate and install a self-signed SSL certificate.
+.. _create_server_certificates:
 
 Create Self-Signed Server Certificate
 =====================================
@@ -28,13 +29,13 @@ Enter the dashboard of your intermediate CA which must sign your server certific
     Step into intermediate certificate
 
 Click on the blue *server* button to add a new server certificate, and a form will be shown.
-For server certificates, the *Common Name* must be a fully qualified domain name (eg, ``www.example.com``). 
+For server certificates, the *Common Name* must be a fully qualified domain name (eg, ``www.example.com``).
 Note that the *Common Name* cannot be the same as either your root or intermediate certificate.
 
 Certificates are usually given a validity of one year, though a CA will typically give a few days extra for convenience.
 Our root and intermediate pairs are 4096 bits. Server and client certificates normally expire after one year, so we can safely use 2048 bits instead.
 
-.. note:: Although 4096 bits is slightly more secure than 2048 bits, it slows down TLS handshakes and significantly increases processor load during handshakes. 
+.. note:: Although 4096 bits is slightly more secure than 2048 bits, it slows down TLS handshakes and significantly increases processor load during handshakes.
           For this reason, most websites use 2048-bit pairs.
 
 
@@ -71,7 +72,7 @@ The *Issuer* is the intermediate CA. The *Subject* refers to the certificate its
 
     Inspect server certificate
 
-You can also see the subject alt names in the *X509v3 extensions* section of the certificate. 
+You can also see the subject alt names in the *X509v3 extensions* section of the certificate.
 
 
 .. figure:: ../images/generate-server-certificate/16-inspect-server-certificate-crl-ocsp.png
@@ -122,22 +123,22 @@ Make sure you set the access rights:
 - ``<domain>-chain.pem``: 0x644 for nginx user
 - ``<domain>.key``: 0x400 for nginx user
 
-Add the following server block to your nginx server:    
-  
+Add the following server block to your nginx server:
+
 .. code-block:: nginx
 
    server {
           listen       443 ssl;
           server_name  localhost;
-      
+
           ssl_certificate      ssl/<domain>-chain.pem;
           ssl_certificate_key  ssl/<domain>.key;
-      
+
           location / {
                   root   html;
                   index  index.html index.htm;
           }
-      
+
    }
 
 It specifies that the server should listen to port 443, using SSL and it defines where it can find the key/certificate pair.
@@ -151,7 +152,7 @@ Restart the server and visit your website. It should show a valid and trusted HT
     :figclass: align-center
 
     Verify self-signed certificate is now trusted
-    
+
 
 When you click on the lock, you will see that the SSL connection is trusted using your personal self-signed certificate and root authority.
 
@@ -163,10 +164,9 @@ When you click on the lock, you will see that the SSL connection is trusted usin
     :figclass: align-center
 
     Verify HTTPS connection is now valid and trusted
-    
 
 
 
-    
 
-  
+
+

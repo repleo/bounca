@@ -382,13 +382,13 @@ export default {
 
     downloadCertificate(item) {
       this.dialogDownloading = true;
-      certificates.download(item,
+      certificates.downloadCertificate(item,
         this.downloadCertificateFinished, this.downloadCertificateError);
     },
 
     downloadCRL(item) {
       this.dialogDownloading = true;
-      certificates.download(`certificates/${item}/crl`,
+      certificates.downloadCRL(item,
         this.downloadCertificateFinished, this.downloadCertificateError);
     },
 
