@@ -187,12 +187,21 @@ class CertificateFilesView(FileView):
         return response
 
     def _make_certificate_content(self, cert):
+        label = {
+            CertificateTypes.ROOT: "root",
+            CertificateTypes.INTERMEDIATE: "intermediate-chain",
+            CertificateTypes.SERVER_CERT: "server_cert",
+            CertificateTypes.CLIENT_CERT: "client_cert",
+            CertificateTypes.OCSP: "ocsp_cert",
+        }[cert.type]
+
         if cert.type is CertificateTypes.ROOT:
             try:
                 cert_key = self.get_cert_key(cert)
             except KeyStore.DoesNotExist:
                 raise RuntimeError("Certificate has no keystore, " "generation of certificate object went wrong")
-            return cert_key["crt"]
+            filename = f"{cert.name}.{label}.pem"
+            return cert_key["crt"], filename
 
         if cert.type is CertificateTypes.INTERMEDIATE:
             try:
@@ -200,10 +209,12 @@ class CertificateFilesView(FileView):
                 parent_cert_key = self.get_cert_key(cert.parent)
             except KeyStore.DoesNotExist:
                 raise RuntimeError("Certificate has no keystore, " "generation of certificate object went wrong")
-            return parent_cert_key["crt"] + cert_key["crt"]
+            filename = f"{cert.name}.{label}.pem"
+            return parent_cert_key["crt"] + cert_key["crt"], filename
 
         if cert.type in [CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT, CertificateTypes.OCSP]:
-            return self.make_certificate_zip(cert)
+            filename = f"{cert.name}.{label}.zip"
+            return self.make_certificate_zip(cert), filename
 
         raise NotImplementedError(f"File generation for cert type {cert.type} " f"not implemented")
 
@@ -213,15 +224,7 @@ class CertificateFilesView(FileView):
             cert = Certificate.objects.get(pk=pk, owner=user)
         except Certificate.DoesNotExist:
             raise Http404("File not found")
-        label = {
-            CertificateTypes.ROOT: "root",
-            CertificateTypes.INTERMEDIATE: "intermediate-chain",
-            CertificateTypes.SERVER_CERT: "server_cert",
-            CertificateTypes.CLIENT_CERT: "client_cert",
-            CertificateTypes.OCSP: "ocsp_cert",
-        }[cert.type]
-        filename = f"{cert.name}.{label}.pem"
-        content = self._make_certificate_content(cert)
+        content, filename = self._make_certificate_content(cert)
         return self._make_file_response(content, filename)
 
 

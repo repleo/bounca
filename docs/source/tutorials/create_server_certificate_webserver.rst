@@ -1,20 +1,20 @@
 
 :header_title: Self-Signed Server Certificate
-:header_subtitle: Step-by-step guide how to generate and install a self-signed SSL certificate.
+:header_subtitle: Step-by-step guide to generate and install a Server SSL certificate.
 .. _create_server_certificates:
 
-Create Self-Signed Server Certificate
+Create Server Certificate
 =====================================
 
 This document will show you can generate a server certificate with BounCA.
-We assume you have a working BounCA and create a certificate authority.
+We assume you have a working BounCA and create a certificate authority, see :ref:`create_root_certificate`.
 
 ---------------------------------
 
 Generate Server Certificate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can use a server certificate to configure secure and trusted connections, such as HTTPS, but also SMTP, IMAP etcetera.
+You can use a server certificate to configure secure (SSL/TLS) and trusted connections, such as HTTPS, but also SMTP, IMAP etcetera.
 
 Enter the dashboard of your intermediate CA which must sign your server certificate.
 

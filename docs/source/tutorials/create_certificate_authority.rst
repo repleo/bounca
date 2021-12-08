@@ -1,6 +1,7 @@
 
 :header_title: Set-up Root Certificate Authority
 :header_subtitle: Step-by-step guide to generate a basic root certificate authority.
+.. _create_root_certificate:
 
 
 
