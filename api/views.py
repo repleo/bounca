@@ -150,7 +150,7 @@ class FileView(APIView):
 class CertificateFilesView(FileView):
     @classmethod
     def _get_cert_chain(cls, cert):
-        return cls._get_cert_chain(cert.parent) + [cert] if cert.parent else [cert]
+        return [cert] + cls._get_cert_chain(cert.parent) if cert.parent else [cert]
 
     @classmethod
     def make_certificate_zip(cls, cert):
@@ -210,7 +210,7 @@ class CertificateFilesView(FileView):
             except KeyStore.DoesNotExist:
                 raise RuntimeError("Certificate has no keystore, " "generation of certificate object went wrong")
             filename = f"{cert.name}.{label}.pem"
-            return parent_cert_key["crt"] + cert_key["crt"], filename
+            return cert_key["crt"] + parent_cert_key["crt"], filename
 
         if cert.type in [CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT, CertificateTypes.OCSP]:
             filename = f"{cert.name}.{label}.zip"
