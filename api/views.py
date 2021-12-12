@@ -164,10 +164,10 @@ class CertificateFilesView(FileView):
                     f"Certificate ({cert}) has no keystore, " f"generation of certificate object went wrong"
                 )
 
-        root_cert_file_content = cert_chain_cert_keys[0]["crt"]
+        root_cert_file_content = cert_chain_cert_keys[-1]["crt"]
         cert_chain_file_content = "".join([cert_key["crt"] for cert_key in cert_chain_cert_keys])
-        cert_file_content = cert_chain_cert_keys[-1]["crt"]
-        key_file_content = cert_chain_cert_keys[-1]["key"]
+        cert_file_content = cert_chain_cert_keys[0]["crt"]
+        key_file_content = cert_chain_cert_keys[0]["key"]
 
         zipped_file = io.BytesIO()
         with zipfile.ZipFile(zipped_file, "w") as f:
