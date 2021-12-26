@@ -35,6 +35,8 @@ lib64/
 parts/
 sdist/
 var/
+nginx/
+
 #bounca/static/libs/
 *.egg-info/
 .installed.cfg

@@ -94,9 +94,12 @@ class CertificateSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         name = data.get("name")
+        if not name:
+            name = str(data.get("dn").get("commonName"))
         cert_type = data.get("type")
+        owner = data.get("owner")
 
-        if Certificate.objects.filter(name=name, type=cert_type, revoked_uuid=0).count() > 0:
+        if Certificate.objects.filter(name=name, owner=owner, type=cert_type).count() > 0:
             raise serializers.ValidationError(f"{dict(Certificate.TYPES)[cert_type]} " f'"{name}" already exists.')
 
         return data

@@ -164,6 +164,7 @@ class IntermediateCertificateTest(CertificateTestCase):
             countryName=self.root_certificate.dn.countryName,
             stateOrProvinceName=self.root_certificate.dn.stateOrProvinceName,
             organizationName=self.root_certificate.dn.organizationName,
+            localityName="Amsterdam",
         )
 
         certificate_request = CertificateFactory(
@@ -183,16 +184,16 @@ class IntermediateCertificateTest(CertificateTestCase):
 
         # subject
         self.assert_subject(crt.subject, certificate_request)
-        self.assertListEqual([], crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME))
+        self.assertEqual("Amsterdam", crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME)[0].value)
 
         # issuer
         self.assert_subject(crt.issuer, self.root_certificate)
-        self.assertListEqual([], crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME))
+        self.assertEqual("Amsterdam", crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME)[0].value)
 
         self.assert_intermediate_authority(crt)
 
         # authorityKeyIdentifier = keyid:always, issuer
-        self.assert_authority_key(crt, self.root_key, self.root_certificate)
+        self.assert_authority_key(crt, self.root_key, None, critical=False)
 
         # subjectKeyIdentifier = hash
         self.assert_hash(crt)
@@ -277,11 +278,11 @@ class IntermediateCertificateTest(CertificateTestCase):
         crt = certhandler.certificate
         # subject
         self.assert_subject(crt.subject, certificate_request)
-        self.assertListEqual([], crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME))
+        self.assertEqual(subject.localityName, crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME)[0].value)
 
         # issuer
         self.assert_subject(crt.issuer, root_certificate)
-        self.assertListEqual([], crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME))
+        self.assertEqual(subject.localityName, crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME)[0].value)
 
     def test_generate_intermediate_certificate_passphrase_wrong_cert_passphrase(self):
         root_key = Key().create_key("ed25519", None)

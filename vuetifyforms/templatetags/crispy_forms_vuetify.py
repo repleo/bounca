@@ -114,7 +114,9 @@ def _set_password_visible_vars(obj, field_name, field):
 
 
 def _get_empty_value(field):
-    if isinstance(field, CharField) or isinstance(field, URLField):
+    if isinstance(field, SimpleArrayField):
+        return []
+    elif isinstance(field, CharField) or isinstance(field, URLField):
         return ""
     elif isinstance(field, LazyTypedChoiceField):
         return None
@@ -126,8 +128,6 @@ def _get_empty_value(field):
         return None
     elif isinstance(field, ModelMultipleChoiceField):
         return None
-    elif isinstance(field, SimpleArrayField):
-        return []
     elif isinstance(field, ReadOnlyPasswordHashField):
         return None
     else:

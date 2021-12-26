@@ -39,12 +39,12 @@ export default {
     });
   },
   downloadCertificate(item, callback, callbackError) {
-      this.download(`certificates/${item}/download`,
-        callback, callbackError)
+    this.download(`certificates/${item}/download`,
+      callback, callbackError);
   },
   downloadCRL(item, callback, callbackError) {
-      this.download(`certificates/${item}/download`,
-        callback, callbackError)
+    this.download(`certificates/${item}/crl`,
+      callback, callbackError);
   },
   revoke(id, data) {
     const url = `${process.env.VUE_APP_ROOT_API}/api/v1/certificates/${id}`;

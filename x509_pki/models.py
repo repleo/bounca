@@ -432,7 +432,7 @@ def generate_certificate(sender, instance, created, **kwargs):
         keystore.crt = certhandler.serialize()
         keystore.save()
 
-        if instance.type in [CertificateTypes.INTERMEDIATE]:
+        if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE] and instance.crl_distribution_url:
             crl = revocation_list_builder([], instance.keystore.crt, instance.keystore.key, instance.passphrase_out)
             crlstore = CrlStore(certificate=instance)
             crlstore.crl = serialize(crl)

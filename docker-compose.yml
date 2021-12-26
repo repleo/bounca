@@ -8,3 +8,17 @@ services:
             - POSTGRES_PASSWORD=fsRWF2k2k
         ports:
             - "5432:5432"
+
+    nginx:
+        image: nginx:1.16.0-alpine
+        volumes:
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./nginx/certs/:/etc/nginx/certs/
+            - ./nginx/www/:/var/www/
+
+        ports:
+            - "8443:443"
+            - "8800:80"
+        command: [nginx-debug, '-g', 'daemon off;']
+
+

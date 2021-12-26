@@ -81,7 +81,12 @@ class RootCertificateTest(CertificateTestCase):
         self.assert_hash(crt)
 
     def test_generate_root_ca(self):
-        certificate_request = CertificateFactory()
+        subject = DistinguishedNameFactory(
+            localityName="Amsterdam",
+            organizationalUnitName="BounCA Root",
+        )
+
+        certificate_request = CertificateFactory(dn=subject)
         certhandler = Certificate()
         certhandler.create_certificate(certificate_request, self.key.serialize())
 
@@ -90,10 +95,13 @@ class RootCertificateTest(CertificateTestCase):
         self.assert_basic_information(crt, certificate_request)
         # subject
         self.assert_subject(crt.subject, certificate_request)
-        self.assertListEqual([], crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME))
+        self.assertEqual("Amsterdam", crt.subject.get_attributes_for_oid(NameOID.LOCALITY_NAME)[0].value)
         # issuer
         self.assert_subject(crt.issuer, certificate_request)
-        self.assertListEqual([], crt.issuer.get_attributes_for_oid(NameOID.LOCALITY_NAME))
+        self.assertEqual("Amsterdam", crt.issuer.get_attributes_for_oid(NameOID.LOCALITY_NAME)[0].value)
+
+        self.assert_subject(crt.issuer, certificate_request)
+        self.assertEqual("BounCA Root", crt.issuer.get_attributes_for_oid(NameOID.ORGANIZATIONAL_UNIT_NAME)[0].value)
 
         self.assert_root_authority(crt)
 

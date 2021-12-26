@@ -4,9 +4,9 @@ import copy
 import datetime
 import ipaddress
 import typing
-from functools import reduce
 from typing import TYPE_CHECKING
 
+import arrow
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
@@ -21,6 +21,7 @@ from cryptography.x509.oid import AuthorityInformationAccessOID, ExtendedKeyUsag
 
 from certificate_engine.ssl.key import Key
 from certificate_engine.types import (
+    CertificateBasePolicy,
     CertificateIntermediatePolicy,
     CertificatePolicy,
     CertificateRootPolicy,
@@ -77,14 +78,16 @@ class Certificate(object):
     @staticmethod
     def _build_subject_names(cert: CertificateType) -> x509.Name:
         dn = cert.dn
-        policy = Certificate._get_certificate_policy(cert).policy
+        fields = Certificate._get_certificate_policy(cert).fields_dn
         attributes = []
-        for attr in reduce(lambda x, y: x + y, [policy[k] for k in policy.keys()]):
-            value = getattr(dn, attr[0])
-            if attr[0] == "countryName" and value is not None:
+        for field in fields:
+            name = field[0]
+            x509attr = field[1]
+            value = getattr(dn, name)
+            if name == "countryName" and value:
                 value = getattr(value, "code")
-            if value is not None and attr[1] is not None:
-                attributes.append(x509.NameAttribute(attr[1], value))
+            if value and x509attr is not None:
+                attributes.append(x509.NameAttribute(x509attr, value))
         return x509.Name(attributes)
 
     @staticmethod
@@ -98,7 +101,7 @@ class Certificate(object):
 
     @staticmethod
     def _check_policies_optional(dn: DistinguishedName, cp: CertificatePolicy):
-        attributes = [attr[0] for attr in cp.policy["optional"] + cp.policy["supplied"] + cp.policy["match"]]
+        attributes = [attr for attr in cp.policy["optional"] + cp.policy["supplied"] + cp.policy["match"]]
         for key in list(dn.__dict__):
             if not key.startswith("_") and key not in attributes:
                 setattr(dn, key, None)
@@ -107,8 +110,15 @@ class Certificate(object):
     def _check_policies_supplied(dn: DistinguishedName, cp: CertificatePolicy):
         # noinspection PyUnresolvedReferences
         for attr in cp.policy["supplied"]:
-            if not getattr(dn, attr[0]):
-                raise PolicyError({f"dn__{attr[0]}": f"Attribute '{attr[0]}' is required"})
+            if not getattr(dn, attr):
+                raise PolicyError({f"dn__{attr}": f"Attribute '{attr}' is required"})
+
+    @staticmethod
+    def _lookup_x509_attr(attr: str, cp: CertificateBasePolicy):
+        for attr_tuple in cp.fields_dn:
+            if attr_tuple[0] == attr:
+                return attr_tuple[1]
+        raise ValueError(f"Attribute {attr} not found in certificate policy fields")
 
     @staticmethod
     def _check_policies(cert: CertificateType):
@@ -123,13 +133,15 @@ class Certificate(object):
                 raise RuntimeError("Parent certificate object has not been set")
             parent_crt = Certificate().load(cert.parent.keystore.crt).certificate
             for attr in cp.policy["match"]:
-                if not parent_crt.subject.get_attributes_for_oid(attr[1]):
-                    raise PolicyError("Attribute '{}' is not provided by parent".format(attr[0]))
-                if parent_crt.subject.get_attributes_for_oid(attr[1])[0].value != getattr(dn, attr[0]):
+                x509_attr = Certificate._lookup_x509_attr(attr, cp)
+                if not parent_crt.subject.get_attributes_for_oid(x509_attr):
+                    raise PolicyError("Attribute '{}' is not provided by parent".format(attr))
+
+                if parent_crt.subject.get_attributes_for_oid(x509_attr)[0].value != getattr(dn, attr):
                     raise PolicyError(
                         "Certificate should match field '{}' "
                         "(issuer certificate: {}, certificate: {})".format(
-                            attr[0], parent_crt.subject.get_attributes_for_oid(attr[1])[0].value, getattr(dn, attr[0])
+                            attr, parent_crt.subject.get_attributes_for_oid(x509_attr)[0].value, getattr(dn, attr)
                         )
                     )
         Certificate._check_common_name(cert, getattr(dn, "commonName"))
@@ -150,51 +162,42 @@ class Certificate(object):
 
     def _set_public_key(self, cert: CertificateType, private_key: Key, issuer_key: Key) -> None:
         self._builder = self._builder.public_key(private_key.key.public_key())
-        issuer_cert_subject = issuer_cert_serial_number = None
-        if cert.type != CertificateTypes.ROOT:
+        ca_issuer_cert_subject = ca_issuer_cert_serial_number = None
+        if cert.type not in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
+            ca_issuer_cert = cert.parent.parent if cert.parent.parent else cert.parent
             issuer_cert = cert.parent
-            issuer_cert_subject = [DirectoryName(Certificate._build_subject_names(issuer_cert))]
-            issuer_cert_serial_number = int(issuer_cert.serial)
+            ca_issuer_cert_subject = [DirectoryName(Certificate._build_subject_names(ca_issuer_cert))]
+            ca_issuer_cert_serial_number = int(issuer_cert.serial)
         self._builder = self._builder.add_extension(
             x509.AuthorityKeyIdentifier(
                 key_identifier=_key_identifier_from_public_key(issuer_key.key.public_key()),
-                authority_cert_issuer=issuer_cert_subject,
-                authority_cert_serial_number=issuer_cert_serial_number,
+                authority_cert_issuer=ca_issuer_cert_subject,
+                authority_cert_serial_number=ca_issuer_cert_serial_number,
             ),
-            critical=True,
+            critical=False,
         )
         self._builder = self._builder.add_extension(
             x509.SubjectKeyIdentifier.from_public_key(private_key.key.public_key()),
-            critical=True,
+            critical=False,
         )
 
     def _set_crl_distribution_url(self, cert: CertificateType) -> None:
         if cert.type is not CertificateTypes.ROOT:
             cert = cert.parent
-            if cert.crl_distribution_url:
+            crl_distribution_url = cert.crl_distribution_url
+            if crl_distribution_url:
                 self._builder = self._builder.add_extension(
                     x509.CRLDistributionPoints(
                         [
                             x509.DistributionPoint(
-                                full_name=[x509.UniformResourceIdentifier(cert.crl_distribution_url)],
+                                full_name=[x509.UniformResourceIdentifier(crl_distribution_url)],
                                 relative_name=None,
-                                reasons=frozenset(
-                                    [
-                                        x509.ReasonFlags.key_compromise,
-                                        x509.ReasonFlags.ca_compromise,
-                                        x509.ReasonFlags.affiliation_changed,
-                                        x509.ReasonFlags.superseded,
-                                        x509.ReasonFlags.privilege_withdrawn,
-                                        x509.ReasonFlags.cessation_of_operation,
-                                        x509.ReasonFlags.aa_compromise,
-                                        x509.ReasonFlags.certificate_hold,
-                                    ]
-                                ),
+                                reasons=None,
                                 crl_issuer=None,
                             )
                         ]
                     ),
-                    critical=True,
+                    critical=False,
                 )
 
     def _set_ocsp_distribution_url(self, cert: CertificateType) -> None:
@@ -210,14 +213,14 @@ class Certificate(object):
                             )
                         ]
                     ),
-                    critical=True,
+                    critical=False,
                 )
 
     def _set_basic_constraints(self, cert: CertificateType) -> None:
         path_length = None
         if cert.type == CertificateTypes.INTERMEDIATE:
             path_length = 0
-        ca = cert.type == CertificateTypes.ROOT or cert.type == CertificateTypes.INTERMEDIATE
+        ca = cert.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]
         self._builder = self._builder.add_extension(
             x509.BasicConstraints(ca=ca, path_length=path_length),
             critical=ca,
@@ -241,7 +244,11 @@ class Certificate(object):
 
     def _set_dates(self, cert: CertificateType) -> None:
         self._builder = self._builder.not_valid_before(
-            datetime.datetime(year=cert.created_at.year, month=cert.created_at.month, day=cert.created_at.day)
+            arrow.get(
+                datetime.datetime(year=cert.created_at.year, month=cert.created_at.month, day=cert.created_at.day)
+            )
+            .shift(days=-1)
+            .datetime
         )
         self._builder = self._builder.not_valid_after(
             datetime.datetime(year=cert.expires_at.year, month=cert.expires_at.month, day=cert.expires_at.day)

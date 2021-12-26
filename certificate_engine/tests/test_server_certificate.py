@@ -94,10 +94,10 @@ class ServerCertificateTest(CertificateTestCase):
         self.assert_user_certificate(crt)
 
         # authorityKeyIdentifier = keyid:always, issuer
-        self.assert_authority_key(crt, self.int_key, issuer_certificate=self.int_certificate)
+        self.assert_authority_key(crt, self.int_key, issuer_certificate=self.int_certificate, critical=False)
 
         # subjectKeyIdentifier = hash
-        self.assert_hash(crt)
+        self.assert_hash(crt, critical=False)
 
         # extendedKeyUsage = serverAuth
         self.assert_extension(crt, ExtensionOID.EXTENDED_KEY_USAGE, [ExtendedKeyUsageOID.SERVER_AUTH])
@@ -152,10 +152,10 @@ class ServerCertificateTest(CertificateTestCase):
         self.assert_user_certificate(crt)
 
         # authorityKeyIdentifier = keyid:always, issuer
-        self.assert_authority_key(crt, self.int_key, issuer_certificate=self.int_certificate)
+        self.assert_authority_key(crt, self.int_key, issuer_certificate=self.int_certificate, critical=False)
 
         # subjectKeyIdentifier = hash
-        self.assert_hash(crt)
+        self.assert_hash(crt, critical=False)
 
         # extendedKeyUsage = serverAuth
         self.assert_extension(crt, ExtensionOID.EXTENDED_KEY_USAGE, [ExtendedKeyUsageOID.SERVER_AUTH])
@@ -211,10 +211,10 @@ class ServerCertificateTest(CertificateTestCase):
         self.assert_subject(crt.issuer, self.root_certificate)
 
         # authorityKeyIdentifier = keyid:always, issuer
-        self.assert_authority_key(crt, self.root_key, issuer_certificate=self.root_certificate)
+        self.assert_authority_key(crt, self.root_key, issuer_certificate=self.root_certificate, critical=False)
 
         # subjectKeyIdentifier = hash
-        self.assert_hash(crt)
+        self.assert_hash(crt, critical=False)
 
     def test_generate_server_certificate_duplicate_commonname_intermediate(self):
         server_subject = DistinguishedNameFactory(commonName=self.int_certificate.dn.commonName)

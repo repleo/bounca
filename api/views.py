@@ -135,7 +135,7 @@ class FileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     @staticmethod
-    def get_cert_key(cert):
+    def get_cert_keystore(cert):
         if not hasattr(cert, "keystore") or not cert.keystore.crt or not cert.keystore.key:
             raise KeyStore.DoesNotExist("Certificate has no cert/key, " "something went wrong during generation")
         return {"crt": cert.keystore.crt, "key": cert.keystore.key}
@@ -153,28 +153,37 @@ class CertificateFilesView(FileView):
         return [cert] + cls._get_cert_chain(cert.parent) if cert.parent else [cert]
 
     @classmethod
+    def _get_filename_escape(cls, cert):
+        return cert.name.replace(" ", "_")
+
+    @classmethod
     def make_certificate_zip(cls, cert):
         cert_chain = cls._get_cert_chain(cert)
         cert_chain_cert_keys = []
-        for cert in cert_chain:
+        for _cert in cert_chain:
             try:
-                cert_chain_cert_keys.append(cls.get_cert_key(cert))
+                cert_chain_cert_keys.append(cls.get_cert_keystore(_cert))
             except KeyStore.DoesNotExist:
                 raise RuntimeError(
-                    f"Certificate ({cert}) has no keystore, " f"generation of certificate object went wrong"
+                    f"Certificate ({_cert}) has no keystore, " f"generation of certificate object went wrong"
                 )
 
         root_cert_file_content = cert_chain_cert_keys[-1]["crt"]
+        intermediate_cert_file_content = cert_chain_cert_keys[1]["crt"]
+
         cert_chain_file_content = "".join([cert_key["crt"] for cert_key in cert_chain_cert_keys])
         cert_file_content = cert_chain_cert_keys[0]["crt"]
         key_file_content = cert_chain_cert_keys[0]["key"]
 
         zipped_file = io.BytesIO()
         with zipfile.ZipFile(zipped_file, "w") as f:
+            filename = cls._get_filename_escape(cert)
             f.writestr("rootca.pem", root_cert_file_content)
-            f.writestr(f"{cert.name}.pem", cert_file_content)
-            f.writestr(f"{cert.name}-chain.pem", cert_chain_file_content)
-            f.writestr(f"{cert.name}.key", key_file_content)
+            f.writestr("intermediate.pem", intermediate_cert_file_content)
+
+            f.writestr(f"{filename}.pem", cert_file_content)
+            f.writestr(f"{filename}-chain.pem", cert_chain_file_content)
+            f.writestr(f"{filename}.key", key_file_content)
 
         zipped_file.seek(0)
         return zipped_file
@@ -197,23 +206,23 @@ class CertificateFilesView(FileView):
 
         if cert.type is CertificateTypes.ROOT:
             try:
-                cert_key = self.get_cert_key(cert)
+                cert_key = self.get_cert_keystore(cert)
             except KeyStore.DoesNotExist:
                 raise RuntimeError("Certificate has no keystore, " "generation of certificate object went wrong")
-            filename = f"{cert.name}.{label}.pem"
+            filename = f"{self._get_filename_escape(cert)}.{label}.pem"
             return cert_key["crt"], filename
 
         if cert.type is CertificateTypes.INTERMEDIATE:
             try:
-                cert_key = self.get_cert_key(cert)
-                parent_cert_key = self.get_cert_key(cert.parent)
+                cert_key = self.get_cert_keystore(cert)
+                parent_cert_key = self.get_cert_keystore(cert.parent)
             except KeyStore.DoesNotExist:
                 raise RuntimeError("Certificate has no keystore, " "generation of certificate object went wrong")
-            filename = f"{cert.name}.{label}.pem"
+            filename = f"{self._get_filename_escape(cert)}.{label}.pem"
             return cert_key["crt"] + parent_cert_key["crt"], filename
 
         if cert.type in [CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT, CertificateTypes.OCSP]:
-            filename = f"{cert.name}.{label}.zip"
+            filename = f"{self._get_filename_escape(cert)}.{label}.zip"
             return self.make_certificate_zip(cert), filename
 
         raise NotImplementedError(f"File generation for cert type {cert.type} " f"not implemented")

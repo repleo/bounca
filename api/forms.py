@@ -58,18 +58,6 @@ class DistinguishedNameForm(forms.ModelForm):
         ]
 
 
-class AddDistinguishedNameRootCAForm(DistinguishedNameForm):
-    scope_prefix = "cert_data.dn"
-    form_name = "cert_form"
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["subjectAltNames"].widget = forms.HiddenInput()
-        self.fields["commonName"].help_text = (
-            "The common name of your certification authority." + "This field is used to identify your CA in the chain"
-        )
-
-
 @deconstructible
 class PasswordConfirmValidator:
     def __init__(self, field):
@@ -136,19 +124,6 @@ class AddRootCAForm(CertificateForm, VuetifyFormMixin):
                     Fieldset(
                         "Distinguished Name",
                         Row(Column("dn.commonName", md="8"), Column("expires_at")),
-                        Row(
-                            Column(
-                                VueField(
-                                    "dn.subjectAltNames",
-                                    multiple=True,
-                                    chips=True,
-                                    deletable_chips=True,
-                                    append_icon="",
-                                ),
-                                xs12=True,
-                                md12=True,
-                            )
-                        ),
                         Row(Column("dn.organizationName"), Column("dn.organizationalUnitName", xs12=True, md6=True)),
                         Row(Column("dn.emailAddress", xs12=True, md12=True)),
                         Row(
@@ -205,6 +180,7 @@ onCreateCertificate() {
           this.$emit('close-dialog');
       }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
+        this.$refs.form.$el.scrollIntoView({behavior: 'smooth'});
       });
     }
   });
@@ -241,19 +217,6 @@ class AddIntermediateCAForm(CertificateForm, VuetifyFormMixin):
                     Fieldset(
                         "Distinguished Name",
                         Row(Column("dn.commonName", md="8"), Column("expires_at")),
-                        Row(
-                            Column(
-                                VueField(
-                                    "dn.subjectAltNames",
-                                    multiple=True,
-                                    chips=True,
-                                    deletable_chips=True,
-                                    append_icon="",
-                                ),
-                                xs12=True,
-                                md12=True,
-                            )
-                        ),
                         Row(
                             Column(VueField("dn.organizationName", disabled=True)),
                             Column("dn.organizationalUnitName", xs12=True, md6=True),
@@ -322,6 +285,9 @@ setParentData() {
     this.intermediatecert.dn.organizationName = this.parent.dn.organizationName;
     this.intermediatecert.dn.stateOrProvinceName = this.parent.dn.stateOrProvinceName;
     this.intermediatecert.dn.countryName = this.parent.dn.countryName;
+    this.intermediatecert.dn.localityName = this.parent.dn.localityName;
+    this.intermediatecert.dn.organizationalUnitName = this.parent.dn.organizationalUnitName;
+    this.intermediatecert.dn.emailAddress = this.parent.dn.emailAddress;
 }
             """,
             """
@@ -337,8 +303,10 @@ onCreateCertificate() {
           this.$emit('update-dasboard');
           this.resetForm();
           this.$emit('close-dialog');
+          this.setParentData();
       }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
+        this.$refs.form.$el.scrollIntoView({behavior: 'smooth'});
       });
     }
   });
@@ -348,6 +316,7 @@ onCreateCertificate() {
 onCancel(){
   this.resetForm();
   this.$emit('close-dialog');
+  this.setParentData();
 }
             """,
         ]
@@ -380,6 +349,12 @@ class AddCertificateForm(CertificateForm, VuetifyFormMixin):
                 Column(
                     Fieldset(
                         "Distinguished Name",
+                        Row(
+                            VueSpacer(),
+                            Button("reset", "Reset Form", **{"@click": "resetForm"}),
+                            Submit("copy", "Copy from Intermediate", **{"@click": "setParentData"}),
+                            css_class="mr-1",
+                        ),
                         Row(Column("dn.commonName", md="8"), Column("expires_at")),
                         Row(
                             Column(
@@ -437,6 +412,16 @@ class AddCertificateForm(CertificateForm, VuetifyFormMixin):
         self.vue_watchers = []
         self.vue_methods = [
             """
+setParentData() {
+    this.certificate.dn.organizationName = this.parent.dn.organizationName;
+    this.certificate.dn.stateOrProvinceName = this.parent.dn.stateOrProvinceName;
+    this.certificate.dn.countryName = this.parent.dn.countryName;
+    this.certificate.dn.localityName = this.parent.dn.localityName;
+    this.certificate.dn.organizationalUnitName = this.parent.dn.organizationalUnitName;
+    this.certificate.dn.emailAddress = this.parent.dn.emailAddress;
+}
+            """,
+            """
 onCreateCertificate() {
   this.$refs.form.validate().then((isValid) => {
     if (isValid) {
@@ -451,6 +436,7 @@ onCreateCertificate() {
           this.$emit('close-dialog');
       }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
+        this.$refs.form.$el.scrollIntoView({behavior: 'smooth'});
       });
     }
   });

@@ -1,4 +1,6 @@
 # noinspection PyUnresolvedReferences
+from abc import ABC
+
 from cryptography.x509.oid import NameOID
 
 
@@ -10,54 +12,76 @@ class CertificateTypes(object):
     OCSP = "O"
 
 
-class CertificatePolicy(object):
+class CertificateBasePolicy(ABC):
+    fields_dn: list = [
+        ("countryName", NameOID.COUNTRY_NAME),
+        ("stateOrProvinceName", NameOID.STATE_OR_PROVINCE_NAME),
+        ("localityName", NameOID.LOCALITY_NAME),
+        ("organizationName", NameOID.ORGANIZATION_NAME),
+        ("organizationalUnitName", NameOID.ORGANIZATIONAL_UNIT_NAME),
+        ("commonName", NameOID.COMMON_NAME),
+        ("emailAddress", NameOID.EMAIL_ADDRESS),
+    ]
+
+
+class CertificatePolicy(CertificateBasePolicy):
+    fields_dn: list = [
+        ("countryName", NameOID.COUNTRY_NAME),
+        ("stateOrProvinceName", NameOID.STATE_OR_PROVINCE_NAME),
+        ("localityName", NameOID.LOCALITY_NAME),
+        ("organizationName", NameOID.ORGANIZATION_NAME),
+        ("organizationalUnitName", NameOID.ORGANIZATIONAL_UNIT_NAME),
+        ("commonName", NameOID.COMMON_NAME),
+        ("emailAddress", NameOID.EMAIL_ADDRESS),
+        ("subjectAltNames", None),
+    ]
     policy: dict = {
         "supplied": [
-            ("commonName", NameOID.COMMON_NAME),
+            "commonName",
         ],
         "match": [],
         "optional": [
-            ("countryName", NameOID.COUNTRY_NAME),
-            ("stateOrProvinceName", NameOID.STATE_OR_PROVINCE_NAME),
-            ("localityName", NameOID.LOCALITY_NAME),
-            ("organizationName", NameOID.ORGANIZATION_NAME),
-            ("organizationalUnitName", NameOID.ORGANIZATIONAL_UNIT_NAME),
-            ("emailAddress", NameOID.EMAIL_ADDRESS),
-            ("subjectAltNames", None),
+            "countryName",
+            "stateOrProvinceName",
+            "localityName",
+            "organizationName",
+            "organizationalUnitName",
+            "emailAddress",
+            "subjectAltNames",
         ],
     }
 
 
-class CertificateRootPolicy(CertificatePolicy):
+class CertificateRootPolicy(CertificateBasePolicy):
     # The root CA should have all fields which are required to sign intermediate certificates.
     policy: dict = {
         "supplied": [
-            ("countryName", NameOID.COUNTRY_NAME),
-            ("stateOrProvinceName", NameOID.STATE_OR_PROVINCE_NAME),
-            ("organizationName", NameOID.ORGANIZATION_NAME),
-            ("commonName", NameOID.COMMON_NAME),
+            "countryName",
+            "stateOrProvinceName",
+            "organizationName",
+            "commonName",
         ],
         "match": [],
         "optional": [
-            ("organizationalUnitName", NameOID.ORGANIZATIONAL_UNIT_NAME),
-            ("emailAddress", NameOID.EMAIL_ADDRESS),
+            "organizationalUnitName",
+            "localityName",
+            "emailAddress",
         ],
     }
 
 
-class CertificateIntermediatePolicy(CertificatePolicy):
+class CertificateIntermediatePolicy(CertificateBasePolicy):
     # The root CA should only sign intermediate certificates that match.
     policy: dict = {
-        "supplied": [
-            ("commonName", NameOID.COMMON_NAME),
-        ],
+        "supplied": ["commonName"],
         "match": [
-            ("countryName", NameOID.COUNTRY_NAME),
-            ("stateOrProvinceName", NameOID.STATE_OR_PROVINCE_NAME),
-            ("organizationName", NameOID.ORGANIZATION_NAME),
+            "countryName",
+            "stateOrProvinceName",
+            "organizationName",
         ],
         "optional": [
-            ("organizationalUnitName", NameOID.ORGANIZATIONAL_UNIT_NAME),
-            ("emailAddress", NameOID.EMAIL_ADDRESS),
+            "organizationalUnitName",
+            "localityName",
+            "emailAddress",
         ],
     }

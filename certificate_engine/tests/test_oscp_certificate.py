@@ -78,10 +78,10 @@ class OcspCertificateTest(CertificateTestCase):
         self.assert_ocsp_certificate(crt)
 
         # authorityKeyIdentifier = keyid:always, issuer
-        self.assert_authority_key(crt, self.int_key, issuer_certificate=self.int_certificate)
+        self.assert_authority_key(crt, self.int_key, issuer_certificate=self.int_certificate, critical=False)
 
         # subjectKeyIdentifier = hash
-        self.assert_hash(crt)
+        self.assert_hash(crt, critical=False)
 
         # extendedKeyUsage = critical, OCSPSigning
         self.assert_extension(crt, ExtensionOID.EXTENDED_KEY_USAGE, [ExtendedKeyUsageOID.OCSP_SIGNING], critical=True)
@@ -128,10 +128,10 @@ class OcspCertificateTest(CertificateTestCase):
         self.assert_ocsp_certificate(crt)
 
         # authorityKeyIdentifier = keyid:always, issuer
-        self.assert_authority_key(crt, self.int_key, issuer_certificate=self.int_certificate)
+        self.assert_authority_key(crt, self.int_key, issuer_certificate=self.int_certificate, critical=False)
 
         # subjectKeyIdentifier = hash
-        self.assert_hash(crt)
+        self.assert_hash(crt, critical=False)
 
         # extendedKeyUsage = critical, OCSPSigning
         self.assert_extension(crt, ExtensionOID.EXTENDED_KEY_USAGE, [ExtendedKeyUsageOID.OCSP_SIGNING], critical=True)
