@@ -39,6 +39,7 @@ autopep8==1.6.0
 mypy==0.910
 pur==5.4.2
 black==21.11b1
+typing_extensions==4.0.1
 
 # Development
 beautifulsoup4==4.10.0

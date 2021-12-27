@@ -22,6 +22,7 @@ class CertificateBasePolicy(ABC):
         ("commonName", NameOID.COMMON_NAME),
         ("emailAddress", NameOID.EMAIL_ADDRESS),
     ]
+    policy: dict = {}
 
 
 class CertificatePolicy(CertificateBasePolicy):

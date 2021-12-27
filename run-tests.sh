@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -x
 
 PYTHON_FOLDERS='api bounca certificate_engine vuetifyforms x509_pki'
 BASEDIR=`dirname "$0"`/

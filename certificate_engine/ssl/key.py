@@ -1,10 +1,11 @@
-from typing import List, Optional
+from typing import List, Optional, cast
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 from cryptography.hazmat.primitives.asymmetric.types import PRIVATE_KEY_TYPES
+from typing_extensions import get_args
 
 
 # noinspection PyUnresolvedReferences
@@ -38,7 +39,7 @@ class Key(object):
         name: str = None,
         certificate: x509.Certificate = None,
         passphrase: str = None,
-        cas: List[x509.Certificate] = None,
+        cas: Optional[List[x509.Certificate]] = None,
     ) -> bytes:
         """
         Serialize key
@@ -53,6 +54,10 @@ class Key(object):
         if not self._key:
             raise RuntimeError("No key object")
 
+        if not isinstance(self._key, get_args(serialization.pkcs12._ALLOWED_PKCS12_TYPES)):
+            raise RuntimeError(f"Key object type {type(self._key).__name__} not supported")
+        key = cast(serialization.pkcs12._ALLOWED_PKCS12_TYPES, self._key)
+
         if not name:
             raise ValueError("No name provided")
 
@@ -65,7 +70,7 @@ class Key(object):
             else serialization.NoEncryption()
         )
         return serialization.pkcs12.serialize_key_and_certificates(
-            name.encode("utf-8"), self._key, certificate, cas, encryption
+            name.encode("utf-8"), key, certificate, cas, encryption
         )
 
     def serialize(self, passphrase: str = None, encoding: serialization.Encoding = serialization.Encoding.PEM) -> str:

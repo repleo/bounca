@@ -66,7 +66,7 @@ class Certificate(object):
         return self._certificate
 
     @staticmethod
-    def _get_certificate_policy(cert: CertificateType) -> CertificatePolicy:
+    def _get_certificate_policy(cert: CertificateType) -> CertificateBasePolicy:
         return (
             CertificateRootPolicy()
             if cert.type == CertificateTypes.ROOT
@@ -100,14 +100,14 @@ class Certificate(object):
         Certificate._check_common_name(cert.parent, common_name)
 
     @staticmethod
-    def _check_policies_optional(dn: DistinguishedName, cp: CertificatePolicy):
+    def _check_policies_optional(dn: DistinguishedName, cp: CertificateBasePolicy):
         attributes = [attr for attr in cp.policy["optional"] + cp.policy["supplied"] + cp.policy["match"]]
         for key in list(dn.__dict__):
             if not key.startswith("_") and key not in attributes:
                 setattr(dn, key, None)
 
     @staticmethod
-    def _check_policies_supplied(dn: DistinguishedName, cp: CertificatePolicy):
+    def _check_policies_supplied(dn: DistinguishedName, cp: CertificateBasePolicy):
         # noinspection PyUnresolvedReferences
         for attr in cp.policy["supplied"]:
             if not getattr(dn, attr):
