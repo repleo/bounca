@@ -8,15 +8,15 @@ Packages: [https://gitlab.com/bounca/bounca/-/packages](https://gitlab.com/bounc
 
 ## Introduction
 
-BounCA let you setup a trusted encrypted communication network with your peers in a couple of minutes.
 Create a PKI, sign and revoke server and client X.509 v3 SSL certificates.
-With BounCA you can secure your web applications and OpenVPN connections without passwords,
+Setting up a trusted encrypted communication network with your peers is a matter of minutes with BounCA.
+BounCA lets you  secure your web applications and OpenVPN connections without passwords,
 and secure access to your private cloud services with your own HTTPS scheme.
 Setting up a provisioning service for your Internet of Things devices was never so easy.
 
 ## Installation
 
-BounCA is a python3 based application, with a javascript vuetify frontend, and
+BounCA is a Python Django based webapplication, with a Vuetify frontend, and
 can be hosted on every platform capable of running python3 applications.
 This tutorial describes how to deploy BounCA on a Debian 11 server.
 Some commands needs the `root` permission level, prefix them with `sudo` if necessary.
