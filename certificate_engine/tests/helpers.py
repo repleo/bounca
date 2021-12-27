@@ -158,7 +158,6 @@ class CertificateTestCase(TestCase):
         ext = crt.extensions.get_extension_for_oid(ExtensionOID.AUTHORITY_KEY_IDENTIFIER)
         self.assertEqual(critical, ext.critical)
         self.assertEqual(ext.value.key_identifier, _key_identifier_from_public_key(key.key.public_key()))
-        # TODO check that authority keys dont contain any serial anymore
         if issuer_certificate:
             ca_issuer = issuer_certificate.parent if issuer_certificate.parent else issuer_certificate
             self.assertEqual(ext.value.authority_cert_serial_number, int(issuer_certificate.serial))

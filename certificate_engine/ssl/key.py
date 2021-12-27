@@ -1,5 +1,6 @@
-from typing import Optional
+from typing import List, Optional
 
+from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
@@ -32,12 +33,46 @@ class Key(object):
             raise NotImplementedError(f"Key algorithm {key_algorithm} not implemented")
         return self
 
+    def serialize_pkcs12(
+        self,
+        name: str = None,
+        certificate: x509.Certificate = None,
+        passphrase: str = None,
+        cas: List[x509.Certificate] = None,
+    ) -> bytes:
+        """
+        Serialize key
+
+        Arguments: name - Name to use for the supplied certificate and key.
+                   certificate - Certificate to contain in pkcs12
+                   passphrase - optional passphrase (must be string)
+                   cas (list of Certificate or None) – An optional set of certificates to also include in the structure.
+        Returns:   bytes
+        """
+
+        if not self._key:
+            raise RuntimeError("No key object")
+
+        if not name:
+            raise ValueError("No name provided")
+
+        if not certificate:
+            raise ValueError("No certificate provided")
+
+        encryption = (
+            serialization.BestAvailableEncryption(passphrase.encode("utf-8"))
+            if passphrase
+            else serialization.NoEncryption()
+        )
+        return serialization.pkcs12.serialize_key_and_certificates(
+            name.encode("utf-8"), self._key, certificate, cas, encryption
+        )
+
     def serialize(self, passphrase: str = None, encoding: serialization.Encoding = serialization.Encoding.PEM) -> str:
         """
         Serialize key
 
-        Arguments: path - filename with relative path
-                   passphrase - optional passphrase (must be bytes)
+        Arguments: passphrase - optional passphrase (must be string)
                    encoding - optional different encoding
         Returns:   string
         """

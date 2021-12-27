@@ -378,6 +378,7 @@ def validation_rules_certificate(sender, instance, *args, **kwargs):
 class KeyStore(models.Model):
     key = models.TextField("Serialized Private Key")
     crt = models.TextField("Serialized signed certificate")
+    p12 = models.BinaryField("Serialized PKCS 12 package with key and certificate", null=True, blank=True, default=None)
     certificate = models.OneToOneField(
         Certificate,
         on_delete=models.CASCADE,
@@ -426,10 +427,18 @@ def generate_certificate(sender, instance, created, **kwargs):
         key_size = None
         if settings.KEY_ALGORITHM == "rsa":
             key_size = 4096 if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE] else 2048
-        keystore.key = KeyGenerator().create_key(settings.KEY_ALGORITHM, key_size).serialize(instance.passphrase_out)
+        key = KeyGenerator().create_key(settings.KEY_ALGORITHM, key_size)
+        keystore.key = key.serialize(instance.passphrase_out)
         certhandler = CertificateGenerator()
         certhandler.create_certificate(instance, keystore.key, instance.passphrase_out, instance.passphrase_issuer)
         keystore.crt = certhandler.serialize()
+        if instance.type not in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
+            root_certificate = CertificateGenerator().load(instance.parent.keystore.crt).certificate
+            int_certificate = CertificateGenerator().load(instance.parent.keystore.crt).certificate
+            keystore.p12 = key.serialize_pkcs12(
+                instance.name, certhandler.certificate, instance.passphrase_out, cas=[int_certificate, root_certificate]
+            )
+
         keystore.save()
 
         if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE] and instance.crl_distribution_url:

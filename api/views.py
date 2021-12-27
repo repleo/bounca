@@ -138,7 +138,7 @@ class FileView(APIView):
     def get_cert_keystore(cert):
         if not hasattr(cert, "keystore") or not cert.keystore.crt or not cert.keystore.key:
             raise KeyStore.DoesNotExist("Certificate has no cert/key, " "something went wrong during generation")
-        return {"crt": cert.keystore.crt, "key": cert.keystore.key}
+        return {"crt": cert.keystore.crt, "key": cert.keystore.key, "p12": cert.keystore.p12}
 
     @staticmethod
     def get_crlstore(cert):
@@ -174,16 +174,21 @@ class CertificateFilesView(FileView):
         cert_chain_file_content = "".join([cert_key["crt"] for cert_key in cert_chain_cert_keys])
         cert_file_content = cert_chain_cert_keys[0]["crt"]
         key_file_content = cert_chain_cert_keys[0]["key"]
+        p12_file_content = cert_chain_cert_keys[0]["p12"]
 
         zipped_file = io.BytesIO()
         with zipfile.ZipFile(zipped_file, "w") as f:
             filename = cls._get_filename_escape(cert)
             f.writestr("rootca.pem", root_cert_file_content)
             f.writestr("intermediate.pem", intermediate_cert_file_content)
+            f.writestr("intermediate_root-chain.pem", intermediate_cert_file_content + root_cert_file_content)
 
             f.writestr(f"{filename}.pem", cert_file_content)
             f.writestr(f"{filename}-chain.pem", cert_chain_file_content)
             f.writestr(f"{filename}.key", key_file_content)
+
+            if p12_file_content:
+                f.writestr(f"{filename}.p12", p12_file_content)
 
         zipped_file.seek(0)
         return zipped_file
