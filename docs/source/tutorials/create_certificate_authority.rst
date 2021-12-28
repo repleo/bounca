@@ -11,12 +11,21 @@ Create Root Certificate Authority
 This document will show you how to set up a root certificate authority with BounCA.
 We assume you have just installed BounCA, created an account, and are logged in on the desktop.
 
+A certificate authority (CA) is a trust entity that signs digital certificates. These certificates are used to confirm the authenticity of a web request (HTTPS),
+computer code (signed code), authentication (Client certificate), etc.
+In the public domain, internationally trusted CA (eg, VeriSign, DigiCert, Letsencrypt) are used to sign a certificate for domains.
+
+In the private domain it may make more sense to have your own CA. Especially when you dont want that a third party might intercept your trust chain, like in
+securing an intranet domain, or for securing clients, like Internet of Things sensors, to allow them to authenticate to a server (eg, Apache, OpenVPN).
+
+
+
 ---------------------------------
 
 Generate Root Certificate
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Your certificate authority (CA) starts with creating a root certificate.
+Your certificate authority (CA) starts with creating a root certificate and key.
 The root certificate is a self-signed certificate at the top of your chain-of-trust.
 A key and certificate are generated when you create the root certificate.
 The user interface of BounCA let you only download the certificate. The key is internally used
@@ -24,7 +33,7 @@ for signing the child certificates.
 The root certificate should be distributed to all hosts which need to trust your certificates.
 
 The root certificate does not sign server or client certificates directly.
-One or more intermediate certificate authorities, which are trusted by the root CA to sign certificates on their behalf, must be created.
+One or more intermediate certificate authorities must be created. These intermediate certificates are trusted by the root CA and are used to sign server certificates and client certificates.
 This allows to keep the root key offline and unused as much as possible, as any compromise of the root key makes your authority useless.
 
 When you login to your fresh BounCA, you will enter the overview tab.
@@ -63,7 +72,7 @@ Once the root certificate expires, all certificates signed by the CA become inva
 
     Create root certificate 2/2
 
-When you scroll down you can enter revocation services, internal name an passphrase. Create a passphrase for accessing your key. Remember your passphrase or store it in a safe.
+When you scroll down you can enter revocation services, internal name and passphrase. Create a passphrase for accessing your key. Remember your passphrase or store it in a safe.
 The CRL and OSCP uri's are not added to the root certificate, but to all its children. It allows to revoke the intermediate certificates.
 The name is not part of the certificate, but used to name the downloaded files, and for listing the certificate in the user interface.
 
@@ -146,8 +155,8 @@ Right click on the certificate to inspect it.
 
     Validate root CA PEM on MacOS
 
-If everything is correct, you can trust the certificate as root authority.
-In case you add it on system level, MacOS will ask for your administrator password.
+If everything is correct, you can trust the certificate as root authority. A dialog pops up to enter
+your password.
 MacOS will trust the root CA's signed certificates after you have added the certificate to your trust chain.
 
 
@@ -169,7 +178,7 @@ Re-open the key manager, search for your root certificate. You will notice it is
 
     Trusted root certificate
 
-If you inspect the certificate you see it as valid for the account.
+If you inspect the certificate you see it is valid and trusted.
 
 .. figure:: ../images/generate-ca-certificates/26-root-ca-is-trusted.png
     :height: 500px
@@ -203,7 +212,8 @@ You will enter a screen with an empty table.
 
 Click on the ``new certificate`` certificate button. You will get a form where where you can fill in the details of your intermediate CA.
 Give the intermediate CA a common name which distinguish from the root certificate.
-You will not be able to edit all the fields, as these fields must have the same value as your root authority.
+The distinguished name is pre-filled with the values from the root certificate. You are not able to edit all the fields,
+as these fields must have the same value as your root authority.
 
 The intermediate certificate should be valid for a shorter period than the root certificate.
 Ten years would be reasonable.
@@ -220,7 +230,7 @@ You need to provide a passphrase to secure the intermediate certificate, and pro
 The passphrase of the root certificate is used to sign the intermediate certificate.
 Use again a strong passphrase to protect your intermediate certificate.
 
-You can again provide CRL and OCSP urls. These are used for the revocation of the childs of the intermediate.
+You can also provide a CRL uri and OCSP uri. These are used for the revocation of the server, and client certificates signed by the intermediate certificate.
 
 .. figure:: ../images/generate-ca-certificates/9-generate-intermediate-certificate-enter-passphrases.png
     :width: 1000px
@@ -248,7 +258,7 @@ The intermediate certificate will be generated and you can inspect its subject b
 
     Inspect intermediate certificate authority
 
-The CRL and OCSP urls are automatically assigned to the values provided for generating the root certificate.
+The CRL and OCSP uris of the intermediate certificate are based on the values provided when generating the root certificate.
 
 .. figure:: ../images/generate-ca-certificates/11-inspect-intermediate-certificate-crl-ocsp.png
     :width: 1000px
@@ -256,7 +266,7 @@ The CRL and OCSP urls are automatically assigned to the values provided for gene
     :alt: Inspect CRL and OCSP links of intermediate certificate
     :figclass: align-center
 
-    Inspect CRL and OCSP links of intermediate certificat
+    Inspect CRL and OCSP links of intermediate certificate
 
 This guide has shown you how to setup a root certificate authority with BounCA and how to generate an intermediate certificate.
 You can now generate server certificates (:ref:`create_server_certificates`) and client certificates (:ref:`create_client_certificates`) to enable encrypted HTTPS connections and client authorisation.

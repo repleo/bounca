@@ -459,7 +459,7 @@ def generate_certificate_revocation_list(sender, instance, created, **kwargs):
             RuntimeError(f"Cannot build revoke list of certificate {instance} without parent")
 
         revoked_certs = Certificate.objects.filter(parent=instance.parent, revoked_uuid__isnull=False)
-        crl_list = [(rc.keystore.crt, rc.revoked_at) for rc in revoked_certs]
+        crl_list = [(rc.keystore.crt, rc.revoked_at) for rc in revoked_certs if hasattr(rc, 'keystore')]
         crl = revocation_list_builder(
             crl_list,
             instance.parent.keystore.crt,

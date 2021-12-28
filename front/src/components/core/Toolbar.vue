@@ -17,7 +17,7 @@
             BounCA - Key Management
             </div>
             <div class="font-weight-thin">
-              V{{ appVersion }}
+<!--              V{{ appVersion }}-->
             </div>
           </v-list-item-title>
       </v-list-item>

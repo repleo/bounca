@@ -1,0 +1,14 @@
+version: '2'
+services:
+    nginx:
+        image: nginx:1.16.0-alpine
+        volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./certs/:/etc/nginx/certs/
+            - ./www/:/var/www/
+
+        ports:
+            - "8443:443"
+            - "8800:80"
+
+
