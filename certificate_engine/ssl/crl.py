@@ -1,6 +1,7 @@
 import datetime
 from typing import List, Tuple
 
+import pytz
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
@@ -57,8 +58,8 @@ def revocation_list_builder(
             ]
         )
     )
-    last_update = datetime.datetime.today() if not last_update else last_update
-    next_update = datetime.datetime.today() + one_day if not next_update else next_update
+    last_update = datetime.datetime.now(tz=pytz.UTC) if not last_update else last_update
+    next_update = datetime.datetime.now(tz=pytz.UTC) + one_day if not next_update else next_update
 
     builder = builder.last_update(last_update)
     builder = builder.next_update(next_update)

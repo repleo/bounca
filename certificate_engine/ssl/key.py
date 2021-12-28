@@ -104,9 +104,12 @@ class Key(object):
                    passphrase - optional passphrase (must be string)
         Returns:   Self
         """
-        self._key = serialization.load_pem_private_key(
-            pem.encode("utf-8"), passphrase.encode("utf-8") if passphrase else None, backend=default_backend()
-        )
+        try:
+            self._key = serialization.load_pem_private_key(
+                pem.encode("utf-8"), passphrase.encode("utf-8") if passphrase else None, backend=default_backend()
+            )
+        except ValueError:
+            raise ValueError("Bad decrypt. Incorrect password?")
         return self
 
     @staticmethod

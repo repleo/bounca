@@ -1,4 +1,5 @@
 """Models for storing subject and certificate information"""
+
 import uuid
 
 from django.contrib.auth.models import User
@@ -397,7 +398,7 @@ class KeyStore(models.Model):
 class CrlStore(models.Model):
     crl = models.TextField("Serialized CRL certificate", blank=True, null=True)
     last_update = models.DateTimeField(
-        auto_now=True, editable=False, help_text="Date at which last crl " "has been generated"
+        auto_now=True, editable=False, help_text="Date at which last crl has been generated"
     )
 
     certificate = models.OneToOneField(
@@ -441,7 +442,7 @@ def generate_certificate(sender, instance, created, **kwargs):
 
         keystore.save()
 
-        if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE] and instance.crl_distribution_url:
+        if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
             crl = revocation_list_builder([], instance.keystore.crt, instance.keystore.key, instance.passphrase_out)
             crlstore = CrlStore(certificate=instance)
             crlstore.crl = serialize(crl)
@@ -458,14 +459,20 @@ def generate_certificate_revocation_list(sender, instance, created, **kwargs):
         if not instance.parent:
             RuntimeError(f"Cannot build revoke list of certificate {instance} without parent")
 
-        revoked_certs = Certificate.objects.filter(parent=instance.parent, revoked_uuid__isnull=False)
-        crl_list = [(rc.keystore.crt, rc.revoked_at) for rc in revoked_certs if hasattr(rc, 'keystore')]
+        revoked_certs = Certificate.objects.filter(parent=instance.parent, revoked_at__isnull=False)
+        crl_list = [(rc.keystore.crt, rc.revoked_at) for rc in revoked_certs if hasattr(rc, "keystore")]
+        last_update = instance.parent.crlstore.last_update if hasattr(instance.parent, "crlstore") else timezone.now()
         crl = revocation_list_builder(
             crl_list,
             instance.parent.keystore.crt,
             instance.parent.keystore.key,
             instance.passphrase_issuer,
-            instance.parent.crlstore.last_update,
+            last_update,
         )
-        instance.parent.crlstore.crl = serialize(crl)
-        instance.parent.crlstore.save()
+        if not hasattr(instance.parent, "crlstore"):
+            crlstore = CrlStore(certificate=instance.parent)
+            crlstore.crl = serialize(crl)
+            crlstore.save()
+        else:
+            instance.parent.crlstore.crl = serialize(crl)
+            instance.parent.crlstore.save()
