@@ -128,6 +128,12 @@ You also need to download the intermediate certificate itself. This file will be
 
 
 TODO HIER GEBLEVEN
+``openssl verify -CAfile rootca.pem -untrusted intermediate.pem demo1.pem``
+``cat ../int.crl.pem intermediate.pem rootca.pem > crlchain.pem``
+``openssl verify -extended_crl -verbose -CAfile crlchain.pem -crl_check demo1.crt``
+
+``openssl crl -in ../int.crl.pem -text -noout``
+
 
 You can copy the distinguished name information from the intermediate certificate by pressing the *Copy From Intermediate* button.
 

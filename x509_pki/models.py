@@ -443,7 +443,7 @@ def generate_certificate(sender, instance, created, **kwargs):
         keystore.save()
 
         if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
-            crl = revocation_list_builder([], instance.keystore.crt, instance.keystore.key, instance.passphrase_out)
+            crl = revocation_list_builder([], instance, instance.passphrase_out)
             crlstore = CrlStore(certificate=instance)
             crlstore.crl = serialize(crl)
             crlstore.save()
@@ -464,8 +464,7 @@ def generate_certificate_revocation_list(sender, instance, created, **kwargs):
         last_update = instance.parent.crlstore.last_update if hasattr(instance.parent, "crlstore") else timezone.now()
         crl = revocation_list_builder(
             crl_list,
-            instance.parent.keystore.crt,
-            instance.parent.keystore.key,
+            instance.parent,
             instance.passphrase_issuer,
             last_update,
         )

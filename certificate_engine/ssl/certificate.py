@@ -76,7 +76,7 @@ class Certificate(object):
         )
 
     @staticmethod
-    def _build_subject_names(cert: CertificateType) -> x509.Name:
+    def build_subject_names(cert: CertificateType) -> x509.Name:
         dn = cert.dn
         fields = Certificate._get_certificate_policy(cert).fields_dn
         attributes = []
@@ -155,10 +155,10 @@ class Certificate(object):
 
     def _set_issuer_name(self, cert: CertificateType) -> None:
         issuer_cert = cert.parent if cert.parent else cert
-        self._builder = self._builder.issuer_name(Certificate._build_subject_names(issuer_cert))
+        self._builder = self._builder.issuer_name(Certificate.build_subject_names(issuer_cert))
 
     def _set_subject_name(self, cert: CertificateType) -> None:
-        self._builder = self._builder.subject_name(Certificate._build_subject_names(cert))
+        self._builder = self._builder.subject_name(Certificate.build_subject_names(cert))
 
     def _set_public_key(self, cert: CertificateType, private_key: Key, issuer_key: Key) -> None:
         self._builder = self._builder.public_key(private_key.key.public_key())
@@ -166,7 +166,7 @@ class Certificate(object):
         if cert.type not in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
             ca_issuer_cert = cert.parent.parent if cert.parent.parent else cert.parent
             issuer_cert = cert.parent
-            ca_issuer_cert_subject = [DirectoryName(Certificate._build_subject_names(ca_issuer_cert))]
+            ca_issuer_cert_subject = [DirectoryName(Certificate.build_subject_names(ca_issuer_cert))]
             ca_issuer_cert_serial_number = int(issuer_cert.serial)
         self._builder = self._builder.add_extension(
             x509.AuthorityKeyIdentifier(

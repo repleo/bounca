@@ -101,13 +101,13 @@ class CRLClientServerTest(CertificateTestCase):
         next_update = datetime.today().replace(microsecond=0) + timedelta(2, 0, 0)
         crl = revocation_list_builder(
             [],
-            self.int_certificate.keystore.crt,
-            self.int_certificate.keystore.key,
+            self.int_certificate,
             last_update=last_update,
             next_update=next_update,
         )
         cert, pem = self.make_server_certificate()
-        self.assertEqual(crl.issuer.rdns[0]._attributes[0].value, "BounCA test Int CA")
+
+        self.assert_subject(crl.issuer, self.int_certificate)
         self.assertEqual(crl.last_update, last_update)
         self.assertEqual(crl.next_update, next_update)
         self.assertIsNone(crl.get_revoked_certificate_by_serial_number(cert.serial_number))
@@ -115,10 +115,8 @@ class CRLClientServerTest(CertificateTestCase):
     def test_revocation_list_builder_one_cert(self):
         cert, pem = self.make_server_certificate()
         revoke_date = datetime.today().replace(microsecond=0) - timedelta(3, 0, 0)
-        crl = revocation_list_builder(
-            [(pem, revoke_date)], self.int_certificate.keystore.crt, self.int_certificate.keystore.key
-        )
-        self.assertEqual(crl.issuer.rdns[0]._attributes[0].value, "BounCA test Int CA")
+        crl = revocation_list_builder([(pem, revoke_date)], self.int_certificate)
+        self.assert_subject(crl.issuer, self.int_certificate)
         self.assertEqual(crl.get_revoked_certificate_by_serial_number(cert.serial_number).revocation_date, revoke_date)
 
     def test_revocation_list_builder_one_cert_passphrase(self):
@@ -147,15 +145,15 @@ class CRLClientServerTest(CertificateTestCase):
         keystore.key = int_key.serialize(passphrase="testphrase")
         keystore.save()
 
-        crl = revocation_list_builder([], int_certificate.keystore.crt, int_certificate.keystore.key, "testphrase")
-        self.assertEqual(crl.issuer.rdns[0]._attributes[0].value, "BounCA test Int passphrase CA")
+        crl = revocation_list_builder([], int_certificate, "testphrase")
+        self.assert_subject(crl.issuer, int_certificate)
 
     def test_revocation_list_builder_serialization(self):
-        crl = revocation_list_builder([], self.int_certificate.keystore.crt, self.int_certificate.keystore.key)
+        crl = revocation_list_builder([], self.int_certificate)
         pem = serialize(crl)
         self.assertIn("-----BEGIN X509 CRL-----", pem)
         crl_deserialized = x509.load_pem_x509_crl(pem.encode("utf8"), backend=default_backend())
-        self.assertEqual(crl_deserialized.issuer.rdns[0]._attributes[0].value, "BounCA test Int CA")
+        self.assert_subject(crl_deserialized.issuer, self.int_certificate)
 
 
 class CRLIntermediateTest(CertificateTestCase):
@@ -219,13 +217,12 @@ class CRLIntermediateTest(CertificateTestCase):
         next_update = datetime.today().replace(microsecond=0) + timedelta(2, 0, 0)
         crl = revocation_list_builder(
             [],
-            self.root_certificate.keystore.crt,
-            self.root_certificate.keystore.key,
+            self.root_certificate,
             last_update=last_update,
             next_update=next_update,
         )
         cert, pem = self.make_intermediate_certificate()
-        self.assertEqual(crl.issuer.rdns[0]._attributes[0].value, "BounCA test CA")
+        self.assert_subject(crl.issuer, self.root_certificate)
         self.assertEqual(crl.last_update, last_update)
         self.assertEqual(crl.next_update, next_update)
         self.assertIsNone(crl.get_revoked_certificate_by_serial_number(cert.serial_number))
@@ -233,10 +230,8 @@ class CRLIntermediateTest(CertificateTestCase):
     def test_revocation_list_builder_one_cert(self):
         cert, pem = self.make_intermediate_certificate()
         revoke_date = datetime.today().replace(microsecond=0) - timedelta(3, 0, 0)
-        crl = revocation_list_builder(
-            [(pem, revoke_date)], self.root_certificate.keystore.crt, self.root_certificate.keystore.key
-        )
-        self.assertEqual(crl.issuer.rdns[0]._attributes[0].value, "BounCA test CA")
+        crl = revocation_list_builder([(pem, revoke_date)], self.root_certificate)
+        self.assert_subject(crl.issuer, self.root_certificate)
         self.assertEqual(crl.get_revoked_certificate_by_serial_number(cert.serial_number).revocation_date, revoke_date)
 
     def test_revocation_list_builder_one_cert_passphrase(self):
@@ -265,12 +260,12 @@ class CRLIntermediateTest(CertificateTestCase):
         keystore.key = int_key.serialize(passphrase="testphrase")
         keystore.save()
 
-        crl = revocation_list_builder([], int_certificate.keystore.crt, int_certificate.keystore.key, "testphrase")
-        self.assertEqual(crl.issuer.rdns[0]._attributes[0].value, "BounCA test Int passphrase CA")
+        crl = revocation_list_builder([], int_certificate, "testphrase")
+        self.assert_subject(crl.issuer, int_certificate)
 
     def test_revocation_list_builder_serialization(self):
-        crl = revocation_list_builder([], self.root_certificate.keystore.crt, self.root_certificate.keystore.key)
+        crl = revocation_list_builder([], self.root_certificate)
         pem = serialize(crl)
         self.assertIn("-----BEGIN X509 CRL-----", pem)
         crl_deserialized = x509.load_pem_x509_crl(pem.encode("utf8"), backend=default_backend())
-        self.assertEqual(crl_deserialized.issuer.rdns[0]._attributes[0].value, "BounCA test CA")
+        self.assert_subject(crl_deserialized.issuer, self.root_certificate)

@@ -1,5 +1,5 @@
 import datetime
-from typing import List, Tuple
+from typing import TYPE_CHECKING, List, Tuple
 
 import pytz
 from cryptography import x509
@@ -7,10 +7,14 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ed448, ed25519
 from cryptography.x509 import CertificateRevocationList, RevokedCertificate
-from cryptography.x509.oid import NameOID
 
-from certificate_engine.ssl.certificate import PassPhraseError
+from certificate_engine.ssl.certificate import Certificate, PassPhraseError
 from certificate_engine.ssl.key import Key
+
+if TYPE_CHECKING:
+    from x509_pki.models import Certificate as CertificateType
+else:
+    CertificateType = object
 
 
 def revocation_builder(pem: str, timestamp: datetime.datetime) -> RevokedCertificate:
@@ -23,8 +27,7 @@ def revocation_builder(pem: str, timestamp: datetime.datetime) -> RevokedCertifi
 
 def revocation_list_builder(
     certificates: List[Tuple[str, datetime.datetime]],
-    ca: str,
-    key: str,
+    issuer_cert: CertificateType,
     passphrase: str = None,
     last_update: datetime.datetime = None,
     next_update: datetime.datetime = None,
@@ -39,25 +42,14 @@ def revocation_list_builder(
     Returns:   The certificate revocation list object
     """
     try:
-        ca_key = Key().load(key, passphrase)
+        ca_key = Key().load(issuer_cert.keystore.key, passphrase)
     except ValueError:
         raise PassPhraseError("Bad passphrase, could not decode private key")
 
     one_day = datetime.timedelta(1, 0, 0)
 
     builder = x509.CertificateRevocationListBuilder()
-    ca_crt = x509.load_pem_x509_certificate(ca.encode("utf8"), backend=default_backend())
-    common_name_attrs = ca_crt.subject.get_attributes_for_oid(NameOID.COMMON_NAME)
-    if len(common_name_attrs) != 1:
-        raise ValueError("CommonName has not been set")
-    common_name = common_name_attrs[0].value
-    builder = builder.issuer_name(
-        x509.Name(
-            [
-                x509.NameAttribute(NameOID.COMMON_NAME, common_name),
-            ]
-        )
-    )
+    builder = builder.issuer_name(Certificate.build_subject_names(issuer_cert))
     last_update = datetime.datetime.now(tz=pytz.UTC) if not last_update else last_update
     next_update = datetime.datetime.now(tz=pytz.UTC) + one_day if not next_update else next_update
 
