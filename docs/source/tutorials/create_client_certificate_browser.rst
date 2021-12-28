@@ -132,7 +132,7 @@ TODO HIER GEBLEVEN
 ``cat ../int.crl.pem intermediate.pem rootca.pem > crlchain.pem``
 ``openssl verify -extended_crl -verbose -CAfile crlchain.pem -crl_check demo1.crt``
 
-``openssl crl -in ../int.crl.pem -text -noout``
+``openssl crl -in int.crl.pem -text -noout``
 
 
 You can copy the distinguished name information from the intermediate certificate by pressing the *Copy From Intermediate* button.

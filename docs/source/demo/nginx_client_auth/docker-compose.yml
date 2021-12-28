@@ -10,5 +10,6 @@ services:
         ports:
             - "8443:443"
             - "8800:80"
+        command: [nginx-debug, '-g', 'daemon off;']
 
 

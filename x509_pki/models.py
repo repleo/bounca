@@ -453,7 +453,7 @@ def generate_certificate(sender, instance, created, **kwargs):
 def generate_certificate_revocation_list(sender, instance, created, **kwargs):
     update_fields = kwargs["update_fields"]
     if not created and "revoked_uuid" in update_fields:
-        if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
+        if instance.type == CertificateTypes.ROOT:
             return
 
         if not instance.parent:
