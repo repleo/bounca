@@ -4,7 +4,7 @@
 Install BounCA
 ===============
 
-This guide shows how you can install BounCA in house on your platform.
+This guide shows how you can install BounCA on your platform.
 Hosting BounCA yourself is the safest option for keeping your keys secret. Even
 better to not connect you BounCA installation to the Internet.
 If you just want to generate some certificates, but don't consider a high level

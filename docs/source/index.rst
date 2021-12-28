@@ -24,7 +24,8 @@ Site structure
    tutorials/create_certificate_authority
    tutorials/install_root_certificate
    tutorials/create_server_certificate_webserver
-   tutorials/create_client_certificate_webserver
+   tutorials/create_client_certificate_browser
+   tutorials/create_mail_certificate
 
 
 .. _pki-docs:

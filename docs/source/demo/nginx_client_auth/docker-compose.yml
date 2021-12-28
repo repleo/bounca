@@ -10,6 +10,7 @@ services:
         ports:
             - "8443:443"
             - "8800:80"
-        command: [nginx-debug, '-g', 'daemon off;']
+        # Run nginx in debug mode to debug SSL issues:
+        # command: [nginx-debug, '-g', 'daemon off;']
 
 
