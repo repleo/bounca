@@ -1,21 +1,22 @@
 :header_title: Secure and encrypted E-mail with self-generated Client Certificate
 :header_subtitle: Step-by-step guide to secure your E-mail with self-generated Client Certificates
+
 .. _create_mail_certificate:
 
 Setting up secure E-mail
 =====================================
 
-This document will show you can setup secure and encrypted e-mailing using S/MIME with a client certificate generated with BounCA.
-We assume you have a working BounCA and create a certificate authority, see :ref:`create_root_certificate`.
-
-E-mail can be encrypted using S/MIME. S/MIME stands for "secure multipurpose internet mail extension". Normally, e-mails are send unencrypted over the web, which make them an easy target for cyber criminals.
+This tutorial will show you how to setup secure e-mail using S/MIME with a client certificate generated with BounCA.
+E-mail can be encrypted using the S/MIME standard. S/MIME stands for "secure multipurpose internet mail extension". Normally, e-mails are send unencrypted over the web, which make them an easy target for cyber criminals.
 Normally you don't consider it, when sending your photos, notary documents, financial information, and so on.
 Or consider phishing, the e-mail protocol doesn't prevent identity theft. Just as physical mail, the sender information can be freely entered, and thus spoofed.
 Using certificates can secure your e-mail traffic, we will explain in this tutorial how to enable S/MIME.
 
+We assume you have a working BounCA and create a certificate authority, see :ref:`create_root_certificate`.
+
 
 Generate E-mail S/MIME Certificate
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First, you need an S/MIME certificate. Actually, that is just a client certificate with your full e-mail address.
 

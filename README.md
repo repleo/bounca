@@ -1,4 +1,8 @@
-# BounCA PKI - Key Management
+<a href="https://bounca.org/">
+    <img src="https://www.bounca.org/_images/BounCA-logo.png" alt="BounCA logo" title="BounCA" align="right" height="60" />
+</a>
+
+# BounCA PKI - Personal Key Management
 
 Protect your Data, Protect your Communication,
 Protect your Business, BounCA!
@@ -14,12 +18,45 @@ BounCA lets you  secure your web applications and OpenVPN connections without pa
 and secure access to your private cloud services with your own HTTPS scheme.
 Setting up a provisioning service for your Internet of Things devices was never so easy.
 
-## Installation
+[![BounCA](https://www.bounca.org/_images/ssl_dashboard_bounca.png)](https://www.bounca.org)
+
+### Your Own Certificate Authority
+
+Use cases:
+
+* Trusted encrypted communication with your peers (man-in-the-middle attack prevention)
+* Secure your internal REST micro-services and internal API's
+* Client-certificate based login for web services, web applications and OpenVPN connections
+* Secure S/MIME-based encrypted e-mail
+* Secure access to your private cloud services with your own HTTPS scheme
+* Secure your Internet of Things (IoT) network with your certificates and provision them via the BounCA API
+
+Advantages:
+
+* No single point of failure: Decoupled and decentralized authorization management
+* You are in control of your complete trust chain: Spoofing nearly impossible as no third party is involved
+* Rocket fast authentication: SSL off-loading can be performed by your webservers
+
+###Features
+
+* Create and manage your own root certificates and certificate authorities
+* Create intermediate certificates for grouping of certificates
+* Create server side certificates for setting up trusted and encrypted connections
+* Create client side certificates for authentication and authorization
+* Support for advanced v3 certificates containing subject alt names
+* Revoke certificates within one mouse click and download Certificate Revoke Lists (CRL)
+* Download certificates, keys, and keystore packages for your webserver and installation
+* Protect your certificates via passphrases
+* Evaluate your certificates via the info button
+* Use the API to automate certificate provisioning
+
+
+# Installation
 
 BounCA is a Python Django based webapplication, with a Vuetify frontend, and
 can be hosted on every platform capable of running python3 applications.
 This tutorial describes how to deploy BounCA on a Debian 11 server.
-Some commands needs the `root` permission level, prefix them with `sudo` if necessary.
+Some commands need the `root` permission level, prefix them with `sudo` if necessary.
 
 ### Server prerequisites
 

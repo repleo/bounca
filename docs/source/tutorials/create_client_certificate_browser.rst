@@ -1,9 +1,11 @@
 :header_title: Self-Signed Client Certificate
 :header_subtitle: Step-by-step guide to setup mutual TLS using client certificates.
+
 .. _create_client_certificates:
 
+
 Setting up mutual TLS using Client Certificates
-=====================================
+===============================================
 
 This document will show you can generate a client certificate with BounCA.
 We assume you have a working BounCA and create a certificate authority, see :ref:`create_root_certificate`.

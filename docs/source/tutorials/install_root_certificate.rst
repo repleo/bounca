@@ -1,5 +1,6 @@
 :header_title: Guide to add self-generated root certificate authorities for 8 operating systems and browsers
 :header_subtitle: Easy installation of self-generated root certificates
+
 .. _install_root_certificates:
 
 
@@ -34,67 +35,48 @@ Double click on the certificate file. The key manager programm will start and it
 Check the validity of the certificate.
 
 
-.. figure:: ../images/install_root_certificate/20-install-root-pem-certificate.png
-    :width: 800px
+.. figure:: ../images/install_root_certificate/20-listed-root-pem-certificate.png
+    :width: 500px
     :align: center
-    :alt: Install root CA pem file OS X
+    :alt: Install root CA pem file MacOS
     :figclass: align-center
 
-    Install root CA pem file on OS X
+    Install root CA pem file on MacOS
+
+Right click on the certificate to inspect it.
+
+.. figure:: ../images/install_root_certificate/21-inspect-root-pem-certificate.png
+    :width: 500px
+    :align: center
+    :alt: Install root CA pem file MacOS
+    :figclass: align-center
+
+    Validate root CA PEM on MacOS
+
+If everything is correct, you can trust the certificate as root authority. A dialog pops up to enter
+your password.
+MacOS will trust the root CA's signed certificates after you have added the certificate to your trust chain.
 
 
-
-.. figure:: ../images/install_root_certificate/21-validate-root-ca-pem.png
+.. figure:: ../images/install_root_certificate/22-trust-root-ca-pem.png
     :height: 500px
     :align: center
-    :alt: Validate root CA pem on OS X
+    :alt: Add root CA pem to MacOS
     :figclass: align-center
 
-    Validate root CA PEM on OS X
+    Trust your root certificate
 
-In case you trust the certificate you can add it to your operating system. Add it on system level, OS X will ask for your administrator password.
-When you have added the certificate to your trust chain, OS X will trust the root CA's signed certificates.
+Re-open the key manager, search for your root certificate. You will notice it is now trusted by MacOS.
 
-
-.. figure:: ../images/install_root_certificate/22-add-root-ca-pem.png
-    :height: 350px
-    :align: center
-    :alt: Add root CA pem to OS X
-    :figclass: align-center
-
-    Add root CA PEM to OS X
-
-Enter your administator password.
-
-.. figure:: ../images/install_root_certificate/23-enter-password.png
-    :height: 350px
-    :align: center
-    :alt: Enter administrator password
-    :figclass: align-center
-
-    Enter your administrator password
-
-Add the root authority pem as trusted root certificate to your system.
-
-.. figure:: ../images/install_root_certificate/24-trust-self-signed-root-ca-pem.png
+.. figure:: ../images/install_root_certificate/24-trusted-self-signed-root-ca-pem.png
     :height: 500px
     :align: center
     :alt: Trust added root authority pem
     :figclass: align-center
 
-    Trust added root authority PEM
+    Trusted root certificate
 
-Enable system-wide trust of your root certificate
-
-.. figure:: ../images/install_root_certificate/25-trust-rules-enabled.png
-    :height: 500px
-    :align: center
-    :alt: Trust rules enabled
-    :figclass: align-center
-
-    Trust rules enabled
-
-Re-open the root PEM certificate in the key manager. You will notice it is now trusted by OS X.
+If you inspect the certificate you see it is valid and trusted.
 
 .. figure:: ../images/install_root_certificate/26-root-ca-is-trusted.png
     :height: 500px
@@ -103,6 +85,7 @@ Re-open the root PEM certificate in the key manager. You will notice it is now t
     :figclass: align-center
 
     Verify root CA has been trusted
+
 
 Keychain GUI
 ````````````
@@ -440,6 +423,7 @@ FreeBSD
 FreeBSD doesn't offer a centralized root certificate manager.
 If you want to add a root authority you can add it directly to the certificates managed by OpenSSL.
 This depends on your configuration and is for now out of the scope of this guide.
+
 
 
 

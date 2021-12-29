@@ -24,7 +24,7 @@ While it is highly portable setup, we suggest you deploy a (virtual) machine wit
 
 
 Server prerequisites
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 
 On a fresh Debian 11 machine, first update your repositories:
@@ -67,7 +67,7 @@ install the following packages via apt:
 
 
 Create database
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 Create user and database for Postgres
 
@@ -89,7 +89,7 @@ Optionally, set a password for the ``bounca`` user.
 Don't forget to go back to your normal user, for example by using the command ``exit``.
 
 Create directories
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 Create directory for logging:
 
@@ -101,7 +101,7 @@ Create directory for logging:
 
 
 Download BounCA
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 Get the newest BounCA release from `gitlab`_.
 Unpack it to a location where your web app will be stored, like ``/srv/www/``.
@@ -114,7 +114,7 @@ Make sure the directory is owned by the nginx user:
     chown www-data:www-data -R /srv/www/bounca
 
 Configuration
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 To run BounCA you need to configure nginx, uwsgi and BounCA.
 First copy the files:
@@ -135,7 +135,7 @@ You need to change the files ``/etc/bounca/services.yaml`` and ``/etc/nginx/site
 
 
 Install virtualenv and python packages
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Create the virtualenv and install python dependencies:
 
@@ -147,7 +147,7 @@ Create the virtualenv and install python dependencies:
     pip install -r requirements.txt
 
 Setup BounCA app and initialize database
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following commands will initialize the database, setup the folder with
 static files. Also the fully qualified hostname must be configured, without protocol prefix.
@@ -169,7 +169,7 @@ In case the commands give you a db connection error, make sure you start the dat
     service postgresql start
 
 Starting the application
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Finally restart uwsgi and nginx.
 

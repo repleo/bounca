@@ -1,6 +1,6 @@
-
 :header_title: Set-up Root Certificate Authority
 :header_subtitle: Step-by-step guide to generate a basic root certificate authority.
+
 .. _create_root_certificate:
 
 
@@ -15,12 +15,17 @@ A certificate authority (CA) is a trust entity that signs digital certificates. 
 computer code (signed code), authentication (Client certificate), etc.
 In the public domain, internationally trusted CA (eg, VeriSign, DigiCert, Letsencrypt) are used to sign a certificate for domains.
 
-In the private domain it may make more sense to have your own CA. Especially when you dont want that a third party might intercept your trust chain, like in
-securing an intranet domain, or for securing clients, like Internet of Things sensors, to allow them to authenticate to a server (eg, Apache, OpenVPN).
+In some cases it may make more sense to have your own Certificate Authority.
+Common cases include securing an intranet website, or for issuing certificates to clients to allow them to authenticate to a server.
+Main use cases for having your own CA:
 
+- Trusted encrypted communication with your peers (man-in-the-middle attack prevention)
+- Secure your internal REST micro-services and internal API's
+- Sending encrypted S/MIME e-mails
+- Client-certificate based login for web services, web applications and OpenVPN connections
+- Secure access to your private cloud services with your own HTTPS scheme
+- Secure your Internet of Things (IoT) network with your certificates
 
-
----------------------------------
 
 Generate Root Certificate
 ~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -26,19 +26,9 @@ Site structure
    tutorials/create_server_certificate_webserver
    tutorials/create_client_certificate_browser
    tutorials/create_mail_certificate
+   tutorials/vpn_configuration
 
-
-.. _pki-docs:
-
-.. toctree::
-   :maxdepth: 2
-   :glob:
-   :caption: pki
-
-   pki/intro
-
-
- .. _about-docs:
+.. _about-docs:
 
 .. toctree::
    :maxdepth: 2

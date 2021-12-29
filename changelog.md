@@ -1,7 +1,7 @@
 # Change Log
 The BounCA change history
 
-## [0.2.0] - Release 2021-11-17
+## [0.2.0] - Release 2021-12-29
 * Rebuild of BounCA, old db not compatible
 * Python based certificate factory
 * Vuetify based frontend

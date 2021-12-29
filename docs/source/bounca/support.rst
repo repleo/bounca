@@ -1,22 +1,12 @@
+:header_title: Support
+
 Support
 =======
-
-Usage Questions
----------------
-
-If you have questions about how to use BounCA, or have an issue that
-isn't related to a bug, mailing one of the maintainers is the best place to ask.
-
-**All people answering your questions are doing it with their own time,
-so please be kind and provide as much information as possible.**
 
 Bugs & Support Issues
 ~~~~~~~~~~~~~~~~~~~~~
 
-You can file bug reports on our `GitHub issue tracker`_,
-and they will be addressed as soon as possible.
-**Support is a volunteer effort**,
-and there is no guaranteed response time.
+You can file bug reports on our `GitLab issue tracker`_,
 
 
 Reporting Issues
@@ -32,4 +22,4 @@ This includes:
 * Actual result
 
 
-.. _Github Issue Tracker: https://github.com/repleo/bounca
+.. _GitLab Issue Tracker: https://gitlab.com/bounca/bounca/-/issues
