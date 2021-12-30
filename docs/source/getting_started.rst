@@ -17,8 +17,9 @@ Prepare your Environment
 
 BounCA is a `Django`_ application running on a `Python3`_ environment.
 While it is highly portable setup, we suggest you deploy a (virtual) machine with the following configuration:
-* Debian Bullseye 11 Linux
-* SSH access via key authentication, and ``sudo`` for the Root user
+
+ - Debian Bullseye 11 Linux
+ - SSH access via key authentication, and ``sudo`` for the Root user
 
 .. _deploy-manual:
 
@@ -103,7 +104,7 @@ Create directory for logging:
 Download BounCA
 ~~~~~~~~~~~~~~~
 
-Get the newest BounCA release from `gitlab`_.
+Get the newest BounCA release from our `gitlab package repository`_.
 Unpack it to a location where your web app will be stored, like ``/srv/www/``.
 Make sure the directory is owned by the nginx user:
 
@@ -199,4 +200,4 @@ The admin interface can be found at ``https://<your bounca url>/admin``.
 .. _Debian: https://www.debian.org/
 .. _Django: https://www.djangoproject.com
 .. _BounCA source: https://gitlab.com/bounca/bounca/-/packages
-
+.. _gitlab package repository: https://gitlab.com/bounca/bounca/-/packages

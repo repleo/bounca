@@ -7,8 +7,10 @@
 Protect your Data, Protect your Communication,
 Protect your Business, BounCA!
 
-Source: [https://gitlab.com/bounca/bounca](https://gitlab.com/bounca/bounca)
-Packages: [https://gitlab.com/bounca/bounca/-/packages](https://gitlab.com/bounca/bounca/-/packages)
+Main repo is hosted at Gitlab:
+- Source: [https://gitlab.com/bounca/bounca](https://gitlab.com/bounca/bounca)
+- Packages: [https://gitlab.com/bounca/bounca/-/packages](https://gitlab.com/bounca/bounca/-/packages)
+- Issue tracker: [https://gitlab.com/bounca/bounca/-/issues](https://gitlab.com/bounca/bounca/-/issues)
 
 ## Introduction
 

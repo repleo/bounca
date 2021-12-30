@@ -192,4 +192,4 @@ When you click on the lock, you will see that the SSL connection is trusted usin
 
 
 
-.. _demo nginx ssl: /demo/nginx_ssl_TODO_FIX_LINK
+.. _demo nginx ssl: https://gitlab.com/bounca/bounca/-/tree/master/docs/source/demo/nginx_ssl

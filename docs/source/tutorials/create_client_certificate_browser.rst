@@ -393,4 +393,4 @@ use for authentication.
 That's it! We have shown how you can generate client certificates and enable mutual TLS connections using certificates by your trusted CA.
 
 
-.. _demo nginx client auth: /demo/nginx_ssl_TODO_FIX_LINK
+.. _demo nginx client auth: https://gitlab.com/bounca/bounca/-/tree/master/docs/source/demo/nginx_client_auth

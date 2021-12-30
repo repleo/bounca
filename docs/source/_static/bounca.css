@@ -1,5 +1,3 @@
-@import url(https://fonts.googleapis.com/css?family=Raleway);
-
 
 html {
   position: relative;
@@ -7,11 +5,27 @@ html {
 }
 
 body {
-  padding-top: 130px;
-  margin-bottom: 60px;
-  font-family: 'Raleway', sans-serif;
+  padding-top: 50px;
+  margin-bottom: 190px;
+  font-size: 17.5px;
 }
 
+@media (min-width: 1200px) {
+    .container {
+        width: 900px;
+    }
+}
+
+@media (min-width: 1200px) {
+    main .container {
+        width: 1170px;
+    }
+}
+
+.caption-text {
+    font-size: 14.5px;
+    font-weight: bold;
+}
 p {
   padding-top: 0px;
   margin-bottom: 0px;
@@ -19,15 +33,6 @@ p {
   margin-right: 0px;
 }
 
-
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  /* Set the fixed height of the footer here */
-  height: 60px;
-  background-color: #f5f5f5;
-}
 
 .navbar-right {
 	padding: 9px;
@@ -124,6 +129,11 @@ h4 {
     line-height: 1.4;
 }
 
+.feature {
+    font-weight: 300;
+    line-height: 1.4;
+}
+
 .bs-docs-masthead .lead {
     margin: 0 auto 30px;
     font-size: 30px;
@@ -196,12 +206,6 @@ p {
     -webkit-margin-after: 1em;
     -webkit-margin-start: 0px;
     -webkit-margin-end: 0px;
-}
-
-body {
-    padding-top: 53px;
-	margin-bottom: 0px;
-    font-family: 'Raleway', sans-serif;
 }
 
 .lead.brand {
@@ -277,9 +281,12 @@ body {
 }
 
 .bs-docs-footer {
-    padding-top: 50px;
-    padding-bottom: 50px;
-    margin-top: 100px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    margin-top: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
     color: #99979c;
     text-align: center;
     background-color: #2a2730;
