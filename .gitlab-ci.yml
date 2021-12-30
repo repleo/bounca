@@ -88,7 +88,7 @@ package:
     - bash -xe build-package.sh
   artifacts:
     paths:
-      - package/
+      - bounca.tar.gz
 
 #publish:
 #  <<: *release_only
@@ -99,3 +99,12 @@ package:
 #  script:
 #    - set -u
 #
+
+
+publish:
+  stage: publish
+  image: curlimages/curl:latest
+  dependencies:
+    - package`
+  script:
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file bounca.tar.gz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_COMMIT_REF_NAME}/bounca.tar.gz"'
