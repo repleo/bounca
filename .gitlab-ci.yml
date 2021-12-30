@@ -62,8 +62,11 @@ test-python:
     - mkdir -p /var/log/bounca/
     - cp ./etc/bounca/services.yaml.example ./etc/bounca/services.yaml
     - bash -xe run-tests.sh
+  artifacts:
+    reports:
+      cobertura: coverage.xml
 
-#
+
 #build-node:
 #  stage: build
 #  image: $CONTAINER_NODE_IMAGE
