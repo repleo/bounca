@@ -44,7 +44,7 @@ check-node:
     - docker
   before_script:
     - cd front
-    - npm run install
+    - npm install
   script:
     - bash run-checks-node.sh
 
