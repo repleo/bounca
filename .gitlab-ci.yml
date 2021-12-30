@@ -107,4 +107,5 @@ publish:
   dependencies:
     - package
   script:
+    - ls
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file bounca.tar.gz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_COMMIT_REF_NAME}/bounca.tar.gz"'
