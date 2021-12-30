@@ -82,7 +82,7 @@ variables:
 package:
   image: $CONTAINER_PYTHON_IMAGE
 #  dependencies:
-    - build-front
+#    - build-front
   script:
     - bash -xe build-package.sh
   artifacts:
