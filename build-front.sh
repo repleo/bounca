@@ -16,7 +16,7 @@ ls
 
 cat package.json
 
-cat package.json | sed -i '' -e "s/\\\"version\\\":\ \\\"0.0.0-dev\\\"/\\\"version\\\":\ \\\"$VERSION\\\"/g"
+sed -ri '' -e "s|\"version\":\ \"0.0.0-dev\"|\"version\":\ \"$VERSION\"|g" package.json
 
 cat package.json
 npm install --legacy-peer-deps
