@@ -12,7 +12,8 @@ services:
 
 
 variables:
-  CONTAINER_TEST_IMAGE: python:3.7
+  CONTAINER_PYTHON_IMAGE: python:3.9
+  CONTAINER_NODE_IMAGE: node:latest
   REGEX_RELEASE: /^release*$/
 
 before_script:
@@ -25,20 +26,29 @@ before_script:
   except:
     - tags
 
-check:
+check-python:
   stage: check
-  image: $CONTAINER_TEST_IMAGE
+  image: $CONTAINER_PYTHON_IMAGE
   variables:
     GIT_STRATEGY: clone
   tags:
     - docker
   script:
-    - bash run-checks.sh
+    - bash run-checks-python.sh
 
+check-node:
+  stage: check
+  image: $CONTAINER_NODE_IMAGE
+  variables:
+    GIT_STRATEGY: clone
+  tags:
+    - docker
+  script:
+    - bash run-checks-node.sh
 
 test:
   stage: test
-  image: $CONTAINER_TEST_IMAGE
+  image: $CONTAINER_PYTHON_IMAGE
   variables:
     GIT_STRATEGY: clone
   tags:
@@ -50,7 +60,7 @@ test:
 
 build:
   stage: build
-  image: $CONTAINER_TEST_IMAGE
+  image: $CONTAINER_PYTHON_IMAGE
   variables:
     GIT_STRATEGY: clone
   tags:
@@ -61,14 +71,14 @@ build:
     - check
   artifacts:
     name: $CI_COMMIT_REF_NAME
-    expire_in: 1 week
+    expire_in: 2 hrs
     paths:
       - out
 
 publish:
   <<: *release_only
   stage: publish
-  image: $CONTAINER_TEST_IMAGE
+  image: $CONTAINER_PYTHON_IMAGE
   variables:
     GIT_STRATEGY: none
   tags:
