@@ -6,7 +6,7 @@ stages:
 #  - test
 #  - build
   - package
-  - publish
+#  - publish
 
 services:
 - postgres:latest
@@ -80,6 +80,7 @@ variables:
 #      - front/dist
 
 package:
+  stage: package
   image: $CONTAINER_PYTHON_IMAGE
 #  dependencies:
 #    - build-front
