@@ -14,6 +14,9 @@ services:
 variables:
   CONTAINER_PYTHON_IMAGE: python:3.9
   CONTAINER_NODE_IMAGE: node:latest
+  POSTGRES_DB: bounca
+  POSTGRES_USER: bounca
+  POSTGRES_PASSWORD: changeit
   REGEX_RELEASE: /^release*$/
 
 .release_only: &release_only
@@ -27,13 +30,11 @@ check-python:
   image: $CONTAINER_PYTHON_IMAGE
   before_script:
     - python --version
+    - pip install virtualenv
+    - virtualenv env
     - pip install -r requirements.txt
-  variables:
-    GIT_STRATEGY: clone
-  tags:
-    - docker
   script:
-    - bash run-checks-python.sh
+    - bash -xe run-checks-python.sh
   artifacts:
     expire_in: 2 hrs
     paths:
@@ -42,10 +43,6 @@ check-python:
 check-node:
   stage: check
   image: $CONTAINER_NODE_IMAGE
-  variables:
-    GIT_STRATEGY: clone
-  tags:
-    - docker
   script:
     - bash -xe run-checks-node.sh
   artifacts:
@@ -57,22 +54,16 @@ check-node:
 test-python:
   stage: test
   image: $CONTAINER_PYTHON_IMAGE
-  variables:
-    GIT_STRATEGY: clone
-  tags:
-    - docker
   dependencies:
     - check-python
   script:
+    - cp /etc/bounca/services.yaml.example /etc/bounca/services.yaml
     - bash -xe run-tests.sh
 
-build:
+
+build-node:
   stage: build
   image: $CONTAINER_NODE_IMAGE
-  variables:
-    GIT_STRATEGY: clone
-  tags:
-    - docker
   script:
     - bash -xe build-node.sh
   dependencies:
@@ -87,12 +78,8 @@ publish:
   <<: *release_only
   stage: publish
   image: $CONTAINER_PYTHON_IMAGE
-  variables:
-    GIT_STRATEGY: none
-  tags:
-    - docker
   dependencies:
-    - build
+    - build-node
   script:
     - set -u
 
