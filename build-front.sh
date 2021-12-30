@@ -14,7 +14,7 @@ cd front
 # npm install --legacy-peer-deps
 ls
 
-sed -i '' -e "s/\"version\":\ \"0.0.0-dev\"/\"version\":\ \"$VERSION\"/g" package.json
+sed -i '' -e "s/\\\"version\\\":\ \\\"0.0.0-dev\\\"/\\\"version\\\":\ \\\"$VERSION\\\"/g" package.json
 npm install --legacy-peer-deps
 # When running on macOS Big Sur
 # export NODE_OPTIONS=--openssl-legacy-provider
