@@ -42,6 +42,9 @@ check-node:
     GIT_STRATEGY: clone
   tags:
     - docker
+  before_script:
+    - cd front
+    - npm run install
   script:
     - bash run-checks-node.sh
 
