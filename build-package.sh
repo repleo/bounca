@@ -23,7 +23,7 @@ cd ..
 mkdir out
 mv api out/
 mv bounca out/
-mv certifcate_engine out/
+mv certificate_engine out/
 mv etc out/
 mv front out/
 mv logs out/
