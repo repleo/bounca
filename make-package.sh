@@ -5,7 +5,6 @@ BASEDIR=$(dirname "$0")
 WORKDIR="$BASEDIR/out/bounca"
 VERSION=$(awk '{ sub(/.*\//, ""); print }' <<< $(git rev-parse --abbrev-ref HEAD))
 
-sdfdsf
 
 if [ "$VERSION" == "master" ]; then
     VERSION="0.0.0-$VERSION"
