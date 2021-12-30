@@ -24,5 +24,5 @@ mv README.md out/
 mv changelog.md out/
 mv requirements.txt out/
 
-tar -czvf "bounca.tar.gz" --owner=0 --group=0 out/
+tar -czvf "bounca.tar.gz" --owner=0 --group=0 out
 
