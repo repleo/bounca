@@ -1,0 +1,77 @@
+stages:
+  - check
+  - test
+  - build
+  - publish
+
+services:
+- postgres:latest
+
+
+variables:
+  CONTAINER_TEST_IMAGE: python:3.7
+  REGEX_RELEASE: /^release*$/
+
+before_script:
+  - python --version
+  - pip install -r requirements.txt
+
+.release_only: &release_only
+  only:
+    - /^release*$/
+  except:
+    - tags
+
+check:
+  stage: check
+  image: $CONTAINER_TEST_IMAGE
+  variables:
+    GIT_STRATEGY: clone
+  tags:
+    - docker
+  script:
+    - bash run-checks.sh
+
+
+test:
+  stage: test
+  image: $CONTAINER_TEST_IMAGE
+  variables:
+    GIT_STRATEGY: clone
+  tags:
+    - docker
+  script:
+    - bash run-tests.sh
+  dependencies:
+    - check
+
+build:
+  stage: build
+  image: $CONTAINER_TEST_IMAGE
+  variables:
+    GIT_STRATEGY: clone
+  tags:
+    - docker
+  script:
+    - bash make-package.sh
+  dependencies:
+    - check
+  artifacts:
+    name: $CI_COMMIT_REF_NAME
+    expire_in: 1 week
+    paths:
+      - out
+
+publish:
+  <<: *release_only
+  stage: publish
+  image: $CONTAINER_TEST_IMAGE
+  variables:
+    GIT_STRATEGY: none
+  tags:
+    - docker
+  dependencies:
+    - build
+  script:
+    - set -u
+
