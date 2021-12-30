@@ -22,7 +22,7 @@ variables:
 
 .release_only: &release_only
   only:
-    - /^release*$/
+    - /^release*/
   except:
     - tags
 
