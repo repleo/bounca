@@ -55,8 +55,6 @@ test:
     - docker
   script:
     - bash run-tests.sh
-  dependencies:
-    - check
 
 build:
   stage: build
@@ -67,8 +65,6 @@ build:
     - docker
   script:
     - bash make-package.sh
-  dependencies:
-    - check
   artifacts:
     name: $CI_COMMIT_REF_NAME
     expire_in: 2 hrs
