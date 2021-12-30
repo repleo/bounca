@@ -7,6 +7,8 @@
 Protect your Data, Protect your Communication,
 Protect your Business, BounCA!
 
+BounCA as a Service: [https://app.bounca.org](https://app.bounca.org)
+
 Main repo is hosted at Gitlab:
 - Source: [https://gitlab.com/bounca/bounca](https://gitlab.com/bounca/bounca)
 - Packages: [https://gitlab.com/bounca/bounca/-/packages](https://gitlab.com/bounca/bounca/-/packages)
