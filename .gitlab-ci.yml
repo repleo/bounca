@@ -6,7 +6,7 @@ stages:
 #  - test
 #  - build
   - package
-#  - publish
+  - publish
 
 services:
 - postgres:latest
@@ -105,6 +105,6 @@ publish:
   stage: publish
   image: curlimages/curl:latest
   dependencies:
-    - package`
+    - package
   script:
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file bounca.tar.gz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_COMMIT_REF_NAME}/bounca.tar.gz"'
