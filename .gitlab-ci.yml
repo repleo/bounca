@@ -30,56 +30,54 @@ check-python:
   image: $CONTAINER_PYTHON_IMAGE
   before_script:
     - python --version
-    - pip install virtualenv
-    - virtualenv env
     - pip install -r requirements.txt
   script:
     - bash -xe run-checks-python.sh
-  artifacts:
-    expire_in: 2 hrs
-    paths:
-      - env
 
-check-node:
-  stage: check
-  image: $CONTAINER_NODE_IMAGE
-  script:
-    - bash -xe run-checks-node.sh
-  artifacts:
-    expire_in: 2 hrs
-    paths:
-      - front/node_modules
-      - front/package-lock.json
+#check-node:
+#  stage: check
+#  image: $CONTAINER_NODE_IMAGE
+#  script:
+#    - bash -xe run-checks-node.sh
+#  artifacts:
+#    expire_in: 2 hrs
+#    paths:
+#      - front/node_modules
+#      - front/package-lock.json
 
 test-python:
   stage: test
   image: $CONTAINER_PYTHON_IMAGE
   dependencies:
     - check-python
+  before_script:
+    - python --version
+    - pip install -r requirements.txt
   script:
-    - cp /etc/bounca/services.yaml.example /etc/bounca/services.yaml
+    - ls
+    - cp ./etc/bounca/services.yaml.example ./etc/bounca/services.yaml
     - bash -xe run-tests.sh
 
-
-build-node:
-  stage: build
-  image: $CONTAINER_NODE_IMAGE
-  script:
-    - bash -xe build-node.sh
-  dependencies:
-    - check-node
-  artifacts:
-    name: $CI_COMMIT_REF_NAME
-    expire_in: 2 hrs
-    paths:
-      - front/dist
-
-publish:
-  <<: *release_only
-  stage: publish
-  image: $CONTAINER_PYTHON_IMAGE
-  dependencies:
-    - build-node
-  script:
-    - set -u
-
+#
+#build-node:
+#  stage: build
+#  image: $CONTAINER_NODE_IMAGE
+#  script:
+#    - bash -xe build-node.sh
+#  dependencies:
+#    - check-node
+#  artifacts:
+#    name: $CI_COMMIT_REF_NAME
+#    expire_in: 2 hrs
+#    paths:
+#      - front/dist
+#
+#publish:
+#  <<: *release_only
+#  stage: publish
+#  image: $CONTAINER_PYTHON_IMAGE
+#  dependencies:
+#    - build-node
+#  script:
+#    - set -u
+#
