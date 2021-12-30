@@ -1,9 +1,11 @@
-#!/usr/bin/env bash -e
+#!/usr/bin/env bash -ex
 
 
 BASEDIR=$(dirname "$0")
 WORKDIR="$BASEDIR/out/bounca"
-VERSION=$(git rev-parse --abbrev-ref HEAD)
+VERSION=$(awk '{ sub(/.*\//, ""); print }' <<< $(git rev-parse --abbrev-ref HEAD))
+
+sdfdsf
 
 if [ "$VERSION" == "master" ]; then
     VERSION="0.0.0-$VERSION"
@@ -33,5 +35,3 @@ rm Makefile README.md babel.config.js package-lock.json package.json vue.config.
 cd "../.."
 tar -czvf "bounca-$VERSION.tar.gz" --owner=0 --group=0 bounca/
 rm -rf $WORKDIR | true
-
-
