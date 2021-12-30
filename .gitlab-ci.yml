@@ -16,10 +16,6 @@ variables:
   CONTAINER_NODE_IMAGE: node:latest
   REGEX_RELEASE: /^release*$/
 
-before_script:
-  - python --version
-  - pip install -r requirements.txt
-
 .release_only: &release_only
   only:
     - /^release*$/
@@ -29,6 +25,9 @@ before_script:
 check-python:
   stage: check
   image: $CONTAINER_PYTHON_IMAGE
+  before_script:
+    - python --version
+    - pip install -r requirements.txt
   variables:
     GIT_STRATEGY: clone
   tags:
@@ -46,13 +45,15 @@ check-node:
   script:
     - bash run-checks-node.sh
 
-test:
+test-python:
   stage: test
   image: $CONTAINER_PYTHON_IMAGE
   variables:
     GIT_STRATEGY: clone
   tags:
     - docker
+  dependencies:
+    - check-python
   script:
     - bash run-tests.sh
 
