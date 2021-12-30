@@ -30,9 +30,16 @@ check-python:
   image: $CONTAINER_PYTHON_IMAGE
   before_script:
     - python --version
+    - pip install virtualenv
+    - virtualenv env
+    - source ./env/bin/activate
     - pip install -r requirements.txt
   script:
     - bash -xe run-checks-python.sh
+  artifacts:
+    expire_in: 2 hrs
+    paths:
+      - env
 
 #check-node:
 #  stage: check
@@ -50,9 +57,6 @@ test-python:
   image: $CONTAINER_PYTHON_IMAGE
   dependencies:
     - check-python
-  before_script:
-    - python --version
-    - pip install -r requirements.txt
   script:
     - ls
     - cp ./etc/bounca/services.yaml.example ./etc/bounca/services.yaml
