@@ -232,7 +232,7 @@ import certificates from '../../api/certificates';
 
 
 export default {
-  name: 'Dashboard',
+  name: 'DashboardOverview',
   data() {
     return {
       revoke: {

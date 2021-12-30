@@ -37,6 +37,7 @@
 import store from '../../store';
 
 export default {
+  name: 'CoreToolbar',
   data: () => ({
     loggedIn: false,
   }),

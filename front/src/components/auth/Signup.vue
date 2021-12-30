@@ -114,7 +114,7 @@
 import store from '../../store';
 
 export default {
-  name: 'Signup',
+  name: 'AuthSignup',
   data() {
     return {
       authenticated: store.getters['auth/isLoggedIn'],
@@ -136,9 +136,7 @@ export default {
           this.password1_visible = false;
           this.password2_visible = false;
           this.$store.dispatch('auth/register', this.subscription)
-            // .then(() => this.$router.push('/dashboard'))
             .then((response) => {
-              console.log(response);
               if ('key' in response.data) {
                 this.$router.push('/dashboard');
               } else if ('detail' in response.data) {

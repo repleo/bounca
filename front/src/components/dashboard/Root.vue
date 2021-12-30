@@ -216,7 +216,7 @@ import certificates from '../../api/certificates';
 
 
 export default {
-  name: 'Dashboard',
+  name: 'DashboardRoot',
   data() {
     return {
       revoke: {

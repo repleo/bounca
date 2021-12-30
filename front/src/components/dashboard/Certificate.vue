@@ -229,7 +229,7 @@ import certificates from '../../api/certificates';
 
 
 export default {
-  name: 'Certificate',
+  name: 'DashboardCertificate',
   data() {
     return {
       parentCertificate: {

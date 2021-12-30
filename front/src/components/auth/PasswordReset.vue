@@ -103,7 +103,7 @@
 import auth from '../../api/auth';
 
 export default {
-  name: 'passwordReset',
+  name: 'AuthPasswordReset',
   data() {
     return {
       credentials: {

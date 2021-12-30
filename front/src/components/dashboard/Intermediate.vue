@@ -219,7 +219,7 @@ import certificates from '../../api/certificates';
 
 
 export default {
-  name: 'Intermediate',
+  name: 'DashboardIntermediate',
   data() {
     return {
       parentCertificate: {

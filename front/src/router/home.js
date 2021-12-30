@@ -33,16 +33,6 @@ export default [
         path: '',
         redirect: '/auth/login',
       },
-      {
-        path: 'docs',
-        name: 'home',
-        component: () => import('../components/public/Docs.vue'),
-      },
-      {
-        path: 'about',
-        name: 'about',
-        component: () => import('../components/public/About.vue'),
-      },
     ],
   },
 ];

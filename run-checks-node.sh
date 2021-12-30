@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -x
+#!/usr/bin/env bash -xe
 
 BASEDIR=`dirname "$0"`
 cd $BASEDIR
@@ -28,4 +28,5 @@ function task() {
 
 PY_MESSAGE="${INFO} Linting javascript files ${DARK_GRAY}[*.js]${RESET}"
 cd front
+npm install --legacy-peer-deps
 task "npm run lint" "$PY_MESSAGE" .

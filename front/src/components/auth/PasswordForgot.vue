@@ -73,7 +73,7 @@
 import auth from '../../api/auth';
 
 export default {
-  name: 'passwordForgot',
+  name: 'AuthPasswordForgot',
   data() {
     return {
       email: '',

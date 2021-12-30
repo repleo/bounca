@@ -37,6 +37,7 @@ import {
 } from 'vuex';
 
 export default {
+  name: 'CoreDrawer',
   data: () => ({
     links: [
       {

@@ -15,7 +15,7 @@ import vuetify from './plugins/vuetify';
 
 /* vee-validate config */
 setInteractionMode('eager');
-Vue.component('extend', extend);
+Vue.component('extendValidation', extend);
 Vue.component('ValidationObserver', ValidationObserver);
 Vue.component('ValidationProvider', ValidationProvider);
 

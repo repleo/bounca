@@ -45,6 +45,7 @@ check-node:
   before_script:
     - cd front
     - npm install
+    - cd
   script:
     - bash run-checks-node.sh
 
@@ -68,12 +69,14 @@ build:
   tags:
     - docker
   script:
-    - bash make-package.sh
+    - bash build-node.sh
+  dependencies:
+    - check-node
   artifacts:
     name: $CI_COMMIT_REF_NAME
     expire_in: 2 hrs
     paths:
-      - out
+      - front/dist
 
 publish:
   <<: *release_only

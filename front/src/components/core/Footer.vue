@@ -44,6 +44,7 @@
 
 <script>
 export default {
+  name: 'CoreFooter',
   data: () => ({
     links: [
       { name: 'API', href: '/api' },
