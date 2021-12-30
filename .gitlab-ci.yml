@@ -109,4 +109,4 @@ publish:
   script:
     - ls
     - echo "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_COMMIT_REF_NAME}/bounca.tar.gz"
-    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ./bounca.tar.gz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_COMMIT_REF_NAME}/bounca.tar.gz"'
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ./bounca.tar.gz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release/0.0.1/bounca.tar.gz"'
