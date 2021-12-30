@@ -4,9 +4,9 @@
 BASEDIR=$(dirname "$0")
 
 cd front
-#rm -rf node_modules public src
-#rm .babelrc .env .env.production .eslintignore .eslintrc.js .postcssrc.js
-#rm Makefile README.md babel.config.js package-lock.json package.json vue.config.js
+rm -rf node_modules public src
+rm .babelrc .env .env.production .eslintignore .eslintrc.js .postcssrc.js
+rm Makefile README.md babel.config.js package-lock.json package.json vue.config.js
 
 cd ..
 
