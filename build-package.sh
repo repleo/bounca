@@ -10,7 +10,7 @@ cd front
 
 cd ..
 
-mkdir -P out/bounca/
+mkdir -p out/bounca/
 mv api out/bounca/
 mv bounca out/bounca/
 mv certificate_engine out/bounca/
