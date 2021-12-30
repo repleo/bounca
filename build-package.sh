@@ -14,6 +14,7 @@ mkdir -p out/bounca/
 mv api out/bounca/
 mv bounca out/bounca/
 mv certificate_engine out/bounca/
+mv vuetifyforms out/bounca/
 mv etc out/bounca/
 mv front out/bounca/
 mv logs out/bounca/
