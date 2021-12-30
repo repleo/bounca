@@ -18,6 +18,7 @@ mv etc out/bounca/
 mv front out/bounca/
 mv logs out/bounca/
 mv x509_pki out/bounca/
+mv manage.py out/bounca/
 mv CONTRIBUTING.md out/bounca/
 mv LICENSE out/bounca/
 mv README.md out/bounca/
