@@ -2,7 +2,7 @@
 #- template: Security/Dependency-Scanning.gitlab-ci.yml
 
 stages:
-#  - check
+  - check
 #  - test
   - build
   - publish
@@ -41,16 +41,16 @@ variables:
 #    paths:
 #      - env
 
-#check-node:
-#  stage: check
-#  image: $CONTAINER_NODE_IMAGE
-#  script:
-#    - bash -xe run-checks-node.sh
-#  artifacts:
-#    expire_in: 2 hrs
-#    paths:
-#      - front/node_modules
-#      - front/package-lock.json
+check-node:
+  stage: check
+  image: $CONTAINER_NODE_IMAGE
+  script:
+    - bash -xe run-checks-node.sh
+  artifacts:
+    expire_in: 2 hrs
+    paths:
+      - front/node_modules
+      - front/package-lock.json
 
 #test-python:
 #  stage: test
@@ -72,8 +72,8 @@ build-node:
   image: $CONTAINER_NODE_IMAGE
   script:
     - bash -xe build-front.sh
-#  dependencies:
-#    - build-node
+  dependencies:
+    - check-node
   artifacts:
     name: $CI_COMMIT_REF_NAME
     expire_in: 2 hrs
