@@ -14,17 +14,17 @@ INFO="${BLUE}[INFO]${RESET}"
 
 function task() {
     printf "$2\n"
-    docker-compose start
+    # docker-compose start
     $1 &
     pid=$!
     wait $pid
 
     if [ $? == 0 ]; then
       echo -ne "\033[0K\r"
-      docker-compose stop
+      # docker-compose stop
     else
       printf "${BRIGHT_RED}Please fix the above errors ${RESET}\n"
-      docker-compose stop
+      # docker-compose stop
       exit 1
     fi
 }

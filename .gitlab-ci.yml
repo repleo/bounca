@@ -34,6 +34,10 @@ check-python:
     - docker
   script:
     - bash run-checks-python.sh
+  artifacts:
+    expire_in: 2 hrs
+    paths:
+      - env
 
 check-node:
   stage: check
@@ -43,7 +47,12 @@ check-node:
   tags:
     - docker
   script:
-    - bash run-checks-node.sh
+    - bash -xe run-checks-node.sh
+  artifacts:
+    expire_in: 2 hrs
+    paths:
+      - front/node_modules
+      - front/package-lock.json
 
 test-python:
   stage: test
@@ -55,17 +64,17 @@ test-python:
   dependencies:
     - check-python
   script:
-    - bash run-tests.sh
+    - bash -xe run-tests.sh
 
 build:
   stage: build
-  image: $CONTAINER_PYTHON_IMAGE
+  image: $CONTAINER_NODE_IMAGE
   variables:
     GIT_STRATEGY: clone
   tags:
     - docker
   script:
-    - bash build-node.sh
+    - bash -xe build-node.sh
   dependencies:
     - check-node
   artifacts:
