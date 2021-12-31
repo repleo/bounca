@@ -4,6 +4,15 @@
       <v-card class="elevation-10">
         <v-toolbar dark flat color="primary">
           <v-toolbar-title>Login</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn
+            dark
+            color="blue lighten-1"
+            class="px-2"
+            :to="{ name: 'auth_signup'}"
+          >
+            Sign Up
+          </v-btn>
         </v-toolbar>
         <v-card-text>
           <ValidationObserver ref="form" v-slot="{ errors }">
