@@ -37,7 +37,7 @@ Use cases:
 
 Advantages:
 
-* No single point of failure: Decoupled and decentralized authorization management
+* No single point of failure: Decoupled and decentralized authentication management
 * You are in control of your complete trust chain: Spoofing nearly impossible as no third party is involved
 * Rocket fast authentication: SSL off-loading can be performed by your webservers
 
@@ -171,7 +171,7 @@ pip install -r requirements.txt
 
 ### Setup BounCA app and initialize database
 
-The following commands will initialize the database, setup the folder with
+The following commands will initialize the database, initialize the folder with
 static files. Also the fully qualified hostname must be configured, without protocol prefix.
 Optionally, create a super user for the admin interface.
 
