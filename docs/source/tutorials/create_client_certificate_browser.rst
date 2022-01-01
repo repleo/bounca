@@ -1,5 +1,5 @@
 :header_title: Self-Signed Client Certificate
-:header_subtitle: Step-by-step guide to setup mutual TLS using client certificates.
+:header_subtitle: Step-by-step guide to set up mutual TLS using client certificates.
 
 .. _create_client_certificates:
 

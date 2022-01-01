@@ -6,7 +6,7 @@
 Setting up secure E-mail
 =====================================
 
-This tutorial will show you how to setup secure e-mail using S/MIME with a client certificate generated with BounCA.
+This tutorial will show you how to set up secure e-mail using S/MIME with a client certificate generated with BounCA.
 E-mail can be encrypted using the S/MIME standard. S/MIME stands for "secure multipurpose internet mail extension". Normally, e-mails are send unencrypted over the web, which make them an easy target for cyber criminals.
 Normally you don't consider it, when sending your photos, notary documents, financial information, and so on.
 Or consider phishing, the e-mail protocol doesn't prevent identity theft. Just as physical mail, the sender information can be freely entered, and thus spoofed.

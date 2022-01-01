@@ -264,7 +264,7 @@ texinfo_documents = [
         "BounCA.org",
         author,
         "BounCATutorials",
-        "BounCA is a web tool to generate self-signed SSL certificates and setup a key infrastructure.",
+        "BounCA is a web tool to generate self-signed SSL certificates and to set up a key infrastructure.",
         "Miscellaneous",
     ),
 ]

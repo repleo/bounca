@@ -176,6 +176,25 @@ h4 {
     border-color: #fff;
 }
 
+.btn-inverse {
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.0);
+    border: 0px solid transparent;
+    border-color: #cdbfe3;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 24px;
+    font-weight: 300;
+}
+
+.btn-inverse:hover {
+    color: #B7B1EE;
+    background-color: rgba(0, 0, 0, 0.0);
+    text-decoration: none;
+}
+
 .btn-outline-light {
     color: #1E176A;
     text-shadow: none;

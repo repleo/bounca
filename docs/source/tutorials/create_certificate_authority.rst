@@ -273,7 +273,7 @@ The CRL and OCSP uris of the intermediate certificate are based on the values pr
 
     Inspect CRL and OCSP links of intermediate certificate
 
-This guide has shown you how to setup a root certificate authority with BounCA and how to generate an intermediate certificate.
+This guide has shown you how to set up a root certificate authority with BounCA and how to generate an intermediate certificate.
 You can now generate server certificates (:ref:`create_server_certificates`) and client certificates (:ref:`create_client_certificates`) to enable encrypted HTTPS connections and client authorisation.
 
 

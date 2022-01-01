@@ -16,10 +16,12 @@ Prepare your Environment
 ------------------------
 
 BounCA is a `Django`_ application running on a `Python3`_ environment.
-While it is highly portable setup, we suggest you deploy a (virtual) machine with the following configuration:
+We suggest you deploy a (virtual) machine with the following configuration:
 
  - Debian Bullseye 11 Linux
  - SSH access via key authentication, and ``sudo`` for the Root user
+
+Ofcourse other distributions will work, but we have not tested it.
 
 .. _deploy-manual:
 
@@ -150,7 +152,7 @@ Create the virtualenv and install python dependencies:
 Setup BounCA app and initialize database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following commands will initialize the database, setup the folder with
+The following commands will initialize the database, initialize the folder with
 static files. Also the fully qualified hostname must be configured, without protocol prefix.
 Optionally, create a super user for the admin interface.
 

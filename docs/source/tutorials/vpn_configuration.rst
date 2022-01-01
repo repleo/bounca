@@ -1,12 +1,12 @@
 :header_title: Configure Secure OpenVPN private network access
-:header_subtitle: Step-by-step guide to setup OpenVPN to access your private network
+:header_subtitle: Step-by-step guide to set up OpenVPN to access your private network
 
 .. _vpn_configuration:
 
 Setting up OpenVPN
 =====================================
 
-This document will show you how to setup OpenVPN to access your private network over the Internet.
+This document will show you how to set up OpenVPN to access your private network over the Internet.
 VPN allows to connect to your private network services.
 We will show how to configure OpenVPN using BounCA in an OpenWRT router.
 The complete guide of OpenVPN is out of the scope of this tutorial, for more information about configuring OpenVPN, check their documentation `OpenVPN Guide`_
@@ -329,7 +329,7 @@ to a local webserver, in this example the local hosted BounCA server.
 
     Browsing via the VPN to a locally hosted server
 
-This guide showed how to setup an OpenVPN server. The configuration options are plenty for OpenVPN, and you can increase the
+This guide showed how to set up an OpenVPN server. The configuration options are plenty for OpenVPN, and you can increase the
 security by improving the checking of the certificates, and require more strict encryption. We refer for these options to the `OpenVPN Guide`_.
 
 
