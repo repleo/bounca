@@ -14,7 +14,7 @@ urlpatterns = [
     path("auth/password-reset/confirm/<uidb64>/<token>", TemplateView.as_view(), name="password_reset_confirm"),
     path("auth/login/", VerifyEmailView.as_view(), name="account_email_verification_sent"),
     path("api/", include(urlpatterns_api)),
-    path("auth/", include("rest_framework.urls")),
+    path("auth-api/", include("rest_framework.urls")),
     path("auth/account-confirm-email/<key>", TemplateView.as_view(), name="account_confirm_email"),
 ]
 

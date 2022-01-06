@@ -1,6 +1,9 @@
 # Change Log
 The BounCA change history
 
+## [0.2.1] - Release 2022-01-06
+* Removed owner from certificate API, disabled HTML Form
+
 ## [0.2.0] - Release 2021-12-29
 * Rebuild of BounCA, old db not compatible
 * Python based certificate factory

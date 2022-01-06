@@ -35,11 +35,13 @@ class CertificateSerializer(serializers.ModelSerializer):
         max_length=200, required=False, allow_null=True, allow_blank=True
     )
 
+    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         fields = (
             "id",
-            "owner",
             "name",
+            "owner",
             "parent",
             "type",
             "dn",
