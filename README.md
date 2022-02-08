@@ -183,6 +183,11 @@ python3 manage.py collectstatic
 python3 manage.py site <fully qualified hostname>
 
 ```
+Creating an Admin Interface User:
+```
+python manage.py createsuperuser --username myAdminUser --email myAdminEmail@example.com
+```
+(Optionally: Set DJANGO_SUPERUSER_PASSWORD Environment variable to set new passwords for `python manage.py createsuperuser` command, and execute with `python manage.py createsuperuser --noinput --username myAdminUser --email myAdminEmail@example.com`)
 
 In case the commands give you a db connection error, make sure you start the database:
 
@@ -190,12 +195,14 @@ In case the commands give you a db connection error, make sure you start the dat
 service postgresql start
 ```
 
+
+
 ### Starting the application
 
 Finally restart uwsgi and nginx.
 ```
 service uwsgi restart
-service nging restart
+service nginx restart
 ```
 
 BounCA should be up and running. Browse to the hostname of your BounCA machine.
