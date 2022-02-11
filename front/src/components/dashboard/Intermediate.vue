@@ -19,6 +19,10 @@
             >
               <v-toolbar-title>
                 Intermediate Certificates for parent {{ parentCertificate.name }}
+        (
+ <span v-if="parentCertificate.revoked" class="font-weight-bold red--text">REVOKED</span>
+ <span v-else-if="parentCertificate.expired" class="font-weight-bold red--text">EXPIRED</span>
+        )
               </v-toolbar-title>
             </v-toolbar>
             <v-toolbar
@@ -29,6 +33,7 @@
                 dark
                 class="mb-2"
                 @click='dialog = !dialog'
+                v-if="!(parentCertificate.revoked || parentCertificate.expired)"
               >
                 New Certificate
               </v-btn>
@@ -47,7 +52,6 @@
           </template>
           <template v-slot:[`item.name`]="{ item }">
             <v-btn
-              :disabled="item.revoked || item.expired"
               class="ma-1"
               color="blue darken-2"
               plain
@@ -448,12 +452,6 @@ export default {
         .then((response) => {
           if (response.type !== 'R') {
             this.dialogErrorText = `${response.name} is not a root certificate`;
-            this.dialogError = true;
-          } else if (response.revoked) {
-            this.dialogErrorText = `${response.name} has been revoked`;
-            this.dialogError = true;
-          } else if (response.expired) {
-            this.dialogErrorText = `${response.name} has been expired`;
             this.dialogError = true;
           } else {
             this.parentCertificate = response;

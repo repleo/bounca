@@ -45,7 +45,6 @@
           </template>
           <template v-slot:[`item.name`]="{ item }">
             <v-btn
-              :disabled="item.revoked || item.expired"
               class="ma-1"
               color="blue darken-2"
               plain
