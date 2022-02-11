@@ -1,6 +1,9 @@
 # Change Log
 The BounCA change history
 
+## [dev]
+* Updated packages
+
 ## [0.2.1] - Release 2022-01-06
 * Removed owner from certificate API, disabled HTML Form
 
