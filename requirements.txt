@@ -12,6 +12,7 @@ django-allauth==0.48.0
 dj-rest-auth==2.2.3
 django-ical==1.8.3
 django-cors-headers==3.11.0
+django-property-filter==1.1.0
 
 # Date
 arrow==1.2.2

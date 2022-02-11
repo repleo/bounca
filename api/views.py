@@ -8,6 +8,7 @@ import zipfile
 from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.urls import NoReverseMatch, URLResolver
+from django_property_filter import PropertyBooleanFilter, PropertyFilterSet
 from rest_framework import permissions, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView
@@ -41,6 +42,16 @@ class APIPageNumberPagination(PageNumberPagination):
     page_size_query_param = "page_size"
 
 
+class CertificateFilterSet(PropertyFilterSet):
+    class Meta:
+        model = Certificate
+        exclude = ["revoked_uuid"]
+        property_fields = [
+            ("revoked", PropertyBooleanFilter, ["exact"]),
+            ("expired", PropertyBooleanFilter, ["exact"]),
+        ]
+
+
 class CertificateListView(TrapDjangoValidationErrorCreateMixin, ListCreateAPIView):
     model = Certificate
     serializer_class = CertificateSerializer
@@ -48,10 +59,8 @@ class CertificateListView(TrapDjangoValidationErrorCreateMixin, ListCreateAPIVie
     search_fields = ["name", "dn__commonName", "dn__emailAddress", "expires_at"]
     pagination_class = APIPageNumberPagination
     ordering_fields = "__all_related__"
-    filter_fields = (
-        "type",
-        "parent",
-    )
+    filterset_class = CertificateFilterSet
+    filter_fields = ("type", "parent")
 
     def get_queryset(self):
         """
