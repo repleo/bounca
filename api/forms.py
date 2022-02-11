@@ -472,7 +472,7 @@ class ChangePasswordForm(SetPasswordForm, VuetifyFormMixin):
                 outlined=True,
             ),
         )
-        self.vue_imports = [("auth", "../../../api/auth")]
+        self.vue_imports = [("profile", "../../../api/profile")]
         self.vue_props = []
         self.vue_watchers = []
         self.vue_methods = [
@@ -482,7 +482,7 @@ updatePassword() {
     if (isValid) {
       this.new_password1_visible = false;
       this.new_password1_visible = false;
-      auth.changeAccountPassword(this.password).then( response  => {
+      profile.changeAccountPassword(this.password).then( response  => {
           this.$emit('success', 'Password has been updated.');
           this.resetForm();
       }).catch( r => {
@@ -530,7 +530,7 @@ class ChangeProfileForm(UserChangeForm, VuetifyFormMixin):
                 outlined=True,
             ),
         )
-        self.vue_imports = [("auth", "../../../api/auth")]
+        self.vue_imports = [("profile", "../../../api/profile")]
         self.vue_props = []
         self.vue_watchers = []
         self.vue_mounted = """
@@ -540,7 +540,7 @@ class ChangeProfileForm(UserChangeForm, VuetifyFormMixin):
         self.vue_methods = [
             """
 setupUserForm() {
-  auth.getAccountDetails()
+  profile.getAccountDetails()
     .then( response  => {
       this.profile = response.data;
     }).catch((e) => {
@@ -552,7 +552,7 @@ updateProfile() {
     if (isValid) {
       const data = {...this.profile};
       delete this.profile['username'];
-      auth.updateAccountDetails(this.profile).then( response  => {
+      profile.updateAccountDetails(this.profile).then( response  => {
           this.resetForm();
           this.setupUserForm();
       }).catch( r => {

@@ -1,9 +1,9 @@
 """Serializers for Certificate API"""
 
 import django_countries
+from dj_rest_auth.serializers import UserDetailsSerializer
 from django.contrib.auth import password_validation
 from django_countries.serializers import CountryFieldMixin
-from rest_auth.serializers import UserDetailsSerializer
 from rest_framework import serializers
 
 from certificate_engine.types import CertificateTypes

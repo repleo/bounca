@@ -58,7 +58,7 @@ export default {
   data() {
     return {
       dialog: false,
-      dialogText: 'lorum ipsum',
+      dialogText: '',
     };
   },
   methods: {

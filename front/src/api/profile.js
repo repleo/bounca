@@ -1,7 +1,6 @@
 import axios from 'axios';
 import store from '../store';
 
-
 export default {
   changeAccountPassword(data) {
     const url = `${process.env.VUE_APP_ROOT_API}/api/v1/auth/password/change/`;
