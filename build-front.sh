@@ -6,7 +6,7 @@ VERSION=$(awk '{ sub(/.*\//, ""); print }' <<< "$CI_COMMIT_REF_NAME")
 if [[ $VERSION =~ ^([0-9]\.?)+$ ]]; then
     echo ""
 else
-    VERSION="0.0.0-$VERSION"
+    VERSION="0.0.0-dev"
 fi
 
 echo $VERSION
