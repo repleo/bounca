@@ -2,6 +2,7 @@
 The BounCA change history
 
 ## [dev]
+* Download button of client keys when they are expired/revoked
 * Fixed date in expires_at field in certificate forms in safari
 * Updated installation documents
 * Updated packages

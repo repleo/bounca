@@ -19,6 +19,10 @@
             >
               <v-toolbar-title>
                 Certificates for intermediate {{ parentCertificate.name }}
+        (
+ <span v-if="parentCertificate.revoked" class="font-weight-bold red--text">REVOKED</span>
+ <span v-else-if="parentCertificate.expired" class="font-weight-bold red--text">EXPIRED</span>
+        )
               </v-toolbar-title>
             </v-toolbar>
             <v-toolbar
@@ -29,6 +33,7 @@
                 dark
                 class="mb-2"
                 @click='certtype = "S";dialog = !dialog'
+                v-if="!(parentCertificate.revoked || parentCertificate.expired)"
               >
                 New Server Cert
               </v-btn>
@@ -37,6 +42,7 @@
                 dark
                 class="mb-2 ml-6"
                 @click='certtype = "C";dialog = !dialog'
+                v-if="!(parentCertificate.revoked || parentCertificate.expired)"
               >
                 New Client Cert
               </v-btn>
@@ -45,6 +51,7 @@
                 dark
                 class="mb-2 ml-6"
                 @click='certtype = "O";dialog = !dialog'
+                v-if="!(parentCertificate.revoked || parentCertificate.expired)"
               >
                 New OCSP Cert
               </v-btn>
@@ -75,9 +82,17 @@
           <template v-slot:[`item.actions`]="{ item }">
             <span v-if="item.revoked" class="font-weight-bold red--text">
               REVOKED
+              <v-icon class="mr-2" color="grey darken-2" v-if="item.type == 'C'"
+                      @click="downloadCertificate(item.id)">
+                mdi-download
+              </v-icon>
             </span>
             <span v-else-if="item.expired" class="mr-2 font-weight-bold blue--text">
               EXPIRED
+              <v-icon class="mr-2" color="grey darken-2" v-if="item.type == 'C'"
+                      @click="downloadCertificate(item.id)">
+                mdi-download
+              </v-icon>
             </span>
             <span v-else>
               <v-icon class="mr-2" color="red darken-2" @click="revokeCertificate(item.id)">
@@ -453,12 +468,6 @@ export default {
         .then((response) => {
           if (response.type !== 'I') {
             this.dialogErrorText = `${response.name} is not an intermediate certificate`;
-            this.dialogError = true;
-          } else if (response.revoked) {
-            this.dialogErrorText = `${response.name} has been revoked`;
-            this.dialogError = true;
-          } else if (response.expired) {
-            this.dialogErrorText = `${response.name} has been expired`;
             this.dialogError = true;
           } else {
             this.parentCertificate = response;
