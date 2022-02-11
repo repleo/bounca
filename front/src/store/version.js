@@ -1,4 +1,3 @@
-
 const packageJson = JSON.parse(JSON.stringify(require('../../package.json')));
 
 const initialState = {
@@ -6,13 +5,12 @@ const initialState = {
 };
 
 const getters = {
-  appVersion: state => state.packageVersion,
+  appVersion: (state) => state.packageVersion,
 };
 
 const actions = { };
 
 const mutations = { };
-
 
 export default {
   namespaced: true,

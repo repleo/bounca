@@ -1,7 +1,6 @@
 import axios from 'axios';
 import auth from '../api/auth';
 
-
 const initialState = {
   key: localStorage.getItem('key') || '',
 };
@@ -28,7 +27,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       commit('auth_request');
       auth.login(credentials).then((resp) => {
-        const key = resp.data.key;
+        const { key } = resp.data;
         localStorage.setItem('key', key);
         axios.defaults.headers.common.Authorization = key;
         commit('auth_success', key);
@@ -44,7 +43,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       commit('auth_request');
       auth.createAccount(subscription).then((resp) => {
-        const key = resp.data.key;
+        const { key } = resp.data;
         localStorage.setItem('key', key);
         axios.defaults.headers.common.Authorization = key;
         commit('auth_success', key);
@@ -71,8 +70,8 @@ const actions = {
 };
 
 const getters = {
-  isLoggedIn: state => !!state.key,
-  accessToken: state => state.key,
+  isLoggedIn: (state) => !!state.key,
+  accessToken: (state) => state.key,
 };
 
 export default {

@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Meta from 'vue-meta';
+import axios from 'axios';
+
 import store from '../store';
 
 // Routes
@@ -28,7 +30,7 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth)) {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (store.getters['auth/isLoggedIn']) {
       next();
       return;
@@ -42,3 +44,13 @@ router.beforeEach((to, from, next) => {
 Vue.use(Meta);
 
 export default router;
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response.status === 403 || error.response.status === 401) {
+      store.dispatch('auth/logout').then(() => router.push('/'));
+    }
+    return Promise.reject(error);
+  },
+);

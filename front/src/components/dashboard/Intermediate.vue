@@ -1,8 +1,6 @@
 <template>
   <v-container fluid>
    <v-row align="center" class="list px-3 mx-auto">
-
-
     <v-col cols="12" sm="12">
       <v-card class="mx-auto" tile>
         <v-data-table
@@ -217,7 +215,6 @@
 import { mapMutations } from 'vuex';
 import certificates from '../../api/certificates';
 
-
 export default {
   name: 'DashboardIntermediate',
   data() {
@@ -247,11 +244,21 @@ export default {
       certificates: [],
       filter: '',
       headers: [
-        { text: 'Name', align: 'start', sortable: true, value: 'name' },
-        { text: 'Common Name', value: 'commonName', sortable: true },
-        { text: 'Email Address', value: 'emailAddress', sortable: true },
-        { text: 'Expires At', value: 'expiresAt', sortable: true },
-        { text: 'Actions', value: 'actions', sortable: false },
+        {
+          text: 'Name', align: 'start', sortable: true, value: 'name',
+        },
+        {
+          text: 'Common Name', value: 'commonName', sortable: true,
+        },
+        {
+          text: 'Email Address', value: 'emailAddress', sortable: true,
+        },
+        {
+          text: 'Expires At', value: 'expiresAt', sortable: true,
+        },
+        {
+          text: 'Actions', value: 'actions', sortable: false,
+        },
       ],
       page: 1,
       totalCertificates: 0,
@@ -285,8 +292,8 @@ export default {
     getRequestParams(filter, pagination) {
       const params = { type: 'I', parent: this.parentCertificate.id };
 
-      if ('sortBy' in pagination && pagination.sortBy.length === 1 &&
-        'sortDesc' in pagination && pagination.sortDesc.length === 1) {
+      if ('sortBy' in pagination && pagination.sortBy.length === 1
+        && 'sortDesc' in pagination && pagination.sortDesc.length === 1) {
         if (pagination.sortBy[0] === 'expiresAt') {
           params.ordering = 'expires_at';
         } else if (pagination.sortBy[0] === 'commonName') {
@@ -294,7 +301,8 @@ export default {
         } else if (pagination.sortBy[0] === 'emailAddress') {
           params.ordering = 'dn__emailAddress';
         } else {
-          params.ordering = pagination.sortBy[0];
+          const [sortBy] = pagination.sortBy;
+          params.ordering = sortBy;
         }
         if (pagination.sortDesc[0]) {
           params.ordering = `-${params.ordering}`;
@@ -302,7 +310,6 @@ export default {
       } else {
         params.ordering = '-id';
       }
-
 
       if (filter) {
         params.search = filter;
@@ -331,8 +338,7 @@ export default {
       certificates.getAll(params)
         .then((response) => {
           this.loading = false;
-          const count = response.count;
-          const results = response.results;
+          const { count, results } = response;
           this.certificates = results.map(this.getDisplayCertificate);
           this.totalCertificates = count;
         })
@@ -382,14 +388,20 @@ export default {
 
     downloadCertificate(item) {
       this.dialogDownloading = true;
-      certificates.downloadCertificate(item,
-        this.downloadCertificateFinished, this.downloadCertificateError);
+      certificates.downloadCertificate(
+        item,
+        this.downloadCertificateFinished,
+        this.downloadCertificateError,
+      );
     },
 
     downloadCRL(item) {
       this.dialogDownloading = true;
-      certificates.downloadCRL(item,
-        this.downloadCertificateFinished, this.downloadCertificateError);
+      certificates.downloadCRL(
+        item,
+        this.downloadCertificateFinished,
+        this.downloadCertificateError,
+      );
     },
 
     revokeCertificate(item) {

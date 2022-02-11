@@ -1,4 +1,3 @@
-
 import store from '../store';
 
 export default [
@@ -18,8 +17,7 @@ export default [
       name: '',
       requiresAuth: false,
     },
-    component: () =>
-      import('../views/Public.vue'),
+    component: () => import('../views/Public.vue'),
     // redirect if already signed in
     beforeEnter: (to, from, next) => {
       if (store.getters['auth/isLoggedIn']) {

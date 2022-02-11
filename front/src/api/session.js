@@ -9,4 +9,3 @@ const session = axios.create({
 });
 
 export default session;
-

@@ -128,7 +128,7 @@
 <script>
 
 
-import auth from '../../../api/auth';
+import profile from '../../../api/profile';
 
 
 
@@ -161,7 +161,7 @@ updatePassword() {
     if (isValid) {
       this.new_password1_visible = false;
       this.new_password1_visible = false;
-      auth.changeAccountPassword(this.password).then( response  => {
+      profile.changeAccountPassword(this.password).then( response  => {
           this.$emit('success', 'Password has been updated.');
           this.resetForm();
       }).catch( r => {

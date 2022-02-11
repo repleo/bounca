@@ -47,6 +47,8 @@ export default {
   name: 'CoreFooter',
   data: () => ({
     links: [
+      { name: 'Feature requests', href: 'https://gitlab.com/bounca/bounca/-/issues' },
+
       { name: 'API', href: '/api' },
       { name: 'Documentation', href: 'https://www.bounca.org/' },
       { name: 'GitLab', href: 'https://gitlab.com/bounca/bounca' },

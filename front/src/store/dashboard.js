@@ -1,4 +1,3 @@
-
 const initialState = {
   navigation: {
     root: {
@@ -26,7 +25,6 @@ const mutations = {
     state.navigation.intermediate = certInfo;
   },
 };
-
 
 export default {
   namespaced: true,

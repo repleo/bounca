@@ -188,7 +188,7 @@
 <script>
 
 
-import auth from '../../../api/auth';
+import profile from '../../../api/profile';
 
 
 
@@ -220,7 +220,7 @@ export default {
 
     
 setupUserForm() {
-  auth.getAccountDetails()
+  profile.getAccountDetails()
     .then( response  => {
       this.profile = response.data;
     }).catch((e) => {
@@ -232,7 +232,7 @@ updateProfile() {
     if (isValid) {
       const data = {...this.profile};
       delete this.profile['username'];
-      auth.updateAccountDetails(this.profile).then( response  => {
+      profile.updateAccountDetails(this.profile).then( response  => {
           this.resetForm();
           this.setupUserForm();
       }).catch( r => {
