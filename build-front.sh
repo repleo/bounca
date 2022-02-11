@@ -10,7 +10,7 @@ else
 fi
 
 echo $VERSION
-exit(1)
+
 cd front
 
 sed -ri "s|\"version\":\ \"0.0.0-dev\"|\"version\":\ \"$VERSION\"|g" package.json
