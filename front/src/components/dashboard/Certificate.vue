@@ -24,6 +24,13 @@
  <span v-else-if="parentCertificate.expired" class="font-weight-bold red--text">EXPIRED</span>
         )
               </v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-switch
+                v-model="displayRevoked"
+                label="Display Revoked"
+                class="mt-2"
+                @change="updateDashboard();"
+              ></v-switch>
             </v-toolbar>
             <v-toolbar
               flat
@@ -246,6 +253,7 @@ export default {
   name: 'DashboardCertificate',
   data() {
     return {
+      displayRevoked: false,
       parentCertificate: {
         type: '',
         name: '',
@@ -322,7 +330,6 @@ export default {
     ...mapMutations('dashboard', ['setIntermediate', 'setRoot']),
     getRequestParams(filter, pagination) {
       const params = { parent: this.parentCertificate.id };
-
       if ('sortBy' in pagination && pagination.sortBy.length === 1
         && 'sortDesc' in pagination && pagination.sortDesc.length === 1) {
         if (pagination.sortBy[0] === 'expiresAt') {
@@ -344,6 +351,12 @@ export default {
 
       if (filter) {
         params.search = filter;
+      }
+
+      const { displayRevoked } = this;
+      if (displayRevoked !== true) {
+        params.revoked__exact = false;
+        params.expired__exact = false;
       }
 
       if ('page' in pagination && pagination.page) {
