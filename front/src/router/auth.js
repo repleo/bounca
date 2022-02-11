@@ -1,6 +1,5 @@
 import store from '../store';
 
-
 const redirectLogout = (to, from, next) => {
   store.dispatch('auth/logout')
     .then(() => next('/'));
@@ -21,8 +20,7 @@ export default [
       name: '',
       requiresAuth: false,
     },
-    component: () =>
-      import(/* webpackChunkName: 'routes' */ '../views/Public.vue'),
+    component: () => import(/* webpackChunkName: 'routes' */ '../views/Public.vue'),
     children: [{
       path: '',
       component: () => import('../views/Auth.vue'),

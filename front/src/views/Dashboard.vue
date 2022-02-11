@@ -11,21 +11,6 @@
   </v-app>
 </template>
 
-
-<!--<template>-->
-<!--  <v-app-->
-<!--    id="dashboard-view"-->
-<!--    dark>-->
-<!--    <core-filter />-->
-
-<!--    -->
-
-<!--    <core-drawer />-->
-
-
-<!--  </v-app>-->
-<!--</template>-->
-
 <script>
 export default {
   name: 'DashboardView',
@@ -39,4 +24,3 @@ export default {
 
 <style>
 </style>
-

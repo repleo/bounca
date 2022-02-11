@@ -129,8 +129,9 @@ export default {
             this.detail = response.data.detail;
           }).catch((r) => {
             if ('token' in r.response.data) {
-              this.$refs.form.setErrors({ token_errors: ['Token invalid, please start ' +
-                'new password reset request.'] });
+              this.$refs.form.setErrors({
+                token_errors: ['Token invalid, please start new password reset request.'],
+              });
             } else {
               this.$refs.form.setErrors(r.response.data);
             }
