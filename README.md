@@ -41,7 +41,7 @@ Advantages:
 * You are in control of your complete trust chain: Spoofing nearly impossible as no third party is involved
 * Rocket fast authentication: SSL off-loading can be performed by your webservers
 
-###Features
+### Features
 
 * Create and manage your own root certificates and certificate authorities
 * Create intermediate certificates for grouping of certificates
@@ -195,6 +195,12 @@ In case the commands give you a db connection error, make sure you start the dat
 service postgresql start
 ```
 
+### Check permissions
+
+Check the permissions of ``/var/log/bounca``. The uwsgi user, in case of debian www-data, should have
+write permissions.
+In case you face the error ``` no python application found, check your startup logs for errors ``` when
+starting uwsgi, it is probably related to the permission of the log file, directory.
 
 
 ### Starting the application

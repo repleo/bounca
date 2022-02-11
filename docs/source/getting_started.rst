@@ -171,6 +171,14 @@ In case the commands give you a db connection error, make sure you start the dat
 
     service postgresql start
 
+Check permissions
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Check the permissions of ``/var/log/bounca``. The uwsgi user, in case of debian www-data, should have
+write permissions.
+In case you face the error ``` no python application found, check your startup logs for errors ``` when
+starting uwsgi, it is probably related to the permission of the log file, directory.
+
 Starting the application
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

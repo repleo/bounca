@@ -2,6 +2,8 @@
 The BounCA change history
 
 ## [dev]
+* Fixed date in expires_at field in certificate forms in safari
+* Updated installation documents
 * Updated packages
 
 ## [0.2.1] - Release 2022-01-06
