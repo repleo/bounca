@@ -103,7 +103,6 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "corsheaders",
     "django_filters",
-    "djng",
     "django_countries",
     "rest_framework_swagger",
     "allauth",
