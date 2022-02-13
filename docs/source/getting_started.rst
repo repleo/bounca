@@ -193,12 +193,25 @@ Finally restart uwsgi and nginx.
 Post Installation
 -----------------
 
+Creating an Admin Interface User:
+
+In case you have enabled ``superuser_signup`` in your config file, you can also create the super user via a webform:
+``http://<your bounca url>/accounts/signup/``
+
+This create super user form will only be shown if no users exists. After the database is filled with users you can only create super users via the command line:
+
+```
+python manage.py createsuperuser --username myAdminUser --email myAdminEmail@example.com
+```
+
+(Optionally: Set DJANGO_SUPERUSER_PASSWORD Environment variable to set new passwords for ``python manage.py createsuperuser`` command, and execute with ``python manage.py createsuperuser --noinput --username myAdminUser --email myAdminEmail@example.com``)
+
+The admin interface can be found at:
+``https://<your bounca url>/admin``.
+
 BounCA should be up and running, you can reach your BounCA installation by browsing to your BounCA machine.
 You will see a login screen, please create an account an login.
 You are ready to create your Certificate Authorities!
-
-
-The admin interface can be found at ``https://<your bounca url>/admin``.
 
 
 .. note:: Your keys are protected by passphrases.
@@ -211,3 +224,4 @@ The admin interface can be found at ``https://<your bounca url>/admin``.
 .. _Django: https://www.djangoproject.com
 .. _BounCA source: https://gitlab.com/bounca/bounca/-/packages
 .. _gitlab package repository: https://gitlab.com/bounca/bounca/-/packages
+

@@ -5,6 +5,10 @@ psql:
   host: postgres
   port: 5432
 
+admin:
+  enabled: True
+  superuser_signup: True
+
 django:
   debug: False
   secret_key: '<value-django-secret-just-a-random-salt-string>'

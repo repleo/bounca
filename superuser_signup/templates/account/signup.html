@@ -1,0 +1,80 @@
+{% extends "admin/base_site.html" %}
+
+<!-- LOADING -->
+{% load i18n grp_tags %}
+
+<!-- NO MESSAGES -->
+{% block messages %}{% endblock %}
+
+<!-- BODYCLASS -->
+{% block bodyclass %}grp-login{% endblock %}
+
+<!-- EXTRAHEAD-->
+{% block extrahead %}
+    {{ block.super }}
+    <script type="text/javascript">
+        (function($) {
+            $(window).load(function(){ $('#id_username').focus(); });
+        })(grp.jQuery);
+    </script>
+{% endblock %}
+
+<!-- CONTENT -->
+{% block content %}
+    <div class="g-d-c g-d-10 g-centered">
+        <form action="{{ app_path }}" method="post" novalidate>{% csrf_token %}
+            <fieldset class="grp-module grp-module-login">
+                <h1>
+                    <span class="grp-admin-title">{% if grappelli_admin_title %}{{ grappelli_admin_title }}{% else %}{% get_admin_title %}{% endif %}</span>
+                    <span class="grp-current-page">{% trans "Register Super User" %}</span>
+                </h1>
+                <div class="module grp-module">
+                    {% if form.errors and not form.non_field_errors %}
+                        <div class="grp-row grp-error-row">
+                            <p class="errornote">{% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}</p>
+                        </div>
+                    {% endif %}
+                    {% if form.non_field_errors %}
+                        <div class="grp-row grp-error-row">
+                            {% for error in form.non_field_errors %}
+                                <p class="errornote">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if error_message %}
+                        <div class="grp-row grp-error-row">
+                            <p class="errornote">{{ error_message }}</p>
+                        </div>
+                    {% endif %}
+                    <div class="form-row grp-row{% if form.username.errors %} grp-errors{% endif %}">
+                        <label for="id_username" class="required">{{ form.username.label }}</label>
+                        <input type="text" name="username" id="id_username" value="{{ form.username.value|default_if_none:"" }}"/>
+                        {% if form.username.errors %}{{ form.username.errors }}{% endif %}
+                    </div>
+                    <div class="form-row grp-row{% if form.email.errors %} grp-errors{% endif %}">
+                        <label for="id_email" class="required">{{ form.email.label }}</label>
+                        <input type="text" name="email" id="id_email" value="{{ form.email.value|default_if_none:"" }}"/>
+                        {% if form.email.errors %}{{ form.email.errors }}{% endif %}
+                    </div>
+                    <div class="form-row grp-row grp-connected{% if form.password1.errors %} grp-errors{% endif %}">
+                        <label for="id_password1" class="required">{{ form.password1.label }}</label>
+                        <input type="password" name="password1" id="id_password1" />
+                        <input type="hidden" name="next" value="{{ next }}" />
+                        {% if form.password1.errors %}{{ form.password1.errors }}{% endif %}
+                    </div>
+                    <div class="form-row grp-row grp-connected{% if form.password2.errors %} grp-errors{% endif %}">
+                        <label for="id_password2" class="required">{{ form.password2.label }}</label>
+                        <input type="password" name="password2" id="id_password2" }}/>
+                        <input type="hidden" name="next" value="{{ next }}" />
+                        {% if form.password2.errors %}{{ form.password2.errors }}{% endif %}
+                    </div>
+                </div>
+            </fieldset>
+            <div class="grp-module grp-submit-row">
+                <ul>
+                    <li><input type="submit" class="grp-button grp-default" value="{% trans 'Register' %}" /></li>
+                </ul>
+            </div>
+        </form>
+    </div>
+{% endblock %}
