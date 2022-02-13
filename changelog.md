@@ -2,6 +2,7 @@
 The BounCA change history
 
 ## [dev]
+* Added resend e-mail button if user has not verified email yet
 * Form for admin account generation for fresh installs
 * Filter switch to not display revoked expired certificates
 * Download button of client keys when they are expired/revoked

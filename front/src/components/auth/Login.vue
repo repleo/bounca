@@ -58,6 +58,16 @@
         </v-card-text>
         <v-card-actions class="mr-2 pb-4">
           <v-btn
+            v-if="showResendMail"
+            color="blue"
+            plain
+            text
+            :to="{ name: 'resend_verification_email'}"
+          >
+            Resend Verification Email
+          </v-btn>
+          <v-btn
+            v-else
             color="darkgrey"
             plain
             text
@@ -86,6 +96,7 @@ export default {
   data() {
     return {
       usernameOrEmail: null,
+      showResendMail: false,
       credentials: {
         password: null,
       },
@@ -107,6 +118,11 @@ export default {
             .then(() => this.$router.push('/dashboard'))
             .catch((r) => {
               const errors = r.response.data;
+              if (errors.non_field_errors[0] === 'E-mail is not verified.') {
+                this.showResendMail = true;
+              } else {
+                this.showResendMail = false;
+              }
               errors.usernameOrEmail = errors.username + errors.email;
               this.$refs.form.setErrors(errors);
             });
