@@ -64,6 +64,12 @@ export default [
           component: () => import('../components/auth/PasswordReset.vue'),
           beforeEnter: redirectLoggedIn,
         },
+        {
+          path: 'resend-verification-email',
+          name: 'resend_verification_email',
+          component: () => import('../components/auth/ResendEmail.vue'),
+          beforeEnter: redirectLoggedIn,
+        },
       ],
     }],
   },
