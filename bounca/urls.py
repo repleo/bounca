@@ -5,9 +5,10 @@ from django.conf.urls import include
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path
-from django.views.generic import TemplateView
+from django.views.generic import RedirectView, TemplateView
 
 from api.urls import urlpatterns as urlpatterns_api
+from superuser_signup.views import CreateSuperUserView
 
 urlpatterns = [
     # these urls are used to generate email content
@@ -23,6 +24,13 @@ if settings.ADMIN:
         path("admin/", admin.site.urls),
         path("grappelli/", include("grappelli.urls")),  # grappelli URLS
     ]
+    if settings.SUPERUSER_SIGNUP:
+        urlpatterns += [
+            # Other URL patterns ...
+            path("accounts/signup/", CreateSuperUserView.as_view(), name="superuser_signup"),
+            path("accounts/login/", RedirectView.as_view(url="/admin/login"), name="account_login")
+            # More URL patterns ...
+        ]
 
 
 urlpatterns += staticfiles_urlpatterns()

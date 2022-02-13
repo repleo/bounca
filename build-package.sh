@@ -12,6 +12,7 @@ cd ..
 
 mkdir -p out/bounca/
 mv api out/bounca/
+mv superuser_signup out/bounca/
 mv bounca out/bounca/
 mv certificate_engine out/bounca/
 mv vuetifyforms out/bounca/

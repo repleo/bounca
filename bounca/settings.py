@@ -30,7 +30,6 @@ SECRET_KEY = SERVICES["django"]["secret_key"]
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = SERVICES["django"]["debug"]
 
-
 KEY_ALGORITHM = SERVICES["certificate-engine"]["key_algorithm"].lower()
 if KEY_ALGORITHM not in ["ed25519", "rsa"]:
     raise ValueError(f"Key algorithm {KEY_ALGORITHM} not supported")
@@ -54,7 +53,6 @@ DATABASES = {
     }
 }
 
-
 ADMINS = (("bounca", SERVICES["mail"]["admin"]),)
 
 MANAGERS = ADMINS
@@ -77,7 +75,6 @@ if "connection" in SERVICES["mail"]:
 
 DEFAULT_FROM_EMAIL = SERVICES["mail"]["from"]
 SERVER_EMAIL = SERVICES["mail"]["from"]
-
 
 TIME_ZONE = "Europe/Amsterdam"
 LANGUAGE_CODE = "en-us"
@@ -106,15 +103,17 @@ INSTALLED_APPS = [
     "django_property_filter",
     "django_countries",
     "rest_framework_swagger",
-    "allauth",
-    "allauth.account",
     "dj_rest_auth",
     "dj_rest_auth.registration",
     # BounCA
     "certificate_engine",
     "x509_pki",
     "api",
+    "superuser_signup",
     "bounca",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
 ]
 
 MIDDLEWARE = [
@@ -190,11 +189,17 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 WSGI_APPLICATION = "bounca.wsgi.application"
 
-ADMIN = True
-GRAPPELLI_ADMIN_TITLE = "BounCA Admin"
+if SERVICES.get("admin"):
+    ADMIN = True if SERVICES.get("admin").get("enabled") else False
+    GRAPPELLI_ADMIN_TITLE = "BounCA Admin"
+    SUPERUSER_SIGNUP = True if SERVICES.get("admin").get("superuser_signup") else False
+else:
+    ADMIN = False
+    SIGNUP_SUPERUSER = False
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -247,7 +252,6 @@ LOGGING: dict = {
     },
     "loggers": {},
 }
-
 
 if DEBUG:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

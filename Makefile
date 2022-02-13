@@ -1,4 +1,4 @@
-PYTHON_FOLDERS = api bounca certificate_engine vuetifyforms x509_pki
+PYTHON_FOLDERS = api bounca certificate_engine vuetifyforms x509_pki superuser_signup
 LOCAL_SERVER_PORT ?= 8000
 
 default:

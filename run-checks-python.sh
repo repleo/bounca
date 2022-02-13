@@ -1,6 +1,6 @@
 #!/usr/bin/env bash -x
 
-PYTHON_FOLDERS='api bounca certificate_engine vuetifyforms x509_pki'
+PYTHON_FOLDERS='api bounca certificate_engine vuetifyforms x509_pki superuser_signup'
 BASEDIR=`dirname "$0"`
 cd $BASEDIR
 

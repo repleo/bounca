@@ -2,6 +2,7 @@
 The BounCA change history
 
 ## [dev]
+* Form for admin account generation for fresh installs
 * Filter switch to not display revoked expired certificates
 * Download button of client keys when they are expired/revoked
 * Fixed date in expires_at field in certificate forms in safari

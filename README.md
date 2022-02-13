@@ -183,11 +183,6 @@ python3 manage.py collectstatic
 python3 manage.py site <fully qualified hostname>
 
 ```
-Creating an Admin Interface User:
-```
-python manage.py createsuperuser --username myAdminUser --email myAdminEmail@example.com
-```
-(Optionally: Set DJANGO_SUPERUSER_PASSWORD Environment variable to set new passwords for `python manage.py createsuperuser` command, and execute with `python manage.py createsuperuser --noinput --username myAdminUser --email myAdminEmail@example.com`)
 
 In case the commands give you a db connection error, make sure you start the database:
 
@@ -211,11 +206,23 @@ service uwsgi restart
 service nginx restart
 ```
 
-BounCA should be up and running. Browse to the hostname of your BounCA machine.
-Enjoy generating keys.
+Creating an Admin Interface User:
+
+In case you have enabled `superuser_signup` in your config file, you can also create the super user via a webform:
+[http://<example.com>/accounts/signup/](http://example.com/accounts/signup/)
+
+This create super user form will only be shown if no users exists. After the database is filled with users you can only create super users via the command line:
+
+```
+python manage.py createsuperuser --username myAdminUser --email myAdminEmail@example.com
+```
+(Optionally: Set DJANGO_SUPERUSER_PASSWORD Environment variable to set new passwords for `python manage.py createsuperuser` command, and execute with `python manage.py createsuperuser --noinput --username myAdminUser --email myAdminEmail@example.com`)
 
 The admin interface can be found at:
 [http://<example.com>/admin](http://example.com/admin).
+
+BounCA should be up and running. Browse to the hostname of your BounCA machine.
+Enjoy generating keys.
 
 ## License
 
