@@ -58,7 +58,7 @@
             dark
             color="secondary"
             class="px-4"
-            @click="passwordForgot"
+            @click="resendEmail"
             v-if="!detail"
           >
             Send
@@ -82,7 +82,7 @@ export default {
     };
   },
   methods: {
-    passwordForgot() {
+    resendEmail() {
       this.$refs.form.validate().then((isValid) => {
         if (isValid) {
           auth.resendEmail({ email: this.email }).then((response) => {
