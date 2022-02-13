@@ -124,7 +124,6 @@ export default {
                 this.showResendMail = false;
               }
               errors.usernameOrEmail = errors.username + errors.email;
-              console.log(errors);
               this.$refs.form.setErrors(errors);
             });
         }
