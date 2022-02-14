@@ -1,6 +1,9 @@
 :header_title: Get started
 :header_subtitle: An overview of BounCA, how to download and use, basic examples, and more.
 
+.. _getting_started:
+
+
 Install BounCA
 ===============
 
@@ -193,21 +196,22 @@ Finally restart uwsgi and nginx.
 Post Installation
 -----------------
 
-Creating an Admin Interface User:
+The admin interface can be found at:
+``https://<your bounca url>/admin``.
 
-In case you have enabled ``superuser_signup`` in your config file, you can also create the super user via a webform:
-``http://<your bounca url>/accounts/signup/``
+To access the admin interface you need an super user account. You can also create the super user via a webform, or via the commandline.
+You need to have enabled ``superuser_signup`` in your config file to enable the webform to create a super user. The signup form can be reached at
+this URI: ``https://<your bounca url>/accounts/signup/``.
 
 This create super user form will only be shown if no users exists. After the database is filled with users you can only create super users via the command line:
 
-```
-python manage.py createsuperuser --username myAdminUser --email myAdminEmail@example.com
-```
+.. code-block:: none
+
+    python manage.py createsuperuser --username myAdminUser --email myAdminEmail@example.com
+
 
 (Optionally: Set DJANGO_SUPERUSER_PASSWORD Environment variable to set new passwords for ``python manage.py createsuperuser`` command, and execute with ``python manage.py createsuperuser --noinput --username myAdminUser --email myAdminEmail@example.com``)
 
-The admin interface can be found at:
-``https://<your bounca url>/admin``.
 
 BounCA should be up and running, you can reach your BounCA installation by browsing to your BounCA machine.
 You will see a login screen, please create an account an login.
