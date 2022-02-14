@@ -1,7 +1,7 @@
 # Change Log
 The BounCA change history
 
-## [dev]
+## [0.3.0] - Release 2022-02-14
 * Added resend e-mail button if user has not verified email yet
 * Form for admin account generation for fresh installs
 * Filter switch to not display revoked expired certificates
