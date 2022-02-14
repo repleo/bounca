@@ -500,7 +500,7 @@ You can test the JKS with the following Java HTTPS client programm:
     import javax.net.ssl.*;
     import java.io.*;
 
-    public class HtppSSLTestClient {
+    public class HttpSSLTestClient {
 
         public static void main(String args[]) throws Exception {
             String host = "ca.repleo.nl";
@@ -531,8 +531,8 @@ Compile the program, and run it:
 
 .. code-block:: none
 
-    # javac HtppSSLTestClient.java
-    # java HtppSSLTestClient
+    # javac HttpSSLTestClient.java
+    # java HttpSSLTestClient
     Exception in thread "main" javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
         at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:131)
         at java.base/sun.security.ssl.TransportContext.fatal(TransportContext.java:325)
@@ -546,7 +546,7 @@ parameter ``javax.net.ssl.trustStore`` and ``javax.net.ssl.trustStorePassword``.
 
 .. code-block:: none
 
-    # java -Djavax.net.ssl.trustStore=repleo.jks -Djavax.net.ssl.trustStorePassword=changeit HtppSSLTestClient
+    # java -Djavax.net.ssl.trustStore=repleo.jks -Djavax.net.ssl.trustStorePassword=changeit HttpSSLTestClient
     Got the message: HTTP/1.1 200 OK
 
 When successful, you see the expected 200 OK answer.
@@ -606,7 +606,7 @@ The password of the cacerts keystore is ``changeit``.
 
     Trust this certificate? [no]:  yes
     Certificate was added to keystore
-    # java HtppSSLTestClient
+    # java HttpSSLTestClient
     Got the message: HTTP/1.1 200 OK
 
 
