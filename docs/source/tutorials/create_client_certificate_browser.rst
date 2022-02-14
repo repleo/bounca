@@ -17,7 +17,7 @@ Generate Client Certificate
 
 Client certificates can be used to authenticate HTTP sessions, automatic login to web applications, and to sign/encrypt e-mails.
 Password credentials are not necessary when using client certificate. This is useful when authenticating or provisioning
-Internet of Things devices to an API. The devices don not store user credentials, and all authentication is offloaded to the SSL layer. See :ref:`api_access_via_certificate` for a guide.
+Internet of Things devices to an API. The devices don not store user credentials, and all authentication is offloaded to the SSL layer.
 CRL or OCSP can be used to revoke access by revoking the certificate.
 In case the common name and/or subject alternative names field contain an email-address. The mail client will be able to sign your e-mail messages, see :ref:`create_mail_certificate`.
 

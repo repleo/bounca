@@ -7,11 +7,13 @@
 Install self-generated root certificates
 ===================================================
 
+After you have generated your root authority with BounCA (:ref:`getting_started`), your root certificates needs to be added to your systems to let them trust your issued certificates.
 Most operating systems offer the ability to add additional trust rules for self-generated root certificate authorities.
 When the root certificate is trusted by the operating system, the system will accept all its signed certificates.
 
-This guide shows how to add a root certificate to 8 populair operating systems and browsers.
-Installation is most times easy if you set al the flags right.
+This guide shows how to add a root certificate to popular operating systems and browsers.
+Installation is most times, install the root certificate and all issued certificates are accepted. Sometimes you also
+need to add the intermediate certificates, in the same manner as the root certificate.
 After having trusted the certificate you will see the green lock for your self-signed certificates.
 
 The prerequisite is that you have downloaded the root certificate file, or made it available via a website.
@@ -424,6 +426,192 @@ FreeBSD doesn't offer a centralized root certificate manager.
 If you want to add a root authority you can add it directly to the certificates managed by OpenSSL.
 This depends on your configuration and is for now out of the scope of this guide.
 
+
+.. _java:
+
+Java
+~~~~
+
+The JVM has it own root certificate store independent of the operating system.
+We show how you can add the root certificate to the JVM, as option when running a Java program,
+or to the generic keystore.
+
+First, get the root certificate. We download our certicate from our `Repleo CA`_. Create a keystore
+with the ``keytool`` command provided by the JDK. You must provide a password, the default one is ``changeit``.
+
+
+.. code-block:: none
+
+    # keytool -import -trustcacerts -alias root -file RepleoRoot.root.pem -keystore repleo.jks
+    Enter keystore password:
+    Re-enter new password:
+    Owner: EMAILADDRESS=ca@repleo.nl, CN=Repleo CA, OU=HQ, O=Repleo, L=Amsterdam, ST=Noord Holland, C=NL
+    Issuer: EMAILADDRESS=ca@repleo.nl, CN=Repleo CA, OU=HQ, O=Repleo, L=Amsterdam, ST=Noord Holland, C=NL
+    Serial number: 978e1982d8504ede928ab36078f7ca62
+    Valid from: Sat Jan 01 01:00:00 CET 2022 until: Sun Jan 01 01:00:00 CET 2040
+    Certificate fingerprints:
+         SHA1: 4F:EF:A6:7F:24:83:35:E1:0C:E4:15:AA:0F:68:11:0B:AC:ED:E1:61
+         SHA256: 6D:2D:D6:3B:DF:1F:20:71:8B:C9:28:2F:13:BC:C5:B7:A8:69:8C:30:8F:43:B1:A9:B8:9D:2F:F6:6A:43:9D:2A
+    Signature algorithm name: SHA256withRSA
+    Subject Public Key Algorithm: 4096-bit RSA key
+    Version: 3
+
+    Extensions:
+
+    #1: ObjectId: 2.5.29.35 Criticality=false
+    AuthorityKeyIdentifier [
+    KeyIdentifier [
+    0000: BE 5E 55 2B 28 B6 18 02   CE A1 49 43 0F 73 41 A2  .^U+(.....IC.sA.
+    0010: 6C 6B 89 09                                        lk..
+    ]
+    ]
+
+    #2: ObjectId: 2.5.29.19 Criticality=true
+    BasicConstraints:[
+      CA:true
+      PathLen:2147483647
+    ]
+
+    #3: ObjectId: 2.5.29.15 Criticality=true
+    KeyUsage [
+      DigitalSignature
+      Key_CertSign
+      Crl_Sign
+    ]
+
+    #4: ObjectId: 2.5.29.14 Criticality=false
+    SubjectKeyIdentifier [
+    KeyIdentifier [
+    0000: BE 5E 55 2B 28 B6 18 02   CE A1 49 43 0F 73 41 A2  .^U+(.....IC.sA.
+    0010: 6C 6B 89 09                                        lk..
+    ]
+    ]
+
+    Trust this certificate? [no]:  yes
+    Certificate was added to keystore
+
+
+You can test the JKS with the following Java HTTPS client programm:
+
+.. code-block:: java
+
+    import java.net.*;
+    import javax.net.*;
+    import javax.net.ssl.*;
+    import java.io.*;
+
+    public class HtppSSLTestClient {
+
+        public static void main(String args[]) throws Exception {
+            String host = "ca.repleo.nl";
+            int port = 443;
+            SocketFactory factory = SSLSocketFactory.getDefault();
+            try (Socket connection = factory.createSocket(host, port)) {
+                SSLSocket ssl = (SSLSocket) connection;
+
+                SSLParameters sslParams = new SSLParameters();
+                sslParams.setEndpointIdentificationAlgorithm("HTTPS");
+                ssl.setSSLParameters(sslParams);
+
+                PrintWriter wtr = new PrintWriter(connection.getOutputStream());
+                wtr.println("GET / HTTP/1.1");
+                wtr.println("Host: " + host);
+                wtr.println("");
+                wtr.flush();
+
+                BufferedReader input =
+                    new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String message = input.readLine();
+                System.out.println("Got the message: " + message);
+            }
+        }
+    }
+
+Compile the program, and run it:
+
+.. code-block:: none
+
+    # javac HtppSSLTestClient.java
+    # java HtppSSLTestClient
+    Exception in thread "main" javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+        at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:131)
+        at java.base/sun.security.ssl.TransportContext.fatal(TransportContext.java:325)
+        at java.base/sun.security.ssl.TransportContext.fatal(TransportContext.java:268)
+        at java.base/sun.security.ssl.TransportContext.fatal(TransportContext.java:263)
+        at java.base/sun.security.ssl.CertificateMessage$T13CertificateConsumer.checkServerCerts(CertificateMessage.java:1340)
+        ... more
+
+You get an error as the host is not trusted. The Java Keystore needs to be added to the JVM truststore. You need to provide the
+parameter ``javax.net.ssl.trustStore`` and ``javax.net.ssl.trustStorePassword``.
+
+.. code-block:: none
+
+    # java -Djavax.net.ssl.trustStore=repleo.jks -Djavax.net.ssl.trustStorePassword=changeit HtppSSLTestClient
+    Got the message: HTTP/1.1 200 OK
+
+When successful, you see the expected 200 OK answer.
+The root certificate can also be added to the truststore of the JVM. Below the command to add the root certificate to the JVM on MacOS.
+The password of the cacerts keystore is ``changeit``.
+
+.. code-block:: none
+
+    # /usr/libexec/java_home
+    /Library/Java/JavaVirtualMachines/jdk-14.0.2.jdk/Contents/Home
+    # export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-14.0.2.jdk/Contents/Home
+    # sudo keytool -import -trustcacerts -file RepleoRoot.root.pem -alias repleoca -keystore $JAVA_HOME/lib/security/cacerts
+    Password:
+    Warning: use -cacerts option to access cacerts keystore
+    Enter keystore password:
+    Owner: EMAILADDRESS=ca@repleo.nl, CN=Repleo CA, OU=HQ, O=Repleo, L=Amsterdam, ST=Noord Holland, C=NL
+    Issuer: EMAILADDRESS=ca@repleo.nl, CN=Repleo CA, OU=HQ, O=Repleo, L=Amsterdam, ST=Noord Holland, C=NL
+    Serial number: 978e1982d8504ede928ab36078f7ca62
+    Valid from: Sat Jan 01 01:00:00 CET 2022 until: Sun Jan 01 01:00:00 CET 2040
+    Certificate fingerprints:
+         SHA1: 4F:EF:A6:7F:24:83:35:E1:0C:E4:15:AA:0F:68:11:0B:AC:ED:E1:61
+         SHA256: 6D:2D:D6:3B:DF:1F:20:71:8B:C9:28:2F:13:BC:C5:B7:A8:69:8C:30:8F:43:B1:A9:B8:9D:2F:F6:6A:43:9D:2A
+    Signature algorithm name: SHA256withRSA
+    Subject Public Key Algorithm: 4096-bit RSA key
+    Version: 3
+
+    Extensions:
+
+    #1: ObjectId: 2.5.29.35 Criticality=false
+    AuthorityKeyIdentifier [
+    KeyIdentifier [
+    0000: BE 5E 55 2B 28 B6 18 02   CE A1 49 43 0F 73 41 A2  .^U+(.....IC.sA.
+    0010: 6C 6B 89 09                                        lk..
+    ]
+    ]
+
+    #2: ObjectId: 2.5.29.19 Criticality=true
+    BasicConstraints:[
+      CA:true
+      PathLen:2147483647
+    ]
+
+    #3: ObjectId: 2.5.29.15 Criticality=true
+    KeyUsage [
+      DigitalSignature
+      Key_CertSign
+      Crl_Sign
+    ]
+
+    #4: ObjectId: 2.5.29.14 Criticality=false
+    SubjectKeyIdentifier [
+    KeyIdentifier [
+    0000: BE 5E 55 2B 28 B6 18 02   CE A1 49 43 0F 73 41 A2  .^U+(.....IC.sA.
+    0010: 6C 6B 89 09                                        lk..
+    ]
+    ]
+
+    Trust this certificate? [no]:  yes
+    Certificate was added to keystore
+    # java HtppSSLTestClient
+    Got the message: HTTP/1.1 200 OK
+
+
+
+.. _Repleo CA: https://ca.repleo.nl/
 
 
 

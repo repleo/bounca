@@ -206,12 +206,14 @@ service uwsgi restart
 service nginx restart
 ```
 
-Creating an Admin Interface User:
 
-In case you have enabled `superuser_signup` in your config file, you can also create the super user via a webform:
-[http://<example.com>/accounts/signup/](http://example.com/accounts/signup/)
+The admin interface can be found at:
+[http://<example.com>/admin](http://example.com/admin).
 
-This create super user form will only be shown if no users exists. After the database is filled with users you can only create super users via the command line:
+To access the admin interface you need an super user account. You can also create the super user via a webform, or via the commandline.
+You need to have enabled `superuser_signup` in your config file to enable the webform to create a super user. The signup form can be reached at
+this URI: [http://<example.com>/accounts/signup/](http://example.com/accounts/signup/).
+
 
 ```
 python manage.py createsuperuser --username myAdminUser --email myAdminEmail@example.com
