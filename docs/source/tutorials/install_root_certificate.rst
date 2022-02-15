@@ -610,8 +610,12 @@ The password of the cacerts keystore is ``changeit``.
     Got the message: HTTP/1.1 200 OK
 
 
+In case you use Debian, or Ubuntu, your java cacerts keystore via the
+`ca-certificates-java`_ package. Or in case you run Arch linux, you can use
+`java-cacerts`_.
+
 
 .. _Repleo CA: https://ca.repleo.nl/
-
-
+.. _ca-certificates-java: https://screenshots.debian.net/package/ca-certificates-java
+.. _java-cacerts: https://pkgs.alpinelinux.org/package/v3.4/community/x86_64/java-cacerts
 
