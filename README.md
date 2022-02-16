@@ -2,11 +2,10 @@
     <img src="https://www.bounca.org/_images/BounCA-logo.png" alt="BounCA logo" title="BounCA" align="left" height="60" />
 </a>
 
-<form action="https://www.paypal.com/donate" method="post" target="_top"align="right">
-<input type="hidden" name="hosted_button_id" value="5C4W8F7XYQDZ4" />
-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
-<img alt="" border="0" src="https://www.paypal.com/en_NL/i/scr/pixel.gif" width="1" height="1" />
-</form>
+<a href="https://www.paypal.com/donate/?hosted_button_id=5C4W8F7XYQDZ4">
+    <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" alt="Donate Button" title="Donate" align="right" height="30" />
+</a>
+
 
 # BounCA PKI - Personal Key Management
 
