@@ -16,7 +16,7 @@ from django_countries.fields import CountryField
 from bounca import settings
 from certificate_engine.ssl.certificate import Certificate as CertificateGenerator
 from certificate_engine.ssl.crl import revocation_list_builder, serialize
-from certificate_engine.ssl.info import get_certificate_info
+from certificate_engine.ssl.info import get_certificate_fingerprint, get_certificate_info
 from certificate_engine.ssl.key import Key as KeyGenerator
 from certificate_engine.types import CertificateTypes
 
@@ -380,15 +380,23 @@ class KeyStore(models.Model):
     key = models.TextField("Serialized Private Key")
     crt = models.TextField("Serialized signed certificate")
     p12 = models.BinaryField("Serialized PKCS 12 package with key and certificate", null=True, blank=True, default=None)
+    fingerprint = models.TextField("SHA1 Fingerprint of Certificate")
     certificate = models.OneToOneField(
         Certificate,
         on_delete=models.CASCADE,
     )
 
+    def _get_fingerprint(self):
+        if not self.crt:
+            raise KeyStore.DoesNotExist("Certificate has no cert, " "something went wrong during generation")
+        info = get_certificate_fingerprint(self.crt)
+        return info
+
     # Create only model
     def save(self, full_clean=True, *args, **kwargs):
         if self.id is None:
             if full_clean:
+                self.fingerprint = self._get_fingerprint()
                 self.full_clean()
             super().save(*args, **kwargs)
         else:

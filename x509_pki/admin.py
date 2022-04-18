@@ -50,7 +50,7 @@ admin.site.register(DistinguishedName, X509_pki_DistinguishedNameAdmin)
 
 
 class X509_pki_CertificateAdmin(ReadOnlyAdmin):
-    search_fields = ["name"]
+    search_fields = ["name", "serial"]
     list_display = (
         "name",
         "parent",
@@ -60,6 +60,7 @@ class X509_pki_CertificateAdmin(ReadOnlyAdmin):
         "expires_at",
         "days_valid",
         "revoked_at",
+        "serial",
         "crl_distribution_url",
         "ocsp_distribution_host",
     )
@@ -69,8 +70,8 @@ admin.site.register(Certificate, X509_pki_CertificateAdmin)
 
 
 class X509_pki_KeyStoreAdmin(ReadOnlyAdmin):
-    search_fields = ["certificate__commonName"]
-    list_display = ("certificate", "key", "crt")
+    search_fields = ["certificate__name", "fingerprint"]
+    list_display = ("certificate", "key", "crt", "fingerprint")
 
 
 admin.site.register(KeyStore, X509_pki_KeyStoreAdmin)

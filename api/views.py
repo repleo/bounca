@@ -56,7 +56,7 @@ class CertificateListView(TrapDjangoValidationErrorCreateMixin, ListCreateAPIVie
     model = Certificate
     serializer_class = CertificateSerializer
     permission_classes = [permissions.IsAuthenticated]
-    search_fields = ["name", "dn__commonName", "dn__emailAddress", "expires_at"]
+    search_fields = ["name", "dn__commonName", "dn__emailAddress", "expires_at", "serial", "keystore__fingerprint"]
     pagination_class = APIPageNumberPagination
     ordering_fields = "__all_related__"
     filterset_class = CertificateFilterSet
