@@ -75,6 +75,24 @@
               </v-col>
             </v-toolbar>
           </template>
+          <template v-slot:[`item.certificate`]="{item}">
+            <div class="body-2" style="max-width: 75px;">
+              <v-tooltip left>
+                <template v-slot:activator="{ on }">
+                  <div v-on="on" class="body-2 text-truncate" >{{ item.serial }}</div>
+                </template>
+                <span>Serial: {{ item.serial }}</span>
+              </v-tooltip>
+            </div>
+            <div class="body-2" style="max-width: 75px;">
+              <v-tooltip left>
+                <template v-slot:activator="{ on }">
+                  <div v-on="on" class="body-2 text-truncate" >{{ item.fingerprint }}</div>
+                </template>
+                <span>Fingerprint (sha1): {{ item.fingerprint }}</span>
+              </v-tooltip>
+            </div>
+          </template>
           <template v-slot:[`item.type`]="{item}">
             <span v-if="item.type == 'S'" class="">
               Server
@@ -296,6 +314,9 @@ export default {
           text: 'Expires At', value: 'expiresAt', sortable: true,
         },
         {
+          text: 'Serial / Fingerprint', value: 'certificate', sortable: false,
+        },
+        {
           text: 'Actions', value: 'actions', sortable: false,
         },
       ],
@@ -401,6 +422,8 @@ export default {
         commonName: certificate.dn.commonName,
         emailAddress: certificate.dn.emailAddress,
         expiresAt: certificate.expires_at,
+        serial: certificate.serial,
+        fingerprint: certificate.keystore.fingerprint,
         revoked: certificate.revoked,
         expired: certificate.expired,
       };

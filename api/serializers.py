@@ -27,8 +27,16 @@ class DistinguishedNameSerializer(CountryFieldMixin, serializers.ModelSerializer
         model = DistinguishedName
 
 
+class KeystoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ("fingerprint",)
+        read_only_fields = ("fingerprint",)
+        model = KeyStore
+
+
 class CertificateSerializer(serializers.ModelSerializer):
     dn = DistinguishedNameSerializer()
+    keystore = KeystoreSerializer(read_only=True)
     passphrase_issuer = serializers.CharField(max_length=200, required=False, allow_null=True, allow_blank=True)
     passphrase_out = serializers.CharField(max_length=200, required=False, allow_null=True, allow_blank=True)
     passphrase_out_confirmation = serializers.CharField(
@@ -45,6 +53,8 @@ class CertificateSerializer(serializers.ModelSerializer):
             "parent",
             "type",
             "dn",
+            "keystore",
+            "serial",
             "created_at",
             "expires_at",
             "revoked_at",
