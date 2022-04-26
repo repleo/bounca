@@ -193,7 +193,9 @@ import profile from '../../../api/profile';
 
 
 function initialState (){
-  return {"dialog": false, "profile": {"password": null, "last_login": null, "is_superuser": null, "groups": null, "user_permissions": null, "username": "", "first_name": "", "last_name": "", "email": "", "is_staff": null, "is_active": null, "date_joined": null}}
+  const data = {"dialog": false, "profile": {"password": null, "last_login": null, "is_superuser": null, "groups": null, "user_permissions": null, "username": "", "first_name": "", "last_name": "", "email": "", "is_staff": null, "is_active": null, "date_joined": null}};
+  
+  return data;
 }
 
 export default {

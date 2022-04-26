@@ -133,7 +133,9 @@ import profile from '../../../api/profile';
 
 
 function initialState (){
-  return {"dialog": false, "new_password1_visible": false, "new_password2_visible": false, "password": {"new_password1": "", "new_password2": ""}}
+  const data = {"dialog": false, "new_password1_visible": false, "new_password2_visible": false, "password": {"new_password1": "", "new_password2": ""}};
+  
+  return data;
 }
 
 export default {

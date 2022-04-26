@@ -2,7 +2,9 @@
 {% include "vuetify/script/imports.js" %}
 
 function initialState (){
-  return {% make_data_object form %}
+  const data = {% make_data_object form %};
+  {{ form.vue_extra_initial_statements|safe }}
+  return data;
 }
 
 export default {
