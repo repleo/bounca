@@ -166,6 +166,11 @@ class AddRootCAForm(CertificateForm, VuetifyFormMixin):
             ),
         )
         self.vue_imports = [("certificates", "../../api/certificates")]
+        self.vue_extra_initial_statements = """
+const date = new Date();
+date.setFullYear(date.getFullYear() + 20);
+data['rootcert']['expires_at'] = date.toISOString().slice(0,10);
+        """
         self.vue_methods = [
             """
 onCreateCertificate() {
@@ -272,6 +277,11 @@ class AddIntermediateCAForm(CertificateForm, VuetifyFormMixin):
         )
         self.vue_imports = [("certificates", "../../api/certificates")]
         self.vue_props = ["parent"]
+        self.vue_extra_initial_statements = """
+const date = new Date();
+date.setFullYear(date.getFullYear() + 10);
+data['intermediatecert']['expires_at'] = date.toISOString().slice(0,10);
+        """
         self.vue_extra_init_rules = """
 this.setParentData();
             """
@@ -410,6 +420,11 @@ class AddCertificateForm(CertificateForm, VuetifyFormMixin):
         self.vue_imports = [("certificates", "../../api/certificates")]
         self.vue_props = ["parent", "certtype"]
         self.vue_watchers = []
+        self.vue_extra_initial_statements = """
+const date = new Date();
+date.setFullYear(date.getFullYear() + 1);
+data['certificate']['expires_at'] = date.toISOString().slice(0,10);
+        """
         self.vue_methods = [
             """
 setParentData() {
