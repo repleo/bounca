@@ -106,7 +106,7 @@ class OcspCertificateTest(CertificateTestCase):
             organizationName=None,
             organizationalUnitName=None,
             emailAddress=None,
-            subjectAltNames=None,
+            subjectAltNames=["ocsp.example.com"],
             commonName="ocsp.example.com",
         )
         certificate = CertificateFactory(
@@ -149,7 +149,7 @@ class OcspCertificateTest(CertificateTestCase):
         self.assert_subject(crt.issuer, self.int_certificate)
 
     def test_generate_ocsp_certificate_parent_client_cert(self):
-        ocsp_subject = DistinguishedNameFactory(subjectAltNames=None)
+        ocsp_subject = DistinguishedNameFactory(subjectAltNames=["client"])
         certificate = CertificateFactory(
             type=CertificateTypes.OCSP,
             name="test_generate_client_certificate_parent_ocsp_cert_1",

@@ -3,9 +3,6 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.x509 import ExtensionOID, RFC822Name
 
 # noinspection PyUnresolvedReferences
-from cryptography.x509.extensions import ExtensionNotFound
-
-# noinspection PyUnresolvedReferences
 from cryptography.x509.oid import ExtendedKeyUsageOID
 from django.db.models import signals
 from django.utils import timezone
@@ -121,7 +118,7 @@ class EmailCertificateTest(CertificateTestCase):
             organizationName=None,
             organizationalUnitName=None,
             emailAddress=None,
-            subjectAltNames=None,
+            subjectAltNames=["client cert"],
             commonName="client cert",
         )
         certificate = CertificateFactory(
@@ -167,29 +164,8 @@ class EmailCertificateTest(CertificateTestCase):
         # issuer
         self.assert_subject(crt.issuer, self.int_certificate)
 
-    def test_generate_client_certificate_no_subject_altnames(self):
-        client_subject = DistinguishedNameFactory(subjectAltNames=None)
-        certificate = CertificateFactory(
-            type=CertificateTypes.CLIENT_CERT, parent=self.int_certificate, dn=client_subject
-        )
-        certhandler = Certificate()
-        certhandler.create_certificate(certificate, self.key.serialize())
-
-        crt = certhandler.certificate
-
-        self.assertEqual(crt.serial_number, int(certificate.serial))
-        self.assertEqual(
-            crt.public_key().public_bytes(encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw),
-            self.key.key.public_key().public_bytes(
-                encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw
-            ),
-        )
-
-        with self.assertRaises(ExtensionNotFound):
-            crt.extensions.get_extension_for_oid(ExtensionOID.SUBJECT_ALTERNATIVE_NAME)
-
     def test_generate_client_certificate_no_intermediate_ca(self):
-        client_subject = DistinguishedNameFactory(subjectAltNames=None)
+        client_subject = DistinguishedNameFactory(subjectAltNames=["san"])
         certificate = CertificateFactory(
             type=CertificateTypes.CLIENT_CERT, parent=self.root_certificate, dn=client_subject
         )
@@ -227,7 +203,7 @@ class EmailCertificateTest(CertificateTestCase):
         self.assert_hash(crt, critical=False)
 
     def test_generate_client_certificate_parent_client_cert(self):
-        client_subject = DistinguishedNameFactory(subjectAltNames=None)
+        client_subject = DistinguishedNameFactory(subjectAltNames=["client"])
         certificate = CertificateFactory(
             type=CertificateTypes.CLIENT_CERT,
             name="test_generate_client_certificate_parent_client_cert_1",

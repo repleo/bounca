@@ -5,9 +5,6 @@ import arrow
 from cryptography.x509 import ExtensionOID
 
 # noinspection PyUnresolvedReferences
-from cryptography.x509.extensions import ExtensionNotFound
-
-# noinspection PyUnresolvedReferences
 from cryptography.x509.general_name import DNSName, IPAddress
 
 # noinspection PyUnresolvedReferences
@@ -134,7 +131,7 @@ class ServerCertificateTest(CertificateTestCase):
             organizationName=None,
             organizationalUnitName=None,
             emailAddress=None,
-            subjectAltNames=None,
+            subjectAltNames=["server"],
         )
         certificate = CertificateFactory(
             type=CertificateTypes.SERVER_CERT,
@@ -172,24 +169,8 @@ class ServerCertificateTest(CertificateTestCase):
         # issuer
         self.assert_subject(crt.issuer, self.int_certificate)
 
-    def test_generate_server_certificate_no_subject_altnames(self):
-        server_subject = DistinguishedNameFactory(subjectAltNames=None)
-        certificate = CertificateFactory(
-            type=CertificateTypes.SERVER_CERT, parent=self.int_certificate, dn=server_subject
-        )
-        certhandler = Certificate()
-        certhandler.create_certificate(certificate, self.key.serialize())
-
-        crt = certhandler.certificate
-
-        self.assertEqual(crt.serial_number, int(certificate.serial))
-        self.assertEqual(crt.public_key().public_numbers(), self.key.key.public_key().public_numbers())
-
-        with self.assertRaises(ExtensionNotFound):
-            crt.extensions.get_extension_for_oid(ExtensionOID.SUBJECT_ALTERNATIVE_NAME)
-
     def test_generate_server_certificate_no_intermediate_ca(self):
-        server_subject = DistinguishedNameFactory(subjectAltNames=None)
+        server_subject = DistinguishedNameFactory(subjectAltNames=["server"])
         certificate = CertificateFactory(
             type=CertificateTypes.SERVER_CERT, parent=self.root_certificate, dn=server_subject
         )
@@ -268,7 +249,7 @@ class ServerCertificateTest(CertificateTestCase):
         self.assertEqual("A parent certificate is expected", str(context.exception))
 
     def test_generate_server_certificate_parent_server_cert(self):
-        server_subject = DistinguishedNameFactory(subjectAltNames=None)
+        server_subject = DistinguishedNameFactory(subjectAltNames=["server"])
         certificate = CertificateFactory(
             type=CertificateTypes.SERVER_CERT,
             name="test_generate_server_certificate_parent_server_cert_1",
