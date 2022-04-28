@@ -39,6 +39,7 @@ class CertificatePolicy(CertificateBasePolicy):
     policy: dict = {
         "supplied": [
             "commonName",
+            "subjectAltNames",
         ],
         "match": [],
         "optional": [
@@ -48,7 +49,6 @@ class CertificatePolicy(CertificateBasePolicy):
             "organizationName",
             "organizationalUnitName",
             "emailAddress",
-            "subjectAltNames",
         ],
     }
 
