@@ -263,7 +263,8 @@ class Certificate(models.Model):
 
         self.revoked_at = timezone.now()
         self.revoked_uuid = uuid.uuid4()
-        kwargs["update_fields"] = ["revoked_at", "revoked_uuid"]
+        self.name = f"{self.name}_revoked-{self.revoked_at.isoformat()}"
+        kwargs["update_fields"] = ["revoked_at", "revoked_uuid", "name"]
         super().save(*args, **kwargs)
 
     def __init__(self, *args, **kwargs):
@@ -299,7 +300,7 @@ def check_if_not_update_certificate(instance, *args, **kwargs):
         if (
             kwargs
             and "update_fields" in kwargs
-            and set(kwargs["update_fields"]) == set(["revoked_at", "revoked_uuid"])
+            and set(kwargs["update_fields"]) == set(["revoked_at", "revoked_uuid", "name"])
             and (
                 instance.type in {CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT},
                 CertificateTypes.ROOT,
