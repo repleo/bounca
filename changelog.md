@@ -2,6 +2,7 @@
 The BounCA change history
 
 ## Develop
+* Added support for generating code signing certificates
 * Added Serial and Fingerprint to certificate table, including search
 * Added preset expire dates when creating certificates
 * Made Subject Alternative Name mandatory for client, server certificate as browsers require them

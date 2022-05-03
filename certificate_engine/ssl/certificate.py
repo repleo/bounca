@@ -425,6 +425,36 @@ class Certificate(object):
 
         return self._sign_certificate(issuer_key)
 
+    def _create_code_signing_certificate(
+        self, cert: CertificateType, private_key: Key, issuer_key: Key
+    ) -> x509.Certificate:
+
+        Certificate._check_issuer_provided(cert)
+        Certificate._check_policies(cert)
+        self._builder = x509.CertificateBuilder()
+        self._set_basic(cert, private_key, issuer_key)
+        self._builder = self._builder.add_extension(
+            x509.KeyUsage(
+                digital_signature=True,
+                content_commitment=False,
+                key_encipherment=False,
+                data_encipherment=False,
+                key_agreement=False,
+                key_cert_sign=False,
+                crl_sign=False,
+                encipher_only=False,
+                decipher_only=False,
+            ),
+            critical=True,
+        )
+
+        self._builder = self._builder.add_extension(
+            x509.ExtendedKeyUsage([ExtendedKeyUsageOID.CODE_SIGNING]),
+            critical=True,
+        )
+
+        return self._sign_certificate(issuer_key)
+
     def check_policies(self, cert_request: CertificateType):
         self._check_policies(copy.deepcopy(cert_request))
 
@@ -468,6 +498,8 @@ class Certificate(object):
             self._certificate = self._create_server_certificate(cert_request, private_key, issuer_key)
         elif cert_request.type == CertificateTypes.CLIENT_CERT:
             self._certificate = self._create_client_certificate(cert_request, private_key, issuer_key)
+        elif cert_request.type == CertificateTypes.CODE_SIGNING_CERT:
+            self._certificate = self._create_code_signing_certificate(cert_request, private_key, issuer_key)
         elif cert_request.type == CertificateTypes.OCSP:
             self._certificate = self._create_ocsp_certificate(cert_request, private_key, issuer_key)
         return self

@@ -159,6 +159,7 @@ class Certificate(models.Model):
         (CertificateTypes.INTERMEDIATE, "Intermediate CA Certificate"),
         (CertificateTypes.SERVER_CERT, "Server Certificate"),
         (CertificateTypes.CLIENT_CERT, "Client Certificate"),
+        (CertificateTypes.CODE_SIGNING_CERT, "Code Signing Certificate"),
         (CertificateTypes.OCSP, "OCSP Signing Certificate"),
     )
     type = models.CharField(max_length=1, choices=TYPES)
@@ -340,6 +341,7 @@ def check_if_non_root_certificate_has_parent(instance, *args, **kwargs):
         cert_types = {
             CertificateTypes.CLIENT_CERT: "Client",
             CertificateTypes.SERVER_CERT: "Server",
+            CertificateTypes.CODE_SIGNING_CERT: "Codesigning",
             CertificateTypes.OCSP: "OCSP",
         }
         if instance.parent.type is not CertificateTypes.INTERMEDIATE and instance.type in cert_types:

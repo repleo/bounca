@@ -57,6 +57,15 @@
                 color="primary"
                 dark
                 class="mb-2 ml-6"
+                @click='certtype = "D";dialog = !dialog'
+                v-if="!(parentCertificate.revoked || parentCertificate.expired)"
+              >
+                New Code Signing Cert
+              </v-btn>
+              <v-btn
+                color="primary"
+                dark
+                class="mb-2 ml-6"
                 @click='certtype = "O";dialog = !dialog'
                 v-if="!(parentCertificate.revoked || parentCertificate.expired)"
               >
