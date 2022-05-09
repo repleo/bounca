@@ -72,7 +72,7 @@
                 New OCSP Cert
               </v-btn>
               <v-spacer></v-spacer>
-              <v-col cols="4" sm="4">
+              <v-col cols="3" sm="3">
                 <v-text-field
                   v-model="filter"
                   @input="page = 1; updateDashboard();"
@@ -108,6 +108,9 @@
             </span>
             <span v-if="item.type == 'C'" class="">
               Client
+            </span>
+            <span v-if="item.type == 'D'" class="">
+              Code Signing
             </span>
             <span v-if="item.type == 'O'" class="">
               OCSP

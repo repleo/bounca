@@ -211,6 +211,7 @@ class CertificateFilesView(FileView):
             CertificateTypes.INTERMEDIATE: "intermediate-chain",
             CertificateTypes.SERVER_CERT: "server_cert",
             CertificateTypes.CLIENT_CERT: "client_cert",
+            CertificateTypes.CODE_SIGNING_CERT: "code_signing_cert",
             CertificateTypes.OCSP: "ocsp_cert",
         }[cert.type]
 
@@ -231,7 +232,12 @@ class CertificateFilesView(FileView):
             filename = f"{self._get_filename_escape(cert)}.{label}.pem"
             return cert_key["crt"] + parent_cert_key["crt"], filename
 
-        if cert.type in [CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT, CertificateTypes.OCSP]:
+        if cert.type in [
+            CertificateTypes.SERVER_CERT,
+            CertificateTypes.CLIENT_CERT,
+            CertificateTypes.CODE_SIGNING_CERT,
+            CertificateTypes.OCSP,
+        ]:
             filename = f"{self._get_filename_escape(cert)}.{label}.zip"
             return self.make_certificate_zip(cert), filename
 
