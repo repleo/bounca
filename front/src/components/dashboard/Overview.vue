@@ -302,6 +302,8 @@ export default {
     ...mapMutations('dashboard', ['setRoot', 'setIntermediate']),
     getRequestParams(filter, pagination) {
       const params = { };
+      params.revoked__exact = false;
+      params.expired__exact = false;
       if ('sortBy' in pagination && pagination.sortBy.length === 1
         && 'sortDesc' in pagination && pagination.sortDesc.length === 1) {
         if (pagination.sortBy[0] === 'expiresAt') {
