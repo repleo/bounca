@@ -112,6 +112,28 @@ class CertificateTestCase(TestCase):
             ),
         )
 
+    def assert_code_signing_certificate(self, crt):
+        ext = crt.extensions.get_extension_for_oid(ExtensionOID.BASIC_CONSTRAINTS)
+        self.assertFalse(ext.critical)
+        self.assertEqual(ext.value, x509.BasicConstraints(ca=False, path_length=None))
+
+        ext = crt.extensions.get_extension_for_oid(ExtensionOID.KEY_USAGE)
+        self.assertTrue(ext.critical)
+        self.assertEqual(
+            ext.value,
+            x509.KeyUsage(
+                digital_signature=True,
+                content_commitment=False,
+                key_encipherment=False,
+                data_encipherment=False,
+                key_agreement=False,
+                key_cert_sign=False,
+                crl_sign=False,
+                encipher_only=False,
+                decipher_only=False,
+            ),
+        )
+
     def assert_intermediate_authority(self, crt, path_length=0):
         self.assert_root_authority(crt, path_length=path_length)
 

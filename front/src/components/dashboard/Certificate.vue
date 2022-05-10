@@ -57,13 +57,22 @@
                 color="primary"
                 dark
                 class="mb-2 ml-6"
+                @click='certtype = "D";dialog = !dialog'
+                v-if="!(parentCertificate.revoked || parentCertificate.expired)"
+              >
+                New Code Signing Cert
+              </v-btn>
+              <v-btn
+                color="primary"
+                dark
+                class="mb-2 ml-6"
                 @click='certtype = "O";dialog = !dialog'
                 v-if="!(parentCertificate.revoked || parentCertificate.expired)"
               >
                 New OCSP Cert
               </v-btn>
               <v-spacer></v-spacer>
-              <v-col cols="4" sm="4">
+              <v-col cols="3" sm="3">
                 <v-text-field
                   v-model="filter"
                   @input="page = 1; updateDashboard();"
@@ -99,6 +108,9 @@
             </span>
             <span v-if="item.type == 'C'" class="">
               Client
+            </span>
+            <span v-if="item.type == 'D'" class="">
+              Code Signing
             </span>
             <span v-if="item.type == 'O'" class="">
               OCSP

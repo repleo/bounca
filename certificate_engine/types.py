@@ -9,6 +9,7 @@ class CertificateTypes(object):
     INTERMEDIATE = "I"
     SERVER_CERT = "S"
     CLIENT_CERT = "C"
+    CODE_SIGNING_CERT = "D"
     OCSP = "O"
 
 
