@@ -15,8 +15,10 @@ from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
+from api.authentication import AppTokenAuthentication
 from api.mixins import TrapDjangoValidationErrorCreateMixin
 from api.serializers import CertificateRevokeSerializer, CertificateSerializer
 from x509_pki.models import Certificate, CertificateTypes, KeyStore
@@ -254,6 +256,8 @@ class CertificateFilesView(FileView):
 
 
 class CertificateCRLFilesView(FileView):
+    authentication_classes = [AppTokenAuthentication] + api_settings.DEFAULT_AUTHENTICATION_CLASSES
+
     def get(self, request, pk, *args, **kwargs):
         try:
             user = self.request.user

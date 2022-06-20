@@ -21,7 +21,7 @@ class UserFactory(DjangoModelFactory):
 
     email = factory.Faker("email")
     username = factory.Faker("domain_word")
-    password = factory.PostGenerationMethodCall("set_password", "user123")
+    password = factory.PostGenerationMethodCall("set_password", "password123")
 
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")

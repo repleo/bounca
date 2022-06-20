@@ -278,10 +278,10 @@ class Certificate(models.Model):
         super().__init__(*args, **kwargs)
 
     class Meta:
-        unique_together = (
-            ("name", "owner", "type", "revoked_uuid"),
-            ("dn", "type", "revoked_uuid"),
-        )
+        unique_together = [
+            ["name", "owner", "type", "revoked_uuid"],
+            ["dn", "type", "revoked_uuid"],
+        ]
 
     def __unicode__(self):
         return str(self.name)
