@@ -6,6 +6,8 @@ from django.conf.urls import include
 from django.urls import path
 from rest_framework_swagger.views import get_swagger_view
 
+from api.tokens.urls import urlpatterns as urlpatterns_token
+
 from .views import (
     ApiRoot,
     CertificateCRLFilesView,
@@ -29,6 +31,7 @@ urlpatterns_apiv1 = [
     path("certificates", CertificateListView.as_view(), name="certificates"),
     path("auth/", include(urlpatterns_rest_auth)),
     path("auth/registration/", include(urlpatterns_registration)),
+    path("auth/", include(urlpatterns_token)),
 ]
 
 schema_view = get_swagger_view(title="BounCA API")
