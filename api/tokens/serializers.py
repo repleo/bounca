@@ -11,7 +11,7 @@ class AuthorisedAppSerializer(ModelSerializer):
     #  al/4-authentication-and-permissions/#associating-snippets-with-users
     #  will not work, as we have a unique constraint for user/name.
     class Meta:
-        fields = ("name", "token", "user")
+        fields = ("id", "name", "token", "user")
         read_only_fields = ("token",)
         model = AuthorisedApp
         extra_kwargs = {"user": {"required": False}}

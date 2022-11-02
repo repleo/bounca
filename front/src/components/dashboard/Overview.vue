@@ -63,7 +63,7 @@
               {{ item.name }}
             </div>
            </template>
-                    <template v-slot:[`item.type`]="{item}">
+          <template v-slot:[`item.type`]="{item}">
             <span v-if="item.type == 'R'" class="">
               Root
             </span>

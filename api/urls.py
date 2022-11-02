@@ -29,9 +29,9 @@ urlpatterns_apiv1 = [
     path("certificates/<int:pk>/info", CertificateInfoView.as_view(), name="certificate-info"),
     path("certificates/<int:pk>", CertificateInstanceView.as_view(), name="certificate-instance"),
     path("certificates", CertificateListView.as_view(), name="certificates"),
+    path("auth/", include(urlpatterns_token)),
     path("auth/", include(urlpatterns_rest_auth)),
     path("auth/registration/", include(urlpatterns_registration)),
-    path("auth/", include(urlpatterns_token)),
 ]
 
 schema_view = get_swagger_view(title="BounCA API")

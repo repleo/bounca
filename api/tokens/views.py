@@ -7,6 +7,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from api.models import AuthorisedApp
 from api.tokens.serializers import AuthorisedAppSerializer
+from api.views import APIPageNumberPagination
 
 
 class AuthorisedAppViewSet(
@@ -17,6 +18,7 @@ class AuthorisedAppViewSet(
     """
 
     serializer_class = AuthorisedAppSerializer
+    pagination_class = APIPageNumberPagination
     permission_classes = [
         IsAuthenticated,
     ]
