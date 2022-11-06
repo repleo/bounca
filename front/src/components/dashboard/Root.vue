@@ -74,7 +74,8 @@
               <v-btn class=""
                 text
                 :disabled="!item.crl_distribution_url"
-                @click="downloadCRL(item.id)">
+                target="_blank"
+                :href="api_root + '/api/v1/certificates/' + item.id + '/crl'">
                 CRL
               </v-btn>
             </span>
@@ -218,6 +219,7 @@ export default {
       revoke: {
         passphrase_issuer: null,
       },
+      api_root: process.env.VUE_APP_ROOT_API,
       revoke_passphrase_visible: false,
       dialog: false,
       dialogDownloading: false,

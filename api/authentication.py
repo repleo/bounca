@@ -24,16 +24,16 @@ def cache_value(func):
 
 class AppTokenAuthentication(BaseAuthentication):
     def authenticate(self, request):
+        # The tokens to set: X-AUTH-TOKEN or X-USER-AUTH-TOKEN
         app_token = request.META.get("HTTP_X_AUTH_TOKEN")
         user_token = request.META.get("HTTP_X_USER_AUTH_TOKEN")
-
         app = self.authorised_app_for_token(app_token)
         if app:
             return app.user, AuthData(app_token, user_token)
         else:
             return None
 
-    @cache_value
+    # @cache_value
     def authorised_app_for_token(self, app_token):
         return AuthorisedApp.objects.filter(token=app_token).first()
 

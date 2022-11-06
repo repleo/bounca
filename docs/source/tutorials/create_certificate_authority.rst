@@ -277,3 +277,30 @@ This guide has shown you how to set up a root certificate authority with BounCA 
 You can now generate server certificates (:ref:`create_server_certificates`) and client certificates (:ref:`create_client_certificates`) to enable encrypted HTTPS connections and client authorisation.
 
 
+Automatic update of CRL file on your webserver
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Every time you revoke a certificate, you need to update the CRL file on your webserver.
+To automate this process, it is possible to download this CRL file from BounCA using a shell script.
+The shell script overwrites the CRL file when BounCA offers a new CRL file, this is based on the ``Last_Modified`` header.
+
+Install the following script on your webserver, and call it every hour via CRON.
+
+.. code-block:: bash
+
+    #!/bin/sh -x
+
+    wget -NS --content-disposition --header="X-AUTH-TOKEN: <TOKEN>" <CRL-URL>
+
+This script needs a ``CRL-URL`` and a ``TOKEN``. The ``CRL-URL`` can be found to right-click on the ``CRL`` button of the
+root certificate, or intermediate certificate. The ``TOKEN`` must be generated via the User Profile page. Scroll to the
+App Tokens modal, and press ``Add Token``. Give the token a name, and create it. Use the token string in the ``X-AUTH-TOKEN``
+header of your request to get access to the CRLs of your CA.
+
+.. figure:: ../images/generate-ca-certificates/27-generate-app-token.png
+    :width: 1000px
+    :align: center
+    :alt: Create App Token for downloading CRL updates via API
+    :figclass: align-center
+
+    Create App Token for downloading CRL updates via API
