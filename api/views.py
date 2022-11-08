@@ -8,6 +8,7 @@ import zipfile
 from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.urls import NoReverseMatch, URLResolver
+from django.utils.http import http_date
 from django_property_filter import PropertyBooleanFilter, PropertyFilterSet
 from rest_framework import permissions, status
 from rest_framework.exceptions import ValidationError
@@ -15,8 +16,10 @@ from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
+from api.authentication import AppTokenAuthentication
 from api.mixins import TrapDjangoValidationErrorCreateMixin
 from api.serializers import CertificateRevokeSerializer, CertificateSerializer
 from x509_pki.models import Certificate, CertificateTypes, KeyStore
@@ -149,7 +152,7 @@ class FileView(APIView):
     def get_crlstore(cert):
         if not hasattr(cert, "crlstore") or not cert.crlstore.crl:
             raise KeyStore.DoesNotExist("Certificate has no crl, " "something went wrong during generation")
-        return {"crl": cert.crlstore.crl}
+        return cert.crlstore
 
 
 class CertificateFilesView(FileView):
@@ -254,6 +257,8 @@ class CertificateFilesView(FileView):
 
 
 class CertificateCRLFilesView(FileView):
+    authentication_classes = [AppTokenAuthentication] + api_settings.DEFAULT_AUTHENTICATION_CLASSES
+
     def get(self, request, pk, *args, **kwargs):
         try:
             user = self.request.user
@@ -279,8 +284,9 @@ class CertificateCRLFilesView(FileView):
                     f"<filename>.crl.pem"
                 )
             filename = matches[0]
-            response = HttpResponse(cert_crlstore["crl"], content_type="application/octet-stream")
+            response = HttpResponse(cert_crlstore.crl, content_type="application/octet-stream")
             response["Content-Disposition"] = f"attachment; filename={filename}"
+            response["Last-Modified"] = http_date(cert_crlstore.last_update.timestamp())
             response["Access-Control-Expose-Headers"] = "Content-Disposition"
             return response
         else:

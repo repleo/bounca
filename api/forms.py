@@ -4,6 +4,7 @@ from django import forms
 from django.contrib.auth.forms import SetPasswordForm, UserChangeForm
 from django.utils.deconstruct import deconstructible
 
+from api.models import AuthorisedApp
 from vuetifyforms.components import VueField, VueSpacer
 from vuetifyforms.vue import VuetifyFormMixin
 from x509_pki.models import Certificate, DistinguishedName
@@ -41,6 +42,14 @@ class Button(BaseInput):
         kwargs.update({"text": True, "plain": True, "color": "primary"})
         self.field_classes = ""
         super().__init__(*args, **kwargs)
+
+
+class TokenForm(forms.ModelForm):
+    class Meta:
+        model = AuthorisedApp
+        fields = [
+            "name",
+        ]
 
 
 class DistinguishedNameForm(forms.ModelForm):
@@ -581,6 +590,56 @@ updateProfile() {
 onCancel(){
   this.resetForm();
   this.setupUserForm();
+}
+            """,
+        ]
+
+
+class AddTokenForm(TokenForm, VuetifyFormMixin):
+    scope_prefix = "token_data"
+    vue_file = "front/src/components/forms/user/AddToken.vue"
+    form_title = "Add Token"
+    form_component_name = "addToken"
+    form_object = "token"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(Column("name")),
+            ButtonHolder(
+                VueSpacer(),
+                Button("cancel", "Cancel", **{"@click": "onCancel"}),
+                Submit("submit", "Add", **{"@click": "createToken", "css_class": "px-6"}),
+                css_class="mt-4",
+                outlined=True,
+            ),
+        )
+        self.vue_imports = [("apptokens", "../../../api/apptokens")]
+        self.vue_props = []
+        self.vue_watchers = []
+        self.vue_methods = [
+            """
+createToken() {
+  this.$refs.form.validate().then((isValid) => {
+    if (isValid) {
+      this.name_visible = false;
+      apptokens.create(this.token).then( response  => {
+          this.$emit('update-dashboard');
+          this.resetForm();
+          this.$emit('close-dialog');
+      }).catch( r => {
+        this.$refs.form.setErrors(r.response.data);
+      });
+    }
+  });
+}
+            """,
+            """
+onCancel(){
+  this.resetForm();
+  this.$emit('close-dialog');
 }
             """,
         ]
