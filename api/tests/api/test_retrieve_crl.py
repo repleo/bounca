@@ -42,7 +42,7 @@ class CrlRetrieveTest(APITokenLoginTestCase):
             passphrase_out="welkom123",
             passphrase_out_confirmation="welkom123",
             dn=cls.root_dn,
-            crl_distribution_url="https://example.com/root_ca.crl.pem",
+            crl_distribution_url="https://example.com/root_ca.crl",
             ocsp_distribution_host="https://example.com/ocsp/",
         )
         cls.ca.save()
@@ -64,7 +64,7 @@ class CrlRetrieveTest(APITokenLoginTestCase):
             passphrase_out="welkom1234",
             passphrase_out_confirmation="welkom1234",
             passphrase_issuer="welkom123",
-            crl_distribution_url="https://example.com/crl/cert1.crl.pem",
+            crl_distribution_url="https://example.com/crl/cert1.crl",
             ocsp_distribution_host="https://example.com/ocsp/",
         )
 
@@ -85,7 +85,7 @@ class CrlRetrieveTest(APITokenLoginTestCase):
             passphrase_out="welkom1235",
             passphrase_out_confirmation="welkom1235",
             passphrase_issuer="welkom123",
-            crl_distribution_url="https://example.com/crl/cert2.crl.pem",
+            crl_distribution_url="https://example.com/crl/cert2.crl",
             ocsp_distribution_host="https://example.com/ocsp/",
         )
 

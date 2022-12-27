@@ -150,7 +150,7 @@ First check the validity of the demo1 and demo2 certificate, using the following
     Verify demo certificates
 
 Check the content of the CRL file. In our case the demo2 certificate has been revoked, so we
-would expect one serial of a revoked certificate. Use the command: ``openssl crl -in int.crl.pem -text -noout``.
+would expect one serial of a revoked certificate. Use the command: ``openssl crl -in int.crl -text -noout``.
 
 .. figure:: ../images/generate-client-certificate/32-content-of-intermediate-crl-file.png
     :width: 800px
@@ -161,7 +161,7 @@ would expect one serial of a revoked certificate. Use the command: ``openssl crl
     Content of intermediate CRL file
 
 You can verify the demo2 certificate has been revoked by the following command: ``openssl verify -extended_crl -verbose -CAfile crlchain.pem -crl_check demo1.crt``.
-OpenSSL needs the crl file in front of your CA chain. Create it by combining the files: ``cat int.crl.pem intermediate.pem rootca.pem > crlchain.pem``.
+OpenSSL needs the crl file in front of your CA chain. Create it by combining the files: ``cat int.crl intermediate.pem rootca.pem > crlchain.pem``.
 
 .. figure:: ../images/generate-client-certificate/33-check-revoked-certificate.png
     :width: 800px
@@ -187,7 +187,7 @@ You need the following files for configuring Nginx:
 - ``<domain>-chain.pem``: The server domain certificate including its complete root chain
 - ``<domain>.key``: The key of your server domain certificate
 - ``BounCA_Int_Root.intermediate-chain.pem``: Chain of intermediate certificate and root certificate, download it via intermediate tab view in BounCA
-- ``root_int.crl.pem``: The combined certificate revocation list, create it via the command: ``cat root.crl.pem int.crl.pem > root_int.crl.pem``
+- ``root_int.crl``: The combined certificate revocation list, create it via the command: ``cat root.crl int.crl > root_int.crl``
 
 Add the following server block to your nginx server:
 
@@ -210,7 +210,7 @@ Add the following server block to your nginx server:
           return 403;
         }
 
-        ssl_crl /etc/nginx/certs/root_int.crl.pem;
+        ssl_crl /etc/nginx/certs/root_int.crl;
 
         location / {
 
@@ -238,7 +238,7 @@ However, to be sure you have the correct value, you can expose the value of ``$s
 You will see the issuer dn in the webserver response.
 
 The Certificate Revocation List (crl) is configured via the ``ssl_crl`` parameter. The CRL handler of Nginx requires a CRL file for all certificates in the chain.
-Combine the CRL of the root certificate and intermediate: ``cat root.crl.pem int.crl.pem > root_int.crl.pem``.
+Combine the CRL of the root certificate and intermediate: ``cat root.crl int.crl > root_int.crl``.
 
 Start Nginx, and access your webserver using curl: ``curl --cacert rootca.pem --cert demo1.pem --key demo1.key --pass demo1Demo1 https://localhost:8443``.
 If you don's supply a client certificate you will get a 403, and in case you supply a revoked certificate, you will get a 400.

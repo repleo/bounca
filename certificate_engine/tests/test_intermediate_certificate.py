@@ -172,7 +172,7 @@ class IntermediateCertificateTest(CertificateTestCase):
             name="test_generate_intermediate_certificate",
             parent=self.root_certificate,
             dn=subject,
-            crl_distribution_url="https://example.com/crl/cert.crl.pem",
+            crl_distribution_url="https://example.com/crl/cert.crl",
             ocsp_distribution_host="https://example.com/ocsp/",
         )
         certificate_request.save()

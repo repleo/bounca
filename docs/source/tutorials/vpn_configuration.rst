@@ -101,7 +101,7 @@ Create the server ovpn file, like the one below:
     key /etc/openvpn/vpndemo.key
     dh /etc/openvpn/dhparams.pem
     ; Optional CRL for revocation clients
-    ;crl-verify int.crl.pem
+    ;crl-verify int.crl
 
     ; VPN subnet
     server  192.168.88.0 255.255.255.0

@@ -120,7 +120,7 @@ class ModelCertificateTest(TestCase):
         cls.int.type = CertificateTypes.INTERMEDIATE
         cls.int.name = "repleo int ca"
         cls.int.dn = cls.int_dn
-        cls.int.crl_distribution_url = "https://ca.demo.repleo.nl/crl/test.crl.pem"
+        cls.int.crl_distribution_url = "https://ca.demo.repleo.nl/crl/test.crl"
         cls.int.ocsp_distribution_host = "https://ca.demo.repleo.nl/ocsp"
         cls.int.expires_at = arrow.get(timezone.now()).shift(years=+5).date()
 
@@ -184,7 +184,7 @@ class ModelCertificateTest(TestCase):
         cert.type = CertificateTypes.INTERMEDIATE
         cert.name = "repleo int ca1"
         cert.dn = dn
-        cert.crl_distribution_url = "https://ca.demo.repleo.nl/crl/test.crl.pem"
+        cert.crl_distribution_url = "https://ca.demo.repleo.nl/crl/test.crl"
         cert.ocsp_distribution_host = "https://ca.demo.repleo.nl/ocsp"
         cert.expires_at = arrow.get(timezone.now()).shift(years=+5).date()
 
@@ -200,7 +200,7 @@ class ModelCertificateTest(TestCase):
         )
         self.assertEqual(cert.type, CertificateTypes.INTERMEDIATE)
         self.assertEqual(cert.name, "repleo int ca1")
-        self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/test.crl.pem")
+        self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/test.crl")
         self.assertEqual(cert.ocsp_distribution_host, "https://ca.demo.repleo.nl/ocsp")
         self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(years=-5).date())
         self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(years=+5).date())
