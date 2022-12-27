@@ -63,7 +63,7 @@ class CertificateFactory(DjangoModelFactory):
     dn = factory.LazyFunction(DistinguishedNameFactory)
     parent = None
     owner = factory.LazyFunction(UserFactory.default)
-    crl_distribution_url = "https://example.com/crl/cert.crl.pem"
+    crl_distribution_url = "https://example.com/crl/cert.crl"
     ocsp_distribution_host = "https://example.com/ocsp/"
 
     created_at = factory.LazyFunction(lambda: arrow.get(timezone.now()).date())

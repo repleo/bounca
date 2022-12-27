@@ -152,7 +152,7 @@ class Certificate(models.Model):
         r"^[0-9a-zA-Z@#$%^&+=\_\.\-\,\ ]*$", "Only alphanumeric characters and [@#$%^&+=_,-.] are allowed."
     )
 
-    crl_url_validator = RegexValidator(r"[^\/]\.crl\.pem$", "CRL url shoud end with <filename>.crl.pem")
+    crl_url_validator = RegexValidator(r"[^\/]\.crl\.pem$", "CRL url shoud end with <filename>.crl")
 
     TYPES = (
         (CertificateTypes.ROOT, "Root CA Certificate"),
