@@ -188,8 +188,43 @@ When you click on the lock, you will see that the SSL connection is trusted usin
     Verify HTTPS connection is now valid and trusted
 
 
+Renew Certificate
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Server, Client and Mail certificates are usually only valid for one year. To create a new valid certifcate
+you must generate a new one with a new expiration date. BounCA offers a renewal button to renew the certificate.
+It is the green double arrow button next to the certificate.
 
+.. figure:: ../images/generate-server-certificate/30-renew-certificate.png
+    :width: 800px
+    :align: center
+    :alt: List with certificates, and including expired ones
+    :figclass: align-center
+
+    List with certificates, and including expired ones
+
+When you press the renew button a dialog modal will open where you can set a new expiration data, and fill in the
+passphrases. The passphrase of the signing parent certifacte is required.
+
+.. figure:: ../images/generate-server-certificate/31-renew-certificate-form.png
+    :width: 800px
+    :align: center
+    :alt: Renew certificate modal
+    :figclass: align-center
+
+    Renew certificate modal
+
+After you press renew, the old certificate will be revoked, and a new one is generated using the same information
+as the old certificate. The only field what will change is the expiration date. After generation, download the
+certificate, and install it on the server. Also the CRL of the authority will be updated.
+
+.. figure:: ../images/generate-server-certificate/32-certificate-renewed.png
+    :width: 800px
+    :align: center
+    :alt: Result of the renewal of certificate
+    :figclass: align-center
+
+    Result of the renewal of certificate
 
 
 .. _demo nginx ssl: https://gitlab.com/bounca/bounca/-/tree/master/docs/source/demo/nginx_ssl

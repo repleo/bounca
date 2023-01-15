@@ -29,7 +29,7 @@
                 v-model="displayRevoked"
                 label="Display Revoked"
                 class="mt-2"
-                @change="updateDashboard();"
+                @change="pagination.page=1; updateDashboard();"
               ></v-switch>
             </v-toolbar>
             <v-toolbar
@@ -72,7 +72,7 @@
                 New OCSP Cert
               </v-btn>
               <v-spacer></v-spacer>
-              <v-col cols="3" sm="3">
+              <v-col cols="2" sm="2">
                 <v-text-field
                   v-model="filter"
                   @input="page = 1; updateDashboard();"
@@ -125,10 +125,17 @@
               </v-icon>
             </span>
             <span v-else-if="item.expired" class="mr-2 font-weight-bold blue--text">
+              <span class="mr-1">
               EXPIRED
+              </span>
               <v-icon class="mr-2" color="grey darken-2" v-if="item.type == 'C'"
                       @click="downloadCertificate(item.id)">
                 mdi-download
+              </v-icon>
+              <v-icon class="mr-2" color="green darken-2"
+                      v-if="['S', 'C', 'D', 'O'].includes(item.type)"
+                      @click="renewCertificate(item)">
+                mdi-sync
               </v-icon>
             </span>
             <span v-else>
@@ -137,6 +144,9 @@
               </v-icon>
               <v-icon class="mr-2" color="blue darken-2" @click="infoCertificate(item.id)">
                 mdi-information
+              </v-icon>
+              <v-icon class="mr-2" color="green darken-2" @click="renewCertificate(item)">
+                mdi-sync
               </v-icon>
               <v-icon class="mr-2" color="grey darken-2"
                       @click="downloadCertificate(item.id)">
@@ -154,6 +164,14 @@
                     v-on:close-dialog="closeDialog"
                     v-on:update-dasboard="updateDashboard" ref="certificateForm"/>
   </v-dialog>
+
+  <v-dialog v-model='dialogRenew' width='800px'>
+    <forms-RenewCertificate
+                    v-on:close-dialog="closeRenewDialog"
+                    :certrenew="this.renewItem"
+                    v-on:update-dasboard="updateDashboard" ref="renewCertificateForm"/>
+  </v-dialog>
+
   <v-dialog v-model="dialogDelete" max-width="565px">
     <v-card>
       <v-card-title class="text-h5">Are you sure you want to
@@ -294,9 +312,11 @@ export default {
       },
       revoke_passphrase_visible: false,
       dialog: false,
+      dialogRenew: false,
       dialogDownloading: false,
       dialogDelete: false,
       deleteItem: null,
+      renewItem: null,
       dialogInfo: false,
       dialogInfoText: '',
       dialogInfoLoading: true,
@@ -340,6 +360,11 @@ export default {
     dialog(val) {
       if (!val) {
         this.$refs.certificateForm.resetForm();
+      }
+    },
+    dialogRenew(val) {
+      if (!val) {
+        this.$refs.renewCertificateForm.resetForm();
       }
     },
     dialogDelete(val) {
@@ -480,6 +505,11 @@ export default {
       this.dialogDelete = true;
     },
 
+    renewCertificate(item) {
+      this.renewItem = item;
+      this.dialogRenew = true;
+    },
+
     revokeCertificateConfirm() {
       if (this.deleteItem !== null) {
         certificates.revoke(this.deleteItem, this.revoke)
@@ -498,6 +528,10 @@ export default {
       this.$refs.form.reset();
       this.dialogDelete = false;
       this.deleteItem = null;
+    },
+
+    closeRenewDialog() {
+      this.dialogRenew = false;
     },
 
     closeInfo() {

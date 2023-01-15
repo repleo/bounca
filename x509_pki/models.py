@@ -240,10 +240,7 @@ class Certificate(models.Model):
         if not hasattr(self, "keystore"):
             raise KeyStore.DoesNotExist("Certificate has no cert, " "something went wrong during generation")
         valid = check_passphrase_issuer(self.keystore.key, passphrase)
-        if valid:
-            return True
-        else:
-            return False
+        return bool(valid)
 
     def get_certificate_info(self):
         if not hasattr(self, "keystore"):
@@ -257,6 +254,36 @@ class Certificate(models.Model):
         if self.id is None:
             self.full_clean()
             super().save(*args, **kwargs)
+
+    def renew(self, expires_at, *args, **kwargs):
+        if self.id is None:
+            raise ValidationError("Can only renew a saved certificate")
+        if self.revoked_at:
+            raise ValidationError("Cannot renew a revoked certificate")
+
+        if self.type not in [
+            CertificateTypes.SERVER_CERT,
+            CertificateTypes.CLIENT_CERT,
+            CertificateTypes.CODE_SIGNING_CERT,
+            CertificateTypes.OCSP,
+        ]:
+            raise ValidationError("Can not renew intermediate " "or root certificates")
+        validate_in_future(expires_at)
+
+        original_name = self.name
+
+        self.delete()
+
+        self.name = original_name
+        self.pk = None
+        self.revoked_at = None
+        self.revoked_uuid = 0
+        # https://blog.nirmites.com/how-to-duplicate-model-instances-in-django-and-populate-the-database-quickly/
+        # might break in the future
+        self._state.adding = True
+        self.expires_at = expires_at
+        self.save()
+        return self
 
     def delete(self, *args, **kwargs):
         if self.revoked_at:

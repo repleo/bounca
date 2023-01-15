@@ -129,6 +129,29 @@ class ModelCertificateTest(TestCase):
         cls.int.save()
         cls.int.refresh_from_db()
 
+    def setUp(self) -> None:
+        self.dn = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="www.repleo.nl.setup",
+            subjectAltNames=["repleo.nl"],
+        )
+
+        self.cert = Certificate(parent=self.int, dn=self.dn)
+        self.cert.type = CertificateTypes.SERVER_CERT
+        self.cert.name = "www.repleo.nl.setup"
+        self.cert.dn = self.dn
+        self.cert.expires_at = arrow.get(timezone.now()).shift(years=+1).date()
+
+        self.cert.revoked_at = None
+        self.cert.owner = self.user
+        self.cert.save()
+        self.cert.refresh_from_db()
+
     def test_generate_root_certificate(self):
         dn = DistinguishedNameFactory(
             countryName="NL",
@@ -263,6 +286,67 @@ class ModelCertificateTest(TestCase):
         self.assertIsNotNone(cert.revoked_at)
         self.assertIsNotNone(cert.slug_revoked_at)
         self.assertNotEqual(cert.revoked_uuid, UUID(int=0))
+
+    def test_renew_server_certificate(self):
+        old_pk = self.cert.pk
+        self.cert.renew(expires_at=arrow.get(timezone.now()).shift(years=+2).date())
+        cert_old = Certificate.objects.get(pk=old_pk)
+
+        self.assertIsNotNone(cert_old.revoked_at)
+        self.assertIsNotNone(cert_old.slug_revoked_at)
+        self.assertNotEqual(cert_old.revoked_uuid, UUID(int=0))
+
+        self.cert.refresh_from_db()
+
+        self.assertEqual(
+            self.cert.dn.dn,
+            "CN=www.repleo.nl.setup, O=Repleo, OU=IT Department, "
+            "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL",
+        )
+        self.assertEqual(self.cert.type, CertificateTypes.SERVER_CERT)
+        self.assertEqual(self.cert.name, "www.repleo.nl.setup")
+        self.assertEqual(self.cert.created_at, arrow.get(self.cert.expires_at).shift(years=-2).date())
+        self.assertEqual(self.cert.expires_at, arrow.get(self.cert.created_at).shift(years=+2).date())
+        self.assertIsNone(self.cert.revoked_at)
+        self.assertEqual(self.cert.owner, self.user)
+        self.assertEqual(self.cert.revoked_uuid, UUID(int=0))
+        self.assertNotEqual(self.cert.serial, 0)
+        self.assertIsNone(self.cert.slug_revoked_at)
+        self.assertFalse(self.cert.revoked)
+        self.assertFalse(self.cert.expired)
+
+    def test_renew_server_certificate_expire_in_past(self):
+        old_pk = self.cert.pk
+        with self.assertRaises(ValidationError) as c:
+            self.cert.renew(expires_at=arrow.get(timezone.now()).shift(days=-2).date())
+        self.assertTrue("is not in the future!" in c.exception.message)
+        cert_old = Certificate.objects.get(pk=old_pk)
+
+        self.assertIsNone(cert_old.revoked_at)
+        self.assertIsNone(cert_old.slug_revoked_at)
+        self.assertEqual(cert_old.revoked_uuid, UUID(int=0))
+
+    def test_renew_revoked_server_certificate(self):
+        self.cert.delete()
+        with self.assertRaises(ValidationError) as c:
+            self.cert.renew(expires_at=arrow.get(timezone.now()).shift(days=+2).date())
+        self.assertTrue("Cannot renew a revoked certificate" in c.exception.message)
+
+    def test_renew_non_saved_certificate(self):
+        cert = Certificate(parent=self.int, dn=self.dn)
+        with self.assertRaises(ValidationError) as c:
+            cert.renew(expires_at=arrow.get(timezone.now()).shift(days=+2).date())
+        self.assertTrue("Can only renew a saved certificate" in c.exception.message)
+
+    def test_renew_revoked_int_certificate(self):
+        with self.assertRaises(ValidationError) as c:
+            self.int.renew(expires_at=arrow.get(timezone.now()).shift(days=+2).date())
+        self.assertTrue("Can not renew intermediate " "or root certificates" in c.exception.message)
+
+    def test_renew_revoked_root_certificate(self):
+        with self.assertRaises(ValidationError) as c:
+            self.ca.renew(expires_at=arrow.get(timezone.now()).shift(days=+2).date())
+        self.assertTrue("Can not renew intermediate " "or root certificates" in c.exception.message)
 
     def test_generate_client_certificate(self):
         dn = DistinguishedNameFactory(

@@ -81,19 +81,17 @@ class CertificateSerializer(serializers.ModelSerializer):
         return None
 
     def validate_passphrase_issuer(self, passphrase_issuer):
-        if passphrase_issuer:
-            if not self.initial_data.get("parent"):
-                raise serializers.ValidationError(
-                    "You should provide a parent certificate if you provide an issuer passphrase"
-                )
-            parent = Certificate.objects.get(pk=self.initial_data.get("parent"))
-            try:
-                if not parent.is_passphrase_valid(passphrase_issuer):
-                    raise serializers.ValidationError("Passphrase incorrect. Not allowed " "to revoke your certificate")
-            except KeyStore.DoesNotExist:
-                raise serializers.ValidationError("Certificate has no cert, something went " "wrong during generation")
-            return passphrase_issuer
-        return None
+        if not self.initial_data.get("parent"):
+            raise serializers.ValidationError(
+                "You should provide a parent certificate if you provide an issuer passphrase"
+            )
+        parent = Certificate.objects.get(pk=self.initial_data.get("parent"))
+        try:
+            if not parent.is_passphrase_valid(passphrase_issuer):
+                raise serializers.ValidationError("Passphrase incorrect. Not allowed to revoke your certificate")
+        except KeyStore.DoesNotExist:
+            raise serializers.ValidationError("Certificate has no cert, something went wrong during generation")
+        return passphrase_issuer
 
     def validate_passphrase_out_confirmation(self, passphrase_out_confirmation):
         if passphrase_out_confirmation:
@@ -114,12 +112,18 @@ class CertificateSerializer(serializers.ModelSerializer):
         if Certificate.objects.filter(name=name, owner=owner, type=cert_type).count() > 0:
             raise serializers.ValidationError(f"{dict(Certificate.TYPES)[cert_type]} " f'"{name}" already exists.')
 
+        if "passphrase_issuer" not in data:
+            self.validate_passphrase_issuer(None)
         return data
 
     def create(self, validated_data):
         dn_data = validated_data.pop("dn")
         dn = DistinguishedName.objects.create(**dn_data)
         certificate = Certificate.objects.create(dn=dn, **validated_data)
+        certificate.passphrase_issuer = None
+        certificate.passphrase_out = None
+        certificate.passphrase_out_confirmation = None
+
         return certificate
 
 
@@ -139,10 +143,61 @@ class CertificateRevokeSerializer(serializers.ModelSerializer):
                 revoke_issuer = self.instance.parent
             try:
                 if not revoke_issuer.is_passphrase_valid(passphrase_issuer):
-                    raise serializers.ValidationError("Passphrase incorrect. Not allowed " "to revoke your certificate")
+                    raise serializers.ValidationError("Passphrase incorrect. Not allowed to revoke your certificate")
             except KeyStore.DoesNotExist:
-                raise serializers.ValidationError("Certificate has no cert, something went " "wrong during generation")
+                raise serializers.ValidationError("Certificate has no cert, something went wrong during generation")
             return passphrase_issuer
+        return None
+
+
+class CertificateRenewSerializer(serializers.ModelSerializer):
+    passphrase_issuer = serializers.CharField(max_length=200, required=True)
+    passphrase_out = serializers.CharField(max_length=200, required=False, allow_null=True, allow_blank=True)
+    passphrase_out_confirmation = serializers.CharField(
+        max_length=200, required=False, allow_null=True, allow_blank=True
+    )
+
+    class Meta:
+        fields = (
+            "passphrase_issuer",
+            "passphrase_out",
+            "passphrase_out_confirmation",
+            "expires_at",
+        )
+        model = Certificate
+        extra_kwargs = {
+            "passphrase_out": {"write_only": True},
+            "passphrase_out_confirmation": {"write_only": True},
+            "passphrase_issuer": {"write_only": True},
+        }
+
+    def validate_passphrase_issuer(self, passphrase_issuer):
+        if passphrase_issuer:
+            if self.instance.type == CertificateTypes.ROOT:
+                revoke_issuer = self.instance
+            else:
+                revoke_issuer = self.instance.parent
+            try:
+                if not revoke_issuer.is_passphrase_valid(passphrase_issuer):
+                    raise serializers.ValidationError("Passphrase incorrect. Not allowed to revoke your certificate")
+            except KeyStore.DoesNotExist:
+                raise serializers.ValidationError("Certificate has no cert, something went wrong during generation")
+            return passphrase_issuer
+        return None
+
+    def validate_passphrase_out(self, passphrase_out):
+        if passphrase_out:
+            password_validation.validate_password(passphrase_out, self.instance)
+            return passphrase_out
+        return None
+
+    def validate_passphrase_out_confirmation(self, passphrase_out_confirmation):
+        if passphrase_out_confirmation:
+            passphrase_out = self.initial_data.get("passphrase_out")
+            if passphrase_out and passphrase_out_confirmation and passphrase_out != passphrase_out_confirmation:
+                raise serializers.ValidationError("The two passphrase fields didn't match.")
+            password_validation.validate_password(passphrase_out_confirmation, self.instance)
+            return passphrase_out_confirmation
         return None
 
 

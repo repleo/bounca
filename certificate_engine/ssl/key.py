@@ -130,3 +130,7 @@ class Key(object):
             if str(e) == "Bad decrypt. Incorrect password?":
                 return False
             raise e
+        except TypeError as e:
+            if str(e) == "Password was not given but private key is encrypted":
+                return False
+            raise e

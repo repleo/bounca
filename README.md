@@ -60,7 +60,7 @@ Advantages:
 * Protect your certificates via passphrases
 * Evaluate your certificates via the info button
 * Use the API to automate certificate provisioning
-
+* Easy renewal of certificates
 
 # Installation
 
@@ -235,7 +235,7 @@ Enjoy generating keys.
 
 ## License
 
-Apache License v2 - (c) 2016-2021, Repleo, Amsterdam
+Apache License v2 - (c) 2016-2023, Repleo, Amsterdam
 
 ## Author Information
 
