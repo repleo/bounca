@@ -6,13 +6,14 @@ import re
 import zipfile
 
 from django.conf import settings
+from django.core.exceptions import ValidationError as InternalValidationError
 from django.http import Http404, HttpResponse
 from django.urls import NoReverseMatch, URLResolver
 from django.utils.http import http_date
 from django_property_filter import PropertyBooleanFilter, PropertyFilterSet
 from rest_framework import permissions, status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView, UpdateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -21,7 +22,7 @@ from rest_framework.views import APIView
 
 from api.authentication import AppTokenAuthentication
 from api.mixins import TrapDjangoValidationErrorCreateMixin
-from api.serializers import CertificateRevokeSerializer, CertificateSerializer
+from api.serializers import CertificateRenewSerializer, CertificateRevokeSerializer, CertificateSerializer
 from x509_pki.models import Certificate, CertificateTypes, KeyStore
 
 if settings.IS_GENERATE_FRONTEND:
@@ -64,6 +65,7 @@ class CertificateListView(TrapDjangoValidationErrorCreateMixin, ListCreateAPIVie
     ordering_fields = "__all_related__"
     filterset_class = CertificateFilterSet
     filter_fields = ("type", "parent")
+    ordering = ["-id"]
 
     def get_queryset(self):
         """
@@ -95,6 +97,35 @@ class CertificateInstanceView(RetrieveDestroyAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class CertificateRenewView(UpdateAPIView):
+    model = Certificate
+    serializer_class = CertificateRenewSerializer
+    queryset = Certificate.objects.all()
+    permission_classes = [permissions.IsAuthenticated, IsCertificateOwner]
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.instance
+        instance.passphrase_issuer = serializer.validated_data["passphrase_issuer"]
+        instance.passphrase_out = serializer.validated_data["passphrase_out"]
+        instance.passphrase_out_confirmation = serializer.validated_data["passphrase_out_confirmation"]
+        renewed_cert = self.perform_update(instance, serializer.validated_data["expires_at"])
+        renewed_cert.passphrase_issuer = None
+        renewed_cert.passphrase_out = None
+        renewed_cert.passphrase_out_confirmation = None
+        result_serializer = CertificateSerializer(renewed_cert)
+        return Response(result_serializer.data)
+
+    def perform_update(self, instance, expires_at):
+        try:
+            return instance.renew(expires_at)
+        except InternalValidationError as e:
+            raise ValidationError(e.message)
+
+
 class CertificateInfoView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -107,7 +138,7 @@ class CertificateInfoView(APIView):
         try:
             info = cert.get_certificate_info()
         except KeyStore.DoesNotExist:
-            raise Http404("Certificate has no keystore, " "generation of certificate object went wrong")
+            raise Http404("Certificate has no keystore, generation of certificate object went wrong")
         return Response({"text": info})
 
 

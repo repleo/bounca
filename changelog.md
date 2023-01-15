@@ -6,10 +6,11 @@ The BounCA change history
 * Added Serial and Fingerprint to certificate table, including search
 * Added preset expire dates when creating certificates
 * Made Subject Alternative Name mandatory for client, server certificate as browsers require them
-* Add revoke prefix to revoked certificates name
+* Added revoke prefix to revoked certificates name
 * Don't display revoked certificates in overview screen
 * App token for downloading CRL certificate
-* Renamed crl.pem to crl
+* Added renew certificate button
+* Renamed extension revocation list crl.pem to crl
 
 ## [0.3.0] - Release 2022-02-14
 * Added resend e-mail button if user has not verified email yet

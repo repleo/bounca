@@ -15,6 +15,7 @@ from .views import (
     CertificateInfoView,
     CertificateInstanceView,
     CertificateListView,
+    CertificateRenewView,
 )
 
 
@@ -27,6 +28,7 @@ urlpatterns_apiv1 = [
     path("certificates/<int:pk>/download", CertificateFilesView.as_view(), name="certificate-download"),
     path("certificates/<int:pk>/crl", CertificateCRLFilesView.as_view(), name="certificate-crl"),
     path("certificates/<int:pk>/info", CertificateInfoView.as_view(), name="certificate-info"),
+    path("certificates/<int:pk>/renew", CertificateRenewView.as_view(), name="certificate-renew"),
     path("certificates/<int:pk>", CertificateInstanceView.as_view(), name="certificate-instance"),
     path("certificates", CertificateListView.as_view(), name="certificates"),
     path("auth/", include(urlpatterns_token)),

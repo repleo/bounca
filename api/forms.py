@@ -110,6 +110,44 @@ class CertificateForm(forms.ModelForm):
         fields = ["name", "parent", "dn", "type", "expires_at", "crl_distribution_url", "ocsp_distribution_host"]
 
 
+class RenewCertificateForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    error_messages = {"password_mismatch": "The two passphrase fields didn't match."}
+
+    passphrase_issuer = forms.CharField(
+        label="Passphrase issuer",
+        initial="",
+        widget=forms.PasswordInput,
+        strip=False,
+        #        help_text=password_validation.password_validators_help_text_html(),
+        help_text="The passphrase for unlocking your signing key.",
+    )
+    passphrase_out = forms.CharField(
+        label="Passphrase",
+        initial="",
+        widget=forms.PasswordInput,
+        strip=False,
+        #        help_text=password_validation.password_validators_help_text_html(),
+        help_text="Passphrase for protecting the key of your new certificate.",
+    )
+    passphrase_out_confirmation = forms.CharField(
+        label="Passphrase confirmation",
+        initial="",
+        strip=False,
+        widget=forms.PasswordInput,
+        help_text="Enter the same passphrase as before, for verification.",
+        validators=[PasswordConfirmValidator("passphrase_out")],
+    )
+
+    class Meta:
+        model = Certificate
+        fields = [
+            "expires_at",
+        ]
+
+
 class AddRootCAForm(CertificateForm, VuetifyFormMixin):
     scope_prefix = "cert_data"
     vue_file = "front/src/components/forms/RootCert.vue"
@@ -455,6 +493,86 @@ onCreateCertificate() {
       this.certificate.type = this.certtype;
       this.certificate.parent = this.parent.id;
       certificates.create(this.certificate).then( response  => {
+          this.$emit('update-dasboard');
+          this.resetForm();
+          this.$emit('close-dialog');
+      }).catch( r => {
+        this.$refs.form.setErrors(r.response.data);
+        this.$refs.form.$el.scrollIntoView({behavior: 'smooth'});
+      });
+    }
+  });
+}
+            """,
+            """
+onCancel(){
+  this.resetForm();
+  this.$emit('close-dialog');
+}
+            """,
+        ]
+
+
+class RenewCertificateVueForm(RenewCertificateForm, VuetifyFormMixin):
+    scope_prefix = "cert_data"
+    vue_file = "front/src/components/forms/RenewCertificate.vue"
+    form_title = "Renew certificate ({{this.certrenew.name}})"
+    form_component_name = "RenewCertificate"
+    form_object = "renew_certificate"
+    vue_card_classes = "elevation-10"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["passphrase_out"].required = False
+        self.fields["passphrase_out_confirmation"].required = False
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column(
+                    Fieldset(
+                        "Renew Certificate",
+                        Row(Column("expires_at")),
+                        Row(Column(HTML("<h5>Optional Passphrase:</h5>"))),
+                        Row(Column("passphrase_out"), Column("passphrase_out_confirmation")),
+                        outlined=True,
+                    )
+                )
+            ),
+            Row(
+                Column(
+                    Fieldset(
+                        "Signing credentials",
+                        "passphrase_issuer",
+                        outlined=True,
+                    )
+                )
+            ),
+            ButtonHolder(
+                VueSpacer(),
+                Button("cancel", "Cancel", **{"@click": "onCancel"}),
+                Submit("submit", "Renew", **{"@click": "onRenewCertificate", "css_class": "px-6"}),
+                css_class="mt-4",
+                outlined=True,
+            ),
+        )
+        self.vue_imports = [("certificates", "../../api/certificates")]
+        self.vue_props = ["certrenew"]
+        self.vue_watchers = []
+        self.vue_extra_initial_statements = """
+const date = new Date();
+date.setFullYear(date.getFullYear() + 1);
+data['renew_certificate']['expires_at'] = date.toISOString().slice(0,10);
+        """
+        self.vue_methods = [
+            """
+onRenewCertificate() {
+  this.$refs.form.validate().then((isValid) => {
+    if (isValid) {
+      this.passphrase_out_visible = false;
+      this.passphrase_out_confirmation_visible = false;
+      this.passphrase_in_visible = false;
+      console.log(this.renew_certificate);
+      certificates.renew(this.certrenew.id, this.renew_certificate).then( response  => {
           this.$emit('update-dasboard');
           this.resetForm();
           this.$emit('close-dialog');
