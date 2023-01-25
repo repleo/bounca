@@ -4,16 +4,16 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
-from cryptography.hazmat.primitives.asymmetric.types import PRIVATE_KEY_TYPES
+from cryptography.hazmat.primitives.asymmetric.types import CERTIFICATE_PRIVATE_KEY_TYPES
 from typing_extensions import get_args
 
 
 # noinspection PyUnresolvedReferences
 class Key(object):
-    _key: Optional[PRIVATE_KEY_TYPES] = None
+    _key: Optional[CERTIFICATE_PRIVATE_KEY_TYPES] = None
 
     @property
-    def key(self) -> PRIVATE_KEY_TYPES:
+    def key(self) -> CERTIFICATE_PRIVATE_KEY_TYPES:
         if self._key is None:
             raise RuntimeError("No key object")
         return self._key
@@ -36,9 +36,9 @@ class Key(object):
 
     def serialize_pkcs12(
         self,
-        name: str = None,
-        certificate: x509.Certificate = None,
-        passphrase: str = None,
+        name: Optional[str] = None,
+        certificate: Optional[x509.Certificate] = None,
+        passphrase: Optional[str] = None,
         cas: Optional[List[x509.Certificate]] = None,
     ) -> bytes:
         """
@@ -73,7 +73,9 @@ class Key(object):
             name.encode("utf-8"), key, certificate, cas, encryption
         )
 
-    def serialize(self, passphrase: str = None, encoding: serialization.Encoding = serialization.Encoding.PEM) -> str:
+    def serialize(
+        self, passphrase: Optional[str] = None, encoding: serialization.Encoding = serialization.Encoding.PEM
+    ) -> str:
         """
         Serialize key
 
@@ -96,7 +98,7 @@ class Key(object):
             encryption_algorithm=encryption,
         ).decode("utf-8")
 
-    def load(self, pem: str, passphrase: str = None) -> "Key":
+    def load(self, pem: str, passphrase: Optional[str] = None) -> "Key":
         """
         Read key from pem
 
@@ -105,15 +107,16 @@ class Key(object):
         Returns:   Self
         """
         try:
-            self._key = serialization.load_pem_private_key(
+            deserialized_key = serialization.load_pem_private_key(
                 pem.encode("utf-8"), passphrase.encode("utf-8") if passphrase else None, backend=default_backend()
             )
+            self._key = cast(CERTIFICATE_PRIVATE_KEY_TYPES, deserialized_key)
         except ValueError:
             raise ValueError("Bad decrypt. Incorrect password?")
         return self
 
     @staticmethod
-    def check_passphrase(pem: str, passphrase: str = None) -> bool:
+    def check_passphrase(pem: str, passphrase: Optional[str] = None) -> bool:
         """
         Checks passphrase of a pem key file
 

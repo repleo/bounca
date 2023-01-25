@@ -1,5 +1,5 @@
 import datetime
-from typing import TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 import pytz
 from cryptography import x509
@@ -28,9 +28,9 @@ def revocation_builder(pem: str, timestamp: datetime.datetime) -> RevokedCertifi
 def revocation_list_builder(
     certificates: List[Tuple[str, datetime.datetime]],
     issuer_cert: CertificateType,
-    passphrase: str = None,
-    last_update: datetime.datetime = None,
-    next_update: datetime.datetime = None,
+    passphrase: Optional[str] = None,
+    last_update: Optional[datetime.datetime] = None,
+    next_update: Optional[datetime.datetime] = None,
 ) -> CertificateRevocationList:
     """
     Create certificate revocation list
