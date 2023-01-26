@@ -15,26 +15,25 @@ from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactor
 
 
 class IntermediateCertificateTest(CertificateTestCase):
-    @classmethod
-    def setUpTestData(cls):
+    def setUp(self):
         with mute_signals(signals.post_save):
-            cls.root_key = Key().create_key("rsa", 4096)
+            self.root_key = Key().create_key("rsa", 4096)
             subject = DistinguishedNameFactory(
                 countryName="NL", stateOrProvinceName="Noord Holland", organizationName="Repleo"
             )
 
-            cls.root_certificate = CertificateFactory(
+            self.root_certificate = CertificateFactory(
                 dn=subject, expires_at=arrow.get(timezone.now()).shift(days=+3).date()
             )
-            cls.root_certificate.save()
+            self.root_certificate.save()
             certificate = Certificate()
-            key = cls.root_key.serialize()
-            certificate.create_certificate(cls.root_certificate, key)
-            keystore = KeyStore(certificate=cls.root_certificate)
+            key = self.root_key.serialize()
+            certificate.create_certificate(self.root_certificate, key)
+            keystore = KeyStore(certificate=self.root_certificate)
             keystore.crt = certificate.serialize()
             keystore.key = key
             keystore.save()
-            cls.key = Key().create_key("rsa", 4096)
+            self.key = Key().create_key("rsa", 4096)
 
     def test_parent_not_set(self):
         subject = DistinguishedNameFactory(
