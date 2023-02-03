@@ -235,7 +235,7 @@ Enjoy generating keys.
 
 # Update
 
-To update Bounca you need to execute a couple of manual steps.
+To update BounCA you need to execute a couple of manual steps.
 
 ### Backup old installation
 
@@ -294,7 +294,8 @@ python3 manage.py collectstatic
 ### Retarting the application
 
 Finally restart uwsgi and nginx.
-```
+
+```bash
 service uwsgi restart
 service nginx restart
 ```
