@@ -233,6 +233,72 @@ The admin interface can be found at:
 BounCA should be up and running. Browse to the hostname of your BounCA machine.
 Enjoy generating keys.
 
+# Update
+
+To update Bounca you need to execute a couple of manual steps.
+
+### Backup old installation
+
+First, backup your database:
+
+```bash
+su - postgres -c "pg_dumpall -f /tmp/dbexport.pgsql"
+```
+
+Make sure you move the file from the `/tmp` directory to a safe place.
+The database will probably not very large, so zipping the file is not necessary,
+You can also decide to backup the code by copying or compressing the bounca installation
+folder.
+
+### Download BounCA
+
+Remove the contents of `/srv/www`.
+
+```bash
+rm /srv/www
+```
+
+Get the newest BounCA release from [the packages repo](https://gitlab.com/bounca/bounca/-/packages).
+Unpack it to a location where your web app will be stored, like `/srv/www/`.
+Make sure the directory is owned by the nginx user:
+
+```bash
+cd /srv/www/
+tar -xvzf bounca-<version>.tar.gz
+chown www-data:www-data -R /srv/www/bounca
+```
+
+### Install virtualenv and python packages
+
+Create the virtualenv and install python dependencies:
+
+```bash
+cd /srv/www/bounca
+virtualenv env -p python3
+source env/bin/activate
+pip install -r requirements.txt
+```
+
+### Setup BounCA app and migrate database
+
+After installing the new BounCA version, you need to update the database, and
+setup the static files. Execute the following commands:
+
+```bash
+cd /srv/www/bounca
+source env/bin/activate
+python3 manage.py migrate
+python3 manage.py collectstatic
+```
+
+### Retarting the application
+
+Finally restart uwsgi and nginx.
+```
+service uwsgi restart
+service nginx restart
+```
+
 ## License
 
 Apache License v2 - (c) 2016-2023, Repleo, Amsterdam
