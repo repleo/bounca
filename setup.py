@@ -9,7 +9,7 @@ packages = find_packages(src_dir)
 
 
 class FrontendBuilder(Command):
-    user_options = []  # type: List[str]
+    user_options: List[str] = []
     description = "builds the frontend assets using NPM"
 
     def run(self):
@@ -48,7 +48,7 @@ cmdclass = {
 
 setup(
     name="bounca",
-    version="0.2.0",
+    version="0.4.0",
     cmdclass=cmdclass,
     entry_points={"console_scripts": ["djadmin = manage:main"]},
     scripts=["manage.py"],

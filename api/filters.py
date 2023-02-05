@@ -1,4 +1,4 @@
-import typing
+from typing import List, Optional, Tuple
 
 from django.db import models
 from rest_framework import filters
@@ -14,9 +14,9 @@ class RelatedOrderingFilter(filters.OrderingFilter):
         return str(field.verbose_name) if hasattr(field, "verbose_name") else non_verbose_name.replace("_", " ")
 
     def _retrieve_all_related_fields(
-        self, fields: typing.Tuple[models.Field], model: models.Model, depth: int = 0
-    ) -> typing.List[typing.Tuple[str, str]]:
-        valid_fields: typing.List[typing.Tuple[str, str]] = []
+        self, fields: Tuple[models.Field], model: models.Model, depth: int = 0
+    ) -> List[Tuple[str, str]]:
+        valid_fields: List[Tuple[str, str]] = []
         if depth > self._max_related_depth:
             return valid_fields
         for field in fields:
@@ -36,10 +36,10 @@ class RelatedOrderingFilter(filters.OrderingFilter):
         return valid_fields
 
     def get_valid_fields(
-        self, queryset: models.QuerySet, view, context: dict = None
-    ) -> typing.List[typing.Tuple[str, str]]:
+        self, queryset: models.QuerySet, view, context: Optional[dict] = None
+    ) -> List[Tuple[str, str]]:
         ordering_fields = getattr(view, "ordering_fields", self.ordering_fields)
-        valid_fields: typing.List[typing.Tuple[str, str]]
+        valid_fields: List[Tuple[str, str]]
         if not ordering_fields == "__all_related__":
             if not context:
                 context = {}

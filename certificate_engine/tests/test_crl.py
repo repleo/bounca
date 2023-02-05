@@ -19,9 +19,8 @@ from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactor
 
 
 class CRLClientServerTest(CertificateTestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.root_key = Key().create_key("rsa", 4096)
+    def setUp(self):
+        self.root_key = Key().create_key("rsa", 4096)
         subject = DistinguishedNameFactory(
             countryName="NL",
             stateOrProvinceName="Noord Holland",
@@ -29,46 +28,46 @@ class CRLClientServerTest(CertificateTestCase):
             commonName="BounCA test CA",
         )
 
-        cls.root_certificate = CertificateFactory(
+        self.root_certificate = CertificateFactory(
             dn=subject, name="test_server_root_certificate", expires_at=arrow.get(timezone.now()).shift(days=+30).date()
         )
 
         with mute_signals(signals.post_save):
-            cls.root_certificate.save()
+            self.root_certificate.save()
         root_certhandler = Certificate()
-        root_certhandler.create_certificate(cls.root_certificate, cls.root_key.serialize())
-        keystore = KeyStore(certificate=cls.root_certificate)
+        root_certhandler.create_certificate(self.root_certificate, self.root_key.serialize())
+        keystore = KeyStore(certificate=self.root_certificate)
         keystore.crt = root_certhandler.serialize()
-        keystore.key = cls.root_key.serialize()
+        keystore.key = self.root_key.serialize()
         keystore.save()
 
-        cls.int_key = Key().create_key("rsa", 4096)
+        self.int_key = Key().create_key("rsa", 4096)
         subject = DistinguishedNameFactory(
-            countryName=cls.root_certificate.dn.countryName,
-            stateOrProvinceName=cls.root_certificate.dn.stateOrProvinceName,
-            organizationName=cls.root_certificate.dn.organizationName,
+            countryName=self.root_certificate.dn.countryName,
+            stateOrProvinceName=self.root_certificate.dn.stateOrProvinceName,
+            organizationName=self.root_certificate.dn.organizationName,
             commonName="BounCA test Int CA",
         )
-        cls.int_certificate = CertificateFactory(
+        self.int_certificate = CertificateFactory(
             expires_at=arrow.get(timezone.now()).shift(days=+5).date(),
             name="test_server_intermediate_certificate",
             type=CertificateTypes.INTERMEDIATE,
-            parent=cls.root_certificate,
+            parent=self.root_certificate,
             dn=subject,
         )
 
         with mute_signals(signals.post_save):
-            cls.int_certificate.save()
+            self.int_certificate.save()
 
         int_certhandler = Certificate()
-        int_certhandler.create_certificate(cls.int_certificate, cls.int_key.serialize())
+        int_certhandler.create_certificate(self.int_certificate, self.int_key.serialize())
 
-        keystore = KeyStore(certificate=cls.int_certificate)
+        keystore = KeyStore(certificate=self.int_certificate)
         keystore.crt = int_certhandler.serialize()
-        keystore.key = cls.int_key.serialize()
+        keystore.key = self.int_key.serialize()
         keystore.save()
 
-        cls.key = Key().create_key("rsa", 4096)
+        self.key = Key().create_key("rsa", 4096)
 
     def make_server_certificate(self):
         server_subject = DistinguishedNameFactory(

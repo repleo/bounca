@@ -3,8 +3,7 @@ from __future__ import annotations
 import copy
 import datetime
 import ipaddress
-import typing
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 
 import arrow
 from cryptography import x509
@@ -56,7 +55,7 @@ class CertificateError(ValueError):
 
 
 class Certificate(object):
-    _certificate: typing.Optional[x509.Certificate] = None
+    _certificate: Optional[x509.Certificate] = None
     _builder: x509.CertificateBuilder
 
     @property
@@ -330,7 +329,7 @@ class Certificate(object):
         )
 
         if cert.dn.subjectAltNames:
-            alts: typing.List[GeneralName] = []
+            alts: List[GeneralName] = []
             for altname in cert.dn.subjectAltNames:
                 try:
                     alt_ip = x509.IPAddress(ipaddress.ip_address(altname))
@@ -476,7 +475,11 @@ class Certificate(object):
             raise PassPhraseError("Bad passphrase, could not decode private key")
 
     def create_certificate(
-        self, cert_request: CertificateType, key: str, passphrase: str = None, passphrase_issuer: str = None
+        self,
+        cert_request: CertificateType,
+        key: str,
+        passphrase: Optional[str] = None,
+        passphrase_issuer: Optional[str] = None,
     ) -> Certificate:
         """
         Create a certificate.
