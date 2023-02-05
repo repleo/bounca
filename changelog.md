@@ -1,7 +1,11 @@
 # Change Log
 The BounCA change history
 
-## Develop
+## [0.4.1] - Release 2022-02-14
+* Added migration for Django 4.1.6
+* Update Readme
+
+## [0.4.0] - Release 2022-02-14
 * Added support for generating code signing certificates
 * Added Serial and Fingerprint to certificate table, including search
 * Added preset expire dates when creating certificates

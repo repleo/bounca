@@ -246,6 +246,7 @@ Remove the contents of ``/srv/www``.
 .. code-block:: none
 
     rm /srv/www
+    rm -rf ./bounca
 
 
 Get the newest BounCA release from [the packages repo](https://gitlab.com/bounca/bounca/-/packages).

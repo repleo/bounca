@@ -255,7 +255,8 @@ folder.
 Remove the contents of `/srv/www`.
 
 ```bash
-rm /srv/www
+cd /srv/www
+rm -rf ./bounca
 ```
 
 Get the newest BounCA release from [the packages repo](https://gitlab.com/bounca/bounca/-/packages).
