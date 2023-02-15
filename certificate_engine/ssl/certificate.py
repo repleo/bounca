@@ -110,7 +110,7 @@ class Certificate(object):
         # noinspection PyUnresolvedReferences
         for attr in cp.policy["supplied"]:
             if not getattr(dn, attr):
-                raise PolicyError({f"dn__{attr}": f"Attribute '{attr}' is required"})
+                raise PolicyError({f"dn__{attr}": f"Attribute '{attr}' is required by policy"})
 
     @staticmethod
     def _lookup_x509_attr(attr: str, cp: CertificateBasePolicy):
@@ -281,7 +281,6 @@ class Certificate(object):
     def _create_intermediate_certificate(
         self, cert: CertificateType, private_key: Key, issuer_key: Key
     ) -> x509.Certificate:
-
         if cert.parent and cert.parent.type != CertificateTypes.ROOT:
             raise CertificateError(
                 "Parent is not a root certificate. "
@@ -301,7 +300,6 @@ class Certificate(object):
         return self._sign_certificate(issuer_key)
 
     def _create_server_certificate(self, cert: CertificateType, private_key: Key, issuer_key: Key) -> x509.Certificate:
-
         Certificate._check_issuer_provided(cert)
         Certificate._check_policies(cert)
 
@@ -352,7 +350,6 @@ class Certificate(object):
         return self._sign_certificate(issuer_key)
 
     def _create_client_certificate(self, cert: CertificateType, private_key: Key, issuer_key: Key) -> x509.Certificate:
-
         Certificate._check_issuer_provided(cert)
         Certificate._check_policies(cert)
 
@@ -397,7 +394,6 @@ class Certificate(object):
         return self._sign_certificate(issuer_key)
 
     def _create_ocsp_certificate(self, cert: CertificateType, private_key: Key, issuer_key: Key) -> x509.Certificate:
-
         Certificate._check_issuer_provided(cert)
         Certificate._check_policies(cert)
         self._builder = x509.CertificateBuilder()
@@ -427,7 +423,6 @@ class Certificate(object):
     def _create_code_signing_certificate(
         self, cert: CertificateType, private_key: Key, issuer_key: Key
     ) -> x509.Certificate:
-
         Certificate._check_issuer_provided(cert)
         Certificate._check_policies(cert)
         self._builder = x509.CertificateBuilder()

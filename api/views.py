@@ -298,7 +298,6 @@ class CertificateCRLFilesView(FileView):
             raise Http404("File not found")
 
         if cert.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
-
             if not cert.crl_distribution_url:
                 raise Http404("CRL Distribution is not enabled, " "no crl distribution url")
 

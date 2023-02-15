@@ -5,7 +5,6 @@ from api import utils
 
 
 class AuthorisedApp(models.Model):
-
     name = models.TextField()
     token = models.TextField(unique=True)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
