@@ -455,6 +455,10 @@ def check_passphrase_issuer(key, passphrase):
 def check_policies_certificate(sender, instance, **kwargs):
     from certificate_engine.ssl.certificate import Certificate as CertificateObjGenerator
 
+    if instance.revoked:
+        # Don't check policies in case of revocation
+        return
+
     certhandler = CertificateObjGenerator()
     certhandler.check_policies(instance)
 

@@ -14,7 +14,6 @@ from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactor
 
 
 class ServerCertificateTest(APILoginTestCase):
-
     base_url = "/api/v1/certificates"
 
     @classmethod

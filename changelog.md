@@ -1,11 +1,14 @@
 # Change Log
 The BounCA change history
 
-## [0.4.1] - Release 2022-02-14
+## [0.4.2] - Release 2023-02-15
+* Dont check policies when revoking a certificate
+
+## [0.4.1] - Release 2023-02-05
 * Added migration for Django 4.1.6
 * Update Readme
 
-## [0.4.0] - Release 2022-02-14
+## [0.4.0] - Release 2023-02-05
 * Added support for generating code signing certificates
 * Added Serial and Fingerprint to certificate table, including search
 * Added preset expire dates when creating certificates
@@ -16,7 +19,7 @@ The BounCA change history
 * Added renew certificate button
 * Renamed extension revocation list crl.pem to crl
 
-## [0.3.0] - Release 2022-02-14
+## [0.3.0] - Release 2022-01-14
 * Added resend e-mail button if user has not verified email yet
 * Form for admin account generation for fresh installs
 * Filter switch to not display revoked expired certificates
