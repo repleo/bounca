@@ -81,17 +81,18 @@ class CertificateSerializer(serializers.ModelSerializer):
         return None
 
     def validate_passphrase_issuer(self, passphrase_issuer):
-        if passphrase_issuer:
-            if not self.initial_data.get("parent"):
-                raise serializers.ValidationError(
-                    "You should provide a parent certificate if you provide an issuer passphrase"
-                )
+        if self.initial_data.get("parent"):
             parent = Certificate.objects.get(pk=self.initial_data.get("parent"))
             try:
                 if not parent.is_passphrase_valid(passphrase_issuer):
                     raise serializers.ValidationError("Passphrase incorrect. Not allowed to revoke your certificate")
             except KeyStore.DoesNotExist:
                 raise serializers.ValidationError("Certificate has no cert, something went wrong during generation")
+        else:
+            if passphrase_issuer:
+                raise serializers.ValidationError(
+                    "You should provide a parent certificate if you provide an issuer passphrase"
+                )
         return passphrase_issuer
 
     def validate_passphrase_out_confirmation(self, passphrase_out_confirmation):
