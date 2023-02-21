@@ -458,7 +458,7 @@ class Certificate(object):
         try:
             if cert_request.parent:
                 issuer_key = Key().load(cert_request.parent.keystore.key, passphrase_issuer)
-        except ValueError:
+        except (ValueError, TypeError):
             raise PassPhraseError("Bad passphrase, could not decode issuer key")
         return issuer_key
 

@@ -111,7 +111,7 @@ class Key(object):
                 pem.encode("utf-8"), passphrase.encode("utf-8") if passphrase else None, backend=default_backend()
             )
             self._key = cast(CERTIFICATE_PRIVATE_KEY_TYPES, deserialized_key)
-        except ValueError:
+        except (ValueError, TypeError):
             raise ValueError("Bad decrypt. Incorrect password?")
         return self
 
