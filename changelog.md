@@ -1,6 +1,9 @@
 # Change Log
 The BounCA change history
 
+## [0.4.3] - Release 2023-02-21
+* Bugfix when creating root certificate dont check for issuer passphrase
+
 ## [0.4.2] - Release 2023-02-15
 * Dont check policies when revoking a certificate
 
