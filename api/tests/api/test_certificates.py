@@ -125,6 +125,10 @@ class ServerCertificateTest(APILoginTestCase):
         result = response.json()
         self.assertEqual(result["count"], 7)
         for i in range(4):
+            # support for leap year
+            if result["results"][3 - i]["days_valid"] == 366:
+                result["results"][3 - i]["days_valid"] = 365
+
             self.assertDictEqual(
                 result["results"][3 - i],
                 {
@@ -243,6 +247,9 @@ class ServerCertificateTest(APILoginTestCase):
         self.assertIsNotNone(result.pop("keystore"))
         self.assertIsNotNone(result.pop("serial"))
 
+        # support for leap year
+        if result["days_valid"] == 366:
+            result["days_valid"] = 365
         self.assertDictEqual(
             result,
             {
