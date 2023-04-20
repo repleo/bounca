@@ -1,6 +1,9 @@
 # Change Log
 The BounCA change history
 
+## [0.4.4] - Release 2023-04-20
+* Bugfix allow retrieving crls with old extension crl.pem
+
 ## [0.4.3] - Release 2023-02-21
 * Bugfix when creating root certificate dont check for issuer passphrase
 

@@ -306,7 +306,7 @@ class CertificateCRLFilesView(FileView):
             except KeyStore.DoesNotExist:
                 raise Http404("Certificate has no keystore, " "generation of certificate object went wrong")
 
-            matches = re.findall(r"[^\/]+\.crl$", cert.crl_distribution_url)
+            matches = re.findall(r"[^\/]+\.crl(.pem)?$", cert.crl_distribution_url)
             if not matches:
                 raise RuntimeError(
                     f"Unexpected wrong format crl distribution url: "

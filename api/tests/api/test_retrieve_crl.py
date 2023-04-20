@@ -1,4 +1,5 @@
 from time import sleep
+from unittest.mock import patch
 
 import arrow
 from django.utils import timezone
@@ -91,8 +92,39 @@ class CrlRetrieveTest(APITokenLoginTestCase):
 
         cls.int_certificate2.save()
 
+        subject3 = DistinguishedNameFactory(
+            countryName=cls.ca.dn.countryName,
+            stateOrProvinceName=cls.ca.dn.stateOrProvinceName,
+            organizationName=cls.ca.dn.organizationName,
+        )
+
+        cls.int_certificate_old_crl_extension = CertificateFactory(
+            expires_at=arrow.get(timezone.now()).shift(days=+5).date(),
+            name="test client intermediate certificate old extesion",
+            type=CertificateTypes.INTERMEDIATE,
+            parent=cls.ca,
+            dn=subject3,
+            passphrase_out="welkom1235",
+            passphrase_out_confirmation="welkom1235",
+            passphrase_issuer="welkom123",
+            crl_distribution_url="https://example.com/crl/cert2.crl.pem",
+            ocsp_distribution_host="https://example.com/ocsp/",
+        )
+        with patch.object(Certificate, "full_clean", return_value=None):
+            cls.int_certificate_old_crl_extension.save()
+
     def test_retrieve_crl_root_certificate(self):
         test_uri = f"{self.base_url}{self.ca.pk}/crl"
+        response = self.client.get(test_uri, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_retrieve_crl_int_certificate(self):
+        test_uri = f"{self.base_url}{self.int_certificate2.pk}/crl"
+        response = self.client.get(test_uri, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_retrieve_crl_int_old_crl_extension_certificate(self):
+        test_uri = f"{self.base_url}{self.int_certificate_old_crl_extension.pk}/crl"
         response = self.client.get(test_uri, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
