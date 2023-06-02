@@ -19,7 +19,7 @@ django-property-filter==1.1.2
 arrow==1.2.3
 
 # SSL
-cryptography==39.0.1
+cryptography==41.0.0
 bcrypt==4.0.1
 
 # Parsers
