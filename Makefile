@@ -38,3 +38,6 @@ createvueforms:
 
 docserver:
 	python3 -m http.server --directory ./docs/build/html 8090
+
+update-python-packages:
+	pur
