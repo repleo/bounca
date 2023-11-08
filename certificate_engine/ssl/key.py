@@ -54,9 +54,9 @@ class Key(object):
         if not self._key:
             raise RuntimeError("No key object")
 
-        if not isinstance(self._key, get_args(serialization.pkcs12._ALLOWED_PKCS12_TYPES)):
+        if not isinstance(self._key, get_args(serialization.pkcs12.PKCS12PrivateKeyTypes)):
             raise RuntimeError(f"Key object type {type(self._key).__name__} not supported")
-        key = cast(serialization.pkcs12._ALLOWED_PKCS12_TYPES, self._key)
+        key = cast(serialization.pkcs12.PKCS12PrivateKeyTypes, self._key)
 
         if not name:
             raise ValueError("No name provided")

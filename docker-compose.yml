@@ -1,7 +1,7 @@
 version: '2'
 services:
     db:
-        image: postgres:11
+        image: postgres:16
         environment:
             - POSTGRES_DB=bounca
             - POSTGRES_USER=bounca
