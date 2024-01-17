@@ -181,7 +181,7 @@ export default {
         params.page = pagination.page;
       }
 
-      if ('itemsPerPage' in pagination && pagination.itemsPerPage) {
+      if ('itemsPerPage' in pagination && pagination.itemsPerPage > 0) {
         const { itemsPerPage } = pagination;
         params.page_size = itemsPerPage;
       }
@@ -198,9 +198,14 @@ export default {
       apptokens.getAll(params)
         .then((response) => {
           this.loading = false;
-          const { count, results } = response;
-          this.apptokens = results.map(this.getDisplayAppToken);
-          this.totalApptokens = count;
+          if (Array.isArray(response)) {
+            this.apptokens = response.map(this.getDisplayAppToken);
+            this.totalApptokens = response.length;
+          } else {
+            const { count, results } = response;
+            this.apptokens = results.map(this.getDisplayAppToken);
+            this.totalApptokens = count;
+          }
         })
         .catch((e) => {
           this.dialogErrorText = e;
@@ -217,7 +222,6 @@ export default {
     },
 
     deleteAppToken(item) {
-      console.log(item);
       this.deleteItem = item;
       this.dialogDelete = true;
     },
@@ -258,9 +262,14 @@ export default {
       apptokens.getAll()
         .then((response) => {
           this.loading = false;
-          const { count, results } = response;
-          this.apptokens = results.map(this.getDisplayAppToken);
-          this.totalApptokens = count;
+          if (Array.isArray(response)) {
+            this.apptokens = response.map(this.getDisplayAppToken);
+            this.totalApptokens = response.length;
+          } else {
+            const { count, results } = response;
+            this.apptokens = results.map(this.getDisplayAppToken);
+            this.totalApptokens = count;
+          }
           this.updateAddTokenDashboard();
         })
         .catch((e) => {
