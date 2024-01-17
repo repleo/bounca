@@ -7,7 +7,7 @@ from api.tests.factories import AuthorisedAppFactory
 from x509_pki.tests.factories import UserFactory
 
 
-class CrlRetrieveTest(APITestCase):
+class TokensTest(APITestCase):
     """
     Test retrieve and creating tokens
     """

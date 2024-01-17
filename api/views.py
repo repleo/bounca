@@ -55,6 +55,11 @@ class CertificateFilterSet(PropertyFilterSet):
         ]
 
 
+class NotFoundView(APIView):
+    def get(self, request, *args, **kwargs):
+        raise Http404("Not found")
+
+
 class CertificateListView(TrapDjangoValidationErrorCreateMixin, ListCreateAPIView):
     model = Certificate
     serializer_class = CertificateSerializer

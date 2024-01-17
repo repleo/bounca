@@ -1,5 +1,4 @@
 """API v1 end-points"""
-
 from dj_rest_auth.registration.urls import urlpatterns as urlpatterns_registration
 from dj_rest_auth.urls import urlpatterns as urlpatterns_rest_auth
 from django.conf.urls import include
@@ -16,6 +15,7 @@ from .views import (
     CertificateInstanceView,
     CertificateListView,
     CertificateRenewView,
+    NotFoundView,
 )
 
 
@@ -33,6 +33,11 @@ urlpatterns_apiv1 = [
     path("certificates", CertificateListView.as_view(), name="certificates"),
     path("auth/", include(urlpatterns_token)),
     path("auth/", include(urlpatterns_rest_auth)),
+    path(
+        "auth/registration/account-email-verification-sent/",
+        NotFoundView.as_view(),
+        name="account_email_verification_sent",
+    ),
     path("auth/registration/", include(urlpatterns_registration)),
 ]
 
