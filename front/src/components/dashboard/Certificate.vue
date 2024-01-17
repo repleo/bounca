@@ -421,7 +421,7 @@ export default {
         params.page = pagination.page;
       }
 
-      if ('itemsPerPage' in pagination && pagination.itemsPerPage) {
+      if ('itemsPerPage' in pagination && pagination.itemsPerPage > 0) {
         const { itemsPerPage } = pagination;
         params.page_size = itemsPerPage;
       }
@@ -441,9 +441,14 @@ export default {
       certificates.getAll(params)
         .then((response) => {
           this.loading = false;
-          const { count, results } = response;
-          this.certificates = results.map(this.getDisplayCertificate);
-          this.totalCertificates = count;
+          if (Array.isArray(response)) {
+            this.certificates = response.map(this.getDisplayCertificate);
+            this.totalCertificates = response.length;
+          } else {
+            const { count, results } = response;
+            this.certificates = results.map(this.getDisplayCertificate);
+            this.totalCertificates = count;
+          }
         })
         .catch((e) => {
           this.dialogErrorText = e;

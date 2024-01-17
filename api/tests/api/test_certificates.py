@@ -123,14 +123,14 @@ class ServerCertificateTest(APILoginTestCase):
         response = self.client.get(test_uri, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = response.json()
-        self.assertEqual(result["count"], 7)
+        self.assertEqual(len(result), 7)
         for i in range(4):
             # support for leap year
-            if result["results"][3 - i]["days_valid"] == 366:
-                result["results"][3 - i]["days_valid"] = 365
+            if result[3 - i]["days_valid"] == 366:
+                result[3 - i]["days_valid"] = 365
 
             self.assertDictEqual(
-                result["results"][3 - i],
+                result[3 - i],
                 {
                     "created_at": self.cert[i].created_at.strftime("%Y-%m-%d"),
                     "crl_distribution_url": None,
@@ -167,9 +167,9 @@ class ServerCertificateTest(APILoginTestCase):
         response = self.client.get(test_uri, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = response.json()
-        self.assertEqual(result["count"], 4)
+        self.assertEqual(len(result), 4)
         for i in range(4):
-            self.assertEqual(result["results"][3 - i]["name"], f"www.repleo.nl - {i}")
+            self.assertEqual(result[3 - i]["name"], f"www.repleo.nl - {i}")
 
     def test_retrieve_single_server_certificates(self):
         test_uri = f"{self.base_url}/{self.cert[0].id}"

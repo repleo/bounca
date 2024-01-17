@@ -1,6 +1,9 @@
 # Change Log
 The BounCA change history
 
+## [unreleased]
+* Fixed ALL option in table views
+
 ## [0.4.4] - Release 2023-04-20
 * Bugfix allow retrieving crls with old extension crl.pem
 
