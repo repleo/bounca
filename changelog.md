@@ -2,6 +2,7 @@
 The BounCA change history
 
 ## [unreleased]
+* Mail template fix
 * Fixed ALL option in table views
 
 ## [0.4.4] - Release 2023-04-20
