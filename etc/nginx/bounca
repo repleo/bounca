@@ -1,4 +1,4 @@
-# enable in case of SSL
+# CHANGE enable in case of SSL
 #server {
 #  listen 80;
 #  listen [::]:80;
@@ -17,13 +17,14 @@ server {
   listen 80;
   listen [::]:80;
 
+  # CHANGE in case you want to configure SSL and disable the listen lines above
   # ssl enabled
   # listen 443 ssl;
   # listen [::]:443 ssl;
   # ssl_certificate /etc/nginx/ssl/fullchain.pem;
   # ssl_certificate_key /etc/nginx/ssl/privkey.pem;
 
-  server_name bounca; # Replace with your domain
+  server_name bounca; # CHANGE Replace with your domain
 
   location /static {
       root /srv/www/bounca/media;
