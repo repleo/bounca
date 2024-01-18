@@ -138,7 +138,9 @@ First copy the files:
 
 
 You need to change the files ``/etc/bounca/services.yaml`` and ``/etc/nginx/sites-available/bounca`` for your situation.
-
+The values for the database must be changed in ``/etc/bounca/services.yaml``, and you need to add a ``secret_key`` in the django section,
+and add your host name to the  ``hosts`` section.
+The NGINX configuration file has a default config for non-ssl, in case you need https, change the file accordingly.
 
 Install virtualenv and python packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

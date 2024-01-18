@@ -1,6 +1,7 @@
 psql:
   dbname: bounca
   username: bounca
+  # CHANGE: replace this value with your secret
   password: changeit
   host: postgres
   port: 5432
@@ -11,9 +12,11 @@ admin:
 
 django:
   debug: False
+  # CHANGE: replace this value with your secret
   secret_key: '<value-django-secret-just-a-random-salt-string>'
   hosts:
-    # add your hosts here
+    # CHANGE: add your hosts here
+    # - my_ca.my_domain.tld
     - localhost
     - 127.0.0.1
 
