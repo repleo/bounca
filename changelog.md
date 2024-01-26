@@ -2,6 +2,7 @@
 The BounCA change history
 
 ## [unreleased]
+* Generate CRL file updates, and set experience day 10 days in the future
 * Mail template fix
 * Fixed ALL option in table views
 
