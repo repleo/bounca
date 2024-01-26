@@ -2,18 +2,19 @@ from typing import List, Optional, cast
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives._serialization import PrivateFormat
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
-from cryptography.hazmat.primitives.asymmetric.types import CERTIFICATE_PRIVATE_KEY_TYPES
+from cryptography.hazmat.primitives.asymmetric.types import CertificateIssuerPrivateKeyTypes
+from cryptography.hazmat.primitives.serialization import pkcs12
 from typing_extensions import get_args
 
 
-# noinspection PyUnresolvedReferences
 class Key(object):
-    _key: Optional[CERTIFICATE_PRIVATE_KEY_TYPES] = None
+    _key: Optional[CertificateIssuerPrivateKeyTypes] = None
 
     @property
-    def key(self) -> CERTIFICATE_PRIVATE_KEY_TYPES:
+    def key(self) -> CertificateIssuerPrivateKeyTypes:
         if self._key is None:
             raise RuntimeError("No key object")
         return self._key
@@ -40,6 +41,7 @@ class Key(object):
         certificate: Optional[x509.Certificate] = None,
         passphrase: Optional[str] = None,
         cas: Optional[List[x509.Certificate]] = None,
+        encryption_legacy: bool = False,
     ) -> bytes:
         """
         Serialize key
@@ -64,11 +66,19 @@ class Key(object):
         if not certificate:
             raise ValueError("No certificate provided")
 
-        encryption = (
-            serialization.BestAvailableEncryption(passphrase.encode("utf-8"))
-            if passphrase
-            else serialization.NoEncryption()
-        )
+        if passphrase:
+            if encryption_legacy:
+                encryption = (
+                    PrivateFormat.PKCS12.encryption_builder()
+                    .kdf_rounds(50000)
+                    .key_cert_algorithm(pkcs12.PBES.PBESv1SHA1And3KeyTripleDESCBC)
+                    .hmac_hash(hashes.SHA1())
+                    .build(passphrase.encode("utf-8"))
+                )
+            else:
+                encryption = serialization.BestAvailableEncryption(passphrase.encode("utf-8"))
+        else:
+            encryption = serialization.NoEncryption()
         return serialization.pkcs12.serialize_key_and_certificates(
             name.encode("utf-8"), key, certificate, cas, encryption
         )
@@ -110,7 +120,7 @@ class Key(object):
             deserialized_key = serialization.load_pem_private_key(
                 pem.encode("utf-8"), passphrase.encode("utf-8") if passphrase else None, backend=default_backend()
             )
-            self._key = cast(CERTIFICATE_PRIVATE_KEY_TYPES, deserialized_key)
+            self._key = cast(CertificateIssuerPrivateKeyTypes, deserialized_key)
         except (ValueError, TypeError):
             raise ValueError("Bad decrypt. Incorrect password?")
         return self
