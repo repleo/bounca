@@ -3,6 +3,7 @@ The BounCA change history
 
 ## [unreleased]
 * Generate CRL file updates, and set experience day 10 days in the future
+* Added legacy pkcs12 support for macOS
 * Mail template fix
 * Fixed ALL option in table views
 

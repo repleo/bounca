@@ -1,6 +1,6 @@
 from allauth.account.utils import complete_signup
 from allauth.account.views import SignupView
-from allauth.exceptions import ImmediateHttpResponse
+from allauth.core.exceptions import ImmediateHttpResponse
 from django.contrib.auth.models import User
 from django.http import HttpResponseNotFound
 from django.urls import reverse_lazy

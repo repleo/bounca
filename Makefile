@@ -41,3 +41,6 @@ docserver:
 
 update-python-packages:
 	pur
+
+migrate:
+	python manage.py migrate

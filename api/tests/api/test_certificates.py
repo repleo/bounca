@@ -379,6 +379,7 @@ class ServerCertificateTest(APILoginTestCase):
                     "www.repleo.nl_-_0-chain.pem",
                     "www.repleo.nl_-_0.key",
                     "www.repleo.nl_-_0.p12",
+                    "www.repleo.nl_-_0.legacy.p12",
                 ],
             )
             cert_pem = cert_zipfile.read("www.repleo.nl_-_0.pem").decode("utf-8")
