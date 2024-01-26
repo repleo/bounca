@@ -2,6 +2,7 @@
 The BounCA change history
 
 ## [unreleased]
+* Added legacy pkcs12 support for macOS
 * Mail template fix
 * Fixed ALL option in table views
 

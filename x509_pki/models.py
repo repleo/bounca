@@ -410,6 +410,13 @@ class KeyStore(models.Model):
     key = models.TextField("Serialized Private Key")
     crt = models.TextField("Serialized signed certificate")
     p12 = models.BinaryField("Serialized PKCS 12 package with key and certificate", null=True, blank=True, default=None)
+    p12_legacy = models.BinaryField(
+        "Serialized PKCS 12 package with key and certificate sha1 for legacy support",
+        null=True,
+        blank=True,
+        default=None,
+    )
+
     fingerprint = models.TextField("SHA1 Fingerprint of Certificate")
     certificate = models.OneToOneField(
         Certificate,
@@ -476,12 +483,23 @@ def generate_certificate(sender, instance, created, **kwargs):
         certhandler.create_certificate(instance, keystore.key, instance.passphrase_out, instance.passphrase_issuer)
         keystore.crt = certhandler.serialize()
         if instance.type not in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
-            root_certificate = CertificateGenerator().load(instance.parent.keystore.crt).certificate
+            root_certificate = CertificateGenerator().load(instance.parent.parent.keystore.crt).certificate
             int_certificate = CertificateGenerator().load(instance.parent.keystore.crt).certificate
             keystore.p12 = key.serialize_pkcs12(
-                instance.name, certhandler.certificate, instance.passphrase_out, cas=[int_certificate, root_certificate]
+                instance.name,
+                certhandler.certificate,
+                instance.passphrase_out,
+                cas=[int_certificate, root_certificate],
+                encryption_legacy=False,
             )
 
+            keystore.p12_legacy = key.serialize_pkcs12(
+                instance.name,
+                certhandler.certificate,
+                instance.passphrase_out,
+                cas=[int_certificate, root_certificate],
+                encryption_legacy=True,
+            )
         keystore.save()
 
         if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:

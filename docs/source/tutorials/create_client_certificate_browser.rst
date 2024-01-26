@@ -278,7 +278,7 @@ how to add in case of using MacOS.
 Most important part is the PKCS12 file (.p12) in your certificate bundle. That file is necessary to add
 the client certificate to your browser. We also assume you have installed the root certificate in your browser and/or system.
 
-To install the client certificate for Chrome and Safari in MacOS, just double click on the p12 file. The KeyChain manager will open, and asks for your passphrase.
+To install the client certificate for Chrome and Safari in MacOS, just double click on the p12 file. Note: In case of MacOS you mind need the legacy.p12 file. The KeyChain manager will open, and asks for your passphrase.
 After you entered your passphrase, you can use the certificate in Chrome and Safari. The browser will ask to use the certificate for authentication.
 
 .. figure:: ../images/generate-client-certificate/40-adding-client-certificate-to-keychain-of-macOS.png
