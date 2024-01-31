@@ -2,6 +2,7 @@
 The BounCA change history
 
 ## [unreleased]
+* Generate CRL file updates via button, and set expire day 365 days in the future
 * Added legacy pkcs12 support for macOS
 * Mail template fix
 * Fixed ALL option in table views

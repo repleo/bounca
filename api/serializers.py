@@ -203,6 +203,29 @@ class CertificateRenewSerializer(serializers.ModelSerializer):
         return None
 
 
+class CrlRenewSerializer(serializers.ModelSerializer):
+    passphrase_in = serializers.CharField(max_length=200, required=True)
+
+    class Meta:
+        fields = ("passphrase_in",)
+        model = Certificate
+        extra_kwargs = {
+            "passphrase_in": {"write_only": True},
+        }
+
+    def validate_passphrase_in(self, passphrase_in):
+        if passphrase_in:
+            try:
+                if not self.instance.is_passphrase_valid(passphrase_in):
+                    raise serializers.ValidationError(
+                        "Passphrase incorrect. Not allowed to update Crl list of your certificate"
+                    )
+            except KeyStore.DoesNotExist:
+                raise serializers.ValidationError("Certificate has no cert, something went wrong during generation")
+            return passphrase_in
+        return None
+
+
 class CertificateCRLSerializer(serializers.ModelSerializer):
     passphrase_issuer = serializers.CharField(max_length=200, required=True)
 

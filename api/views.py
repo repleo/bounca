@@ -22,7 +22,12 @@ from rest_framework.views import APIView
 
 from api.authentication import AppTokenAuthentication
 from api.mixins import TrapDjangoValidationErrorCreateMixin
-from api.serializers import CertificateRenewSerializer, CertificateRevokeSerializer, CertificateSerializer
+from api.serializers import (
+    CertificateRenewSerializer,
+    CertificateRevokeSerializer,
+    CertificateSerializer,
+    CrlRenewSerializer,
+)
 from x509_pki.models import Certificate, CertificateTypes, KeyStore
 
 if settings.IS_GENERATE_FRONTEND:
@@ -300,16 +305,18 @@ class CertificateFilesView(FileView):
         return self._make_file_response(content, filename)
 
 
-class CertificateCRLFilesView(FileView):
+class CertificateCRLFilesView(FileView, UpdateAPIView):
     authentication_classes = [AppTokenAuthentication] + api_settings.DEFAULT_AUTHENTICATION_CLASSES
+    serializer_class = CrlRenewSerializer
+
+    queryset = Certificate.objects.all()
+    model = Certificate
 
     def get(self, request, pk, *args, **kwargs):
-        try:
-            user = self.request.user
-            cert = Certificate.objects.get(pk=pk, owner=user)
-        except Certificate.DoesNotExist:
-            raise Http404("File not found")
-
+        cert = Certificate.objects.get(pk=pk)
+        user = self.request.user
+        if cert.owner.id is not user.id:
+            raise Http404("Certificate not found")
         if cert.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
             if not cert.crl_distribution_url:
                 raise Http404("CRL Distribution is not enabled, " "no crl distribution url")
@@ -319,14 +326,14 @@ class CertificateCRLFilesView(FileView):
             except KeyStore.DoesNotExist:
                 raise Http404("Certificate has no keystore, " "generation of certificate object went wrong")
 
-            matches = re.findall(r"[^\/]+\.crl(.pem)?$", cert.crl_distribution_url)
+            matches = re.findall(r"([^\/]+\.crl(.pem)?)$", cert.crl_distribution_url)
             if not matches:
                 raise RuntimeError(
                     f"Unexpected wrong format crl distribution url: "
                     f"{cert.crl_distribution_url} should end with "
                     f"<filename>.crl"
                 )
-            filename = matches[0]
+            filename = matches[0][0]
             response = HttpResponse(cert_crlstore.crl, content_type="application/octet-stream")
             response["Content-Disposition"] = f"attachment; filename={filename}"
             response["Last-Modified"] = http_date(cert_crlstore.last_update.timestamp())
@@ -334,3 +341,22 @@ class CertificateCRLFilesView(FileView):
             return response
         else:
             raise ValidationError("CRL can only be generated for Root or Intermediate certificates")
+
+    def update(self, request, *args, **kwargs):
+        user = self.request.user
+        instance = self.get_object()
+        if instance.owner.id is not user.id:
+            raise Http404("Certificate not found")
+        partial = kwargs.pop("partial", False)
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        instance.passphrase_in = serializer.validated_data["passphrase_in"]
+        self.perform_update(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def perform_update(self, instance):
+        try:
+            return instance.renew_revocation_list()
+        except InternalValidationError as e:
+            raise ValidationError(e.message)

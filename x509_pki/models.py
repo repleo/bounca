@@ -1,7 +1,8 @@
 """Models for storing subject and certificate information"""
-
+import datetime
 import uuid
 
+import pytz
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
@@ -285,6 +286,30 @@ class Certificate(models.Model):
         self.save()
         return self
 
+    def renew_revocation_list(self, *args, **kwargs):
+        if self.id is None:
+            raise ValidationError("Can only renew a saved certificate revocation list")
+        if self.revoked_at:
+            raise ValidationError("Cannot renew a crl of revoked certificate")
+
+        if self.type not in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
+            raise ValidationError("Can only renew crl of Root or Intermediate certificate")
+
+        revoked_certs = Certificate.objects.filter(parent=self, revoked_at__isnull=False)
+        crl_list = [(rc.keystore.crt, rc.revoked_at) for rc in revoked_certs if hasattr(rc, "keystore")]
+        last_update = self.crlstore.last_update if hasattr(self, "crlstore") else timezone.now()
+        next_update_days = datetime.timedelta(settings.CRL_UPDATE_DAYS_FUTURE, 0, 0)
+        next_update = datetime.datetime.now(tz=pytz.UTC) + next_update_days
+        crl = revocation_list_builder(crl_list, self, self.passphrase_in, last_update, next_update)
+
+        if not self.crlstore:
+            crlstore = CrlStore(certificate=self)
+            crlstore.crl = serialize(crl)
+            crlstore.save()
+        else:
+            self.crlstore.crl = serialize(crl)
+            self.crlstore.save()
+
     def delete(self, *args, **kwargs):
         if self.revoked_at:
             return
@@ -503,14 +528,16 @@ def generate_certificate(sender, instance, created, **kwargs):
         keystore.save()
 
         if instance.type in [CertificateTypes.ROOT, CertificateTypes.INTERMEDIATE]:
-            crl = revocation_list_builder([], instance, instance.passphrase_out)
+            next_update_days = datetime.timedelta(settings.CRL_UPDATE_DAYS_FUTURE, 0, 0)
+            next_update = datetime.datetime.now(tz=pytz.UTC) + next_update_days
+            crl = revocation_list_builder([], instance, instance.passphrase_out, next_update=next_update)
             crlstore = CrlStore(certificate=instance)
             crlstore.crl = serialize(crl)
             crlstore.save()
 
 
 @receiver(post_save, sender=Certificate)
-def generate_certificate_revocation_list(sender, instance, created, **kwargs):
+def update_certificate_revocation_list(sender, instance, created, **kwargs):
     update_fields = kwargs["update_fields"]
     if not created and "revoked_uuid" in update_fields:
         if instance.type == CertificateTypes.ROOT:
@@ -522,12 +549,10 @@ def generate_certificate_revocation_list(sender, instance, created, **kwargs):
         revoked_certs = Certificate.objects.filter(parent=instance.parent, revoked_at__isnull=False)
         crl_list = [(rc.keystore.crt, rc.revoked_at) for rc in revoked_certs if hasattr(rc, "keystore")]
         last_update = instance.parent.crlstore.last_update if hasattr(instance.parent, "crlstore") else timezone.now()
-        crl = revocation_list_builder(
-            crl_list,
-            instance.parent,
-            instance.passphrase_issuer,
-            last_update,
-        )
+
+        next_update_days = datetime.timedelta(settings.CRL_UPDATE_DAYS_FUTURE, 0, 0)
+        next_update = datetime.datetime.now(tz=pytz.UTC) + next_update_days
+        crl = revocation_list_builder(crl_list, instance.parent, instance.passphrase_issuer, last_update, next_update)
         if not hasattr(instance.parent, "crlstore"):
             crlstore = CrlStore(certificate=instance.parent)
             crlstore.crl = serialize(crl)
