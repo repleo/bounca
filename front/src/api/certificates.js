@@ -56,6 +56,11 @@ export default {
     const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };
     return axios.delete(url, { data: data, headers: headers }).then((response) => response.data);
   },
+  renewCrl(id, data) {
+    const url = `${process.env.VUE_APP_ROOT_API}/api/v1/certificates/${id}/crl`;
+    const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };
+    return axios.patch(url, data, { headers: headers }).then((response) => response.data);
+  },
   renew(id, data) {
     const url = `${process.env.VUE_APP_ROOT_API}/api/v1/certificates/${id}/renew`;
     const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };

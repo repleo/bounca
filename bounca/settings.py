@@ -31,6 +31,10 @@ SECRET_KEY = SERVICES["django"]["secret_key"]
 DEBUG = SERVICES["django"]["debug"]
 
 KEY_ALGORITHM = SERVICES["certificate-engine"]["key_algorithm"].lower()
+
+# Nr of days in the future the CRL list will expire
+CRL_UPDATE_DAYS_FUTURE = 365
+
 if KEY_ALGORITHM not in ["ed25519", "rsa"]:
     raise ValueError(f"Key algorithm {KEY_ALGORITHM} not supported")
 

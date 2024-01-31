@@ -88,9 +88,20 @@
               <v-btn class=""
                 text
                 :disabled="!item.crl_distribution_url"
-                target="_blank"
-                :href="api_root + '/api/v1/certificates/' + item.id + '/crl'">
+                @click="downloadCRL(item.id)">
                 CRL
+                <v-icon class="" color="grey darken-2">
+                mdi-download
+              </v-icon>
+              </v-btn>
+              <v-btn class=""
+                text
+                :disabled="!item.crl_distribution_url"
+                @click="renewCRL(item.id)">
+                CRL
+                <v-icon class="mr-2" color="green darken-2">
+                mdi-sync
+                </v-icon>
               </v-btn>
             </span>
           </template>
@@ -145,6 +156,50 @@
         <v-btn color="blue darken-1" text @click="closeRevoke">Cancel</v-btn>
         <v-btn color="blue darken-1" text
                @click="revokeCertificateConfirm">OK</v-btn>
+        <v-spacer></v-spacer>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog v-model="dialogRenewCrl" max-width="565px">
+    <v-card>
+      <v-card-title class="text-h5">Enter passphrase to renew CRL list certificate.</v-card-title>
+      <v-card-text>
+          <ValidationObserver ref="form" v-slot="{ errors }">
+          <ValidationProvider name="non_field_errors" vid="non_field_errors">
+            <v-alert
+              text
+              dense
+              type="error"
+              border="left"
+              v-if="errors.non_field_errors && errors.non_field_errors.length"
+            >
+            <div v-for="error in errors.non_field_errors" :key="error">{{error}}</div>
+            </v-alert>
+          </ValidationProvider>
+          <v-form>
+            <ValidationProvider name="passphrase_in" vid="passphrase_in" rules="required"
+                                v-slot="{ errors }">
+            <v-text-field
+              prepend-icon="lock"
+              name="passphrase"
+              label="Passphrase"
+              id="passphrase"
+              v-model="renewcrl.passphrase_in"
+              :error-messages="errors"
+              :append-icon="revoke_passphrase_visible ? 'visibility' : 'visibility_off'"
+              @click:append="() => (revoke_passphrase_visible = !revoke_passphrase_visible)"
+              :type="revoke_passphrase_visible ? 'text' : 'password' "
+              required
+            ></v-text-field>
+            </ValidationProvider>
+          </v-form>
+          </ValidationObserver>
+        </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="blue darken-1" text @click="closeRenewCrl">Cancel</v-btn>
+        <v-btn color="blue darken-1" text
+               @click="renewCRLConfirm">OK</v-btn>
         <v-spacer></v-spacer>
       </v-card-actions>
     </v-card>
@@ -240,6 +295,9 @@ export default {
       revoke: {
         passphrase_issuer: null,
       },
+      renewcrl: {
+        passphrase_in: null,
+      },
       revoke_passphrase_visible: false,
       dialog: false,
       dialogDownloading: false,
@@ -248,6 +306,9 @@ export default {
       dialogInfo: false,
       dialogInfoText: '',
       dialogInfoLoading: true,
+
+      renewCrlItem: null,
+      dialogRenewCrl: false,
 
       dialogError: false,
       dialogErrorText: '',
@@ -452,6 +513,31 @@ export default {
       this.$refs.form.reset();
       this.dialogDelete = false;
       this.deleteItem = null;
+    },
+
+    renewCRL(item) {
+      this.renewCrlItem = item;
+      this.dialogRenewCrl = true;
+    },
+
+    renewCRLConfirm() {
+      if (this.renewCrlItem !== null) {
+        certificates.renewCrl(this.renewCrlItem, this.renewcrl)
+          .then(() => {
+            this.updateDashboard();
+            this.closeRenewCrl();
+          }).catch((r) => {
+            const errors = r.response.data;
+            this.$refs.form.setErrors(errors);
+          });
+      }
+    },
+
+    closeRenewCrl() {
+      this.renewcrl.passphrase_in = '';
+      this.$refs.form.reset();
+      this.dialogRenewCrl = false;
+      this.renewClrItem = null;
     },
 
     closeInfo() {
