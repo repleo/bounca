@@ -1,5 +1,5 @@
 # Framework
-Django==4.2.9
+Django==4.2.11
 psycopg2-binary==2.9.9
 pytz==2023.3.post1
 requests==2.31.0
