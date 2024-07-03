@@ -1,17 +1,17 @@
 # Framework
-Django==4.2.9
+Django==4.2.13
 psycopg2-binary==2.9.9
-pytz==2023.3.post1
-requests==2.31.0
-djangorestframework==3.14.0
-django-grappelli==3.0.8
-django-countries==7.5.1
+pytz==2024.1
+requests==2.32.3
+djangorestframework==3.15.2
+django-grappelli==4.0.1
+django-countries==7.6.1
 django-rest-swagger==2.2.0
-django-filter==23.5
-django-allauth==0.60.1
-dj-rest-auth==5.0.2
+django-filter==24.2
+django-allauth==0.63.3
+dj-rest-auth==6.0.0
 django-ical==1.9.2
-django-cors-headers==4.3.1
+django-cors-headers==4.4.0
 django-property-filter==1.2.0
 
 
@@ -19,30 +19,28 @@ django-property-filter==1.2.0
 arrow==1.3.0
 
 # SSL
-cryptography==41.0.7
-bcrypt==4.1.2
+cryptography==42.0.8
+bcrypt==4.1.3
 
 # Parsers
 yamlreader==3.0.4
 
 # Testing
-coverage==7.4.0
+coverage==7.5.4
 factory-boy==3.3.0
-Faker==22.2.0
+Faker==26.0.0
 mock==5.1.0
-requests-mock==1.11.0
+requests-mock==1.12.1
 
 # Code Quality
-flake8==7.0.0
+flake8==7.1.0
 isort==5.13.2
-autopep8==2.0.4
-mypy==1.8.0
-types-pytz==2023.3.1.1
-pur==7.3.1
-black==23.12.1
-typing_extensions==4.9.0
+autopep8==2.3.1
+mypy==1.10.1
+types-pytz==2024.1.0.20240417
+pur==7.3.2
+black==24.4.2
+typing_extensions==4.12.2
 
-# Development
-beautifulsoup4==4.12.2
-django-crispy-forms==2.1
-codacy-coverage==1.3.11
+
+
