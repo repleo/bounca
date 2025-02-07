@@ -1,4 +1,4 @@
 # Docs
-sphinx==7.3.7
-sphinx_rtd_theme==2.0.0
+sphinx==7.4.7
+sphinx_rtd_theme==3.0.2
 sphinx_bootstrap_theme==0.8.1

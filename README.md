@@ -219,7 +219,7 @@ The admin interface can be found at:
 
 To access the admin interface you need an super user account. You can also create the super user via a webform, or via the commandline.
 You need to have enabled `superuser_signup` in your config file to enable the webform to create a super user. The signup form can be reached at
-this URI: [http://<example.com>/accounts/signup/](http://example.com/accounts/signup/).
+this URI: [http://<example.com>/accounts/signup/](http://example.com/accounts/signup/). This webform is only available if no users exists in the system, i.e. a freshly installed instance.
 
 
 ```
@@ -227,8 +227,14 @@ python manage.py createsuperuser --username myAdminUser --email myAdminEmail@exa
 ```
 (Optionally: Set DJANGO_SUPERUSER_PASSWORD Environment variable to set new passwords for `python manage.py createsuperuser` command, and execute with `python manage.py createsuperuser --noinput --username myAdminUser --email myAdminEmail@example.com`)
 
+Optionally you can set the email verified flag of the admin user:
+```
+python manage.py setemailverified --email myAdminUser
+```
+
 The admin interface can be found at:
 [http://<example.com>/admin](http://example.com/admin).
+
 
 BounCA should be up and running. Browse to the hostname of your BounCA machine.
 Enjoy generating keys.
