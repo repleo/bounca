@@ -3,6 +3,7 @@ from crispy_forms.layout import HTML, BaseInput, ButtonHolder, Column, Fieldset,
 from django import forms
 from django.contrib.auth.forms import SetPasswordForm, UserChangeForm
 from django.utils.deconstruct import deconstructible
+from django.contrib.auth.models import User
 
 from api.models import AuthorisedApp
 from vuetifyforms.components import VueField, VueSpacer
@@ -49,6 +50,13 @@ class TokenForm(forms.ModelForm):
         model = AuthorisedApp
         fields = [
             "name",
+        ]
+
+class DeleteAccountForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = [
+            "password",
         ]
 
 
@@ -209,7 +217,7 @@ class AddRootCAForm(CertificateForm, VuetifyFormMixin):
                 Button("cancel", "Cancel", **{"@click": "onCancel"}),
                 Submit("submit", "Create", **{"@click": "onCreateCertificate", "css_class": "px-6"}),
                 css_class="mt-4",
-                outlined=True,
+                #TODO BJA outlined=True,
             ),
         )
         self.vue_imports = [("certificates", "../../api/certificates")]
@@ -319,7 +327,7 @@ class AddIntermediateCAForm(CertificateForm, VuetifyFormMixin):
                 Button("cancel", "Cancel", **{"@click": "onCancel"}),
                 Submit("submit", "Create", **{"@click": "onCreateCertificate", "css_class": "px-6"}),
                 css_class="mt-4",
-                outlined=True,
+                #TODO BJA outlined=True,
             ),
         )
         self.vue_imports = [("certificates", "../../api/certificates")]
@@ -461,7 +469,7 @@ class AddCertificateForm(CertificateForm, VuetifyFormMixin):
                 Button("cancel", "Cancel", **{"@click": "onCancel"}),
                 Submit("submit", "Create", **{"@click": "onCreateCertificate", "css_class": "px-6"}),
                 css_class="mt-4",
-                outlined=True,
+                #TODO BJA outlined=True,
             ),
         )
         self.vue_imports = [("certificates", "../../api/certificates")]
@@ -552,7 +560,7 @@ class RenewCertificateVueForm(RenewCertificateForm, VuetifyFormMixin):
                 Button("cancel", "Cancel", **{"@click": "onCancel"}),
                 Submit("submit", "Renew", **{"@click": "onRenewCertificate", "css_class": "px-6"}),
                 css_class="mt-4",
-                outlined=True,
+                #TODO BJA outlined=True,
             ),
         )
         self.vue_imports = [("certificates", "../../api/certificates")]
@@ -611,7 +619,7 @@ class ChangePasswordForm(SetPasswordForm, VuetifyFormMixin):
                 Button("cancel", "Cancel", **{"@click": "onCancel"}),
                 Submit("submit", "Update", **{"@click": "updatePassword", "css_class": "px-6"}),
                 css_class="mt-4",
-                outlined=True,
+                #TODO BJA outlined=True,
             ),
         )
         self.vue_imports = [("profile", "../../../api/profile")]
@@ -669,7 +677,7 @@ class ChangeProfileForm(UserChangeForm, VuetifyFormMixin):
                 Button("cancel", "Cancel", **{"@click": "onCancel"}),
                 Submit("submit", "Update", **{"@click": "updateProfile", "css_class": "px-6"}),
                 css_class="mt-4",
-                outlined=True,
+                #TODO BJA outlined=True,
             ),
         )
         self.vue_imports = [("profile", "../../../api/profile")]
@@ -731,7 +739,7 @@ class AddTokenForm(TokenForm, VuetifyFormMixin):
                 Button("cancel", "Cancel", **{"@click": "onCancel"}),
                 Submit("submit", "Add", **{"@click": "createToken", "css_class": "px-6"}),
                 css_class="mt-4",
-                outlined=True,
+                #TODO BJA outlined=True,
             ),
         )
         self.vue_imports = [("apptokens", "../../../api/apptokens")]
@@ -758,6 +766,54 @@ createToken() {
 onCancel(){
   this.resetForm();
   this.$emit('close-dialog');
+}
+            """,
+        ]
+
+
+class DeleteAccountForm(DeleteAccountForm, VuetifyFormMixin):
+    scope_prefix = "user_data"
+    vue_file = "front/src/components/forms/user/DeleteAccount.vue"
+    form_title = "Delete Account"
+    form_component_name = "deleteAccount"
+    form_object = "password"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(Column("password")),
+            ButtonHolder(
+                VueSpacer(),
+                Button("cancel", "Cancel", **{"@click": "onCancel"}),
+                Submit("submit", "Update", **{"@click": "deleteAccount", "css_class": "px-6"}),
+                css_class="mt-4",
+                #TODO BJA outlined=True,
+            ),
+        )
+        self.vue_imports = [("profile", "../../../api/profile")]
+        self.vue_props = []
+        self.vue_watchers = []
+        self.vue_methods = [
+            """
+deleteAccount() {
+  this.$refs.form.validate().then((isValid) => {
+    if (isValid) {
+      this.password_visible = false;
+      profile.deleteAccountPassword(this.password).then( response  => {
+          this.$emit('success', 'Password has been updated.');
+          this.resetForm();
+      }).catch( r => {
+        this.$refs.form.setErrors(r.response.data);
+      });
+    }
+  });
+}
+            """,
+            """
+onCancel(){
+  this.resetForm();
 }
             """,
         ]

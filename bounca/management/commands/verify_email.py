@@ -1,7 +1,6 @@
-from dj_rest_auth.models import TokenModel
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
+from allauth.account.models import EmailAddress
 
 class Command(BaseCommand):
     help = "Set email verification flag"
@@ -13,9 +12,9 @@ class Command(BaseCommand):
         if User.objects.filter(email=options['email']).exists():
             print(f"Set email verification flag of: {options['email']}")
             user = User.objects.get(email=options['email'])
-            token_model = TokenModel.objects.get_or_create(user=user)
-
-            user.email_verified = True
-            user.save()
+            email, created = EmailAddress.objects.get_or_create(user=user, email=options['email'])
+            email.verified = True
+            email.save()
+            print(f"User email verified: {email}")
         else:
             print(f"User with email {options['email']} does not exist")

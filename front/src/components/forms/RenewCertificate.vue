@@ -21,15 +21,15 @@
         </v-alert>
       </ValidationProvider>
 
-
-
+      
+    
     <v-row class="" >
         <v-col class="" >
-        <v-card class=" "  outlined>
+        <v-card class="None "  outlined>
 <v-card-title class="headline">Renew Certificate</v-card-title>
     <v-card-text><v-row class="" >
         <v-col class="" >
-
+        
 
 
 
@@ -44,15 +44,15 @@
   label="Expires at*"
   v-model="renew_certificate.expires_at"
   :error-messages="errors"
-
+  
   type="date"
-
+  
   required
-
-
+  
+  
   v-bind="attrs"
   v-on="on"
-
+  
 ></v-text-field>
 
 
@@ -77,7 +77,7 @@
 </v-row>
 <v-row class="" >
         <v-col class="" >
-
+        
 
 
 
@@ -92,17 +92,17 @@
   label="Passphrase"
   v-model="renew_certificate.passphrase_out"
   :error-messages="errors"
-
+  
   :append-icon="passphrase_out_visible ? 'visibility' : 'visibility_off'"
   @click:append="() => (passphrase_out_visible = !passphrase_out_visible)"
   :type="passphrase_out_visible ? 'text' : 'password' "
-
-
-
-
+  
+  
+  
+  
   v-bind="attrs"
   v-on="on"
-
+  
 ></v-text-field>
 
 
@@ -118,7 +118,7 @@
 
 </v-col>
 <v-col class="" >
-
+        
 
 
 
@@ -133,17 +133,17 @@
   label="Passphrase confirmation"
   v-model="renew_certificate.passphrase_out_confirmation"
   :error-messages="errors"
-
+  
   :append-icon="passphrase_out_confirmation_visible ? 'visibility' : 'visibility_off'"
   @click:append="() => (passphrase_out_confirmation_visible = !passphrase_out_confirmation_visible)"
   :type="passphrase_out_confirmation_visible ? 'text' : 'password' "
-
-
-
-
+  
+  
+  
+  
   v-bind="attrs"
   v-on="on"
-
+  
 ></v-text-field>
 
 
@@ -168,7 +168,7 @@
 </v-row>
 <v-row class="" >
         <v-col class="" >
-        <v-card class=" "  outlined>
+        <v-card class="None "  outlined>
 <v-card-title class="headline">Signing credentials</v-card-title>
     <v-card-text>
 
@@ -185,17 +185,17 @@
   label="Passphrase issuer*"
   v-model="renew_certificate.passphrase_issuer"
   :error-messages="errors"
-
+  
   :append-icon="passphrase_issuer_visible ? 'visibility' : 'visibility_off'"
   @click:append="() => (passphrase_issuer_visible = !passphrase_issuer_visible)"
   :type="passphrase_issuer_visible ? 'text' : 'password' "
-
+  
   required
-
-
+  
+  
   v-bind="attrs"
   v-on="on"
-
+  
 ></v-text-field>
 
 
@@ -217,7 +217,7 @@
 <v-card-actions class="mt-4" >
        <v-spacer></v-spacer>
 <v-btn
-       @click="onCancel" color="primary" plain text
+       @click="onCancel" color="primary" plain text 
 >
     Cancel
 </v-btn>
@@ -250,11 +250,11 @@ import certificates from '../../api/certificates';
 
 function initialState (){
   const data = {"dialog": false, "passphrase_issuer_visible": false, "passphrase_out_visible": false, "passphrase_out_confirmation_visible": false, "renew_certificate": {"expires_at": null, "passphrase_issuer": "", "passphrase_out": "", "passphrase_out_confirmation": ""}};
-
+  
 const date = new Date();
 date.setFullYear(date.getFullYear() + 1);
 data['renew_certificate']['expires_at'] = date.toISOString().slice(0,10);
-
+        
   return data;
 }
 
@@ -265,25 +265,26 @@ export default {
         return initialState();
     },
     watch: {
-
+      
     },
     mounted() {
-
+       
     },
     methods: {
     resetForm: function (){
         Object.assign(this.$data, initialState());
         this.$refs.form.reset();
-
+        
     },
 
-
+    
 onRenewCertificate() {
   this.$refs.form.validate().then((isValid) => {
     if (isValid) {
       this.passphrase_out_visible = false;
       this.passphrase_out_confirmation_visible = false;
       this.passphrase_in_visible = false;
+      console.log(this.renew_certificate);
       certificates.renew(this.certrenew.id, this.renew_certificate).then( response  => {
           this.$emit('update-dasboard');
           this.resetForm();
@@ -297,7 +298,7 @@ onRenewCertificate() {
 }
             ,
 
-
+    
 onCancel(){
   this.resetForm();
   this.$emit('close-dialog');

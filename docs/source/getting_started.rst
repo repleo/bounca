@@ -212,7 +212,8 @@ This create super user form will only be shown if no users exists. After the dat
     python manage.py createsuperuser --username myAdminUser --email myAdminEmail@example.com
 
 
-(Optionally: Set DJANGO_SUPERUSER_PASSWORD Environment variable to set new passwords for ``python manage.py createsuperuser`` command, and execute with ``python manage.py createsuperuser --noinput --username myAdminUser --email myAdminEmail@example.com``)
+Optionally: Set DJANGO_SUPERUSER_PASSWORD Environment variable to set new passwords for ``python manage.py createsuperuser`` command, and execute with ``python manage.py createsuperuser --noinput --username myAdminUser --email myAdminEmail@example.com``
+In case you set the mandatory email verification flag in the settings (default behavior), you can set the email verify flag of the user with ``python manage.py verify_email myAdminEmail@example.com``
 
 
 BounCA should be up and running, you can reach your BounCA installation by browsing to your BounCA machine.
