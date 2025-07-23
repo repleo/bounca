@@ -310,6 +310,9 @@ class Certificate(models.Model):
             self.crlstore.crl = serialize(crl)
             self.crlstore.save()
 
+    def force_delete(self, *args, **kwargs):
+        return super().delete(*args, **kwargs)
+
     def delete(self, *args, **kwargs):
         if self.revoked_at:
             return

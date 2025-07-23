@@ -106,7 +106,7 @@ INSTALLED_APPS = [
     "django_filters",
     "django_property_filter",
     "django_countries",
-    "rest_framework_swagger",
+    "drf_yasg",
     "dj_rest_auth",
     "dj_rest_auth.registration",
     # BounCA
@@ -161,8 +161,10 @@ if "email_verification" in SERVICES["registration"] and SERVICES["registration"]
     "optional",
 ]:
     ACCOUNT_EMAIL_VERIFICATION = SERVICES["registration"]["email_verification"]
-ACCOUNT_EMAIL_REQUIRED = ACCOUNT_EMAIL_VERIFICATION in ["mandatory", "optional"]
-ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+ACCOUNT_SIGNUP_FIELDS = ['username*', 'password1*', 'password2*']
+if ACCOUNT_EMAIL_VERIFICATION in ["mandatory", "optional"]:
+    ACCOUNT_SIGNUP_FIELDS += ['email*']
+ACCOUNT_LOGIN_METHODS = {'username', 'email'}
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
     "django.contrib.auth.backends.ModelBackend",

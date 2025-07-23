@@ -23,6 +23,12 @@
       >
       <forms-UserChangePassword ref="changePassword" @success="showDialog($event)"/>
       </v-flex>
+      <v-flex
+        xs12
+        md8
+      >
+      <forms-UserRemoveAccount ref="removeAccount" @success="showDialog($event)"/>
+      </v-flex>
 
       <v-flex
         xs12
