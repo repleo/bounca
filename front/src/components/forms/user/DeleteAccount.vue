@@ -25,6 +25,12 @@
     
     <v-row class="" >
         <v-col class="" >
+        Deleting of your account is irreversible. All information associated with your account will be permanently deleted, including removal of all your certificates.
+</v-col>
+
+</v-row>
+<v-row class="" >
+        <v-col class="" >
         
 
 
@@ -63,9 +69,9 @@
     Cancel
 </v-btn>
 <v-btn
-       @click="deleteAccount" color="secondary" dark class=" px-6"
+       @click="deleteAccount" color="red" dark class=" px-6 darken-2"
 >
-    Update
+    Delete
 </v-btn>
 
 </v-card-actions>

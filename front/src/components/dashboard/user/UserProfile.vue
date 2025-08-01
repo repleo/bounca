@@ -23,12 +23,6 @@
       >
       <forms-UserChangePassword ref="changePassword" @success="showDialog($event)"/>
       </v-flex>
-      <v-flex
-        xs12
-        md8
-      >
-      <forms-UserRemoveAccount ref="removeAccount" @success="showDialog($event)"/>
-      </v-flex>
 
       <v-flex
         xs12
@@ -75,6 +69,12 @@
 
       </v-flex>
 
+      <v-flex
+        xs12
+        md8
+      >
+      <forms-UserDeleteAccount ref="deleteAccount" @success="showDialog($event)"/>
+      </v-flex>
     </v-layout>
 
     <v-dialog v-model='addTokenDialog' width='800px'>

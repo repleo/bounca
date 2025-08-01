@@ -27,6 +27,22 @@ class Submit(BaseInput):
         self.field_classes = ""
         super().__init__(*args, **kwargs)
 
+class DangerButton(BaseInput):
+    """
+    Used to create a Submit button descriptor for the {% crispy %} template tag::
+
+        submit = Submit('Search the Site', 'search this site')
+
+    .. note:: The first argument is also slugified and turned into the id for the submit button.
+    """
+
+    input_type = "submit"
+
+    def __init__(self, *args, **kwargs):
+        kwargs.update({"dark": True, "color": "red"})
+        self.field_classes = ""
+        super().__init__(*args, **kwargs)
+
 
 class Button(BaseInput):
     """
@@ -619,7 +635,6 @@ class ChangePasswordForm(SetPasswordForm, VuetifyFormMixin):
                 Button("cancel", "Cancel", **{"@click": "onCancel"}),
                 Submit("submit", "Update", **{"@click": "updatePassword", "css_class": "px-6"}),
                 css_class="mt-4",
-                #TODO BJA outlined=True,
             ),
         )
         self.vue_imports = [("profile", "../../../api/profile")]
@@ -677,7 +692,6 @@ class ChangeProfileForm(UserChangeForm, VuetifyFormMixin):
                 Button("cancel", "Cancel", **{"@click": "onCancel"}),
                 Submit("submit", "Update", **{"@click": "updateProfile", "css_class": "px-6"}),
                 css_class="mt-4",
-                #TODO BJA outlined=True,
             ),
         )
         self.vue_imports = [("profile", "../../../api/profile")]
@@ -739,7 +753,6 @@ class AddTokenForm(TokenForm, VuetifyFormMixin):
                 Button("cancel", "Cancel", **{"@click": "onCancel"}),
                 Submit("submit", "Add", **{"@click": "createToken", "css_class": "px-6"}),
                 css_class="mt-4",
-                #TODO BJA outlined=True,
             ),
         )
         self.vue_imports = [("apptokens", "../../../api/apptokens")]
@@ -783,13 +796,17 @@ class DeleteAccountForm(DeleteAccountForm, VuetifyFormMixin):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
+
+    Row(Column(
+               HTML(
+                "Deleting of your account is irreversible. All information associated with your account will be permanently deleted, including removal of all your certificates."),
+            )),
             Row(Column("password")),
             ButtonHolder(
                 VueSpacer(),
                 Button("cancel", "Cancel", **{"@click": "onCancel"}),
-                Submit("submit", "Update", **{"@click": "deleteAccount", "css_class": "px-6"}),
+                DangerButton("submit", "Delete", **{"@click": "deleteAccount", "css_class": "px-6 darken-2"}),
                 css_class="mt-4",
-                #TODO BJA outlined=True,
             ),
         )
         self.vue_imports = [("profile", "../../../api/profile")]

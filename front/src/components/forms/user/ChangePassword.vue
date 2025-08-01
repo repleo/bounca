@@ -71,6 +71,9 @@
 
 
 
+<v-tooltip bottom>
+<template v-slot:activator="{ on, attrs }">
+
 <ValidationProvider name="New password confirmation" vid="new_password2"
                     rules="required" v-slot="{ errors }">
 
@@ -86,11 +89,18 @@
   required
   
   
+  v-bind="attrs"
+  v-on="on"
+  
 ></v-text-field>
 
 
 
 </ValidationProvider>
+
+</template>
+<span>Enter the same password as before, for verification.</span>
+</v-tooltip>
 
 
 
