@@ -36,24 +36,36 @@
 
 
 
+<v-tooltip bottom>
+<template v-slot:activator="{ on, attrs }">
+
 <ValidationProvider name="Password" vid="password"
-                    rules="max:128|required" v-slot="{ errors }">
+                    rules="required" v-slot="{ errors }">
 
 <v-text-field
   label="Password*"
   v-model="password.password"
   :error-messages="errors"
   
-  type="text"
+  :append-icon="password_visible ? 'visibility' : 'visibility_off'"
+  @click:append="() => (password_visible = !password_visible)"
+  :type="password_visible ? 'text' : 'password' "
   
   required
   
+  
+  v-bind="attrs"
+  v-on="on"
   
 ></v-text-field>
 
 
 
 </ValidationProvider>
+
+</template>
+<span>Enter your password to confirm account deletion.</span>
+</v-tooltip>
 
 
 
@@ -96,7 +108,7 @@ import profile from '../../../api/profile';
 
 
 function initialState (){
-  const data = {"dialog": false, "password": {"password": ""}};
+  const data = {"dialog": false, "password_visible": false, "password": {"password": ""}};
   
   return data;
 }
@@ -125,8 +137,8 @@ deleteAccount() {
   this.$refs.form.validate().then((isValid) => {
     if (isValid) {
       this.password_visible = false;
-      profile.deleteAccountPassword(this.password).then( response  => {
-          this.$emit('success', 'Password has been updated.');
+      profile.deleteAccount(this.password).then( response  => {
+          this.$emit('success', 'Account has been deleted.');
           this.resetForm();
       }).catch( r => {
         this.$refs.form.setErrors(r.response.data);

@@ -9,6 +9,7 @@ from api.models import AuthorisedApp
 from vuetifyforms.components import VueField, VueSpacer
 from vuetifyforms.vue import VuetifyFormMixin
 from x509_pki.models import Certificate, DistinguishedName
+from django.utils.translation import gettext_lazy as _
 
 
 class Submit(BaseInput):
@@ -784,12 +785,20 @@ onCancel(){
         ]
 
 
-class DeleteAccountForm(DeleteAccountForm, VuetifyFormMixin):
+class RemoveAccountForm(DeleteAccountForm, VuetifyFormMixin):
     scope_prefix = "user_data"
     vue_file = "front/src/components/forms/user/DeleteAccount.vue"
     form_title = "Delete Account"
     form_component_name = "deleteAccount"
     form_object = "password"
+
+    password = forms.CharField(
+            label=_("Password"),
+            required=True,
+            strip=False,
+            widget=forms.PasswordInput(attrs={"autocomplete": "password"}),
+            help_text=_("Enter your password to confirm account deletion."),
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -818,8 +827,8 @@ deleteAccount() {
   this.$refs.form.validate().then((isValid) => {
     if (isValid) {
       this.password_visible = false;
-      profile.deleteAccountPassword(this.password).then( response  => {
-          this.$emit('success', 'Password has been updated.');
+      profile.deleteAccount(this.password).then( response  => {
+          this.$emit('success', 'Account has been deleted.');
           this.resetForm();
       }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
