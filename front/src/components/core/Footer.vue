@@ -49,7 +49,7 @@ export default {
     links: [
       { name: 'Feature requests', href: 'https://gitlab.com/bounca/bounca/-/issues' },
 
-      { name: 'API', href: '/api' },
+      { name: 'API', href: '/api/swagger' },
       { name: 'Documentation', href: 'https://www.bounca.org/' },
       { name: 'GitLab', href: 'https://gitlab.com/bounca/bounca' },
       { name: 'Twitter', href: 'https://twitter.com/gobounca' },

@@ -1,8 +1,8 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, BaseInput, ButtonHolder, Column, Fieldset, Layout, Row
 from django import forms
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import SetPasswordForm, UserChangeForm
-from django.contrib.auth.models import User
 from django.utils.deconstruct import deconstructible
 
 from api.models import AuthorisedApp
@@ -11,6 +11,7 @@ from vuetifyforms.vue import VuetifyFormMixin
 from x509_pki.models import Certificate, DistinguishedName
 from django.utils.translation import gettext_lazy as _
 
+User = get_user_model()
 
 class Submit(BaseInput):
     """

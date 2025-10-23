@@ -3,7 +3,7 @@ import datetime
 import uuid
 
 import pytz
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -21,6 +21,7 @@ from certificate_engine.ssl.info import get_certificate_fingerprint, get_certifi
 from certificate_engine.ssl.key import Key as KeyGenerator
 from certificate_engine.types import CertificateTypes
 
+User = get_user_model()
 
 class DistinguishedName(models.Model):
     alphanumeric_validator = RegexValidator(

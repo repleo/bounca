@@ -1,6 +1,6 @@
 from django.contrib import admin, messages
 from django.contrib.admin.utils import NestedObjects
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import DEFAULT_DB_ALIAS
 from django.db.models import ProtectedError
 from django.forms import BooleanField, ModelForm
@@ -10,6 +10,7 @@ from x509_pki.models import Certificate
 from . import utils
 from .models import AuthorisedApp
 
+User = get_user_model()
 
 class AuthorisedAppForm(ModelForm):
     generate_new_token = BooleanField(required=False, initial=False)
@@ -40,7 +41,7 @@ class AuthorisedAppForm(ModelForm):
 @admin.register(AuthorisedApp)
 class AppAdmin(admin.ModelAdmin):
     form = AuthorisedAppForm
-    list_display = ("name", "token")
+    list_display = ["user", "name", "token",]
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(AppAdmin, self).get_form(request, obj, **kwargs)

@@ -50,8 +50,9 @@ admin.site.register(DistinguishedName, X509_pki_DistinguishedNameAdmin)
 
 
 class X509_pki_CertificateAdmin(ReadOnlyAdmin):
-    search_fields = ["name", "serial"]
+    search_fields = ["name", "serial", "owner__username"]
     list_display = (
+        "owner",
         "name",
         "parent",
         "type",

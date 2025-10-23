@@ -153,7 +153,7 @@ class CertificateInfoView(APIView):
 
 class ApiRoot(APIView):
     @classmethod
-    def as_view(cls, urlpatterns=[], **initkwargs):
+    def as_view(cls, urlpatterns=list, **initkwargs):
         cls.urlpatterns = urlpatterns
         return super().as_view(**initkwargs)
 
@@ -162,16 +162,22 @@ class ApiRoot(APIView):
         for urlpattern in patterns:
             try:
                 if isinstance(urlpattern, URLResolver):
-                    ret[str(urlpattern.pattern)] = self.get_api_structure(
-                        urlpattern.url_patterns, request, *args, **kwargs
-                    )
+                    if str(urlpattern.pattern) not in ret:
+                        ret[str(urlpattern.pattern)] = {}
+                    ret[str(urlpattern.pattern)] = {
+                        **ret[str(urlpattern.pattern)],
+                        **self.get_api_structure(
+                            urlpattern.url_patterns, request,
+                            *args, **kwargs
+                        )
+                    }
                 else:
                     ret[urlpattern.name] = reverse(
                         urlpattern.name, args=args, kwargs=kwargs, request=request, format=kwargs.get("format", None)
                     )
             except NoReverseMatch:
                 # Don't bail out if eg. no list routes exist, only detail routes.
-                continue
+                pass
         return ret
 
     def get(self, request, *args, **kwargs):

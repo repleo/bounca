@@ -8,6 +8,7 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
 from api.tokens.urls import urlpatterns as urlpatterns_token
+from .auth.views import AccountViewSet
 
 from .views import (
     ApiRoot,
@@ -41,8 +42,9 @@ urlpatterns_apiv1 = [
         name="account_email_verification_sent",
     ),
     path("auth/registration/", include(urlpatterns_registration)),
+    path("account/", AccountViewSet.as_view({
+        'get': 'retrieve', 'delete': 'destroy'}), name="account"),
 ]
-
 
 schema_view = get_schema_view(
    openapi.Info(
