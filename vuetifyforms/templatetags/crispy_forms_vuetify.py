@@ -103,14 +103,14 @@ def _set_sub_field(obj, keys, value):
 
 def _set_field_data(obj, form_object_name, field_name, field):
     if isinstance(field, LazyTypedChoiceField):
-        obj[f'formdata_{form_object_name}_{field_name.replace(".","_")}_values'] = [
+        obj[f'formdata_{form_object_name}_{field_name.replace(".", "_")}_values'] = [
             {"text": v[1], "value": v[0]} for v in field.widget.choices if v[0]
         ]
 
 
 def _set_password_visible_vars(obj, field_name, field):
     if isinstance(field.widget, PasswordInput):
-        obj[f'{field_name.replace(".","_")}_visible'] = False
+        obj[f'{field_name.replace(".", "_")}_visible'] = False
 
 
 def _get_empty_value(field):

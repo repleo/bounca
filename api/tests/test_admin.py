@@ -10,12 +10,11 @@ from api.models import AuthorisedApp
 
 User = get_user_model()
 
-class AuthorisedAppFormTest(TestCase):
 
+class AuthorisedAppFormTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(username="testuser", is_superuser=True)
-        self.authorised_app = AuthorisedApp.objects.create(name="TestApp", token="testtoken",
-                                                           user=self.user)
+        self.authorised_app = AuthorisedApp.objects.create(name="TestApp", token="testtoken", user=self.user)
 
     @patch("api.admin.utils.new_token", return_value="new_generated_token")
     def test_clean_generates_new_token(self, mock_new_token):

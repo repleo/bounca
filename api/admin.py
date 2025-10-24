@@ -12,6 +12,7 @@ from .models import AuthorisedApp
 
 User = get_user_model()
 
+
 class AuthorisedAppForm(ModelForm):
     generate_new_token = BooleanField(required=False, initial=False)
 
@@ -41,14 +42,20 @@ class AuthorisedAppForm(ModelForm):
 @admin.register(AuthorisedApp)
 class AppAdmin(admin.ModelAdmin):
     form = AuthorisedAppForm
-    list_display = ["user", "name", "token",]
+    list_display = [
+        "user",
+        "name",
+        "token",
+    ]
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(AppAdmin, self).get_form(request, obj, **kwargs)
         form.current_user = request.user
         return form
 
+
 admin.site.unregister(User)
+
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):

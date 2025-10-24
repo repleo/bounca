@@ -1,6 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.test import TestCase

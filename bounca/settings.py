@@ -161,10 +161,10 @@ if "email_verification" in SERVICES["registration"] and SERVICES["registration"]
     "optional",
 ]:
     ACCOUNT_EMAIL_VERIFICATION = SERVICES["registration"]["email_verification"]
-ACCOUNT_SIGNUP_FIELDS = ['username*', 'password1*', 'password2*']
+ACCOUNT_SIGNUP_FIELDS = ["username*", "password1*", "password2*"]
 if ACCOUNT_EMAIL_VERIFICATION in ["mandatory", "optional"]:
-    ACCOUNT_SIGNUP_FIELDS += ['email*']
-ACCOUNT_LOGIN_METHODS = {'username', 'email'}
+    ACCOUNT_SIGNUP_FIELDS += ["email*"]
+ACCOUNT_LOGIN_METHODS = {"username", "email"}
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
     "django.contrib.auth.backends.ModelBackend",

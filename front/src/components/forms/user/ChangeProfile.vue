@@ -180,7 +180,7 @@
     </v-form>
     </ValidationObserver>
   </v-card-text>
-
+  
 </v-card>
 </template>
 

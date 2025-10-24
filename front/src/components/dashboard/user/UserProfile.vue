@@ -149,14 +149,8 @@ export default {
   },
   watch: {
     dialogDelete(val) {
-      if (!val) {
-        this.closeRevoke();
-      }
     },
     addTokenDialog(val) {
-      if (!val) {
-        this.$refs.AddTokenForm.resetForm();
-      }
     },
     pagination: {
       handler() {

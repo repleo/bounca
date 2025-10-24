@@ -1,4 +1,5 @@
 """Models for storing subject and certificate information"""
+
 import datetime
 import uuid
 
@@ -22,6 +23,7 @@ from certificate_engine.ssl.key import Key as KeyGenerator
 from certificate_engine.types import CertificateTypes
 
 User = get_user_model()
+
 
 class DistinguishedName(models.Model):
     alphanumeric_validator = RegexValidator(

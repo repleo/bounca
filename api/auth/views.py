@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db.models import ProtectedError
-from django.shortcuts import redirect
-from rest_framework import mixins, serializers, status, exceptions
-from rest_framework.permissions import IsAuthenticated, DjangoObjectPermissions
+from rest_framework import exceptions, mixins, serializers, status
+from rest_framework.permissions import DjangoObjectPermissions, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -14,14 +13,8 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id',
-                  'username',
-                  'email',
-                  'first_name',
-                  'last_name',
-                  'date_joined',
-                  'last_login'
-        ]
+        fields = ["id", "username", "email", "first_name", "last_name", "date_joined", "last_login"]
+
 
 class IsUserOwner(DjangoObjectPermissions):
     def has_permission(self, request, view):
@@ -32,17 +25,13 @@ class IsUserOwner(DjangoObjectPermissions):
         return obj == request.user
 
 
-class AccountViewSet(
-    mixins.DestroyModelMixin, mixins.RetrieveModelMixin, GenericViewSet
-):
+class AccountViewSet(mixins.DestroyModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     """
     A ViewSet for accounts.
     """
 
     serializer_class = UserSerializer
-    permission_classes = [
-        IsAuthenticated, IsUserOwner
-    ]
+    permission_classes = [IsAuthenticated, IsUserOwner]
 
     def get_queryset(self):
         return User.objects.filter(id=self.request.user.id)
@@ -53,18 +42,12 @@ class AccountViewSet(
     def destroy(self, request, *args, **kwargs):
         password = request.data.get("password")
         if not password:
-            return Response(
-                {"password": ["Password is required."]},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"password": ["Password is required."]}, status=status.HTTP_400_BAD_REQUEST)
 
         user = request.user
 
         if not user.check_password(password):
-            return Response(
-                {"password": ["Invalid password."]},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"password": ["Invalid password."]}, status=status.HTTP_400_BAD_REQUEST)
         super().destroy(request, *args, **kwargs)
         raise exceptions.NotAuthenticated()
 
@@ -85,7 +68,3 @@ class AccountViewSet(
                 else:
                     related_obj.delete()
             instance.delete()
-
-
-
-

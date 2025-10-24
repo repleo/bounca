@@ -1,4 +1,5 @@
 """Admin interface definition for certificates"""
+
 from django.contrib import admin
 from django.contrib.admin.utils import flatten_fieldsets
 

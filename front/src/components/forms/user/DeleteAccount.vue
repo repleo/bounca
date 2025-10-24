@@ -95,7 +95,19 @@
     </v-form>
     </ValidationObserver>
   </v-card-text>
-
+  
+<v-dialog v-model="dialogDeleteAccount" max-width="565px">
+  <v-card>
+  <v-card-title class="text-h5">Are you sure you want to delete your account?</v-card-title>
+  <v-card-actions>
+    <v-spacer></v-spacer>
+    <v-btn color="blue darken-1" text @click="closeDialogDeleteAccount">Cancel</v-btn>
+    <v-btn color="blue darken-1" text
+           @click="deleteAccountConfirm">OK</v-btn>
+  </v-card-actions>
+  </v-card>
+</v-dialog>
+        
 </v-card>
 </template>
 
@@ -110,6 +122,8 @@ import profile from '../../../api/profile';
 function initialState (){
   const data = {"dialog": false, "password_visible": false, "password": {"password": ""}};
   
+data['dialogDeleteAccount'] = false;
+            
   return data;
 }
 
@@ -134,17 +148,26 @@ export default {
 
     
 deleteAccount() {
+  this.dialogDeleteAccount = true;
+},
+deleteAccountConfirm() {
   this.$refs.form.validate().then((isValid) => {
     if (isValid) {
       this.password_visible = false;
       profile.deleteAccount(this.password).then( response  => {
           this.$emit('success', 'Account has been deleted.');
           this.resetForm();
+          this.closeDialogDeleteAccount();
       }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
+        this.dialogDeleteAccount = false;
       });
     }
   });
+},
+closeDialogDeleteAccount() {
+  this.resetForm();
+  this.dialogDeleteAccount = false;
 }
             ,
 

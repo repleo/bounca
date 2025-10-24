@@ -166,10 +166,7 @@ class ApiRoot(APIView):
                         ret[str(urlpattern.pattern)] = {}
                     ret[str(urlpattern.pattern)] = {
                         **ret[str(urlpattern.pattern)],
-                        **self.get_api_structure(
-                            urlpattern.url_patterns, request,
-                            *args, **kwargs
-                        )
+                        **self.get_api_structure(urlpattern.url_patterns, request, *args, **kwargs),
                     }
                 else:
                     ret[urlpattern.name] = reverse(
