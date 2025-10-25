@@ -38,4 +38,4 @@ class TrapDjangoValidationErrorCreateMixinTest(TestCase):
         self.serializer.save = Mock(side_effect=PolicyError("Policy error occurred"))
         with self.assertRaises(ValidationError) as context:
             self.mixin.perform_create(self.serializer)
-        self.assertEqual(str(context.exception.detail), "Policy error occurred")
+        self.assertEqual(context.exception.detail[0], "Policy error occurred")

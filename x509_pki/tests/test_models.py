@@ -454,10 +454,10 @@ class ModelCertificateTest(TestCase):
         )
         cert = CertificateFactory(dn=dn_ca, type=CertificateTypes.ROOT)
         cert.expires_at = arrow.get(timezone.now()).shift(years=+10).date()
-        self.assertEqual(cert.days_valid, 3653)
+        self.assertEqual(cert.days_valid, 3652)
         cert.save()
         cert.refresh_from_db()
-        self.assertEqual(cert.days_valid, 3653)
+        self.assertEqual(cert.days_valid, 3652)
 
     def test_set_name_to_common_name(self):
         dn_ca = DistinguishedNameFactory(

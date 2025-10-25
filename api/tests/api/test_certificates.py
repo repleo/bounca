@@ -436,7 +436,7 @@ class ServerCertificateTest(APILoginTestCase):
             result,
             {
                 "crl_distribution_url": None,
-                "days_valid": 731,
+                "days_valid": 730,
                 "dn": {
                     "commonName": "www.repleo.nl-revoke",
                     "countryName": "NL",
