@@ -13,7 +13,7 @@ services:
 
 
 variables:
-  CONTAINER_PYTHON_IMAGE: python:3.9
+  CONTAINER_PYTHON_IMAGE: python:3.13
   CONTAINER_NODE_IMAGE: node:17
   POSTGRES_DB: bounca
   POSTGRES_USER: bounca
