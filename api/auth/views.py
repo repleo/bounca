@@ -21,7 +21,6 @@ class IsUserOwner(DjangoObjectPermissions):
         return True
 
     def has_object_permission(self, request, view, obj):
-        pass
         return obj == request.user
 
 
