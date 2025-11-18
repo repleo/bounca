@@ -118,10 +118,11 @@ createuser bounca
 createdb --owner=bounca bounca --encoding=UTF8 --template=template0
 psql -c "ALTER USER bounca WITH createdb" postgres
 ```
+Note: the switch user step is not necessary when using postgres on MacOS installed using Brew.
 
 Optionally, set a password for the `bounca` user.
 ```
-psql -c "ALTER USER bounca PASSWORD '<your password>'"
+psql -c "ALTER USER bounca PASSWORD '<your password>'" postgress
 ```
 
 Don't forget to go back to your normal user, for example by using the command `exit`.
@@ -309,7 +310,7 @@ service nginx restart
 
 ## License
 
-Apache License v2 - (c) 2016-2023, Repleo, Amsterdam
+Apache License v2 - (c) 2016-2025, Repleo, Amsterdam
 
 ## Author Information
 
