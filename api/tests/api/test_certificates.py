@@ -431,12 +431,13 @@ class ServerCertificateTest(APILoginTestCase):
         self.assertNotEqual(renewed_cert_id, cert.id)
         self.assertIsNotNone(result.pop("keystore"))
         self.assertIsNotNone(result.pop("serial"))
+        days_valid = result.pop("days_valid")
+        self.assertIn(days_valid, [730, 731])  # Can vary due to leap years and time of day
 
         self.assertDictEqual(
             result,
             {
                 "crl_distribution_url": None,
-                "days_valid": 731,
                 "dn": {
                     "commonName": "www.repleo.nl-revoke",
                     "countryName": "NL",
