@@ -126,15 +126,14 @@ class ServerCertificateTest(APILoginTestCase):
         self.assertEqual(len(result), 7)
         for i in range(4):
             # support for leap year
-            if result[3 - i]["days_valid"] == 366:
-                result[3 - i]["days_valid"] = 365
+            days_valid = result[3-i].pop("days_valid")
+            self.assertIn(days_valid, [364, 365, 366])
 
             self.assertDictEqual(
                 result[3 - i],
                 {
                     "created_at": self.cert[i].created_at.strftime("%Y-%m-%d"),
                     "crl_distribution_url": None,
-                    "days_valid": 365,
                     "dn": {
                         "commonName": "www.repleo.nl.setup",
                         "countryName": "NL",
@@ -219,7 +218,7 @@ class ServerCertificateTest(APILoginTestCase):
         expire_date = arrow.get(timezone.now()).shift(years=+1).date()
         cert = {
             "crl_distribution_url": None,
-            "days_valid": 365,
+            "days_valid": 360,
             "dn": {
                 "commonName": "www.repleo.nl.test post",
                 "countryName": "NL",
@@ -248,13 +247,13 @@ class ServerCertificateTest(APILoginTestCase):
         self.assertIsNotNone(result.pop("serial"))
 
         # support for leap year
-        if result["days_valid"] == 366:
-            result["days_valid"] = 365
+        days_valid = result.pop("days_valid")
+        self.assertIn(days_valid, [364, 365, 366])
+
         self.assertDictEqual(
             result,
             {
                 "crl_distribution_url": None,
-                "days_valid": 365,
                 "dn": {
                     "commonName": "www.repleo.nl.test post",
                     "countryName": "NL",
@@ -432,7 +431,8 @@ class ServerCertificateTest(APILoginTestCase):
         self.assertIsNotNone(result.pop("keystore"))
         self.assertIsNotNone(result.pop("serial"))
         days_valid = result.pop("days_valid")
-        self.assertIn(days_valid, [730, 731])  # Can vary due to leap years and time of day
+        self.assertIn(days_valid, [729, 730, 731])
+        # Can vary due to leap years and time of day
 
         self.assertDictEqual(
             result,

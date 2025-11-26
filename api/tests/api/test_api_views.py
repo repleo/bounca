@@ -8,6 +8,9 @@ from rest_framework.exceptions import ValidationError, PermissionDenied
 
 from api.tests.base import APILoginTestCase
 from api.tests.factories import AuthorisedAppFactory
+from certificate_engine.types import CertificateTypes
+from x509_pki.models import Certificate
+from x509_pki.tests.factories import CertificateFactory
 
 User = get_user_model()
 
@@ -249,14 +252,12 @@ class ViewSetSerializationTest(APILoginTestCase):
         # Probeer een POST met read-only velden
         response = self.client.post('/api/v1/certificates', {
             'id': 999,  # Read-only veld
-        })
+        }, format='json')
 
         # Moet een validation error of 400 zijn als de API bestaat
-        if response.status_code not in [status.HTTP_404_NOT_FOUND, status.HTTP_401_UNAUTHORIZED]:
-            self.assertIn(response.status_code, [
-                status.HTTP_400_BAD_REQUEST,
-                status.HTTP_403_FORBIDDEN
-            ])
+        self.assertIn(response.status_code, [
+            status.HTTP_400_BAD_REQUEST
+        ])
 
     def test_serializer_write_only_fields_not_in_response(self):
         """Test dat write-only velden niet in response zitten"""
@@ -289,41 +290,56 @@ class ViewSetValidationTest(APILoginTestCase):
         """Test create met ongeldige data"""
         response = self.client.post('/api/v1/certificates', {
             'invalid_field': 'value'
-        })
+        }, format='json')
 
-        if response.status_code not in [status.HTTP_404_NOT_FOUND]:
-            self.assertIn(response.status_code, [
-                status.HTTP_400_BAD_REQUEST,
-                status.HTTP_403_FORBIDDEN
-            ])
+        self.assertIn(response.status_code, [
+            status.HTTP_400_BAD_REQUEST,
+        ])
 
-    def test_update_with_invalid_data(self):
+    def test_update_with_invalid_data_cert_not_found(self):
         """Test update met ongeldige data"""
         response = self.client.put('/api/v1/certificates/1', {
             'invalid_field': 'value'
-        })
+        }, format='json')
 
-        if response.status_code not in [status.HTTP_404_NOT_FOUND]:
-            self.assertIn(response.status_code, [
-                status.HTTP_400_BAD_REQUEST,
-                status.HTTP_403_FORBIDDEN
-            ])
+        self.assertIn(response.status_code, [
+            status.HTTP_405_METHOD_NOT_ALLOWED
+        ])
+
+
+    def test_update_with_invalid_data(self):
+        """Test update met ongeldige data"""
+        certificate = CertificateFactory(owner=self.user)
+        certificate.save()
+        response = self.client.put(f'/api/v1/certificates/{certificate.id}', {
+            'invalid_field': 'value'
+        }, format='json')
+
+        self.assertIn(response.status_code, [
+            status.HTTP_405_METHOD_NOT_ALLOWED
+        ])
 
     def test_create_with_missing_required_fields(self):
         """Test create zonder verplichte velden"""
-        response = self.client.post('/api/v1/certificates', {})
+        response = self.client.post('/api/v1/certificates', {},
+                                    format='json')
 
-        if response.status_code == status.HTTP_400_BAD_REQUEST:
-            # Moet validation errors bevatten
-            self.assertIsNotNone(response.data)
+        self.assertIn(response.status_code, [
+            status.HTTP_400_BAD_REQUEST
+        ])
+        # Moet validation errors bevatten
+        self.assertIsNotNone(response.data)
 
     def test_field_validation_errors_format(self):
         """Test format van field validation errors"""
-        response = self.client.post('/api/v1/certificates', {})
+        response = self.client.post('/api/v1/certificates', {},
+                                    format='json')
 
-        if response.status_code == status.HTTP_400_BAD_REQUEST:
-            # Errors moeten in dict formaat zijn
-            self.assertIsInstance(response.data, dict)
+        self.assertIn(response.status_code, [
+            status.HTTP_400_BAD_REQUEST
+        ])
+        # Errors moeten in dict formaat zijn
+        self.assertIsInstance(response.data, dict)
 
 
 class ViewSetFilteringTest(APILoginTestCase):
@@ -336,20 +352,22 @@ class ViewSetFilteringTest(APILoginTestCase):
 
     def test_filter_by_single_field(self):
         """Test filtering op enkel veld"""
+        certificate = CertificateFactory(owner=self.user, name='test')
+        certificate.save()
         response = self.client.get('/api/v1/certificates?name=test')
 
         self.assertIn(response.status_code, [
-            status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
-        ])
+            status.HTTP_200_OK        ])
 
     def test_filter_by_multiple_fields(self):
         """Test filtering op meerdere velden"""
+        certificate = CertificateFactory(owner=self.user, name='test', type=CertificateTypes.ROOT)
+        certificate.save()
+
         response = self.client.get('/api/v1/certificates?name=test&type=R')
 
         self.assertIn(response.status_code, [
-            status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
+            status.HTTP_200_OK
         ])
 
     def test_filter_with_invalid_value(self):
@@ -358,29 +376,29 @@ class ViewSetFilteringTest(APILoginTestCase):
 
         # Moet ofwel 400 ofwel 200 met lege results zijn
         self.assertIn(response.status_code, [
-            status.HTTP_200_OK,
             status.HTTP_400_BAD_REQUEST,
-            status.HTTP_404_NOT_FOUND
         ])
 
     def test_filter_case_insensitive(self):
         """Test case-insensitive filtering"""
+        certificate = CertificateFactory(owner=self.user, name='test')
+        certificate.save()
         response = self.client.get('/api/v1/certificates?name__icontains=TEST')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
         ])
 
     def test_filter_by_date_range(self):
         """Test filtering op datum range"""
+        certificate = CertificateFactory(owner=self.user)
+        certificate.save()
         response = self.client.get(
             '/api/v1/certificates?created_at__gte=2024-01-01'
         )
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
         ])
 
 
@@ -394,40 +412,43 @@ class ViewSetOrderingTest(APILoginTestCase):
 
     def test_ordering_ascending(self):
         """Test ascending ordering"""
+        certificate = CertificateFactory(owner=self.user, name='test')
+        certificate.save()
         response = self.client.get('/api/v1/certificates?ordering=name')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
         ])
 
     def test_ordering_descending(self):
         """Test descending ordering"""
+        certificate = CertificateFactory(owner=self.user, name='test')
+        certificate.save()
         response = self.client.get('/api/v1/certificates?ordering=-name')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
         ])
 
     def test_ordering_multiple_fields(self):
         """Test ordering op meerdere velden"""
+        certificate = CertificateFactory(owner=self.user, name='test')
+        certificate.save()
         response = self.client.get('/api/v1/certificates?ordering=name,-created_at')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
         ])
 
     def test_ordering_invalid_field(self):
         """Test ordering op ongeldig veld"""
+        certificate = CertificateFactory(owner=self.user, name='test')
+        certificate.save()
         response = self.client.get('/api/v1/certificates?ordering=invalid_field')
 
         # Moet ofwel succesvol zijn (ignored) of error
         self.assertIn(response.status_code, [
-            status.HTTP_200_OK,
-            status.HTTP_400_BAD_REQUEST,
-            status.HTTP_404_NOT_FOUND
+            status.HTTP_400_BAD_REQUEST
         ])
 
 
@@ -441,38 +462,42 @@ class ViewSetSearchTest(APILoginTestCase):
 
     def test_search_single_term(self):
         """Test search met enkele term"""
+        certificate = CertificateFactory(owner=self.user, name='test')
+        certificate.save()
         response = self.client.get('/api/v1/certificates?search=test')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
         ])
 
     def test_search_multiple_terms(self):
         """Test search met meerdere termen"""
+        certificate = CertificateFactory(owner=self.user, name='certificate')
+        certificate.save()
         response = self.client.get('/api/v1/certificates?search=test+certificate')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
         ])
 
     def test_search_empty_string(self):
         """Test search met lege string"""
+        certificate = CertificateFactory(owner=self.user, name='certificate')
+        certificate.save()
         response = self.client.get('/api/v1/certificates?search=')
 
         # Moet alle resultaten retourneren
         self.assertIn(response.status_code, [
-            status.HTTP_200_OK,
             status.HTTP_404_NOT_FOUND
         ])
 
     def test_search_special_characters(self):
         """Test search met speciale karakters"""
+        certificate = CertificateFactory(owner=self.user, name='certificate')
+        certificate.save()
         response = self.client.get('/api/v1/certificates?search=test@#$%')
 
         self.assertIn(response.status_code, [
-            status.HTTP_200_OK,
             status.HTTP_404_NOT_FOUND
         ])
 
