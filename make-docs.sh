@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -e
+#!/usr/bin/env -S bash -e
 
 WORKDIR=`dirname "$0"`
 PYTHON=`which python3`

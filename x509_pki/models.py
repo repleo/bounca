@@ -282,6 +282,7 @@ class Certificate(models.Model):
         self.pk = None
         self.revoked_at = None
         self.revoked_uuid = 0
+        self.serial = uuid.uuid4()  # Generate new serial number for renewed certificate
         # https://blog.nirmites.com/how-to-duplicate-model-instances-in-django-and-populate-the-database-quickly/
         # might break in the future
         self._state.adding = True

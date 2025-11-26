@@ -289,6 +289,7 @@ class ModelCertificateTest(TestCase):
 
     def test_renew_server_certificate(self):
         old_pk = self.cert.pk
+        old_serial = self.cert.serial
         self.cert.renew(expires_at=arrow.get(timezone.now()).shift(years=+2).date())
         cert_old = Certificate.objects.get(pk=old_pk)
 
@@ -311,6 +312,7 @@ class ModelCertificateTest(TestCase):
         self.assertEqual(self.cert.owner, self.user)
         self.assertEqual(self.cert.revoked_uuid, UUID(int=0))
         self.assertNotEqual(self.cert.serial, 0)
+        self.assertNotEqual(self.cert.serial, old_serial)  # Serial number must change on renewal
         self.assertIsNone(self.cert.slug_revoked_at)
         self.assertFalse(self.cert.revoked)
         self.assertFalse(self.cert.expired)
