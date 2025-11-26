@@ -24,17 +24,17 @@ class APIViewsTestCase(APILoginTestCase):
     def test_viewset_list_action(self):
         """Test list action retourneert alle objecten voor de gebruiker"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.get('/api/v1/certificates/')
+        response = self.client.get('/api/v1/certificates')
 
         # Verifieer response
-        self.assertIn(response.status_code, [status.HTTP_200_OK, status.HTTP_404_NOT_FOUND])
+        self.assertIn(response.status_code, [status.HTTP_200_OK])
 
     def test_viewset_retrieve_action(self):
         """Test retrieve action haalt één object op"""
         self.client.force_authenticate(user=self.user)
 
         # Probeer object op te halen (kan 404 zijn als er geen data is)
-        response = self.client.get('/api/v1/certificates/1/')
+        response = self.client.get('/api/v1/certificates/1')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
@@ -43,38 +43,36 @@ class APIViewsTestCase(APILoginTestCase):
 
     def test_viewset_create_action_unauthenticated(self):
         """Test create action zonder authenticatie"""
-        response = self.client.post('/api/v1/certificates/', {})
+        response = self.client.post('/api/v1/certificates', {})
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_viewset_update_action_unauthenticated(self):
         """Test update action zonder authenticatie"""
-        response = self.client.put('/api/v1/certificates/1/', {})
+        response = self.client.put('/api/v1/certificates/1', {})
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_viewset_delete_action_unauthenticated(self):
         """Test delete action zonder authenticatie"""
-        response = self.client.delete('/api/v1/certificates/1/')
+        response = self.client.delete('/api/v1/certificates/1')
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_viewset_partial_update_action_unauthenticated(self):
         """Test partial update action zonder authenticatie"""
-        response = self.client.patch('/api/v1/certificates/1/', {})
+        response = self.client.patch('/api/v1/certificates/1', {})
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_viewset_list_with_authentication(self):
         """Test list action met authenticatie"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.get('/api/v1/certificates/')
+        response = self.client.get('/api/v1/certificates')
 
         # Moet ofwel succesvol zijn ofwel een legitieme error
         self.assertIn(response.status_code, [
-            status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND,
-            status.HTTP_403_FORBIDDEN
+            status.HTTP_200_OK
         ])
 
     def test_viewset_queryset_filtered_by_user(self):
@@ -86,7 +84,7 @@ class APIViewsTestCase(APILoginTestCase):
         )
 
         self.client.force_authenticate(user=self.user)
-        response = self.client.get('/api/v1/certificates/')
+        response = self.client.get('/api/v1/certificates')
 
         # Response mag geen data van andere gebruiker bevatten
         if response.status_code == status.HTTP_200_OK and 'results' in response.data:
@@ -97,7 +95,7 @@ class APIViewsTestCase(APILoginTestCase):
     def test_viewset_options_action(self):
         """Test OPTIONS request voor metadata"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.options('/api/v1/certificates/')
+        response = self.client.options('/api/v1/certificates')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('name', response.data)
@@ -105,7 +103,7 @@ class APIViewsTestCase(APILoginTestCase):
     def test_viewset_with_pagination(self):
         """Test list action met paginering"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.get('/api/v1/certificates/?page=1')
+        response = self.client.get('/api/v1/certificates?page=1')
 
         if response.status_code == status.HTTP_200_OK:
             # Verifieer pagination velden
@@ -117,47 +115,43 @@ class APIViewsTestCase(APILoginTestCase):
     def test_viewset_with_ordering(self):
         """Test list action met ordering parameter"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.get('/api/v1/certificates/?ordering=name')
+        response = self.client.get('/api/v1/certificates?ordering=name')
 
         self.assertIn(response.status_code, [
-            status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
+            status.HTTP_200_OK
         ])
 
     def test_viewset_with_search(self):
         """Test list action met search parameter"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.get('/api/v1/certificates/?search=test')
+        response = self.client.get('/api/v1/certificates?search=test')
 
         self.assertIn(response.status_code, [
-            status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
+            status.HTTP_200_OK
         ])
 
     def test_viewset_with_filtering(self):
         """Test list action met filter parameters"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.get('/api/v1/certificates/?type=root')
+        response = self.client.get('/api/v1/certificates?type=R')
 
         self.assertIn(response.status_code, [
-            status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
+            status.HTTP_200_OK
         ])
 
     def test_viewset_head_request(self):
         """Test HEAD request"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.head('/api/v1/certificates/')
+        response = self.client.head('/api/v1/certificates')
 
         self.assertIn(response.status_code, [
-            status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
+            status.HTTP_200_OK
         ])
 
     def test_viewset_invalid_pk_format(self):
         """Test retrieve met ongeldige PK format"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.get('/api/v1/certificates/invalid-pk/')
+        response = self.client.get('/api/v1/certificates/invalid-pk')
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -165,7 +159,7 @@ class APIViewsTestCase(APILoginTestCase):
         """Test request met Accept: application/json header"""
         self.client.force_authenticate(user=self.user)
         response = self.client.get(
-            '/api/v1/certificates/',
+            '/api/v1/certificates',
             HTTP_ACCEPT='application/json'
         )
 
@@ -175,7 +169,7 @@ class APIViewsTestCase(APILoginTestCase):
     def test_viewset_cors_headers(self):
         """Test CORS headers in response"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.options('/api/v1/certificates/')
+        response = self.client.options('/api/v1/certificates')
 
         # Verifieer dat CORS headers mogelijk aanwezig zijn
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -189,13 +183,13 @@ class ViewSetPermissionsTest(APILoginTestCase):
         self.client = APIClient()
 
         # Zonder authenticatie
-        response = self.client.get('/api/v1/certificates/')
+        response = self.client.get('/api/v1/certificate')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_authenticated_user_has_access(self):
         """Test dat geauthenticeerde gebruiker toegang heeft"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.get('/api/v1/certificates/')
+        response = self.client.get('/api/v1/certificates')
 
         # Moet geen 401 zijn
         self.assertNotEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -209,7 +203,7 @@ class ViewSetPermissionsTest(APILoginTestCase):
         )
 
         self.client.force_authenticate(user=superuser)
-        response = self.client.get('/api/v1/certificates/')
+        response = self.client.get('/api/v1/certificates')
 
         # Moet geen permission denied zijn
         self.assertNotEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -225,7 +219,7 @@ class ViewSetPermissionsTest(APILoginTestCase):
 
         # Probeer toegang tot data van andere gebruiker
         # Dit is afhankelijk van de specifieke implementatie
-        response = self.client.get('/api/v1/certificates/')
+        response = self.client.get('/api/v1/certificates')
 
         if response.status_code == status.HTTP_200_OK:
             # Verifieer dat response geen data van andere gebruiker bevat
@@ -242,7 +236,7 @@ class ViewSetSerializationTest(APILoginTestCase):
 
     def test_serializer_fields_in_response(self):
         """Test dat alle vereiste velden in response zitten"""
-        response = self.client.get('/api/v1/certificates/')
+        response = self.client.get('/api/v1/certificates')
 
         if response.status_code == status.HTTP_200_OK and 'results' in response.data:
             if len(response.data['results']) > 0:
@@ -253,7 +247,7 @@ class ViewSetSerializationTest(APILoginTestCase):
     def test_serializer_read_only_fields(self):
         """Test dat read-only velden niet kunnen worden gewijzigd"""
         # Probeer een POST met read-only velden
-        response = self.client.post('/api/v1/certificates/', {
+        response = self.client.post('/api/v1/certificates', {
             'id': 999,  # Read-only veld
         })
 
@@ -266,7 +260,7 @@ class ViewSetSerializationTest(APILoginTestCase):
 
     def test_serializer_write_only_fields_not_in_response(self):
         """Test dat write-only velden niet in response zitten"""
-        response = self.client.get('/api/v1/certificates/')
+        response = self.client.get('/api/v1/certificates')
 
         if response.status_code == status.HTTP_200_OK and 'results' in response.data:
             if len(response.data['results']) > 0:
@@ -276,7 +270,7 @@ class ViewSetSerializationTest(APILoginTestCase):
 
     def test_nested_serializer_representation(self):
         """Test geneste serializer representatie"""
-        response = self.client.get('/api/v1/certificates/')
+        response = self.client.get('/api/v1/certificates')
 
         if response.status_code == status.HTTP_200_OK:
             # Response moet valid JSON zijn
@@ -293,7 +287,7 @@ class ViewSetValidationTest(APILoginTestCase):
 
     def test_create_with_invalid_data(self):
         """Test create met ongeldige data"""
-        response = self.client.post('/api/v1/certificates/', {
+        response = self.client.post('/api/v1/certificates', {
             'invalid_field': 'value'
         })
 
@@ -305,7 +299,7 @@ class ViewSetValidationTest(APILoginTestCase):
 
     def test_update_with_invalid_data(self):
         """Test update met ongeldige data"""
-        response = self.client.put('/api/v1/certificates/1/', {
+        response = self.client.put('/api/v1/certificates/1', {
             'invalid_field': 'value'
         })
 
@@ -317,7 +311,7 @@ class ViewSetValidationTest(APILoginTestCase):
 
     def test_create_with_missing_required_fields(self):
         """Test create zonder verplichte velden"""
-        response = self.client.post('/api/v1/certificates/', {})
+        response = self.client.post('/api/v1/certificates', {})
 
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             # Moet validation errors bevatten
@@ -325,7 +319,7 @@ class ViewSetValidationTest(APILoginTestCase):
 
     def test_field_validation_errors_format(self):
         """Test format van field validation errors"""
-        response = self.client.post('/api/v1/certificates/', {})
+        response = self.client.post('/api/v1/certificates', {})
 
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             # Errors moeten in dict formaat zijn
@@ -342,7 +336,7 @@ class ViewSetFilteringTest(APILoginTestCase):
 
     def test_filter_by_single_field(self):
         """Test filtering op enkel veld"""
-        response = self.client.get('/api/v1/certificates/?name=test')
+        response = self.client.get('/api/v1/certificates?name=test')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
@@ -351,7 +345,7 @@ class ViewSetFilteringTest(APILoginTestCase):
 
     def test_filter_by_multiple_fields(self):
         """Test filtering op meerdere velden"""
-        response = self.client.get('/api/v1/certificates/?name=test&type=root')
+        response = self.client.get('/api/v1/certificates?name=test&type=R')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
@@ -360,7 +354,7 @@ class ViewSetFilteringTest(APILoginTestCase):
 
     def test_filter_with_invalid_value(self):
         """Test filtering met ongeldige waarde"""
-        response = self.client.get('/api/v1/certificates/?id=invalid')
+        response = self.client.get('/api/v1/certificates?id=invalid')
 
         # Moet ofwel 400 ofwel 200 met lege results zijn
         self.assertIn(response.status_code, [
@@ -371,7 +365,7 @@ class ViewSetFilteringTest(APILoginTestCase):
 
     def test_filter_case_insensitive(self):
         """Test case-insensitive filtering"""
-        response = self.client.get('/api/v1/certificates/?name__icontains=TEST')
+        response = self.client.get('/api/v1/certificates?name__icontains=TEST')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
@@ -381,7 +375,7 @@ class ViewSetFilteringTest(APILoginTestCase):
     def test_filter_by_date_range(self):
         """Test filtering op datum range"""
         response = self.client.get(
-            '/api/v1/certificates/?created_at__gte=2024-01-01'
+            '/api/v1/certificates?created_at__gte=2024-01-01'
         )
 
         self.assertIn(response.status_code, [
@@ -400,7 +394,7 @@ class ViewSetOrderingTest(APILoginTestCase):
 
     def test_ordering_ascending(self):
         """Test ascending ordering"""
-        response = self.client.get('/api/v1/certificates/?ordering=name')
+        response = self.client.get('/api/v1/certificates?ordering=name')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
@@ -409,7 +403,7 @@ class ViewSetOrderingTest(APILoginTestCase):
 
     def test_ordering_descending(self):
         """Test descending ordering"""
-        response = self.client.get('/api/v1/certificates/?ordering=-name')
+        response = self.client.get('/api/v1/certificates?ordering=-name')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
@@ -418,7 +412,7 @@ class ViewSetOrderingTest(APILoginTestCase):
 
     def test_ordering_multiple_fields(self):
         """Test ordering op meerdere velden"""
-        response = self.client.get('/api/v1/certificates/?ordering=name,-created_at')
+        response = self.client.get('/api/v1/certificates?ordering=name,-created_at')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
@@ -427,7 +421,7 @@ class ViewSetOrderingTest(APILoginTestCase):
 
     def test_ordering_invalid_field(self):
         """Test ordering op ongeldig veld"""
-        response = self.client.get('/api/v1/certificates/?ordering=invalid_field')
+        response = self.client.get('/api/v1/certificates?ordering=invalid_field')
 
         # Moet ofwel succesvol zijn (ignored) of error
         self.assertIn(response.status_code, [
@@ -447,7 +441,7 @@ class ViewSetSearchTest(APILoginTestCase):
 
     def test_search_single_term(self):
         """Test search met enkele term"""
-        response = self.client.get('/api/v1/certificates/?search=test')
+        response = self.client.get('/api/v1/certificates?search=test')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
@@ -456,7 +450,7 @@ class ViewSetSearchTest(APILoginTestCase):
 
     def test_search_multiple_terms(self):
         """Test search met meerdere termen"""
-        response = self.client.get('/api/v1/certificates/?search=test+certificate')
+        response = self.client.get('/api/v1/certificates?search=test+certificate')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
@@ -465,7 +459,7 @@ class ViewSetSearchTest(APILoginTestCase):
 
     def test_search_empty_string(self):
         """Test search met lege string"""
-        response = self.client.get('/api/v1/certificates/?search=')
+        response = self.client.get('/api/v1/certificates?search=')
 
         # Moet alle resultaten retourneren
         self.assertIn(response.status_code, [
@@ -475,7 +469,7 @@ class ViewSetSearchTest(APILoginTestCase):
 
     def test_search_special_characters(self):
         """Test search met speciale karakters"""
-        response = self.client.get('/api/v1/certificates/?search=test@#$%')
+        response = self.client.get('/api/v1/certificates?search=test@#$%')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
@@ -493,7 +487,7 @@ class ViewSetPaginationTest(APILoginTestCase):
 
     def test_pagination_first_page(self):
         """Test eerste pagina"""
-        response = self.client.get('/api/v1/certificates/?page=1')
+        response = self.client.get('/api/v1/certificates?page=1')
 
         if response.status_code == status.HTTP_200_OK:
             if 'results' in response.data:
@@ -503,7 +497,7 @@ class ViewSetPaginationTest(APILoginTestCase):
 
     def test_pagination_page_size(self):
         """Test custom page size"""
-        response = self.client.get('/api/v1/certificates/?page_size=10')
+        response = self.client.get('/api/v1/certificates?page_size=10')
 
         if response.status_code == status.HTTP_200_OK:
             if 'results' in response.data:
@@ -511,7 +505,7 @@ class ViewSetPaginationTest(APILoginTestCase):
 
     def test_pagination_invalid_page(self):
         """Test ongeldige page number"""
-        response = self.client.get('/api/v1/certificates/?page=999999')
+        response = self.client.get('/api/v1/certificates?page=999999')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,  # Lege results
@@ -520,7 +514,7 @@ class ViewSetPaginationTest(APILoginTestCase):
 
     def test_pagination_page_zero(self):
         """Test page number 0"""
-        response = self.client.get('/api/v1/certificates/?page=0')
+        response = self.client.get('/api/v1/certificates?page=0')
 
         # Moet error zijn of default naar page 1
         self.assertIn(response.status_code, [
@@ -530,7 +524,7 @@ class ViewSetPaginationTest(APILoginTestCase):
 
     def test_pagination_negative_page(self):
         """Test negatieve page number"""
-        response = self.client.get('/api/v1/certificates/?page=-1')
+        response = self.client.get('/api/v1/certificates?page=-1')
 
         self.assertIn(response.status_code, [
             status.HTTP_200_OK,
@@ -548,14 +542,14 @@ class ViewSetExceptionHandlingTest(APILoginTestCase):
 
     def test_404_for_nonexistent_resource(self):
         """Test 404 voor niet-bestaande resource"""
-        response = self.client.get('/api/v1/certificates/999999/')
+        response = self.client.get('/api/v1/certificates/999999')
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_method_not_allowed(self):
         """Test Method Not Allowed response"""
         # Probeer een niet-toegestane HTTP methode
-        response = self.client.trace('/api/v1/certificates/')
+        response = self.client.trace('/api/v1/certificates')
 
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
