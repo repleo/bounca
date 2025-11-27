@@ -1,22 +1,39 @@
 import json
-from unittest.mock import Mock, MagicMock
+from unittest.mock import MagicMock, Mock
 
 from django import forms, template
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.postgres.forms import SimpleArrayField
 from django.forms import (
-    BooleanField, CharField, DateField, DateTimeField,
-    ModelMultipleChoiceField, PasswordInput, URLField
+    BooleanField,
+    CharField,
+    DateField,
+    DateTimeField,
+    ModelMultipleChoiceField,
+    PasswordInput,
+    URLField,
 )
 from django.test import TestCase
 from django_countries.fields import LazyTypedChoiceField
 
 from vuetifyforms.templatetags.crispy_forms_vuetify import (
-    VeeValidateNode, vee_validate_rules, is_array, dottounderscore,
-    error_field, error_slot_suffix, _set_sub_field, _set_field_data,
-    _set_password_visible_vars, _get_empty_value, DataObjectNode,
-    make_data_object, rule_MaxLengthValidator, rule_ProhibitNullCharactersValidator,
-    rule_EmailValidator, rule_URLValidator, rule_PasswordConfirmValidator
+    DataObjectNode,
+    VeeValidateNode,
+    _get_empty_value,
+    _set_field_data,
+    _set_password_visible_vars,
+    _set_sub_field,
+    dottounderscore,
+    error_field,
+    error_slot_suffix,
+    is_array,
+    make_data_object,
+    rule_EmailValidator,
+    rule_MaxLengthValidator,
+    rule_PasswordConfirmValidator,
+    rule_ProhibitNullCharactersValidator,
+    rule_URLValidator,
+    vee_validate_rules,
 )
 
 
@@ -66,7 +83,7 @@ class VeeValidateNodeTest(TestCase):
 
     def test_initialization(self):
         """Test VeeValidateNode initialisatie"""
-        node = VeeValidateNode('field_name')
+        node = VeeValidateNode("field_name")
         self.assertIsNotNone(node.field)
 
     def test_render_with_required_field(self):
@@ -77,8 +94,8 @@ class VeeValidateNodeTest(TestCase):
         mock_field.field.validators = [MaxLengthValidator(100)]
         mock_field.field.required = True
 
-        context = template.Context({'field': mock_field})
-        node = VeeValidateNode('field')
+        context = template.Context({"field": mock_field})
+        node = VeeValidateNode("field")
 
         result = node.render(context)
         self.assertIn("required", result)
@@ -90,8 +107,8 @@ class VeeValidateNodeTest(TestCase):
         mock_field.field.validators = []
         mock_field.field.required = False
 
-        context = template.Context({'field': mock_field})
-        node = VeeValidateNode('field')
+        context = template.Context({"field": mock_field})
+        node = VeeValidateNode("field")
 
         result = node.render(context)
         self.assertNotIn("required", result)
@@ -99,7 +116,7 @@ class VeeValidateNodeTest(TestCase):
     def test_render_with_variable_does_not_exist(self):
         """Test render wanneer variabele niet bestaat"""
         context = template.Context({})
-        node = VeeValidateNode('nonexistent_field')
+        node = VeeValidateNode("nonexistent_field")
 
         result = node.render(context)
         self.assertEqual(result, "")
@@ -112,8 +129,8 @@ class VeeValidateNodeTest(TestCase):
         mock_field.field.validators = [ProhibitNullCharactersValidator()]
         mock_field.field.required = False
 
-        context = template.Context({'field': mock_field})
-        node = VeeValidateNode('field')
+        context = template.Context({"field": mock_field})
+        node = VeeValidateNode("field")
 
         result = node.render(context)
         # ProhibitNullCharactersValidator returns None, so should be filtered
@@ -129,8 +146,8 @@ class VeeValidateNodeTest(TestCase):
         mock_field.field.validators = [UnknownValidator()]
         mock_field.field.required = False
 
-        context = template.Context({'field': mock_field})
-        node = VeeValidateNode('field')
+        context = template.Context({"field": mock_field})
+        node = VeeValidateNode("field")
 
         with self.assertRaises(NotImplementedError):
             node.render(context)
@@ -180,45 +197,41 @@ class PrivateFunctionsTest(TestCase):
     def test_set_sub_field_single_key(self):
         """Test _set_sub_field met enkele key"""
         obj = {}
-        _set_sub_field(obj, ['key'], 'value')
-        self.assertEqual(obj['key'], 'value')
+        _set_sub_field(obj, ["key"], "value")
+        self.assertEqual(obj["key"], "value")
 
     def test_set_sub_field_nested_keys(self):
         """Test _set_sub_field met geneste keys"""
         obj = {}
-        _set_sub_field(obj, ['level1', 'level2', 'level3'], 'value')
-        self.assertEqual(obj['level1']['level2']['level3'], 'value')
+        _set_sub_field(obj, ["level1", "level2", "level3"], "value")
+        self.assertEqual(obj["level1"]["level2"]["level3"], "value")
 
     def test_set_sub_field_empty_keys(self):
         """Test _set_sub_field met lege keys lijst"""
         obj = {}
-        _set_sub_field(obj, [], 'value')
+        _set_sub_field(obj, [], "value")
         self.assertEqual(obj, {})
 
     def test_set_field_data_with_lazy_typed_choice_field(self):
         """Test _set_field_data met LazyTypedChoiceField"""
         obj = {}
         mock_field = Mock(spec=LazyTypedChoiceField)
-        mock_field.widget.choices = [
-            ('', '-----'),
-            ('NL', 'Netherlands'),
-            ('US', 'United States')
-        ]
+        mock_field.widget.choices = [("", "-----"), ("NL", "Netherlands"), ("US", "United States")]
 
-        _set_field_data(obj, 'myform', 'country', mock_field)
+        _set_field_data(obj, "myform", "country", mock_field)
 
-        key = 'formdata_myform_country_values'
+        key = "formdata_myform_country_values"
         self.assertIn(key, obj)
         self.assertEqual(len(obj[key]), 2)  # Empty choice is filtered
-        self.assertEqual(obj[key][0]['value'], 'NL')
-        self.assertEqual(obj[key][0]['text'], 'Netherlands')
+        self.assertEqual(obj[key][0]["value"], "NL")
+        self.assertEqual(obj[key][0]["text"], "Netherlands")
 
     def test_set_field_data_with_non_choice_field(self):
         """Test _set_field_data met non-choice veld"""
         obj = {}
         mock_field = Mock(spec=CharField)
 
-        _set_field_data(obj, 'myform', 'name', mock_field)
+        _set_field_data(obj, "myform", "name", mock_field)
 
         # Geen data zou moeten worden toegevoegd
         self.assertEqual(obj, {})
@@ -229,10 +242,10 @@ class PrivateFunctionsTest(TestCase):
         mock_field = Mock()
         mock_field.widget = PasswordInput()
 
-        _set_password_visible_vars(obj, 'password', mock_field)
+        _set_password_visible_vars(obj, "password", mock_field)
 
-        self.assertIn('password_visible', obj)
-        self.assertFalse(obj['password_visible'])
+        self.assertIn("password_visible", obj)
+        self.assertFalse(obj["password_visible"])
 
     def test_set_password_visible_vars_with_dotted_field_name(self):
         """Test _set_password_visible_vars met dotted field name"""
@@ -240,10 +253,10 @@ class PrivateFunctionsTest(TestCase):
         mock_field = Mock()
         mock_field.widget = PasswordInput()
 
-        _set_password_visible_vars(obj, 'user.password', mock_field)
+        _set_password_visible_vars(obj, "user.password", mock_field)
 
-        self.assertIn('user_password_visible', obj)
-        self.assertFalse(obj['user_password_visible'])
+        self.assertIn("user_password_visible", obj)
+        self.assertFalse(obj["user_password_visible"])
 
     def test_set_password_visible_vars_with_non_password_widget(self):
         """Test _set_password_visible_vars met non-password widget"""
@@ -251,7 +264,7 @@ class PrivateFunctionsTest(TestCase):
         mock_field = Mock()
         mock_field.widget = forms.TextInput()
 
-        _set_password_visible_vars(obj, 'username', mock_field)
+        _set_password_visible_vars(obj, "username", mock_field)
 
         # Geen data zou moeten worden toegevoegd
         self.assertEqual(obj, {})
@@ -329,36 +342,33 @@ class DataObjectNodeTest(TestCase):
 
     def test_initialization(self):
         """Test DataObjectNode initialisatie"""
-        node = DataObjectNode('form')
+        node = DataObjectNode("form")
         self.assertIsNotNone(node.form)
 
     def test_render_with_valid_form(self):
         """Test render met geldige form"""
         mock_form = Mock()
-        mock_form.form_object = 'testform'
-        mock_form.fields = {
-            'name': CharField(),
-            'email': forms.EmailField()
-        }
+        mock_form.form_object = "testform"
+        mock_form.fields = {"name": CharField(), "email": forms.EmailField()}
 
-        context = template.Context({'form': mock_form})
-        node = DataObjectNode('form')
+        context = template.Context({"form": mock_form})
+        node = DataObjectNode("form")
 
         result = node.render(context)
         data = json.loads(result)
 
-        self.assertIn('dialog', data)
-        self.assertIn('testform', data)
-        self.assertFalse(data['dialog'])
+        self.assertIn("dialog", data)
+        self.assertIn("testform", data)
+        self.assertFalse(data["dialog"])
 
     def test_render_without_form_object_raises_runtime_error(self):
         """Test dat render RuntimeError gooit zonder form_object"""
         mock_form = Mock()
         mock_form.fields = {}
-        delattr(mock_form, 'form_object')
+        delattr(mock_form, "form_object")
 
-        context = template.Context({'form': mock_form})
-        node = DataObjectNode('form')
+        context = template.Context({"form": mock_form})
+        node = DataObjectNode("form")
 
         with self.assertRaises(RuntimeError) as cm:
             node.render(context)
@@ -368,7 +378,7 @@ class DataObjectNodeTest(TestCase):
     def test_render_with_variable_does_not_exist(self):
         """Test render wanneer form variabele niet bestaat"""
         context = template.Context({})
-        node = DataObjectNode('nonexistent_form')
+        node = DataObjectNode("nonexistent_form")
 
         result = node.render(context)
         self.assertEqual(result, json.dumps({}))
@@ -376,38 +386,35 @@ class DataObjectNodeTest(TestCase):
     def test_render_with_nested_field_names(self):
         """Test render met geneste field namen"""
         mock_form = Mock()
-        mock_form.form_object = 'myform'
-        mock_form.fields = {
-            'user.name': CharField(),
-            'user.email': forms.EmailField()
-        }
+        mock_form.form_object = "myform"
+        mock_form.fields = {"user.name": CharField(), "user.email": forms.EmailField()}
 
-        context = template.Context({'form': mock_form})
-        node = DataObjectNode('form')
+        context = template.Context({"form": mock_form})
+        node = DataObjectNode("form")
 
         result = node.render(context)
         data = json.loads(result)
 
-        self.assertIn('myform', data)
-        self.assertIn('user', data['myform'])
-        self.assertIn('name', data['myform']['user'])
-        self.assertIn('email', data['myform']['user'])
+        self.assertIn("myform", data)
+        self.assertIn("user", data["myform"])
+        self.assertIn("name", data["myform"]["user"])
+        self.assertIn("email", data["myform"]["user"])
 
     def test_render_with_password_field(self):
         """Test render met password veld"""
         mock_form = Mock()
-        mock_form.form_object = 'loginform'
+        mock_form.form_object = "loginform"
         password_field = CharField(widget=PasswordInput())
-        mock_form.fields = {'password': password_field}
+        mock_form.fields = {"password": password_field}
 
-        context = template.Context({'form': mock_form})
-        node = DataObjectNode('form')
+        context = template.Context({"form": mock_form})
+        node = DataObjectNode("form")
 
         result = node.render(context)
         data = json.loads(result)
 
-        self.assertIn('password_visible', data)
-        self.assertFalse(data['password_visible'])
+        self.assertIn("password_visible", data)
+        self.assertFalse(data["password_visible"])
 
 
 class TemplateTagsTest(TestCase):
@@ -417,7 +424,7 @@ class TemplateTagsTest(TestCase):
         """Test vee_validate_rules template tag"""
         parser = Mock()
         token = Mock()
-        token.split_contents.return_value = ['vee_validate_rules', 'field']
+        token.split_contents.return_value = ["vee_validate_rules", "field"]
 
         result = vee_validate_rules(parser, token)
 
@@ -427,8 +434,8 @@ class TemplateTagsTest(TestCase):
         """Test vee_validate_rules zonder argument gooit error"""
         parser = Mock()
         token = Mock()
-        token.split_contents.return_value = ['vee_validate_rules']
-        token.contents = 'vee_validate_rules'
+        token.split_contents.return_value = ["vee_validate_rules"]
+        token.contents = "vee_validate_rules"
 
         with self.assertRaises(template.TemplateSyntaxError):
             vee_validate_rules(parser, token)
@@ -437,7 +444,7 @@ class TemplateTagsTest(TestCase):
         """Test make_data_object template tag"""
         parser = Mock()
         token = Mock()
-        token.split_contents.return_value = ['make_data_object', 'form']
+        token.split_contents.return_value = ["make_data_object", "form"]
 
         result = make_data_object(parser, token)
 
@@ -447,8 +454,8 @@ class TemplateTagsTest(TestCase):
         """Test make_data_object zonder argument gooit error"""
         parser = Mock()
         token = Mock()
-        token.split_contents.return_value = ['make_data_object']
-        token.contents = 'make_data_object'
+        token.split_contents.return_value = ["make_data_object"]
+        token.contents = "make_data_object"
 
         with self.assertRaises(template.TemplateSyntaxError):
             make_data_object(parser, token)

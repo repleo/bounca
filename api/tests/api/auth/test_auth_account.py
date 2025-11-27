@@ -20,7 +20,7 @@ class AccountViewSetTest(APITestCase):
             email="test@example.com",
             password="testpassword123",
             first_name="Test",
-            last_name="User"
+            last_name="User",
         )
         self.client.force_authenticate(user=self.user)
 
@@ -30,13 +30,9 @@ class AccountViewSetTest(APITestCase):
 
     def test_get_queryset_returns_only_current_user(self):
         """Test dat get_queryset alleen de huidige gebruiker retourneert"""
-        other_user = User.objects.create_user(
-            username="otheruser",
-            email="other@example.com",
-            password="password123"
-        )
+        other_user = User.objects.create_user(username="otheruser", email="other@example.com", password="password123")
 
-        response = self.client.get('/api/v1/account/')
+        response = self.client.get("/api/v1/account/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Verifieer dat alleen de ingelogde gebruiker wordt geretourneerd
@@ -44,39 +40,35 @@ class AccountViewSetTest(APITestCase):
 
     def test_get_object_returns_current_user(self):
         """Test dat get_object de huidige gebruiker retourneert"""
-        response = self.client.get('/api/v1/account/')
+        response = self.client.get("/api/v1/account/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['id'], self.user.id)
-        self.assertEqual(response.data['username'], self.user.username)
-        self.assertEqual(response.data['email'], self.user.email)
+        self.assertEqual(response.data["id"], self.user.id)
+        self.assertEqual(response.data["username"], self.user.username)
+        self.assertEqual(response.data["email"], self.user.email)
 
     def test_retrieve_account_authenticated(self):
         """Test ophalen van account gegevens als geauthenticeerde gebruiker"""
-        response = self.client.get('/api/v1/account/')
+        response = self.client.get("/api/v1/account/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['username'], 'testuser')
-        self.assertEqual(response.data['email'], 'test@example.com')
-        self.assertEqual(response.data['first_name'], 'Test')
-        self.assertEqual(response.data['last_name'], 'User')
-        self.assertIn('date_joined', response.data)
-        self.assertIn('last_login', response.data)
+        self.assertEqual(response.data["username"], "testuser")
+        self.assertEqual(response.data["email"], "test@example.com")
+        self.assertEqual(response.data["first_name"], "Test")
+        self.assertEqual(response.data["last_name"], "User")
+        self.assertIn("date_joined", response.data)
+        self.assertIn("last_login", response.data)
 
     def test_retrieve_account_unauthenticated(self):
         """Test dat niet-geauthenticeerde gebruikers geen toegang hebben"""
         self.client.force_authenticate(user=None)
-        response = self.client.get('/api/v1/account/')
+        response = self.client.get("/api/v1/account/")
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_destroy_account_with_valid_password(self):
         """Test verwijderen van account met geldig wachtwoord"""
-        response = self.client.delete(
-            '/api/v1/account/',
-            data={'password': 'testpassword123'},
-            format='json'
-        )
+        response = self.client.delete("/api/v1/account/", data={"password": "testpassword123"}, format="json")
 
         # Verwacht een NotAuthenticated exception (401)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -85,57 +77,45 @@ class AccountViewSetTest(APITestCase):
 
     def test_destroy_account_without_password(self):
         """Test verwijderen van account zonder wachtwoord"""
-        response = self.client.delete('/api/v1/account/', format='json')
+        response = self.client.delete("/api/v1/account/", format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('password', response.data)
-        self.assertEqual(response.data['password'], ['Password is required.'])
+        self.assertIn("password", response.data)
+        self.assertEqual(response.data["password"], ["Password is required."])
         # Verifieer dat de gebruiker NIET is verwijderd
         self.assertTrue(User.objects.filter(id=self.user.id).exists())
 
     def test_destroy_account_with_invalid_password(self):
         """Test verwijderen van account met ongeldig wachtwoord"""
-        response = self.client.delete(
-            '/api/v1/account/',
-            data={'password': 'wrongpassword'},
-            format='json'
-        )
+        response = self.client.delete("/api/v1/account/", data={"password": "wrongpassword"}, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('password', response.data)
-        self.assertEqual(response.data['password'], ['Invalid password.'])
+        self.assertIn("password", response.data)
+        self.assertEqual(response.data["password"], ["Invalid password."])
         # Verifieer dat de gebruiker NIET is verwijderd
         self.assertTrue(User.objects.filter(id=self.user.id).exists())
 
     def test_destroy_account_with_empty_password(self):
         """Test verwijderen van account met leeg wachtwoord veld"""
-        response = self.client.delete(
-            '/api/v1/account/',
-            data={'password': ''},
-            format='json'
-        )
+        response = self.client.delete("/api/v1/account/", data={"password": ""}, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('password', response.data)
+        self.assertIn("password", response.data)
         # Verifieer dat de gebruiker NIET is verwijderd
         self.assertTrue(User.objects.filter(id=self.user.id).exists())
 
-    @patch('api.auth.views.Certificate')
+    @patch("api.auth.views.Certificate")
     def test_perform_destroy_without_protected_error(self, mock_certificate):
         """Test perform_destroy zonder ProtectedError"""
         # Mock de delete methode om geen error te gooien
         self.user.delete = Mock()
 
-        response = self.client.delete(
-            '/api/v1/account/',
-            data={'password': 'testpassword123'},
-            format='json'
-        )
+        response = self.client.delete("/api/v1/account/", data={"password": "testpassword123"}, format="json")
 
         # Verwacht NotAuthenticated (401)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    @patch.object(User, 'delete')
+    @patch.object(User, "delete")
     def test_perform_destroy_with_protected_certificate(self, mock_delete):
         """Test perform_destroy met beschermde Certificate objecten"""
         # Create mock certificate
@@ -149,28 +129,21 @@ class AccountViewSetTest(APITestCase):
 
         # Mock Certificate.objects.filter om een lege lijst te retourneren
         # zodat de recursieve delete geen kinderen vindt
-        with patch.object(Certificate.objects, 'filter', return_value=[]):
+        with patch.object(Certificate.objects, "filter", return_value=[]):
             # Mock ProtectedError
-            protected_error = ProtectedError(
-                "Cannot delete",
-                protected_objects={mock_certificate}
-            )
+            protected_error = ProtectedError("Cannot delete", protected_objects={mock_certificate})
 
             # First call raises ProtectedError, second succeeds
             mock_delete.side_effect = [protected_error, None]
 
-            response = self.client.delete(
-                '/api/v1/account/',
-                data={'password': 'testpassword123'},
-                format='json'
-            )
+            response = self.client.delete("/api/v1/account/", data={"password": "testpassword123"}, format="json")
 
             # Verwacht NotAuthenticated (401)
             self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
             # Verifieer dat delete twee keer is aangeroepen
             self.assertEqual(mock_delete.call_count, 2)
 
-    @patch('api.auth.views.Certificate.objects.filter')
+    @patch("api.auth.views.Certificate.objects.filter")
     def test_delete_certificate_recursive(self, mock_filter):
         """Test recursieve verwijdering van certificates"""
         # Create mock certificates met parent-child relatie
@@ -188,6 +161,7 @@ class AccountViewSetTest(APITestCase):
 
         # Import de viewset om _delete_certificate te testen
         from api.auth.views import AccountViewSet
+
         viewset = AccountViewSet()
         viewset._delete_certificate(parent_cert)
 
@@ -195,7 +169,7 @@ class AccountViewSetTest(APITestCase):
         child_cert.force_delete.assert_called_once()
         parent_cert.force_delete.assert_called_once()
 
-    @patch.object(User, 'delete')
+    @patch.object(User, "delete")
     def test_perform_destroy_with_non_certificate_protected_objects(self, mock_delete):
         """Test perform_destroy met andere beschermde objecten dan Certificate"""
         # Create mock non-certificate protected object
@@ -203,19 +177,12 @@ class AccountViewSetTest(APITestCase):
         mock_protected_obj.delete = Mock()
 
         # Mock ProtectedError met non-certificate object
-        protected_error = ProtectedError(
-            "Cannot delete",
-            protected_objects={mock_protected_obj}
-        )
+        protected_error = ProtectedError("Cannot delete", protected_objects={mock_protected_obj})
 
         # First call raises ProtectedError, second succeeds
         mock_delete.side_effect = [protected_error, None]
 
-        response = self.client.delete(
-            '/api/v1/account/',
-            data={'password': 'testpassword123'},
-            format='json'
-        )
+        response = self.client.delete("/api/v1/account/", data={"password": "testpassword123"}, format="json")
 
         # Verwacht NotAuthenticated (401)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -224,19 +191,18 @@ class AccountViewSetTest(APITestCase):
 
     def test_user_serializer_fields(self):
         """Test dat UserSerializer alle verwachte velden bevat"""
-        response = self.client.get('/api/v1/account/')
+        response = self.client.get("/api/v1/account/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        expected_fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined',
-                           'last_login']
+        expected_fields = ["id", "username", "email", "first_name", "last_name", "date_joined", "last_login"]
         for field in expected_fields:
             self.assertIn(field, response.data)
 
     def test_permission_classes_require_authentication(self):
         """Test dat permission classes authenticatie vereisen"""
-        from api.auth.views import AccountViewSet
         from rest_framework.permissions import IsAuthenticated
-        from api.auth.views import IsUserOwner
+
+        from api.auth.views import AccountViewSet, IsUserOwner
 
         viewset = AccountViewSet()
         permission_classes = viewset.permission_classes
@@ -269,11 +235,7 @@ class AccountViewSetTest(APITestCase):
         """Test dat IsUserOwner.has_object_permission False retourneert voor niet-eigenaar"""
         from api.auth.views import IsUserOwner
 
-        other_user = User.objects.create_user(
-            username="otheruser",
-            email="other@example.com",
-            password="password123"
-        )
+        other_user = User.objects.create_user(username="otheruser", email="other@example.com", password="password123")
 
         permission = IsUserOwner()
         mock_request = Mock()
@@ -289,7 +251,7 @@ class AccountViewSetTest(APITestCase):
         mock_cert = Mock(spec=Certificate)
         mock_cert.force_delete = Mock()
 
-        with patch('api.auth.views.Certificate.objects.filter') as mock_filter:
+        with patch("api.auth.views.Certificate.objects.filter") as mock_filter:
             mock_filter.return_value = []
 
             viewset = AccountViewSet()
@@ -304,7 +266,7 @@ class AccountViewSetTest(APITestCase):
         mock_cert = Mock(spec=Certificate)
         mock_cert.force_delete = Mock()
 
-        with patch('api.auth.views.Certificate.objects.filter') as mock_filter:
+        with patch("api.auth.views.Certificate.objects.filter") as mock_filter:
             # Retourneer hetzelfde certificaat als child (zou infinite loop kunnen veroorzaken)
             mock_filter.return_value = [mock_cert]
 
@@ -325,7 +287,7 @@ class UserSerializerTest(APITestCase):
             email="serializer@example.com",
             password="password123",
             first_name="Serializer",
-            last_name="Test"
+            last_name="Test",
         )
 
     def test_serializer_contains_expected_fields(self):
@@ -335,8 +297,7 @@ class UserSerializerTest(APITestCase):
         serializer = UserSerializer(instance=self.user)
         data = serializer.data
 
-        expected_fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined',
-                           'last_login']
+        expected_fields = ["id", "username", "email", "first_name", "last_name", "date_joined", "last_login"]
         self.assertEqual(set(data.keys()), set(expected_fields))
 
     def test_serializer_field_values(self):
@@ -346,11 +307,11 @@ class UserSerializerTest(APITestCase):
         serializer = UserSerializer(instance=self.user)
         data = serializer.data
 
-        self.assertEqual(data['username'], 'serializer_test')
-        self.assertEqual(data['email'], 'serializer@example.com')
-        self.assertEqual(data['first_name'], 'Serializer')
-        self.assertEqual(data['last_name'], 'Test')
-        self.assertEqual(data['id'], self.user.id)
+        self.assertEqual(data["username"], "serializer_test")
+        self.assertEqual(data["email"], "serializer@example.com")
+        self.assertEqual(data["first_name"], "Serializer")
+        self.assertEqual(data["last_name"], "Test")
+        self.assertEqual(data["id"], self.user.id)
 
     def test_serializer_does_not_expose_password(self):
         """Test dat serializer geen wachtwoord exposeert"""
@@ -359,7 +320,7 @@ class UserSerializerTest(APITestCase):
         serializer = UserSerializer(instance=self.user)
         data = serializer.data
 
-        self.assertNotIn('password', data)
+        self.assertNotIn("password", data)
 
     def tearDown(self):
         """Cleanup na elke test"""
