@@ -6,6 +6,7 @@ exclude = '''
   /(
     | env
     | venv
+    | .venv
     | out
     | .+/migrations
   )/
@@ -18,12 +19,12 @@ exclude = '''
 profile = "black"
 multi_line_output = 3
 line_length = 120
-skip = ['env', 'venv', 'out', 'migrations', 'docs']
+skip = ['env', 'venv', '.venv', 'out', 'migrations', 'docs']
 
 
 [tool.mypy]
 python_version = "3.13"
-exclude = "(env|venv|out|migrations|tests|docs)"
+exclude = "(env|venv|.venv|out|migrations|tests|docs)"
 
 disallow_untyped_calls = false
 disallow_untyped_defs = false
