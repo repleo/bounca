@@ -399,7 +399,6 @@ class ModelCertificateTest(TestCase):
         self.assertIsNotNone(cert.slug_revoked_at)
         self.assertNotEqual(cert.revoked_uuid, UUID(int=0))
 
-    @skip("TODO check if values are valid")
     def test_generate_ocsp_certificate(self):
         dn = DistinguishedNameFactory(
             countryName="NL",
@@ -424,11 +423,11 @@ class ModelCertificateTest(TestCase):
 
         self.assertEqual(
             cert.dn.dn,
-            "CN=https://ca.demo.repleo.nl/ocsp, O=Repleo, OU=IT Department, "
+            "CN=ca.demo.repleo.nl, O=Repleo, OU=IT Department, "
             "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL",
         )
         self.assertEqual(cert.type, CertificateTypes.OCSP)
-        self.assertEqual(cert.name, "https://ca.demo.repleo.nl/ocsp")
+        self.assertEqual(cert.name, "ca.demo.repleo.nl")
         self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(years=-1).date())
         self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(years=+1).date())
         self.assertIsNone(cert.revoked_at)
