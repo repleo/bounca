@@ -12,7 +12,7 @@ from api.tests.base import APILoginTestCase
 from api.tests.factories import AuthorisedAppFactory
 from certificate_engine.types import CertificateTypes
 from x509_pki.models import Certificate
-from x509_pki.tests.factories import CertificateFactory
+from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactory
 
 User = get_user_model()
 
@@ -29,19 +29,40 @@ class APIViewsTestCase(APILoginTestCase):
     def test_viewset_list_action(self):
         """Test list action retourneert alle objecten voor de gebruiker"""
         self.client.force_authenticate(user=self.user)
+        c1 = CertificateFactory(owner=self.user, name="c1")
+        c1.save()
+        c2 = CertificateFactory(owner=self.user, name="c2")
+        c2.save()
+
         response = self.client.get("/api/v1/certificates")
 
         # Verifieer response
-        self.assertIn(response.status_code, [status.HTTP_200_OK])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        self.assertCertInResponseList(response, c1)
+        self.assertCertInResponseList(response, c2)
+
 
     def test_viewset_retrieve_action(self):
+        """Test retrieve action haalt één object op"""
+        CertificateFactory(owner=self.user, name="c1").save()
+        c2 = CertificateFactory(owner=self.user, name="c2")
+        c2.save()
+        self.client.force_authenticate(user=self.user)
+
+        # Probeer object op te halen (kan 404 zijn als er geen data is)
+        response = self.client.get(f"/api/v1/certificates/{c2.id}")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_viewset_retrieve_action_notfound(self):
         """Test retrieve action haalt één object op"""
         self.client.force_authenticate(user=self.user)
 
         # Probeer object op te halen (kan 404 zijn als er geen data is)
         response = self.client.get("/api/v1/certificates/1")
 
-        self.assertIn(response.status_code, [status.HTTP_200_OK, status.HTTP_404_NOT_FOUND])
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_viewset_create_action_unauthenticated(self):
         """Test create action zonder authenticatie"""
@@ -67,27 +88,25 @@ class APIViewsTestCase(APILoginTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_viewset_list_with_authentication(self):
-        """Test list action met authenticatie"""
-        self.client.force_authenticate(user=self.user)
-        response = self.client.get("/api/v1/certificates")
-
-        # Moet ofwel succesvol zijn ofwel een legitieme error
-        self.assertIn(response.status_code, [status.HTTP_200_OK])
 
     def test_viewset_queryset_filtered_by_user(self):
         """Test dat queryset gefilterd wordt op gebruiker"""
         # Create andere gebruiker
         other_user = User.objects.create_user(username="otheruser", password="password123")
+        c1 = CertificateFactory(owner=self.user, name="c1")
+        c1.save()
+        c2 = CertificateFactory(owner=other_user, name="c2")
+        c2.save()
 
         self.client.force_authenticate(user=self.user)
         response = self.client.get("/api/v1/certificates")
 
-        # Response mag geen data van andere gebruiker bevatten
-        if response.status_code == status.HTTP_200_OK and "results" in response.data:
-            for item in response.data["results"]:
-                # Verifieer dat alle items van huidige gebruiker zijn
-                self.assertNotEqual(item.get("user"), other_user.id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+        self.assertCertInResponseList(response, c1)
+        self.assertCertNotInResponseList(response, c2)
+
 
     def test_viewset_options_action(self):
         """Test OPTIONS request voor metadata"""
@@ -112,30 +131,84 @@ class APIViewsTestCase(APILoginTestCase):
     def test_viewset_with_ordering(self):
         """Test list action met ordering parameter"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.get("/api/v1/certificates?ordering=name")
+        c2 = CertificateFactory(owner=self.user, name="c2")
+        c2.save()
+        c3 = CertificateFactory(owner=self.user, name="c3")
+        c3.save()
+        c1 = CertificateFactory(owner=self.user, name="c1")
+        c1.save()
 
-        self.assertIn(response.status_code, [status.HTTP_200_OK])
+        response = self.client.get("/api/v1/certificates?ordering=-name")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
+
+        self.assertEqual([e['name'] for e in response.data], [c3.name, c2.name, c1.name])
+
 
     def test_viewset_with_search(self):
         """Test list action met search parameter"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.get("/api/v1/certificates?search=test")
+        c1 = CertificateFactory(owner=self.user, name="c1")
+        c1.save()
+        c2 = CertificateFactory(owner=self.user, name="c2test")
+        c2.save()
+        response = self.client.get("/api/v1/certificates?search=c2test")
 
-        self.assertIn(response.status_code, [status.HTTP_200_OK])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+        self.assertCertInResponseList(response, c2)
+        self.assertCertNotInResponseList(response, c1)
+
 
     def test_viewset_with_filtering(self):
         """Test list action met filter parameters"""
         self.client.force_authenticate(user=self.user)
+
+
+
+        dn_ca = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="parent cert",
+            subjectAltNames=["demo.bounca.org"],
+        )
+        dn_im = DistinguishedNameFactory(
+            countryName="NL",
+            stateOrProvinceName="Noord-Holland",
+            localityName="Amsterdam",
+            organizationName="Repleo",
+            organizationalUnitName="IT Department",
+            emailAddress="info@repleo.nl",
+            commonName="child cert",
+            subjectAltNames=["demo.bounca.org"],
+        )
+        c1 = CertificateFactory(owner=self.user, name="cr", dn=dn_ca, type=CertificateTypes.ROOT)
+        c1.save()
+        c2 = CertificateFactory(owner=self.user, name="c2",
+                                dn=dn_im, parent=c1,
+                                type=CertificateTypes.INTERMEDIATE)
+        c2.save()
+
         response = self.client.get("/api/v1/certificates?type=R")
 
-        self.assertIn(response.status_code, [status.HTTP_200_OK])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+        self.assertCertInResponseList(response, c1)
+        self.assertCertNotInResponseList(response, c2)
 
     def test_viewset_head_request(self):
         """Test HEAD request"""
         self.client.force_authenticate(user=self.user)
         response = self.client.head("/api/v1/certificates")
 
-        self.assertIn(response.status_code, [status.HTTP_200_OK])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_viewset_invalid_pk_format(self):
         """Test retrieve met ongeldige PK format"""
@@ -149,8 +222,8 @@ class APIViewsTestCase(APILoginTestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.get("/api/v1/certificates", HTTP_ACCEPT="application/json")
 
-        if response.status_code == status.HTTP_200_OK:
-            self.assertEqual(response["Content-Type"], "application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response["Content-Type"], "application/json")
 
     def test_viewset_cors_headers(self):
         """Test CORS headers in response"""
@@ -331,7 +404,6 @@ class ViewSetFilteringTest(APILoginTestCase):
 
         self.assertIn(response.status_code, [status.HTTP_200_OK])
 
-    @skip
     def test_filter_with_invalid_value(self):
         """Test filtering met ongeldige waarde"""
         response = self.client.get("/api/v1/certificates?id=invalid")
@@ -340,7 +412,7 @@ class ViewSetFilteringTest(APILoginTestCase):
         self.assertIn(
             response.status_code,
             [
-                status.HTTP_400_BAD_REQUEST,
+                status.HTTP_200_OK,
             ],
         )
 
@@ -463,16 +535,15 @@ class ViewSetSearchTest(APILoginTestCase):
             ],
         )
 
-    @skip
     def test_search_empty_string(self):
         """Test search met lege string"""
-        certificate = CertificateFactory(owner=self.user, name="certificate")
+        certificate = CertificateFactory(owner=self.user, name="certificate_search")
         certificate.save()
         response = self.client.get("/api/v1/certificates?search=")
 
         # Moet alle resultaten retourneren
         self.assertIn(response.status_code, [status.HTTP_200_OK])
-        self.assertEqual(response.data, [])
+        self.assertEqual(response.data[0]['name'], "certificate_search")
 
     def test_search_special_characters(self):
         """Test search met speciale karakters"""

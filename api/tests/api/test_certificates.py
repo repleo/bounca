@@ -119,7 +119,6 @@ class ServerCertificateTest(APILoginTestCase):
             cert.refresh_from_db()
             cls.cert.insert(i, cert)
 
-    @skip
     def test_retrieve_certificates(self):
         test_uri = f"{self.base_url}"
         response = self.client.get(test_uri, format="json")

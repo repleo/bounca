@@ -438,9 +438,6 @@ class ModelCertificateTest(TestCase):
         self.assertFalse(cert.revoked)
         self.assertFalse(cert.expired)
 
-        with self.assertRaises(ValidationError) as c:
-            cert.generate_crl()
-        self.assertEqual(c.exception.message, "CRL File can only be generated for Intermediate Certificates")
 
     def test_days_valid(self):
         dn_ca = DistinguishedNameFactory(

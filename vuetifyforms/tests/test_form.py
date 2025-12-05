@@ -26,7 +26,6 @@ class GrandChildForm(ChildForm):
     another_field = forms.IntegerField()
 
 
-@skip
 class VuetifyFormMixinTest(TestCase):
     """Unit tests voor VuetifyFormMixin"""
 

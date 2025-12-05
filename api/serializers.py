@@ -226,28 +226,6 @@ class CrlRenewSerializer(serializers.ModelSerializer):
         return None
 
 
-class CertificateCRLSerializer(serializers.ModelSerializer):
-    passphrase_issuer = serializers.CharField(max_length=200, required=True)
-
-    class Meta:
-        fields = ("passphrase_issuer",)
-        model = Certificate
-        extra_kwargs = {"passphrase_issuer": {"write_only": True}}
-
-    def validate_passphrase_issuer(self, passphrase_issuer):
-        if passphrase_issuer:
-            self.instance.passphrase_issuer = passphrase_issuer
-            if not self.instance.is_passphrase_valid():
-                raise serializers.ValidationError("Passphrase issuer incorrect. No permission to create CRL File")
-            return passphrase_issuer
-        return None
-
-    def update(self, instance, validated_data):
-        instance.passphrase_issuer = validated_data["passphrase_issuer"]
-        instance.generate_crl()
-        return instance
-
-
 class UserSerializer(UserDetailsSerializer):
     class Meta(UserDetailsSerializer.Meta):
         fields = ("username", "email", "first_name", "last_name")

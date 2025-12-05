@@ -273,6 +273,6 @@ if IS_UNITTEST:
 
 IS_GENERATE_FRONTEND = "generate_forms" in sys.argv or any(["generate_forms" in arg for arg in sys.argv])
 
-if IS_GENERATE_FRONTEND:
+if IS_GENERATE_FRONTEND or IS_UNITTEST:
     CRISPY_TEMPLATE_PACK = "vuetify"
     INSTALLED_APPS += ["crispy_forms", "vuetifyforms"]

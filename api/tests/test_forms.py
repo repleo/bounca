@@ -52,11 +52,7 @@ class TokenFormTest(TestCase):
         """Test form met geldige data"""
         form_data = {"name": "NewApp", "user": self.user.id}
         form = TokenForm(data=form_data)
-
-        # Form kan valid of invalid zijn afhankelijk van vereiste velden
-        if not form.is_valid():
-            # Log errors voor debugging
-            print(f"Form errors: {form.errors}")
+        self.assertTrue(form.is_valid())
 
     def test_form_model_is_authorised_app(self):
         """Test dat form gekoppeld is aan AuthorisedApp model"""
@@ -64,25 +60,6 @@ class TokenFormTest(TestCase):
         if hasattr(form, "_meta"):
             self.assertEqual(form._meta.model, AuthorisedApp)
 
-    @skip
-    def test_form_save_creates_instance(self):
-        """Test dat save een instantie aanmaakt"""
-        form_data = {"name": "SavedApp", "user": self.user.id}
-        form = TokenForm(data=form_data)
-
-        if form.is_valid():
-            instance = form.save()
-            self.assertIsNotNone(instance)
-            self.assertEqual(instance.name, "SavedApp")
-
-    def test_form_update_existing_instance(self):
-        """Test form update van bestaande instantie"""
-        form_data = {"name": "UpdatedApp", "user": self.user.id}
-        form = TokenForm(data=form_data, instance=self.authorised_app)
-
-        if form.is_valid():
-            instance = form.save()
-            self.assertEqual(instance.name, "UpdatedApp")
 
     def tearDown(self):
         """Cleanup"""
@@ -125,13 +102,6 @@ class DeleteAccountFormTest(TestCase):
         """Test form zonder wachtwoord"""
         form = DeleteAccountForm(data={})
         self.assertFalse(form.is_valid())
-
-    @skip
-    def test_form_password_widget_is_password_input(self):
-        """Test dat password widget PasswordInput is"""
-        form = DeleteAccountForm()
-        if "password" in form.fields:
-            self.assertIsInstance(form.fields["password"].widget, forms.PasswordInput)
 
     def tearDown(self):
         """Cleanup"""

@@ -44,7 +44,6 @@ class VueSpacerTest(TestCase):
         self.assertIsInstance(spacer, Div)
 
 
-@skip
 class VueScriptElemTest(TestCase):
     """Unit tests voor VueScriptElem (abstract base class)"""
 
