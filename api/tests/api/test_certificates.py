@@ -1,6 +1,5 @@
 import io
 import zipfile
-from unittest import skip
 from uuid import UUID
 
 import arrow
@@ -129,7 +128,6 @@ class ServerCertificateTest(APILoginTestCase):
             # support for leap year
             days_valid = result[3 - i].pop("days_valid")
             self.assertIn(days_valid, [364, 365, 366])
-
             self.assertDictEqual(
                 result[3 - i],
                 {
@@ -151,7 +149,7 @@ class ServerCertificateTest(APILoginTestCase):
                     "keystore": {"fingerprint": self.cert[i].keystore.fingerprint},
                     "name": f"www.repleo.nl - {i}",
                     "ocsp_distribution_host": None,
-                    "parent": 2,
+                    "parent": self.cert[i].parent.id,
                     "passphrase_issuer": "",
                     "passphrase_out": "",
                     "passphrase_out_confirmation": "",

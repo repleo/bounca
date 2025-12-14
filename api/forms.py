@@ -15,6 +15,7 @@ User = get_user_model()
 
 # TODO BJA annotation that these forms are not meant for runtime use, only for generating VueForms
 
+
 class Submit(BaseInput):
     """
     Used to create a Submit button descriptor for the {% crispy %} template tag::

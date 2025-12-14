@@ -1,5 +1,5 @@
 import json
-from unittest.mock import MagicMock, Mock
+from unittest.mock import Mock
 
 from django import forms, template
 from django.contrib.auth.forms import ReadOnlyPasswordHashField

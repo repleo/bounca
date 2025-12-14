@@ -1,17 +1,12 @@
 from unittest import skip
-from unittest.mock import MagicMock, Mock, patch
 
 from django.contrib.auth import get_user_model
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
 from rest_framework import status
-from rest_framework.exceptions import PermissionDenied, ValidationError
-from rest_framework.request import Request
-from rest_framework.test import APIClient, APITestCase, force_authenticate
+from rest_framework.test import APIClient
 
 from api.tests.base import APILoginTestCase
-from api.tests.factories import AuthorisedAppFactory
 from certificate_engine.types import CertificateTypes
-from x509_pki.models import Certificate
 from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactory
 
 User = get_user_model()
@@ -41,7 +36,6 @@ class APIViewsTestCase(APILoginTestCase):
         self.assertEqual(len(response.data), 2)
         self.assertCertInResponseList(response, c1)
         self.assertCertInResponseList(response, c2)
-
 
     def test_viewset_retrieve_action(self):
         """Test retrieve action haalt één object op"""
@@ -88,7 +82,6 @@ class APIViewsTestCase(APILoginTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-
     def test_viewset_queryset_filtered_by_user(self):
         """Test dat queryset gefilterd wordt op gebruiker"""
         # Create andere gebruiker
@@ -106,7 +99,6 @@ class APIViewsTestCase(APILoginTestCase):
 
         self.assertCertInResponseList(response, c1)
         self.assertCertNotInResponseList(response, c2)
-
 
     def test_viewset_options_action(self):
         """Test OPTIONS request voor metadata"""
@@ -143,8 +135,7 @@ class APIViewsTestCase(APILoginTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 3)
 
-        self.assertEqual([e['name'] for e in response.data], [c3.name, c2.name, c1.name])
-
+        self.assertEqual([e["name"] for e in response.data], [c3.name, c2.name, c1.name])
 
     def test_viewset_with_search(self):
         """Test list action met search parameter"""
@@ -161,12 +152,9 @@ class APIViewsTestCase(APILoginTestCase):
         self.assertCertInResponseList(response, c2)
         self.assertCertNotInResponseList(response, c1)
 
-
     def test_viewset_with_filtering(self):
         """Test list action met filter parameters"""
         self.client.force_authenticate(user=self.user)
-
-
 
         dn_ca = DistinguishedNameFactory(
             countryName="NL",
@@ -190,9 +178,7 @@ class APIViewsTestCase(APILoginTestCase):
         )
         c1 = CertificateFactory(owner=self.user, name="cr", dn=dn_ca, type=CertificateTypes.ROOT)
         c1.save()
-        c2 = CertificateFactory(owner=self.user, name="c2",
-                                dn=dn_im, parent=c1,
-                                type=CertificateTypes.INTERMEDIATE)
+        c2 = CertificateFactory(owner=self.user, name="c2", dn=dn_im, parent=c1, type=CertificateTypes.INTERMEDIATE)
         c2.save()
 
         response = self.client.get("/api/v1/certificates?type=R")
@@ -265,7 +251,7 @@ class ViewSetPermissionsTest(APILoginTestCase):
 
     def test_user_cannot_access_other_users_data(self):
         """Test dat gebruiker geen toegang heeft tot data van anderen"""
-        other_user = User.objects.create_user(username="otheruser", password="password123")
+        User.objects.create_user(username="otheruser", password="password123")
 
         self.client.force_authenticate(user=self.user)
 
@@ -543,7 +529,7 @@ class ViewSetSearchTest(APILoginTestCase):
 
         # Moet alle resultaten retourneren
         self.assertIn(response.status_code, [status.HTTP_200_OK])
-        self.assertEqual(response.data[0]['name'], "certificate_search")
+        self.assertEqual(response.data[0]["name"], "certificate_search")
 
     def test_search_special_characters(self):
         """Test search met speciale karakters"""

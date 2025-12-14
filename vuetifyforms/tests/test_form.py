@@ -1,12 +1,10 @@
-from unittest import skip
-
 from django import forms
 from django.test import TestCase
 
 from vuetifyforms.vue import VuetifyFormMixin
 
 
-class TestForm(VuetifyFormMixin, forms.Form):
+class TestForm(forms.Form, VuetifyFormMixin):
     """Test form voor VuetifyFormMixin tests"""
 
     name = forms.CharField(max_length=100, required=True)
@@ -61,87 +59,91 @@ class VuetifyFormMixinTest(TestCase):
 
         self.assertEqual(len(subclasses), 0)
 
-    def test_as_vuetify_returns_html(self):
-        """Test dat as_vuetify HTML retourneert"""
-        html = self.form.as_vuetify()
+    def test_render_returns_html(self):
+        """Test dat render HTML retourneert"""
+        html = self.form.render()
 
         self.assertIsInstance(html, str)
         self.assertIn("<div", html)
         self.assertIn("</div>", html)
 
-    def test_as_vuetify_contains_field_labels(self):
-        """Test dat as_vuetify veld labels bevat"""
-        html = self.form.as_vuetify()
+    def test_render_contains_field_labels(self):
+        """Test dat render veld labels bevat"""
+        html = self.form.render()
 
         self.assertIn("Name", html)
         self.assertIn("Email", html)
         self.assertIn("Message", html)
 
-    def test_as_vuetify_contains_input_fields(self):
-        """Test dat as_vuetify input velden bevat"""
-        html = self.form.as_vuetify()
+    def test_render_contains_input_fields(self):
+        """Test dat render input velden bevat"""
+        html = self.form.render()
 
         self.assertIn('name="name"', html)
         self.assertIn('name="email"', html)
         self.assertIn('name="message"', html)
 
-    def test_as_vuetify_with_errors(self):
-        """Test as_vuetify met form errors"""
+    def test_render_with_errors(self):
+        """Test render met form errors"""
         form = TestForm(data={})
         form.is_valid()  # Trigger validation
 
-        html = form.as_vuetify()
+        html = form.render()
 
         # Check dat error wrapper aanwezig is
-        self.assertIn("djng-line-spreader", html)
+        self.assertIn('<ul class="errorlist" id="id_name_error">', html)
 
-    def test_as_vuetify_error_row_format(self):
+    def test_render_error_row_format(self):
         """Test dat error rows correct geformatteerd zijn"""
         form = TestForm(data={})
         form.is_valid()
 
-        html = form.as_vuetify()
+        html = form.render()
 
         # Verifieer error wrapper structuur
-        self.assertIn('<div class="djng-line-spreader">', html)
+        self.assertIn('<ul class="errorlist"', html)
 
-    def test_as_vuetify_help_text_format(self):
+    def test_render_help_text_format(self):
         """Test help text formatting"""
 
         class FormWithHelp(VuetifyFormMixin, forms.Form):
             field_with_help = forms.CharField(help_text="This is help text")
 
         form = FormWithHelp()
-        html = form.as_vuetify()
+        html = form.render()
 
-        self.assertIn('<span class="help-block">This is help text</span>', html)
+        self.assertIn(
+            '<label for="id_field_with_help">Field with help:</label>'
+            '\n\n<div class="helptext" id="id_field_with_help_helptext">This is help text</div>',
+            html,
+        )
 
-    def test_as_vuetify_required_fields(self):
+    def test_render_required_fields(self):
         """Test dat required velden correct worden weergegeven"""
-        html = self.form.as_vuetify()
+        html = self.form.render()
 
         # Required velden moeten in de HTML staan
         self.assertIn('name="name"', html)
         self.assertIn('name="email"', html)
 
-    def test_as_vuetify_optional_fields(self):
+    def test_render_optional_fields(self):
         """Test dat optionele velden correct worden weergegeven"""
-        html = self.form.as_vuetify()
+        html = self.form.render()
 
         # Optional veld moet ook in de HTML staan
         self.assertIn('name="message"', html)
 
-    def test_as_vuetify_with_initial_data(self):
-        """Test as_vuetify met initial data"""
+    def test_render_with_initial_data(self):
+        """Test render met initial data"""
         form = TestForm(initial={"name": "John Doe", "email": "john@example.com"})
-        html = form.as_vuetify()
+        html = form.render()
 
         self.assertIn("John Doe", html)
         self.assertIn("john@example.com", html)
 
-    def test_as_vuetify_textarea_widget(self):
+    def test_render_textarea_widget(self):
         """Test dat textarea widget correct wordt gerenderd"""
-        html = self.form.as_vuetify()
+        html = self.form.render()
 
         # Message veld heeft een Textarea widget
         self.assertIn('name="message"', html)

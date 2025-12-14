@@ -30,7 +30,7 @@ class AccountViewSetTest(APITestCase):
 
     def test_get_queryset_returns_only_current_user(self):
         """Test dat get_queryset alleen de huidige gebruiker retourneert"""
-        other_user = User.objects.create_user(username="otheruser", email="other@example.com", password="password123")
+        User.objects.create_user(username="otheruser", email="other@example.com", password="password123")
 
         response = self.client.get("/api/v1/account/")
 

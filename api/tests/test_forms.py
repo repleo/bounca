@@ -1,30 +1,14 @@
-from unittest import skip
-from unittest.mock import MagicMock, Mock, patch
-
-from django import forms
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from api.forms import (
-    AddCertificateForm,
-    AddIntermediateCAForm,
-    AddRootCAForm,
-    AddTokenForm,
-    CertificateForm,
-    ChangePasswordForm,
-    ChangeProfileForm,
     DeleteAccountForm,
     DistinguishedNameForm,
-    RemoveAccountForm,
-    RenewCertificateForm,
-    RenewCertificateVueForm,
     TokenForm,
 )
 from api.models import AuthorisedApp
-from api.tests.factories import AuthorisedAppFactory
-from x509_pki.models import Certificate, DistinguishedName
-from x509_pki.tests.factories import CertificateFactory, DistinguishedNameFactory
+from x509_pki.models import DistinguishedName
+from x509_pki.tests.factories import DistinguishedNameFactory
 
 User = get_user_model()
 
@@ -59,7 +43,6 @@ class TokenFormTest(TestCase):
         form = TokenForm()
         if hasattr(form, "_meta"):
             self.assertEqual(form._meta.model, AuthorisedApp)
-
 
     def tearDown(self):
         """Cleanup"""

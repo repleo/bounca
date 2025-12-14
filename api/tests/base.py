@@ -31,10 +31,14 @@ class APILoginTestCase(APITestCase):
 
     def assertCertInResponseList(self, response, certificate, msg=None):
         self.assertTrue(response.data)
-        self.assertEqual([r['dn']['commonName'] for r in response.data if r['name'] == certificate.name],
-                         [certificate.dn.commonName], msg=msg)
+        self.assertEqual(
+            [r["dn"]["commonName"] for r in response.data if r["name"] == certificate.name],
+            [certificate.dn.commonName],
+            msg=msg,
+        )
 
     def assertCertNotInResponseList(self, response, certificate, msg=None):
         self.assertTrue(response.data)
-        self.assertListEqual([r['dn']['commonName'] for r in response.data if r['name'] == certificate.name],
-                         [], msg=msg)
+        self.assertListEqual(
+            [r["dn"]["commonName"] for r in response.data if r["name"] == certificate.name], [], msg=msg
+        )

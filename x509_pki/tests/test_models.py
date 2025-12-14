@@ -1,5 +1,4 @@
 # coding: utf-8
-from unittest import skip
 from uuid import UUID
 
 import arrow
@@ -437,7 +436,6 @@ class ModelCertificateTest(TestCase):
         self.assertIsNone(cert.slug_revoked_at)
         self.assertFalse(cert.revoked)
         self.assertFalse(cert.expired)
-
 
     def test_days_valid(self):
         dn_ca = DistinguishedNameFactory(

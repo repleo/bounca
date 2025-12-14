@@ -4,6 +4,7 @@ target-version = ['py37', 'py38']
 exclude = '''
 (
   /(
+    | front
     | env
     | venv
     | .venv
@@ -19,12 +20,12 @@ exclude = '''
 profile = "black"
 multi_line_output = 3
 line_length = 120
-skip = ['env', 'venv', '.venv', 'out', 'migrations', 'docs']
+skip = ['front', 'env', 'venv', '.venv', 'out', 'migrations', 'docs']
 
 
 [tool.mypy]
 python_version = "3.13"
-exclude = "(env|venv|.venv|out|migrations|tests|docs)"
+exclude = "(front|env|venv|.venv|out|migrations|tests|docs)"
 
 disallow_untyped_calls = false
 disallow_untyped_defs = false
@@ -44,3 +45,5 @@ pretty = true
 
 warn_unused_configs = true
 ignore_missing_imports = true
+
+# flake8 config is in setup.cfg, as flake8 ignores pyproject.toml
