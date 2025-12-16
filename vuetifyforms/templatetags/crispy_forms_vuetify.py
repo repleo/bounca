@@ -11,9 +11,9 @@ from django.forms import (
     DateTimeField,
     ModelMultipleChoiceField,
     PasswordInput,
+    TypedChoiceField,
     URLField,
 )
-from django_countries.fields import LazyTypedChoiceField
 
 register = template.Library()
 
@@ -102,7 +102,7 @@ def _set_sub_field(obj, keys, value):
 
 
 def _set_field_data(obj, form_object_name, field_name, field):
-    if isinstance(field, LazyTypedChoiceField):
+    if isinstance(field, TypedChoiceField):
         obj[f'formdata_{form_object_name}_{field_name.replace(".", "_")}_values'] = [
             {"text": v[1], "value": v[0]} for v in field.widget.choices if v[0]
         ]
@@ -118,7 +118,7 @@ def _get_empty_value(field):
         return []
     elif isinstance(field, CharField) or isinstance(field, URLField):
         return ""
-    elif isinstance(field, LazyTypedChoiceField):
+    elif isinstance(field, TypedChoiceField):
         return None
     elif isinstance(field, DateField):
         return None
