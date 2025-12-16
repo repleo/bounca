@@ -34,7 +34,7 @@ class DistinguishedName(models.Model):
     )
 
     countryName = CountryField(
-        "Country", help_text="The two-character country name in ISO 3166 format.", blank=True, null=True
+        verbose_name="Country", help_text="The two-character country name in ISO 3166 format.", blank=True, null=True
     )
     stateOrProvinceName = models.CharField(
         "State or Province Name",
