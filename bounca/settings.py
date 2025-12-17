@@ -269,6 +269,8 @@ if DEBUG:
 
 if IS_UNITTEST:
     EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+    LOGGING["handlers"]["file"]["filename"] = "./logs/bounca.log"
+    LOGGING["root"]["level"] = "INFO"
     LANGUAGE_CODE = "en-us"
 
 IS_GENERATE_FRONTEND = "generate_forms" in sys.argv or any(["generate_forms" in arg for arg in sys.argv])
