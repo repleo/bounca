@@ -155,7 +155,7 @@ REST_AUTH_SERIALIZERS = {
 
 ACCOUNT_ADAPTER = "api.auth.adapter.DefaultAccountAdapterFrontendHost"
 
-ACCOUNT_EMAIL_VERIFICATION = None
+ACCOUNT_EMAIL_VERIFICATION = "off"
 if "email_verification" in SERVICES["registration"] and SERVICES["registration"]["email_verification"] in [
     "mandatory",
     "optional",
