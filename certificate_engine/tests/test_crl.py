@@ -88,16 +88,16 @@ class CRLClientServerTest(CertificateTestCase):
         return crt, crt.public_bytes(encoding=serialization.Encoding.PEM).decode("utf8")
 
     def test_revocation_builder(self):
-        timestamp = datetime.today()
+        timestamp = timezone.now()
         cert, pem = self.make_server_certificate()
         revoked_cert = revocation_builder(pem, timestamp)
         self.assertEqual(revoked_cert.serial_number, cert.serial_number)
-        self.assertEqual(revoked_cert.revocation_date, timestamp)
+        self.assertEqual(revoked_cert.revocation_date_utc, timestamp)
         self.assertEqual(len(revoked_cert.extensions), 0)
 
     def test_revocation_list_builder_empty(self):
-        last_update = datetime.today().replace(microsecond=0) - timedelta(3, 0, 0)
-        next_update = datetime.today().replace(microsecond=0) + timedelta(2, 0, 0)
+        last_update = timezone.now().replace(microsecond=0) - timedelta(3, 0, 0)
+        next_update = timezone.now().replace(microsecond=0) + timedelta(2, 0, 0)
         crl = revocation_list_builder(
             [],
             self.int_certificate,
@@ -107,16 +107,18 @@ class CRLClientServerTest(CertificateTestCase):
         cert, pem = self.make_server_certificate()
 
         self.assert_subject(crl.issuer, self.int_certificate)
-        self.assertEqual(crl.last_update, last_update)
-        self.assertEqual(crl.next_update, next_update)
+        self.assertEqual(crl.last_update_utc, last_update)
+        self.assertEqual(crl.next_update_utc, next_update)
         self.assertIsNone(crl.get_revoked_certificate_by_serial_number(cert.serial_number))
 
     def test_revocation_list_builder_one_cert(self):
         cert, pem = self.make_server_certificate()
-        revoke_date = datetime.today().replace(microsecond=0) - timedelta(3, 0, 0)
+        revoke_date = timezone.now().replace(microsecond=0) - timedelta(3, 0, 0)
         crl = revocation_list_builder([(pem, revoke_date)], self.int_certificate)
         self.assert_subject(crl.issuer, self.int_certificate)
-        self.assertEqual(crl.get_revoked_certificate_by_serial_number(cert.serial_number).revocation_date, revoke_date)
+        self.assertEqual(
+            crl.get_revoked_certificate_by_serial_number(cert.serial_number).revocation_date_utc, revoke_date
+        )
 
     def test_revocation_list_builder_one_cert_passphrase(self):
         subject = DistinguishedNameFactory(
@@ -204,16 +206,16 @@ class CRLIntermediateTest(CertificateTestCase):
         return crt, crt.public_bytes(encoding=serialization.Encoding.PEM).decode("utf8")
 
     def test_revocation_builder(self):
-        timestamp = datetime.today()
+        timestamp = timezone.now()
         cert, pem = self.make_intermediate_certificate()
         revoked_cert = revocation_builder(pem, timestamp)
         self.assertEqual(revoked_cert.serial_number, cert.serial_number)
-        self.assertEqual(revoked_cert.revocation_date, timestamp)
+        self.assertEqual(revoked_cert.revocation_date_utc, timestamp)
         self.assertEqual(len(revoked_cert.extensions), 0)
 
     def test_revocation_list_builder_empty(self):
-        last_update = datetime.today().replace(microsecond=0) - timedelta(3, 0, 0)
-        next_update = datetime.today().replace(microsecond=0) + timedelta(2, 0, 0)
+        last_update = timezone.now().replace(microsecond=0) - timedelta(3, 0, 0)
+        next_update = timezone.now().replace(microsecond=0) + timedelta(2, 0, 0)
         crl = revocation_list_builder(
             [],
             self.root_certificate,
@@ -222,16 +224,18 @@ class CRLIntermediateTest(CertificateTestCase):
         )
         cert, pem = self.make_intermediate_certificate()
         self.assert_subject(crl.issuer, self.root_certificate)
-        self.assertEqual(crl.last_update, last_update)
-        self.assertEqual(crl.next_update, next_update)
+        self.assertEqual(crl.last_update_utc, last_update)
+        self.assertEqual(crl.next_update_utc, next_update)
         self.assertIsNone(crl.get_revoked_certificate_by_serial_number(cert.serial_number))
 
     def test_revocation_list_builder_one_cert(self):
         cert, pem = self.make_intermediate_certificate()
-        revoke_date = datetime.today().replace(microsecond=0) - timedelta(3, 0, 0)
+        revoke_date = timezone.now().replace(microsecond=0) - timedelta(3, 0, 0)
         crl = revocation_list_builder([(pem, revoke_date)], self.root_certificate)
         self.assert_subject(crl.issuer, self.root_certificate)
-        self.assertEqual(crl.get_revoked_certificate_by_serial_number(cert.serial_number).revocation_date, revoke_date)
+        self.assertEqual(
+            crl.get_revoked_certificate_by_serial_number(cert.serial_number).revocation_date_utc, revoke_date
+        )
 
     def test_revocation_list_builder_one_cert_passphrase(self):
         subject = DistinguishedNameFactory(

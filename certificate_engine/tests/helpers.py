@@ -144,19 +144,24 @@ class CertificateTestCase(TestCase):
         not_valid_before = (
             arrow.get(
                 datetime.datetime(
-                    year=certificate.created_at.year, month=certificate.created_at.month, day=certificate.created_at.day
+                    year=certificate.created_at.year,
+                    month=certificate.created_at.month,
+                    day=certificate.created_at.day,
+                    tzinfo=datetime.timezone.utc,
                 )
             )
             .shift(days=-1)
             .datetime
         )
-        not_valid_before = not_valid_before.replace(tzinfo=None)
-        self.assertEqual(crt.not_valid_before, not_valid_before)
+        self.assertEqual(crt.not_valid_before_utc, not_valid_before)
 
         self.assertEqual(
-            crt.not_valid_after,
+            crt.not_valid_after_utc,
             datetime.datetime(
-                year=certificate.expires_at.year, month=certificate.expires_at.month, day=certificate.expires_at.day
+                year=certificate.expires_at.year,
+                month=certificate.expires_at.month,
+                day=certificate.expires_at.day,
+                tzinfo=datetime.timezone.utc,
             ),
         )
 
