@@ -1,5 +1,5 @@
 # coding: utf-8
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import arrow
 from cryptography import x509
