@@ -69,6 +69,12 @@
 
       </v-flex>
 
+      <v-flex
+        xs12
+        md8
+      >
+      <forms-UserDeleteAccount ref="deleteAccount" @success="showDialog($event)"/>
+      </v-flex>
     </v-layout>
 
     <v-dialog v-model='addTokenDialog' width='800px'>
@@ -143,14 +149,8 @@ export default {
   },
   watch: {
     dialogDelete(val) {
-      if (!val) {
-        this.closeRevoke();
-      }
     },
     addTokenDialog(val) {
-      if (!val) {
-        this.$refs.AddTokenForm.resetForm();
-      }
     },
     pagination: {
       handler() {

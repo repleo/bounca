@@ -1,4 +1,5 @@
 """Main URL config"""
+
 from dj_rest_auth.registration.views import VerifyEmailView
 from django.conf import settings
 from django.conf.urls import include
@@ -28,7 +29,7 @@ if settings.ADMIN:
         urlpatterns += [
             # Other URL patterns ...
             path("accounts/signup/", CreateSuperUserView.as_view(), name="superuser_signup"),
-            path("accounts/login/", RedirectView.as_view(url="/admin/login"), name="account_login")
+            path("accounts/login/", RedirectView.as_view(url="/admin/login"), name="account_login"),
             # More URL patterns ...
         ]
 

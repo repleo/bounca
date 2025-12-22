@@ -69,9 +69,7 @@ class Certificate(object):
         return (
             CertificateRootPolicy()
             if cert.type == CertificateTypes.ROOT
-            else CertificateIntermediatePolicy()
-            if cert.type == CertificateTypes.INTERMEDIATE
-            else CertificatePolicy()
+            else CertificateIntermediatePolicy() if cert.type == CertificateTypes.INTERMEDIATE else CertificatePolicy()
         )
 
     @staticmethod

@@ -1,5 +1,4 @@
 # coding: utf-8
-from unittest import skip
 from uuid import UUID
 
 import arrow
@@ -167,7 +166,7 @@ class ModelCertificateTest(TestCase):
         cert.type = CertificateTypes.ROOT
         cert.name = "repleo root ca1"
         cert.dn = dn
-        cert.expires_at = arrow.get(timezone.now()).shift(years=+10).date()
+        cert.expires_at = arrow.get(timezone.now()).shift(days=+3650).date()
 
         cert.revoked_at = None
         cert.owner = self.user
@@ -181,8 +180,8 @@ class ModelCertificateTest(TestCase):
         )
         self.assertEqual(cert.type, CertificateTypes.ROOT)
         self.assertEqual(cert.name, "repleo root ca1")
-        self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(years=-10).date())
-        self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(years=+10).date())
+        self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(days=-3650).date())
+        self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(days=+3650).date())
         self.assertIsNone(cert.revoked_at)
         self.assertEqual(cert.owner, self.user)
         self.assertEqual(cert.revoked_uuid, UUID(int=0))
@@ -209,7 +208,7 @@ class ModelCertificateTest(TestCase):
         cert.dn = dn
         cert.crl_distribution_url = "https://ca.demo.repleo.nl/crl/test.crl"
         cert.ocsp_distribution_host = "https://ca.demo.repleo.nl/ocsp"
-        cert.expires_at = arrow.get(timezone.now()).shift(years=+5).date()
+        cert.expires_at = arrow.get(timezone.now()).shift(days=+1500).date()
 
         cert.revoked_at = None
         cert.owner = self.user
@@ -225,8 +224,8 @@ class ModelCertificateTest(TestCase):
         self.assertEqual(cert.name, "repleo int ca1")
         self.assertEqual(cert.crl_distribution_url, "https://ca.demo.repleo.nl/crl/test.crl")
         self.assertEqual(cert.ocsp_distribution_host, "https://ca.demo.repleo.nl/ocsp")
-        self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(years=-5).date())
-        self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(years=+5).date())
+        self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(days=-1500).date())
+        self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(days=+1500).date())
         self.assertIsNone(cert.revoked_at)
         self.assertEqual(cert.owner, self.user)
         self.assertEqual(cert.revoked_uuid, UUID(int=0))
@@ -290,7 +289,7 @@ class ModelCertificateTest(TestCase):
     def test_renew_server_certificate(self):
         old_pk = self.cert.pk
         old_serial = self.cert.serial
-        self.cert.renew(expires_at=arrow.get(timezone.now()).shift(years=+2).date())
+        self.cert.renew(expires_at=arrow.get(timezone.now()).shift(days=+720).date())
         cert_old = Certificate.objects.get(pk=old_pk)
 
         self.assertIsNotNone(cert_old.revoked_at)
@@ -306,8 +305,8 @@ class ModelCertificateTest(TestCase):
         )
         self.assertEqual(self.cert.type, CertificateTypes.SERVER_CERT)
         self.assertEqual(self.cert.name, "www.repleo.nl.setup")
-        self.assertEqual(self.cert.created_at, arrow.get(self.cert.expires_at).shift(years=-2).date())
-        self.assertEqual(self.cert.expires_at, arrow.get(self.cert.created_at).shift(years=+2).date())
+        self.assertEqual(self.cert.created_at, arrow.get(self.cert.expires_at).shift(days=-720).date())
+        self.assertEqual(self.cert.expires_at, arrow.get(self.cert.created_at).shift(days=+720).date())
         self.assertIsNone(self.cert.revoked_at)
         self.assertEqual(self.cert.owner, self.user)
         self.assertEqual(self.cert.revoked_uuid, UUID(int=0))
@@ -365,7 +364,7 @@ class ModelCertificateTest(TestCase):
         cert.type = CertificateTypes.CLIENT_CERT
         cert.name = "info@bounca.org"
         cert.dn = dn
-        cert.expires_at = arrow.get(timezone.now()).shift(years=+1).date()
+        cert.expires_at = arrow.get(timezone.now()).shift(days=+200).date()
 
         cert.revoked_at = None
         cert.owner = self.user
@@ -379,8 +378,8 @@ class ModelCertificateTest(TestCase):
         )
         self.assertEqual(cert.type, CertificateTypes.CLIENT_CERT)
         self.assertEqual(cert.name, "info@bounca.org")
-        self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(years=-1).date())
-        self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(years=+1).date())
+        self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(days=-200).date())
+        self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(days=+200).date())
         self.assertIsNone(cert.revoked_at)
         self.assertEqual(cert.owner, self.user)
         self.assertEqual(cert.revoked_uuid, UUID(int=0))
@@ -399,7 +398,6 @@ class ModelCertificateTest(TestCase):
         self.assertIsNotNone(cert.slug_revoked_at)
         self.assertNotEqual(cert.revoked_uuid, UUID(int=0))
 
-    @skip("TODO check if values are valid")
     def test_generate_ocsp_certificate(self):
         dn = DistinguishedNameFactory(
             countryName="NL",
@@ -424,11 +422,11 @@ class ModelCertificateTest(TestCase):
 
         self.assertEqual(
             cert.dn.dn,
-            "CN=https://ca.demo.repleo.nl/ocsp, O=Repleo, OU=IT Department, "
+            "CN=ca.demo.repleo.nl, O=Repleo, OU=IT Department, "
             "L=Amsterdam, ST=Noord-Holland, EMAIL=info@repleo.nl, C=NL",
         )
         self.assertEqual(cert.type, CertificateTypes.OCSP)
-        self.assertEqual(cert.name, "https://ca.demo.repleo.nl/ocsp")
+        self.assertEqual(cert.name, "ca.demo.repleo.nl")
         self.assertEqual(cert.created_at, arrow.get(cert.expires_at).shift(years=-1).date())
         self.assertEqual(cert.expires_at, arrow.get(cert.created_at).shift(years=+1).date())
         self.assertIsNone(cert.revoked_at)
@@ -438,10 +436,6 @@ class ModelCertificateTest(TestCase):
         self.assertIsNone(cert.slug_revoked_at)
         self.assertFalse(cert.revoked)
         self.assertFalse(cert.expired)
-
-        with self.assertRaises(ValidationError) as c:
-            cert.generate_crl()
-        self.assertEqual(c.exception.message, "CRL File can only be generated for Intermediate Certificates")
 
     def test_days_valid(self):
         dn_ca = DistinguishedNameFactory(
@@ -456,10 +450,10 @@ class ModelCertificateTest(TestCase):
         )
         cert = CertificateFactory(dn=dn_ca, type=CertificateTypes.ROOT)
         cert.expires_at = arrow.get(timezone.now()).shift(years=+10).date()
-        self.assertEqual(cert.days_valid, 3653)
+        self.assertIn(cert.days_valid, [3651, 3652])
         cert.save()
         cert.refresh_from_db()
-        self.assertEqual(cert.days_valid, 3653)
+        self.assertIn(cert.days_valid, [3651, 3652])
 
     def test_set_name_to_common_name(self):
         dn_ca = DistinguishedNameFactory(

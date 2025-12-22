@@ -17,5 +17,9 @@ export default {
     const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };
     return axios.patch(url, data, { headers: headers });
   },
-
+  deleteAccount(data) {
+    const url = `${process.env.VUE_APP_ROOT_API}/api/v1/account/`;
+    const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };
+    return axios.delete(url, { data: data, headers: headers }).then((response) => response.data);
+  },
 };

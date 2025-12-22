@@ -140,7 +140,7 @@ class Key(object):
             )
             return True
         except ValueError as e:
-            if str(e) == "Bad decrypt. Incorrect password?":
+            if "Incorrect password" in str(e):
                 return False
             raise e
         except TypeError as e:

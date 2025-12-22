@@ -28,3 +28,17 @@ class APILoginTestCase(APITestCase):
 
     def setUp(self):
         self.client.login(username=self.user.username, password="password123")
+
+    def assertCertInResponseList(self, response, certificate, msg=None):
+        self.assertTrue(response.data)
+        self.assertEqual(
+            [r["dn"]["commonName"] for r in response.data if r["name"] == certificate.name],
+            [certificate.dn.commonName],
+            msg=msg,
+        )
+
+    def assertCertNotInResponseList(self, response, certificate, msg=None):
+        self.assertTrue(response.data)
+        self.assertListEqual(
+            [r["dn"]["commonName"] for r in response.data if r["name"] == certificate.name], [], msg=msg
+        )

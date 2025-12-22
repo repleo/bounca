@@ -1,9 +1,10 @@
 """Models for storing subject and certificate information"""
+
 import datetime
 import uuid
 
 import pytz
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -21,6 +22,8 @@ from certificate_engine.ssl.info import get_certificate_fingerprint, get_certifi
 from certificate_engine.ssl.key import Key as KeyGenerator
 from certificate_engine.types import CertificateTypes
 
+User = get_user_model()
+
 
 class DistinguishedName(models.Model):
     alphanumeric_validator = RegexValidator(
@@ -31,7 +34,7 @@ class DistinguishedName(models.Model):
     )
 
     countryName = CountryField(
-        "Country", help_text="The two-character country name in ISO 3166 format.", blank=True, null=True
+        verbose_name="Country", help_text="The two-character country name in ISO 3166 format.", blank=True, null=True
     )
     stateOrProvinceName = models.CharField(
         "State or Province Name",
@@ -310,6 +313,9 @@ class Certificate(models.Model):
         else:
             self.crlstore.crl = serialize(crl)
             self.crlstore.save()
+
+    def force_delete(self, *args, **kwargs):
+        return super().delete(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         if self.revoked_at:

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -xe
+#!/usr/bin/env bash -x
 
 BASEDIR=`dirname "$0"`
 cd $BASEDIR

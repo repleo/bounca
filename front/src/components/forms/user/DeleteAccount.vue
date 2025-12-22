@@ -3,7 +3,7 @@
 <!-- Generated with django-vuetifyforms -->
 <v-card >
   <v-toolbar dark flat color="primary" class="mb-6">
-    <v-toolbar-title>Change Password</v-toolbar-title>
+    <v-toolbar-title>Delete Account</v-toolbar-title>
   </v-toolbar>
   <v-card-text>
   <ValidationObserver ref="form" v-slot="{ errors }">
@@ -25,47 +25,12 @@
     
     <v-row class="" >
         <v-col class="" >
-        
-
-
-
-
-<v-tooltip bottom>
-<template v-slot:activator="{ on, attrs }">
-
-<ValidationProvider name="New password" vid="new_password1"
-                    rules="required" v-slot="{ errors }">
-
-<v-text-field
-  label="New password*"
-  v-model="password.new_password1"
-  :error-messages="errors"
-  
-  :append-icon="new_password1_visible ? 'visibility' : 'visibility_off'"
-  @click:append="() => (new_password1_visible = !new_password1_visible)"
-  :type="new_password1_visible ? 'text' : 'password' "
-  
-  required
-  
-  
-  v-bind="attrs"
-  v-on="on"
-  
-></v-text-field>
-
-
-
-</ValidationProvider>
-
-</template>
-<span><ul><li>Your password can’t be too similar to your other personal information.</li><li>Your password must contain at least 8 characters.</li><li>Your password can’t be a commonly used password.</li><li>Your password can’t be entirely numeric.</li></ul></span>
-</v-tooltip>
-
-
-
-
+        Deleting of your account is irreversible. All information associated with your account will be permanently deleted, including removal of all your certificates.
 </v-col>
-<v-col class="" >
+
+</v-row>
+<v-row class="" >
+        <v-col class="" >
         
 
 
@@ -74,17 +39,17 @@
 <v-tooltip bottom>
 <template v-slot:activator="{ on, attrs }">
 
-<ValidationProvider name="New password confirmation" vid="new_password2"
+<ValidationProvider name="Password" vid="password"
                     rules="required" v-slot="{ errors }">
 
 <v-text-field
-  label="New password confirmation*"
-  v-model="password.new_password2"
+  label="Password*"
+  v-model="password.password"
   :error-messages="errors"
   
-  :append-icon="new_password2_visible ? 'visibility' : 'visibility_off'"
-  @click:append="() => (new_password2_visible = !new_password2_visible)"
-  :type="new_password2_visible ? 'text' : 'password' "
+  :append-icon="password_visible ? 'visibility' : 'visibility_off'"
+  @click:append="() => (password_visible = !password_visible)"
+  :type="password_visible ? 'text' : 'password' "
   
   required
   
@@ -99,7 +64,7 @@
 </ValidationProvider>
 
 </template>
-<span>Enter the same password as before, for verification.</span>
+<span>Enter your password to confirm account deletion.</span>
 </v-tooltip>
 
 
@@ -116,9 +81,9 @@
     Cancel
 </v-btn>
 <v-btn
-       @click="updatePassword" color="secondary" dark class=" px-6"
+       @click="deleteAccount" color="red" dark class=" px-6 darken-2"
 >
-    Update
+    Delete
 </v-btn>
 
 </v-card-actions>
@@ -131,6 +96,18 @@
     </ValidationObserver>
   </v-card-text>
   
+<v-dialog v-model="dialogDeleteAccount" max-width="565px">
+  <v-card>
+  <v-card-title class="text-h5">Are you sure you want to delete your account?</v-card-title>
+  <v-card-actions>
+    <v-spacer></v-spacer>
+    <v-btn color="blue darken-1" text @click="closeDialogDeleteAccount">Cancel</v-btn>
+    <v-btn color="blue darken-1" text
+           @click="deleteAccountConfirm">OK</v-btn>
+  </v-card-actions>
+  </v-card>
+</v-dialog>
+        
 </v-card>
 </template>
 
@@ -143,13 +120,15 @@ import profile from '../../../api/profile';
 
 
 function initialState (){
-  const data = {"dialog": false, "new_password1_visible": false, "new_password2_visible": false, "password": {"new_password1": "", "new_password2": ""}};
+  const data = {"dialog": false, "password_visible": false, "password": {"password": ""}};
   
+data['dialogDeleteAccount'] = false;
+            
   return data;
 }
 
 export default {
-    name: 'changePassword',
+    name: 'deleteAccount',
     props: [],
     data() {
         return initialState();
@@ -168,19 +147,27 @@ export default {
     },
 
     
-updatePassword() {
+deleteAccount() {
+  this.dialogDeleteAccount = true;
+},
+deleteAccountConfirm() {
   this.$refs.form.validate().then((isValid) => {
     if (isValid) {
-      this.new_password1_visible = false;
-      this.new_password1_visible = false;
-      profile.changeAccountPassword(this.password).then( response  => {
-          this.$emit('success', 'Password has been updated.');
+      this.password_visible = false;
+      profile.deleteAccount(this.password).then( response  => {
+          this.$emit('success', 'Account has been deleted.');
           this.resetForm();
+          this.closeDialogDeleteAccount();
       }).catch( r => {
         this.$refs.form.setErrors(r.response.data);
+        this.dialogDeleteAccount = false;
       });
     }
   });
+},
+closeDialogDeleteAccount() {
+  this.resetForm();
+  this.dialogDeleteAccount = false;
 }
             ,
 

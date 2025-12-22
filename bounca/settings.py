@@ -106,7 +106,7 @@ INSTALLED_APPS = [
     "django_filters",
     "django_property_filter",
     "django_countries",
-    "rest_framework_swagger",
+    "drf_yasg",
     "dj_rest_auth",
     "dj_rest_auth.registration",
     # BounCA
@@ -155,14 +155,16 @@ REST_AUTH_SERIALIZERS = {
 
 ACCOUNT_ADAPTER = "api.auth.adapter.DefaultAccountAdapterFrontendHost"
 
-ACCOUNT_EMAIL_VERIFICATION = None
+ACCOUNT_EMAIL_VERIFICATION = "none"
 if "email_verification" in SERVICES["registration"] and SERVICES["registration"]["email_verification"] in [
     "mandatory",
     "optional",
 ]:
     ACCOUNT_EMAIL_VERIFICATION = SERVICES["registration"]["email_verification"]
-ACCOUNT_EMAIL_REQUIRED = ACCOUNT_EMAIL_VERIFICATION in ["mandatory", "optional"]
-ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+ACCOUNT_SIGNUP_FIELDS = ["username*", "password1*", "password2*"]
+if ACCOUNT_EMAIL_VERIFICATION in ["mandatory", "optional"]:
+    ACCOUNT_SIGNUP_FIELDS += ["email*"]
+ACCOUNT_LOGIN_METHODS = {"username", "email"}
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
     "django.contrib.auth.backends.ModelBackend",
@@ -267,10 +269,12 @@ if DEBUG:
 
 if IS_UNITTEST:
     EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+    LOGGING["handlers"]["file"]["filename"] = "./logs/bounca.log"
+    LOGGING["root"]["level"] = "INFO"
     LANGUAGE_CODE = "en-us"
 
 IS_GENERATE_FRONTEND = "generate_forms" in sys.argv or any(["generate_forms" in arg for arg in sys.argv])
 
-if IS_GENERATE_FRONTEND:
+if IS_GENERATE_FRONTEND or IS_UNITTEST:
     CRISPY_TEMPLATE_PACK = "vuetify"
     INSTALLED_APPS += ["crispy_forms", "vuetifyforms"]

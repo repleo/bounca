@@ -10,5 +10,6 @@ omit =
     bounca/wsgi.py
     env/*
     venv/*
+    .venv/*
 [html]
 title = Coverage Report for BounCA

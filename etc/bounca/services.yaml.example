@@ -8,7 +8,7 @@ psql:
 
 admin:
   enabled: True
-  superuser_signup: True
+  superuser_signup: False
 
 django:
   debug: False

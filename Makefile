@@ -44,3 +44,7 @@ update-python-packages:
 
 migrate:
 	python manage.py migrate
+
+update-deps:
+	pur -r requirements.txt
+	pur -r requirements.docs.txt

@@ -13,7 +13,7 @@ services:
 
 
 variables:
-  CONTAINER_PYTHON_IMAGE: python:3.9
+  CONTAINER_PYTHON_IMAGE: python:3.13
   CONTAINER_NODE_IMAGE: node:17
   POSTGRES_DB: bounca
   POSTGRES_USER: bounca
@@ -61,7 +61,7 @@ test-backend:
   script:
     - mkdir -p /var/log/bounca/
     - cp ./etc/bounca/services.yaml.example ./etc/bounca/services.yaml
-    - bash -xe run-tests.sh
+    - bash -e run-tests.sh
   artifacts:
     reports:
       coverage_report:
@@ -73,7 +73,7 @@ build-front:
   stage: build
   image: $CONTAINER_NODE_IMAGE
   script:
-    - bash -xe build-front.sh
+    - bash -e build-front.sh
   dependencies:
     - check-front
   artifacts:
@@ -87,7 +87,7 @@ package:
   dependencies:
     - build-front
   script:
-    - bash -xe build-package.sh
+    - bash -e build-package.sh
   artifacts:
     paths:
       - bounca.tar.gz

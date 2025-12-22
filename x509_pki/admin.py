@@ -1,4 +1,5 @@
 """Admin interface definition for certificates"""
+
 from django.contrib import admin
 from django.contrib.admin.utils import flatten_fieldsets
 
@@ -50,8 +51,9 @@ admin.site.register(DistinguishedName, X509_pki_DistinguishedNameAdmin)
 
 
 class X509_pki_CertificateAdmin(ReadOnlyAdmin):
-    search_fields = ["name", "serial"]
+    search_fields = ["name", "serial", "owner__username"]
     list_display = (
+        "owner",
         "name",
         "parent",
         "type",
