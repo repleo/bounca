@@ -1,6 +1,13 @@
 # Change Log
 The BounCA change history
 
+## [0.4.6] - Release 2025-12-23]
+* Support for removing accounts
+* Fix serial number not changing when renewing certificates
+* Updated dependencies
+* Added more unit tests
+* Python 3.13
+
 ## [0.4.5] - Release 2024-01-31]
 * Generate CRL file updates via button, and set expire day 365 days in the future
 * Added legacy pkcs12 support for macOS
