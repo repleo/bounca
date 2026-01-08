@@ -1,6 +1,10 @@
 # Change Log
 The BounCA change history
 
+## [0.4.6] - Release 2026-01-XX]
+* Export private keys for root and intermediate certificate
+* Search fields in admin
+
 ## [0.4.6] - Release 2025-12-23]
 * Support for removing accounts
 * Fix serial number not changing when renewing certificates

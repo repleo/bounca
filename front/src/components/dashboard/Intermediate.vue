@@ -81,6 +81,9 @@
               <v-icon class="mr-2" color="blue darken-2" @click="infoCertificate(item.id)">
                 mdi-information
               </v-icon>
+              <v-icon class="mr-2" color="yellow darken-2" @click="keyCertificate(item.id)">
+                mdi-key-variant
+              </v-icon>
               <v-icon class="mr-2" color="grey darken-2"
                       @click="downloadCertificate(item.id)">
                 mdi-download
@@ -250,6 +253,26 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+     <v-dialog v-model="dialogKey" width="800px">
+    <v-card :loading="dialogInfoLoading">
+      <v-card-title class="text-h5">Certificate key</v-card-title>
+      <v-divider class="mx-4"></v-divider>
+      <v-card-text>
+        <pre style="white-space: pre-wrap"><div v-html="dialogKeyText"></div></pre>
+      </v-card-text>
+      <v-divider class="mx-4"></v-divider>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+          <v-btn
+            color="blue darken-2"
+            text
+            @click="dialogKey = false"
+          >
+            Close
+          </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
   <v-dialog v-model="dialogError" width="800px">
     <v-card>
       <v-card-title class="text-h5">Error</v-card-title>
@@ -306,6 +329,10 @@ export default {
       dialogInfo: false,
       dialogInfoText: '',
       dialogInfoLoading: true,
+
+      dialogKey: false,
+      dialogKeyText: '',
+      dialogKeyLoading: true,
 
       renewCrlItem: null,
       dialogRenewCrl: false,
@@ -459,6 +486,21 @@ export default {
         .catch((e) => {
           this.dialogInfoLoading = false;
           this.dialogInfoText = `No data, please check your certificate. Error: ${e}`;
+        });
+    },
+
+    keyCertificate(item) {
+      this.dialogKeyText = '';
+      this.dialogKeyLoading = true;
+      this.dialogKey = true;
+      certificates.getKey(item)
+        .then((response) => {
+          this.dialogKeyLoading = false;
+          this.dialogKeyText = response.text;
+        })
+        .catch((e) => {
+          this.dialogKeyLoading = false;
+          this.dialogKeyText = `No key, please check your certificate. Error: ${e}`;
         });
     },
 

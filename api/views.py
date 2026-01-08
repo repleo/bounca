@@ -151,6 +151,21 @@ class CertificateInfoView(APIView):
         return Response({"text": info})
 
 
+class CertificateKeyView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk, *args, **kwargs):
+        try:
+            user = self.request.user
+            cert = Certificate.objects.get(pk=pk, owner=user)
+        except Certificate.DoesNotExist:
+            raise Http404("Certificate not found")
+        if not hasattr(cert, "keystore"):
+            raise Http404("Certificate has no keystore, generation of key object went wrong")
+        key = cert.keystore.key
+        return Response({"text": key})
+
+
 class ApiRoot(APIView):
     @classmethod
     def as_view(cls, urlpatterns=list, **initkwargs):

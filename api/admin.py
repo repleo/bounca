@@ -44,6 +44,8 @@ class AuthorisedAppForm(ModelForm):
 @admin.register(AuthorisedApp)
 class AppAdmin(admin.ModelAdmin):
     form = AuthorisedAppForm
+    search_fields = ["user__username", "name", "token"]
+    list_display = ["user", "name", "token"]
     list_display = [
         "user",
         "name",
@@ -66,6 +68,9 @@ admin.site.unregister(User)
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
+    search_fields = ["email", "first_name", "last_name", "username"]
+    list_display = ["username", "first_name", "last_name", "email"]
+
     def _delete_certificate(self, certificate):
         for child in Certificate.objects.filter(parent=certificate):
             if child != certificate:
