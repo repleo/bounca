@@ -48,7 +48,7 @@ cmdclass = {
 
 setup(
     name="bounca",
-    version="0.4.6",
+    version="0.4.7",
     cmdclass=cmdclass,
     entry_points={"console_scripts": ["djadmin = manage:main"]},
     scripts=["manage.py"],

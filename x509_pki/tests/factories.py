@@ -10,7 +10,7 @@ from factory.django import DjangoModelFactory
 from faker import Factory as FakerFactory
 
 from certificate_engine.types import CertificateTypes
-from x509_pki.models import Certificate, DistinguishedName
+from x509_pki.models import Certificate, DistinguishedName, KeyStore
 
 fake = FakerFactory.create()
 
@@ -69,3 +69,16 @@ class CertificateFactory(DjangoModelFactory):
     created_at = factory.LazyFunction(lambda: arrow.get(timezone.now()).date())
     expires_at = factory.LazyFunction(lambda: arrow.get(timezone.now()).shift(days=+1).date())
     revoked_at = None
+
+
+class KeyStoreFactory(DjangoModelFactory):
+    class Meta:
+        model = KeyStore
+        strategy = BUILD_STRATEGY
+
+    key = "Serialized Private Key"
+    crt = "Serialized signed certificate"
+    p12 = "Serialized PKCS 12 package with key and certificate"
+    p12_legacy = b"Serialized PKCS 12 package with key and certificate sha1 for legacy support"
+    fingerprint = "SHA1 Fingerprint of Certificate"
+    certificate = factory.SubFactory(CertificateFactory)

@@ -17,6 +17,11 @@ export default {
     const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };
     return axios.get(url, { headers: headers }).then((response) => response.data);
   },
+  getKey(id) {
+    const url = `${process.env.VUE_APP_ROOT_API}/api/v1/certificates/${id}/key`;
+    const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };
+    return axios.get(url, { headers: headers }).then((response) => response.data);
+  },
   download(path, callback, callbackError) {
     const url = `${process.env.VUE_APP_ROOT_API}/api/v1/${path}`;
     const headers = { Authorization: `Token ${store.getters['auth/accessToken']}` };
