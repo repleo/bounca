@@ -1,7 +1,7 @@
 # Change Log
 The BounCA change history
 
-## [0.4.6] - Release 2026-01-XX]
+## [0.4.7] - Release 2026-01-09]
 * Export private keys for root and intermediate certificate
 * Search fields in admin
 
