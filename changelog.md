@@ -1,18 +1,21 @@
 # Change Log
 The BounCA change history
 
-## [0.4.7] - Release 2026-01-09]
+## [0.4.8] - Release 2026-01-30
+* Send email when certificate is about to expire (Default 30 days)
+
+## [0.4.7] - Release 2026-01-09
 * Export private keys for root and intermediate certificate
 * Search fields in admin
 
-## [0.4.6] - Release 2025-12-23]
+## [0.4.6] - Release 2025-12-23
 * Support for removing accounts
 * Fix serial number not changing when renewing certificates
 * Updated dependencies
 * Added more unit tests
 * Python 3.13
 
-## [0.4.5] - Release 2024-01-31]
+## [0.4.5] - Release 2024-01-31
 * Generate CRL file updates via button, and set expire day 365 days in the future
 * Added legacy pkcs12 support for macOS
 * Mail template fix
