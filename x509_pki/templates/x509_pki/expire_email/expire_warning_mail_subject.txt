@@ -1,0 +1,4 @@
+{% load i18n %}
+{% autoescape off %}
+{% blocktrans %}Your BounCA certificate will expire within 30 days{% endblocktrans %}
+{% endautoescape %}

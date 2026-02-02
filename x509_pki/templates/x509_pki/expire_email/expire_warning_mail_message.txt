@@ -1,0 +1,9 @@
+{% extends "x509_pki/base_message.txt" %}
+{% load account %}
+{% load i18n %}
+
+{% block content %}{% user_display cert.owner as user_display %}
+{% blocktranslate with cert_name=cert.name common_name=cert.dn.commonName expires_at=cert.expires_at %}You're receiving this email because the certificate '{{ cert_name }}' with common name '{{ common_name }}' will expire at {{ expires_at }}.{% endblocktranslate %}
+
+{% blocktranslate with site_domain=current_site.domain parent_id=cert.parent.id %}Please make sure you renew the certificate on time. Renew link http://{{ site_domain }}/dashboard/certificate/{{ parent_id }}{% endblocktranslate %}
+{% endblock content %}

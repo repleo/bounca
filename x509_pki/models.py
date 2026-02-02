@@ -208,6 +208,9 @@ class Certificate(models.Model):
     # when not revoked, uuid is 0. The revoked_uuid is used in the unique constraint
     # to ensure only one signed certificate has been issued
     revoked_uuid = models.UUIDField(default=0)
+
+    expire_warning_mail_sent_at = models.DateTimeField(editable=False, default=None, blank=True, null=True)
+
     serial = models.UUIDField(default=uuid.uuid4, editable=False)
 
     owner = models.ForeignKey(User, on_delete=models.PROTECT)
@@ -257,6 +260,9 @@ class Certificate(models.Model):
     def save(self, *args, **kwargs):
         if self.id is None:
             self.full_clean()
+            super().save(*args, **kwargs)
+        # Only allow to update expire_warning_mail_sent_at
+        if kwargs.get("update_fields") == ["expire_warning_mail_sent_at"]:
             super().save(*args, **kwargs)
 
     def renew(self, expires_at, *args, **kwargs):
@@ -357,17 +363,16 @@ def set_fields_certificate(sender, instance, *args, **kwargs):
 
 def check_if_not_update_certificate(instance, *args, **kwargs):
     if instance.id:  # check_if_not_update_certificate
-        if (
-            kwargs
-            and "update_fields" in kwargs
-            and set(kwargs["update_fields"]) == set(["revoked_at", "revoked_uuid", "name"])
-            and (
+        if kwargs and "update_fields" in kwargs:
+            if set(kwargs["update_fields"]) == set(["expire_warning_mail_sent_at"]):
+                return
+
+            if set(kwargs["update_fields"]) == set(["revoked_at", "revoked_uuid", "name"]) and (
                 instance.type in {CertificateTypes.SERVER_CERT, CertificateTypes.CLIENT_CERT},
                 CertificateTypes.ROOT,
                 CertificateTypes.INTERMEDIATE,
-            )
-        ):
-            return
+            ):
+                return
         raise ValidationError("Not allowed to update a Certificate record")
 
 

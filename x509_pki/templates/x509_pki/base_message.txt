@@ -1,0 +1,5 @@
+{% load i18n %}
+{% blocktrans with name=cert.owner %}Hello {{ name }}!{% endblocktrans %}
+{% block content %}{% endblock content %}
+{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}Thank you for using {{ site_name }}!
+http://{{ site_domain }}{% endblocktrans %}

@@ -3,6 +3,10 @@ The BounCA change history
 
 ## [0.4.8] - Release 2026-01-30
 * Send email when certificate is about to expire (Default 30 days)
+* Better parsing of services.yaml
+* Improved documentation
+* Debian 13 support Trixie
+* Improved documentation
 
 ## [0.4.7] - Release 2026-01-09
 * Export private keys for root and intermediate certificate

@@ -186,9 +186,9 @@ Optionally, create a super user for the admin interface.
 ```
 cd /srv/www/bounca
 source env/bin/activate
-python3 manage.py migrate
-python3 manage.py collectstatic
-python3 manage.py site <fully qualified hostname>
+python manage.py migrate
+python manage.py collectstatic
+python manage.py site <fully qualified hostname>
 
 ```
 

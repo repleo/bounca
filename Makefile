@@ -46,5 +46,11 @@ migrate:
 	python manage.py migrate
 
 update-deps:
-	pur -r requirements.txt
-	pur -r requirements.docs.txt
+	uv pip compile --upgrade requirements.in -o requirements.txt
+	uv pip compile --upgrade requirements.dev.in -o requirements.dev.txt
+	uv pip compile --upgrade requirements.docs.in -o requirements.docs.txt
+
+install-deps:
+	pip install -r requirements.txt
+	pip install -r requirements.dev.txt
+	pip install -r requirements.docs.txt

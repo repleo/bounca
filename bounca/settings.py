@@ -35,6 +35,9 @@ KEY_ALGORITHM = SERVICES["certificate-engine"]["key_algorithm"].lower()
 # Nr of days in the future the CRL list will expire
 CRL_UPDATE_DAYS_FUTURE = 365
 
+# Nr of days before a certificate expires that an email will be sent to the owner
+EMAIL_EXPIRATION_WARNING_DAYS = 30
+
 if KEY_ALGORITHM not in ["ed25519", "rsa"]:
     raise ValueError(f"Key algorithm {KEY_ALGORITHM} not supported")
 
@@ -79,6 +82,7 @@ if "connection" in SERVICES["mail"]:
 
 DEFAULT_FROM_EMAIL = SERVICES["mail"]["from"]
 SERVER_EMAIL = SERVICES["mail"]["from"]
+TEMPLATE_EXTENSION = "html"
 
 TIME_ZONE = "Europe/Amsterdam"
 LANGUAGE_CODE = "en-us"

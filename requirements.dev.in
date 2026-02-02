@@ -1,0 +1,25 @@
+Django==5.2.10
+
+# Testing
+coverage
+factory-boy
+Faker
+mock
+requests-mock
+
+# Code Quality
+flake8
+isort
+autopep8
+mypy
+types-pytz
+black
+typing_extensions
+
+# Development
+uv
+beautifulsoup4
+django-crispy-forms
+codacy-coverage
+
+

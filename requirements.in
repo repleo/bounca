@@ -1,0 +1,25 @@
+# Framework
+Django==5.2.10
+psycopg2-binary
+pytz
+requests
+djangorestframework
+django-grappelli
+django-countries
+drf-yasg
+django-filter
+django-allauth
+dj-rest-auth
+django-ical
+django-cors-headers
+django-property-filter
+
+# Date
+arrow
+
+# SSL
+cryptography
+bcrypt
+
+# Parsers
+yamlreader

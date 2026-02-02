@@ -21,7 +21,7 @@ Prepare your Environment
 BounCA is a `Django`_ application running on a `Python3`_ environment.
 We suggest you deploy a (virtual) machine with the following configuration:
 
- - Debian Bullseye 11 Linux
+ - Debian Linux with Python 3.13, currently Trixie
  - SSH access via key authentication, and ``sudo`` for the Root user
 
 Ofcourse other distributions will work, but we have not tested it.
@@ -33,7 +33,7 @@ Server prerequisites
 ~~~~~~~~~~~~~~~~~~~~
 
 
-On a fresh Debian 11 machine, first update your repositories:
+On a fresh Debian machine, first update your repositories:
 ``sudo apt update``
 
 install the following packages via apt:
@@ -60,8 +60,6 @@ install the following packages via apt:
         nginx \
         python3 \
         python3-dev \
-        python3-setuptools \
-        python-setuptools \
         python-is-python3 \
         uwsgi \
         uwsgi-plugin-python3 \
@@ -85,7 +83,7 @@ Create user and database for Postgres
     psql -c "ALTER USER bounca WITH createdb" postgres
 
 
-Optionally, set a password for the ``bounca`` user.
+Set a password for the ``bounca`` user.
 
 .. code-block:: none
 
@@ -165,9 +163,9 @@ Optionally, create a super user for the admin interface.
 
     cd /srv/www/bounca
     source env/bin/activate
-    python3 manage.py migrate
-    python3 manage.py collectstatic
-    python3 manage.py site <fully qualified hostname>
+    python manage.py migrate
+    python manage.py collectstatic
+    python manage.py site <fully qualified hostname>
 
 
 In case the commands give you a db connection error, make sure you start the database:
@@ -192,7 +190,7 @@ Finally restart uwsgi and nginx.
 .. code-block:: none
 
     service uwsgi restart
-    service nging restart
+    service nginx restart
 
 
 Post Installation
@@ -215,10 +213,26 @@ This create super user form will only be shown if no users exists. After the dat
 Optionally: Set DJANGO_SUPERUSER_PASSWORD Environment variable to set new passwords for ``python manage.py createsuperuser`` command, and execute with ``python manage.py createsuperuser --noinput --username myAdminUser --email myAdminEmail@example.com``
 In case you set the mandatory email verification flag in the settings (default behavior), you can set the email verify flag of the user with ``python manage.py verify_email myAdminEmail@example.com``
 
+Optionally: Make sure your bounca host is resolvable, either add your hostname to ``/etc/hosts`` or update your DNS record.
 
 BounCA should be up and running, you can reach your BounCA installation by browsing to your BounCA machine.
 You will see a login screen, please create an account an login.
 You are ready to create your Certificate Authorities!
+
+Background processes
+~~~~~~~~~~~~~~~~~~~~
+
+BounCA can inform certificate owners in case a certificate is about to expire. To enable, add the command to cron.
+For example, add create the file ``send_expire_warning_mails_job`` and add it to the folder ``/etc/cron.d/``
+
+.. code-block:: none
+    # Run my script every night at 2 AM as root
+    0 2 * * * root /srv/www/bounca/send_expire_warning_mails.sh >> /var/log/bounca.cron.log 2>&1
+
+The file must not be writable by anyone other than root, so make sure you set file permissions to ``0x644``.
+Cron should pickup the job automatically. To check it, reload cron ``sudo systemctl reload cron`` and
+check ``/var/log/syslog`` if you see activation of the job. You can temporarily change the time to a
+few minutes to verify the script works.
 
 
 Update BounCA
@@ -285,8 +299,8 @@ setup the static files. Execute the following commands:
 
     cd /srv/www/bounca
     source env/bin/activate
-    python3 manage.py migrate
-    python3 manage.py collectstatic
+    python manage.py migrate
+    python manage.py collectstatic
 
 
 Retarting the application
