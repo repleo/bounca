@@ -19,7 +19,7 @@ def format_email_subject(subject) -> str:
     if prefix is None:
         site = Site.objects.get(id=settings.SITE_ID)
         prefix = "[{name}] ".format(name=site.name)
-    return prefix + force_str(subject)
+    return f"{prefix} {force_str(subject)}"
 
 
 def render_mail(template_prefix, email, context, headers=None):
