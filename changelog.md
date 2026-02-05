@@ -1,7 +1,7 @@
 # Change Log
 The BounCA change history
 
-## [0.4.8] - Release 2026-01-30
+## [0.4.8] - Release 2026-02-05
 * Send email when certificate is about to expire (Default 30 days)
 * Better parsing of services.yaml
 * Improved documentation
