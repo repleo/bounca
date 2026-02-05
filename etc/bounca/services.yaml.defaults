@@ -1,0 +1,18 @@
+admin:
+  enabled: True
+  superuser_signup: True
+
+django:
+  debug: False
+  secret_key: '<value-django-secret-just-a-random-salt-string>'
+  hosts:
+    - localhost
+    - 127.0.0.1
+
+certificate-engine:
+  key_algorithm: rsa # allowed values: ed25519, rsa
+
+registration:
+  email_verification: off # allowed values: mandatory, optional, off
+
+

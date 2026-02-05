@@ -1,5 +1,5 @@
 # Framework
-Django==5.2.10
+Django==5.2.11
 psycopg2-binary
 pytz
 requests

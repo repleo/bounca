@@ -226,6 +226,7 @@ BounCA can inform certificate owners in case a certificate is about to expire. T
 For example, add create the file ``send_expire_warning_mails_job`` and add it to the folder ``/etc/cron.d/``
 
 .. code-block:: none
+
     # Run my script every night at 2 AM as root
     0 2 * * * root /srv/www/bounca/send_expire_warning_mails.sh >> /var/log/bounca.cron.log 2>&1
 
@@ -241,7 +242,7 @@ Update BounCA
 To update BounCA you need to execute a couple of manual steps.
 
 Backup old installation
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 First, backup your database:
 
@@ -256,7 +257,7 @@ You can also decide to backup the code by copying or compressing the bounca inst
 folder.
 
 Download BounCA
-~~~~~~~~~~~~~~~
+---------------
 
 Remove the contents of ``/srv/www``.
 
@@ -290,7 +291,7 @@ Create the virtualenv and install python dependencies:
 
 
 Setup BounCA app and migrate database
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------
 
 After installing the new BounCA version, you need to update the database, and
 setup the static files. Execute the following commands:
@@ -304,7 +305,7 @@ setup the static files. Execute the following commands:
 
 
 Retarting the application
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 Finally restart uwsgi and nginx.
 

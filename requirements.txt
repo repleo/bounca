@@ -2,7 +2,7 @@
 #    uv pip compile requirements.in -o requirements.txt
 arrow==1.4.0
     # via -r requirements.in
-asgiref==3.11.0
+asgiref==3.11.1
     # via
     #   django
     #   django-allauth
@@ -20,7 +20,7 @@ cryptography==46.0.4
     # via -r requirements.in
 dj-rest-auth==7.0.2
     # via -r requirements.in
-django==5.2.10
+django==5.2.11
     # via
     #   -r requirements.in
     #   dj-rest-auth

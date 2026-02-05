@@ -14,23 +14,35 @@ IS_COLLECT_STATIC = "collectstatic" in sys.argv
 
 def get_services_config(path, filename="services.yaml"):
     environment_specific = os.path.join(os.path.abspath(path), filename)
+    defaults = os.path.join(os.path.abspath(path), f"{filename}.defaults")
     config_files = []
-    if os.path.exists("/etc/bounca/services.yaml"):
-        config_files.append("/etc/bounca/services.yaml")
+    if os.path.exists(defaults):
+        config_files.append(defaults)
     if os.path.exists(environment_specific):
         config_files.append(environment_specific)
+    if os.path.exists("/etc/bounca/services.yaml"):
+        config_files.append("/etc/bounca/services.yaml")
     if not config_files:
-        raise IOError("Couldn't find file" "in any of the directories '{}'.".format(", ".join([environment_specific])))
+        raise IOError("Couldn't find file" "in any of the directories '{}'.".format(", ".join(config_files)))
     return yaml_load(config_files)
 
 
 SERVICES = get_services_config(os.path.join(BASE_DIR, "etc", "bounca"))
+
+for key in ["admin", "certificate-engine", "psql", "mail", "registration"]:
+    if key not in SERVICES:
+        raise ValueError(f"No '{key}' section found in services.yaml")
+
+if not IS_UNITTEST and SERVICES["django"]["secret_key"] == "<value-django-secret-just-a-random-salt-string>":
+    raise ValueError("Set an unique secret key in services.yaml")
 
 SECRET_KEY = SERVICES["django"]["secret_key"]
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = SERVICES["django"]["debug"]
 
 KEY_ALGORITHM = SERVICES["certificate-engine"]["key_algorithm"].lower()
+if KEY_ALGORITHM not in ["ed25519", "rsa"]:
+    raise ValueError(f"Key algorithm {KEY_ALGORITHM} not supported")
 
 # Nr of days in the future the CRL list will expire
 CRL_UPDATE_DAYS_FUTURE = 365
@@ -38,8 +50,9 @@ CRL_UPDATE_DAYS_FUTURE = 365
 # Nr of days before a certificate expires that an email will be sent to the owner
 EMAIL_EXPIRATION_WARNING_DAYS = 30
 
-if KEY_ALGORITHM not in ["ed25519", "rsa"]:
-    raise ValueError(f"Key algorithm {KEY_ALGORITHM} not supported")
+for key in ["dbname", "username", "password", "host"]:
+    if key not in SERVICES["psql"]:
+        raise ValueError(f"Key '{key}' not found in 'psql' section in services.yaml")
 
 DATABASES = {
     "default": {
@@ -59,6 +72,10 @@ DATABASES = {
         },
     }
 }
+
+for key in ["admin", "host"]:
+    if key not in SERVICES["mail"]:
+        raise ValueError(f"Key '{key}' not found in 'mail' section in services.yaml")
 
 ADMINS = (("bounca", SERVICES["mail"]["admin"]),)
 
@@ -90,6 +107,8 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+if "hosts" not in SERVICES["django"]:
+    raise ValueError("Key 'hosts' not found in 'django' section in services.yaml")
 ALLOWED_HOSTS = SERVICES["django"]["hosts"]
 
 # Application definition
