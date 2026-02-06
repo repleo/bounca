@@ -26,5 +26,6 @@ mv LICENSE out/bounca/
 mv README.md out/bounca/
 mv changelog.md out/bounca/
 mv requirements.txt out/bounca/
+mv send_expire_warning_mails.sh out/bounca/
 
 tar -czvf "bounca.tar.gz" --owner=0 --group=0 -C out .
