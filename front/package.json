@@ -10,7 +10,7 @@
   "dependencies": {
     "@mdi/font": "6.5.95",
     "@vue/cli-service-global": "4.5.15",
-    "axios": "0.25.0",
+    "axios": "1.13.5",
     "babel-preset-stage-2": "6.24.1",
     "bootstrap": "4.6.1",
     "bootstrap-vue": "2.21.2",
