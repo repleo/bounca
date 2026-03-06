@@ -32,7 +32,7 @@ django==5.2.11
     #   django-recurrence
     #   djangorestframework
     #   drf-yasg
-django-allauth==65.14.0
+django-allauth==65.14.1
     # via -r requirements.in
 django-cors-headers==4.9.0
     # via -r requirements.in
