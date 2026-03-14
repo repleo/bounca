@@ -6,7 +6,7 @@ autopep8==2.3.2
     # via -r requirements.dev.in
 beautifulsoup4==4.14.3
     # via -r requirements.dev.in
-black==26.1.0
+black==26.3.1
     # via -r requirements.dev.in
 certifi==2026.1.4
     # via requests
