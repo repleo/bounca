@@ -64,7 +64,7 @@ pyflakes==3.4.0
     # via flake8
 pytokens==0.4.1
     # via black
-requests==2.32.5
+requests==2.33.0
     # via
     #   codacy-coverage
     #   requests-mock
